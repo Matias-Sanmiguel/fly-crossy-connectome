@@ -47,6 +47,7 @@ class SimulationSession:
         self.pending: PendingIntention | None = None
         self._configuration: Configure | None = None
         self._last_sequence = -1
+        self._outbound_sequence = 0
         self._last_game_step: int | None = None
         self._intention_number = 0
         self._completed_ids: deque[str] = deque()
@@ -97,17 +98,19 @@ class SimulationSession:
             "version": 2,
             "sessionId": self.session_id,
             "episodeId": self.episode_id,
-            "sequence": message.sequence,
+            "sequence": self._next_outbound_sequence(),
             "simulationTime": message.simulation_time,
             "intentionId": intention_id,
             "action": action,
-            "motorPhase": "targeting",
+            "motorPhase": "neutral",
         })
 
     def finish_action(
         self,
         intention_id: str,
         result: Literal["confirmed", "waited", "failed"],
+        *,
+        completion_time: float,
     ) -> ActionResult | None:
         if intention_id in self._completed_id_set:
             return None
@@ -124,8 +127,8 @@ class SimulationSession:
             "version": 2,
             "sessionId": self.session_id,
             "episodeId": pending.episode_id,
-            "sequence": self._last_sequence,
-            "simulationTime": float(self._last_sequence),
+            "sequence": self._next_outbound_sequence(),
+            "simulationTime": completion_time,
             "intentionId": pending.id,
             "result": result,
         })
@@ -166,6 +169,11 @@ class SimulationSession:
             self._completed_id_set.remove(self._completed_ids.popleft())
         self._completed_ids.append(intention_id)
         self._completed_id_set.add(intention_id)
+
+    def _next_outbound_sequence(self) -> int:
+        sequence = self._outbound_sequence
+        self._outbound_sequence += 1
+        return sequence
 
     def _fault(self, code: str, public_message: str) -> None:
         self.phase = SessionPhase.ERROR

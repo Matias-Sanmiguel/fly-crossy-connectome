@@ -51,6 +51,7 @@ def observation_message(
     step: int,
     episode_id: str = EPISODE_ID,
     session_id: str = SESSION_ID,
+    simulation_time: float | None = None,
 ) -> Observation:
     message = client_message({
         "type": "observation",
@@ -58,7 +59,7 @@ def observation_message(
         "sessionId": session_id,
         "episodeId": episode_id,
         "sequence": sequence,
-        "simulationTime": float(sequence),
+        "simulationTime": float(sequence) if simulation_time is None else simulation_time,
         "gameStep": step,
         "observation": [0.0] * 370,
         "reward": 0.0,
@@ -96,13 +97,44 @@ def test_session_accepts_only_one_intention() -> None:
         session.accept_observation(observation_message(sequence=3, step=0))
 
 
+def test_server_frames_have_strictly_increasing_outbound_sequences() -> None:
+    session = configured_session()
+    intention = session.accept_observation(observation_message(sequence=2, step=0))
+
+    result = session.finish_action(intention.intention_id, "waited", completion_time=2.5)
+
+    assert result is not None
+    assert result.sequence > intention.sequence
+
+
+def test_terminal_result_uses_authoritative_completion_time() -> None:
+    session = configured_session()
+    intention = session.accept_observation(
+        observation_message(sequence=47, step=0, simulation_time=12.25)
+    )
+
+    result = session.finish_action(intention.intention_id, "waited", completion_time=12.75)
+
+    assert result is not None
+    assert result.simulation_time == 12.75
+
+
+def test_wait_intention_uses_a_neutral_motor_phase() -> None:
+    session = configured_session()
+
+    intention = session.accept_observation(observation_message(sequence=2, step=0))
+
+    assert intention.action == "wait"
+    assert intention.motor_phase == "neutral"
+
+
 def test_reset_invalidates_old_action_result() -> None:
     session = configured_session()
     intention = session.accept_observation(observation_message(sequence=2, step=0))
 
     session.reset(reset_message(sequence=3, episode_id="e-new00001"))
 
-    assert session.finish_action(intention.intention_id, "confirmed") is None
+    assert session.finish_action(intention.intention_id, "confirmed", completion_time=3.5) is None
 
 
 def test_non_monotonic_sequences_pause_the_session() -> None:
@@ -137,7 +169,7 @@ def test_mismatched_episode_pauses_the_session() -> None:
 def test_duplicate_observation_is_rejected_after_action_completes() -> None:
     session = configured_session()
     intention = session.accept_observation(observation_message(sequence=2, step=0))
-    assert session.finish_action(intention.intention_id, "waited") is not None
+    assert session.finish_action(intention.intention_id, "waited", completion_time=2.5) is not None
 
     with pytest.raises(SessionFault, match="(?i)duplicate observation"):
         session.accept_observation(observation_message(sequence=3, step=0))
@@ -147,10 +179,10 @@ def test_duplicate_completed_intention_is_an_idempotent_noop() -> None:
     session = configured_session()
     intention = session.accept_observation(observation_message(sequence=2, step=0))
 
-    result = session.finish_action(intention.intention_id, "confirmed")
+    result = session.finish_action(intention.intention_id, "confirmed", completion_time=2.5)
 
     assert result is not None
-    assert session.finish_action(intention.intention_id, "confirmed") is None
+    assert session.finish_action(intention.intention_id, "confirmed", completion_time=2.5) is None
     assert session.phase is SessionPhase.READY
 
 
@@ -158,18 +190,18 @@ def test_only_the_last_256_completed_intentions_are_idempotent() -> None:
     session = configured_session()
     for step in range(257):
         intention = session.accept_observation(observation_message(sequence=step + 2, step=step))
-        assert session.finish_action(intention.intention_id, "waited") is not None
+        assert session.finish_action(intention.intention_id, "waited", completion_time=step + 2.5) is not None
 
-    assert session.finish_action("i-00000002", "waited") is None
+    assert session.finish_action("i-00000002", "waited", completion_time=259.5) is None
     with pytest.raises(SessionFault, match="unknown intention"):
-        session.finish_action("i-00000001", "waited")
+        session.finish_action("i-00000001", "waited", completion_time=259.5)
 
 
 def test_unknown_action_result_pauses_the_session() -> None:
     session = configured_session()
 
     with pytest.raises(SessionFault, match="unknown intention"):
-        session.finish_action("i-unknown01", "failed")
+        session.finish_action("i-unknown01", "failed", completion_time=2.5)
 
     assert session.phase is SessionPhase.ERROR
 
