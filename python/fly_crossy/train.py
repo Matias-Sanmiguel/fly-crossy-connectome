@@ -4,6 +4,7 @@ import argparse
 from dataclasses import asdict, dataclass
 import hashlib
 import json
+import os
 from pathlib import Path
 import platform
 from typing import Any
@@ -29,6 +30,7 @@ CLIP_COEFFICIENT = 0.2
 VALUE_COEFFICIENT = 0.5
 ENTROPY_COEFFICIENT = 0.01
 MAX_GRADIENT_NORM = 0.5
+DETERMINISTIC_CUBLAS_WORKSPACE = ":4096:8"
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +64,12 @@ def _resolve_device(requested: str) -> torch.device:
     if requested not in ("cpu", "cuda"):
         raise ValueError("Device must be auto, cpu, or cuda.")
     return torch.device(requested)
+
+
+def _configure_deterministic_runtime(requested_device: str) -> None:
+    if requested_device in ("auto", "cuda"):
+        os.environ["CUBLAS_WORKSPACE_CONFIG"] = DETERMINISTIC_CUBLAS_WORKSPACE
+    torch.use_deterministic_algorithms(True)
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -133,13 +141,13 @@ def _ppo_update(
 def train(config: TrainingConfig) -> dict[str, Any]:
     """Train the conventional PPO baseline and write its reproducible artifact bundle."""
     config.validate()
+    _configure_deterministic_runtime(config.device)
     device = _resolve_device(config.device)
     numeric_seed = hash_seed(config.seed)
     np.random.seed(numeric_seed)
     torch.manual_seed(numeric_seed)
-    if torch.cuda.is_available():
+    if device.type == "cuda":
         torch.cuda.manual_seed_all(numeric_seed)
-    torch.use_deterministic_algorithms(True)
 
     environments = [FlyCrossyEnv() for _ in range(config.envs)]
     episode_counts = [0] * config.envs
@@ -356,4 +364,3 @@ def _main() -> None:
 
 if __name__ == "__main__":
     _main()
-

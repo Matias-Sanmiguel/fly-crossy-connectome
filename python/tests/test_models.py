@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 
+import pytest
 import torch
 
 from fly_crossy.models import DensePolicy
@@ -78,3 +80,37 @@ def test_tiny_ppo_run_writes_a_consistent_artifact_bundle(tmp_path: Path) -> Non
     assert metrics["trainingCurve"]
     assert policy["source"]["checkpointHash"] == digest
     _assert_finite_numbers(metrics)
+
+
+@pytest.mark.parametrize("device", ["auto", "cuda"])
+def test_cuda_capable_modes_configure_deterministic_cublas_before_cuda_probe(
+    device: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.delenv("CUBLAS_WORKSPACE_CONFIG", raising=False)
+    workspace_at_probe: list[str | None] = []
+
+    def unavailable_cuda() -> bool:
+        workspace_at_probe.append(os.environ.get("CUBLAS_WORKSPACE_CONFIG"))
+        return False
+
+    monkeypatch.setattr(torch.cuda, "is_available", unavailable_cuda)
+    config = TrainingConfig(
+        controller="conventional",
+        seed="deterministic-runtime-test",
+        steps=1,
+        envs=1,
+        learning_rate=3e-4,
+        output=tmp_path / device,
+        device=device,
+    )
+
+    if device == "cuda":
+        with pytest.raises(ValueError, match="CUDA was requested"):
+            train(config)
+    else:
+        train(config)
+
+    assert workspace_at_probe
+    assert workspace_at_probe[0] == ":4096:8"
