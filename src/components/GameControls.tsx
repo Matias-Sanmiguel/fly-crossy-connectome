@@ -3,17 +3,18 @@ import type { Action } from '../game/types';
 type GameControlsProps = {
   onAction: (action: Action) => void;
   paused: boolean;
+  terminal: boolean;
   onTogglePause: () => void;
 };
 
-export function GameControls({ onAction, paused, onTogglePause }: GameControlsProps) {
+export function GameControls({ onAction, paused, terminal, onTogglePause }: GameControlsProps) {
   const actionButton = (action: Action, label: string, glyph: string, key: string) => (
     <button
       className={`game-action game-action-${action}`}
       type="button"
       aria-label={label}
       title={`${label} (${key})`}
-      disabled={paused}
+      disabled={paused || terminal}
       onClick={() => onAction(action)}
     >
       <strong aria-hidden="true">{glyph}</strong>
@@ -30,7 +31,7 @@ export function GameControls({ onAction, paused, onTogglePause }: GameControlsPr
         {actionButton('right', 'Move right', '→', 'D')}
         {actionButton('backward', 'Move backward', '↓', 'S')}
       </div>
-      <button className="game-pause" type="button" onClick={onTogglePause}>
+      <button className="game-pause" type="button" disabled={terminal} onClick={onTogglePause}>
         {paused ? 'Resume' : 'Pause'}
         <span aria-hidden="true">ESC</span>
       </button>

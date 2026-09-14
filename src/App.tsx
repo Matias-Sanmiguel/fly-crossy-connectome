@@ -22,14 +22,13 @@ export function App() {
   const [mode, setMode] = useState<UiMode>('human');
   const [policy, setPolicy] = useState<ExportedPolicyV1 | null>(null);
   const policyFile = useRef<HTMLInputElement>(null);
-  const scripted = useMemo(
-    () => createScriptedController(['forward', 'forward', 'wait', 'left', 'right']),
-    [],
-  );
-  const modelController = useMemo<Controller | null>(() => (
-    policy ? createDensePolicyController(policy) : null
-  ), [policy]);
-  const controller = mode === 'scripted' ? scripted : mode === 'model' ? modelController : null;
+  const controller = useMemo<Controller | null>(() => {
+    if (mode === 'scripted') {
+      return createScriptedController(['forward', 'forward', 'wait', 'left', 'right']);
+    }
+    if (mode === 'model' && policy) return createDensePolicyController(policy);
+    return null;
+  }, [mode, policy]);
   const game = useGame({
     seed: 'experiment-001',
     mode: mode === 'human' ? 'human' : controller?.kind ?? 'conventional',
@@ -64,14 +63,17 @@ export function App() {
 
   return (
     <>
-      <header>
-        <h1>YOUR EXPERIMENT</h1>
-        <span>Environment / measured anatomy / controller output</span>
-        <a href="https://github.com/cobanov/fly-connectome-template#readme">Template guide ↗</a>
+      <header className="site-header">
+        <div className="brand">
+          <span className="eyebrow">Behavior laboratory / experiment 001</span>
+          <h1>Fly Crossy Connectome</h1>
+        </div>
+        <span className="header-context">Crossing environment · measured anatomy · controller output</span>
+        <a className="header-link" href="https://github.com/cobanov/fly-connectome-template#readme">Template guide ↗</a>
       </header>
       <main>
-        <div className="toolbar">
-          <span className="status">
+        <div className="toolbar" aria-label="Experiment controls">
+          <span className="status" role="status" aria-live="polite">
             {game.state.terminal ? `Terminal: ${game.state.terminal}` : game.paused ? 'Paused' : game.controllerStatus}
             {' · '}step {game.state.step}
           </span>
@@ -85,7 +87,7 @@ export function App() {
               </select>
             </label>
             <button type="button" onClick={() => game.reset()}>Reset seed</button>
-            <button type="button" disabled={!atlas} onClick={() => policyFile.current?.click()}>
+            <button className="primary-action" type="button" disabled={!atlas} onClick={() => policyFile.current?.click()}>
               Load policy JSON
             </button>
             <input
@@ -115,6 +117,7 @@ export function App() {
             <GameControls
               onAction={game.onAction}
               paused={game.paused}
+              terminal={game.state.terminal !== null}
               onTogglePause={game.onTogglePause}
             />
             <div className="panel-bottom game-status-bar">
@@ -137,21 +140,21 @@ export function App() {
               {' '}<a href={asset('data/brain-atlas/NOTICE.md')}>Data notice ↗</a>
             </div>
           </section>
+          <Telemetry
+            manual={manual}
+            controller={controller}
+            state={game.state}
+            decision={game.decision}
+            reward={game.reward}
+            status={game.controllerStatus}
+            error={game.controllerError}
+          />
           <section className="panel fly-panel">
             <h2>03 / BODY <span>Flybody</span></h2>
             <FlyScene />
             <div className="panel-bottom">Anatomical mesh · no motor simulation <span>Drag to rotate</span></div>
           </section>
         </div>
-        <Telemetry
-          manual={manual}
-          controller={controller}
-          state={game.state}
-          decision={game.decision}
-          reward={game.reward}
-          status={game.controllerStatus}
-          error={game.controllerError}
-        />
         <details>
           <summary>Scientific scope &amp; customization</summary>
           <p>The atlas contains curated cell-body positions, not neurite morphology or synaptic edges. Points keep native proportions. Missing soma locations are never generated. The brain filter selects optic, central and descending classes; it is not a complete brain segmentation.</p>

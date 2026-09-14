@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { validateControllerDecision } from '../game/controllers.ts';
 import type { Controller, ControllerDecision } from '../game/controllers.ts';
 import { observe } from '../game/observation.ts';
@@ -192,6 +192,7 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
   const previousSeed = useRef(seed);
   const pending = useRef<{ requestId: number; abort: AbortController } | null>(null);
   const nextRequestId = useRef(1);
+  const [documentVisible, setDocumentVisible] = useState(() => !document.hidden);
 
   const abortPending = useCallback(() => {
     pending.current?.abort.abort();
@@ -212,7 +213,20 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
     dispatch({ type: 'controller-clear', status: mode === 'human' ? 'manual' : 'ready' });
   }, [abortPending, controller, mode]);
 
-  useEffect(() => () => abortPending(), [abortPending]);
+  useEffect(() => () => {
+    abortPending();
+    controller?.dispose();
+  }, [abortPending, controller]);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      const visible = !document.hidden;
+      setDocumentVisible(visible);
+      if (!visible) abortPending();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [abortPending]);
 
   useEffect(() => {
     if (mode === 'human' || !controller?.subscribeFailure) return;
@@ -223,7 +237,8 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
   }, [abortPending, controller, mode]);
 
   useEffect(() => {
-    if (mode === 'human' || !controller || run.paused || run.game.terminal !== null || pending.current) {
+    if (mode === 'human' || !controller || !documentVisible
+      || run.paused || run.game.terminal !== null || pending.current) {
       return;
     }
     const timer = window.setTimeout(() => {
@@ -249,7 +264,7 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
       });
     }, DECISION_SECONDS * 1_000);
     return () => window.clearTimeout(timer);
-  }, [controller, mode, run.game, run.paused, visibleIds]);
+  }, [controller, documentVisible, mode, run.game, run.paused, visibleIds]);
 
   const onAction = useCallback((action: Action) => {
     if (mode !== 'human') return;
