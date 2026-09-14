@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { BrainScene } from './components/BrainScene';
 import { FlyScene } from './components/FlyScene';
-import { Environment } from './components/Environment';
+import { GameControls } from './components/GameControls';
+import { GameScene } from './components/GameScene';
 import { Attribution } from './components/Attribution';
+import { useGame } from './hooks/useGame';
 import { asset, loadAtlas, type Atlas } from './lib/atlas';
 import { frameAt, parseReplay, type ModelReplay } from './lib/replay';
 
 export function App() {
+  const game = useGame({ seed: 'manual', mode: 'human' });
   const [atlas,setAtlas] = useState<Atlas|null>(null);
   const [error,setError] = useState('');
   const [replay,setReplay] = useState<ModelReplay|null>(null);
@@ -59,7 +62,15 @@ export function App() {
       </div>
       {error&&<p className="error" role="alert">{error}</p>}
       <div className="workbench">
-        <section className="panel environment-panel"><h2>01 / ENVIRONMENT</h2><Environment time={time}/><div className="panel-bottom">Generic stimulus · no game or reward function bundled</div></section>
+        <section className="panel environment-panel"><h2>01 / CROSSING ENVIRONMENT <span>Human</span></h2>
+          <GameScene state={game.state} events={game.events}/>
+          <GameControls onAction={game.onAction} paused={game.paused} onTogglePause={game.onTogglePause}/>
+          <div className="panel-bottom game-status-bar">
+            <span>{game.state.terminal ? `Terminal: ${game.state.terminal}` : game.paused ? 'Paused' : 'Manual control · no neural output'}</span>
+            <span>Score {game.state.score}</span>
+            <button type="button" onClick={()=>game.reset()}>Repeat seed</button>
+          </div>
+        </section>
         <section className="panel brain-panel"><h2>02 / BRAIN SOMA ATLAS <span>MaleCNS v1.0</span></h2>
           {atlas?<BrainScene atlas={atlas} frame={frame}/>:<p className="loading" role="status">Loading measured anatomy…</p>}
           <div className="panel-bottom">{atlas?.visibleIds.size.toLocaleString('en-US') ?? '…'} measured somata <a href={asset('data/brain-atlas/NOTICE.md')}>Data notice ↗</a></div>
