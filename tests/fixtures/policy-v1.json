@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "observationVersion": 1,
+  "actions": ["forward", "backward", "left", "right", "wait"],
+  "source": {
+    "kind": "predicted",
+    "name": "Policy validation fixture",
+    "normalization": "Unit-test activations clamped to [0, 1]"
+  },
+  "network": {
+    "kind": "dense",
+    "inputSize": 3,
+    "layers": [
+      {
+        "name": "actor",
+        "inputSize": 3,
+        "outputSize": 5,
+        "activation": "linear",
+        "weights": [1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0, 0, -1, 0],
+        "bias": [0, 0, 0, 0, 0]
+      }
+    ]
+  },
+  "activityBodyIds": []
+}

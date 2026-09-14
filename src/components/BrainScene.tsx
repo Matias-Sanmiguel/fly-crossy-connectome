@@ -4,7 +4,15 @@ import type { ActivityFrame } from "../lib/replay";
 import type { Atlas } from "../lib/atlas";
 
 /** Real anatomy; model values are looked up by body ID, never by spatial proximity. */
-export function BrainScene({ atlas, frame }: { atlas: Atlas; frame: ActivityFrame | null }) {
+export function BrainScene({
+  atlas,
+  frame,
+  activityMode = 'simulated',
+}: {
+  atlas: Atlas;
+  frame: ActivityFrame | null;
+  activityMode?: 'manual' | 'simulated';
+}) {
   const signal = useRef(frame);
   const orbit = useRef(true);
   const resetView = useRef<(() => void) | null>(null);
@@ -137,7 +145,11 @@ export function BrainScene({ atlas, frame }: { atlas: Atlas; frame: ActivityFram
       <button title="Reset to native XY projection with equal axis scale" onClick={() => { orbit.current = false; setOrbiting(false); resetView.current?.(); }}>XY view</button>
       <button aria-pressed={orbiting} onClick={() => { orbit.current = !orbit.current; setOrbiting(orbit.current); }}>Orbit {orbiting ? "on" : "off"}</button>
     </div>
-    <div className="brain-legend">Blue: anatomy · cyan/white: supplied values [0, 1]</div>
+    <div className="brain-legend">
+      {activityMode === 'manual'
+        ? 'Blue: measured anatomy · manual mode has no neural output'
+        : 'Blue: measured anatomy · cyan/white: simulated model activity [0, 1]'}
+    </div>
     <div ref={host} className="three-viewport brain-viewport" aria-label="MaleCNS brain soma atlas">
       {state !== "ready" && <span className="neural-load" role="status">{state === "error" ? "Atlas unavailable" : "Loading anatomy"}</span>}
 
