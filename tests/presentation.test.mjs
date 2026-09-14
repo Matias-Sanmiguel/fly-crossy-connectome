@@ -35,6 +35,10 @@ test('semantic tokens, desktop split, mobile stack, and accessible control sizin
   assert.match(css, /--color-text:\s*#111827/i);
   assert.match(css, /grid-template-columns:\s*minmax\(0,\s*3fr\)\s+minmax\(340px,\s*2fr\)/i);
   assert.match(css, /\.game-controls button[^}]*min-(?:block-size|height):\s*44px/is);
+  assert.match(css, /\.game-status-bar button[^}]*min-(?:block-size|height):\s*44px/is);
+  assert.match(css, /button,\s*select,\s*\.header-link\s*\{[^}]*min-width:\s*44px/is);
+  assert.match(css, /a\s*\{[^}]*min-width:\s*44px/is);
+  assert.match(css, /a\s*\{[^}]*min-(?:block-size|height):\s*44px/is);
   assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*grid-template-areas:\s*['"]environment['"]\s*['"]brain['"]\s*['"]telemetry['"]\s*['"]fly['"]/i);
   assert.doesNotMatch(css, /(?:environment|brain)-(?:panel|viewport)[^}]*display:\s*none/is);
 });
@@ -51,5 +55,7 @@ test('terminal controls, hidden-tab scheduling, and controller disposal are wire
   assert.match(controls, /disabled=\{paused \|\| terminal\}/);
   assert.match(hook, /document\.hidden/);
   assert.match(hook, /visibilitychange/);
+  assert.match(hook, /if \(!visible\)[\s\S]{0,160}dispatch\(\{ type: 'controller-cancel' \}\)/);
+  assert.match(hook, /if \(isInteractiveKeyboardTarget\(event\.target\)\) return;[\s\S]{0,240}event\.preventDefault\(\)/);
   assert.match(hook, /controller\?\.dispose\(\)/);
 });

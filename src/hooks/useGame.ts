@@ -18,6 +18,7 @@ export type GameCommand =
   | { type: 'controller-decision'; requestId: number; decision: ControllerDecision }
   | { type: 'controller-failure'; requestId: number; error: string }
   | { type: 'controller-connection-failure'; error: string }
+  | { type: 'controller-cancel' }
   | { type: 'controller-clear'; status?: 'manual' | 'ready' };
 
 export type GameRun = {
@@ -54,6 +55,14 @@ const KEY_ACTIONS: Readonly<Record<string, Action>> = {
   D: 'right',
   ' ': 'wait',
 };
+
+export function isInteractiveKeyboardTarget(target: EventTarget | null): boolean {
+  const element = target as Element | null;
+  if (typeof element?.closest !== 'function') return false;
+  return element.closest(
+    'a[href], button, input, select, textarea, [contenteditable]:not([contenteditable="false"])',
+  ) !== null;
+}
 
 export function reduceGameCommand(state: GameRun, command: GameCommand): Required<GameRun> {
   const current: Required<GameRun> = {
@@ -105,6 +114,14 @@ export function reduceGameCommand(state: GameRun, command: GameCommand): Require
       pendingRequest: null,
       controllerError: null,
       controllerStatus: command.status ?? 'ready',
+    };
+  }
+
+  if (command.type === 'controller-cancel') {
+    return {
+      ...current,
+      pendingRequest: null,
+      controllerStatus: current.controllerStatus === 'pending' ? 'ready' : current.controllerStatus,
     };
   }
 
@@ -222,7 +239,10 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
     const onVisibilityChange = () => {
       const visible = !document.hidden;
       setDocumentVisible(visible);
-      if (!visible) abortPending();
+      if (!visible) {
+        abortPending();
+        dispatch({ type: 'controller-cancel' });
+      }
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () => document.removeEventListener('visibilitychange', onVisibilityChange);
@@ -290,6 +310,7 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
     if (mode !== 'human') return;
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (isInteractiveKeyboardTarget(event.target)) return;
       const action = KEY_ACTIONS[event.key] ?? (event.code === 'Space' ? 'wait' : undefined);
       const togglesPause = event.key === 'Escape';
       if (!action && !togglesPause) return;

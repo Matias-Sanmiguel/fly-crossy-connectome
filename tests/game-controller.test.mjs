@@ -11,7 +11,7 @@ import {
   validateControllerDecision,
 } from '../src/game/controllers.ts';
 import { createRemoteController } from '../src/game/remote.ts';
-import { reduceGameCommand } from '../src/hooks/useGame.ts';
+import { isInteractiveKeyboardTarget, reduceGameCommand } from '../src/hooks/useGame.ts';
 
 const signal = () => new AbortController().signal;
 
@@ -127,6 +127,48 @@ test('controller reducer ignores stale decisions and clears activity on reset or
   assert.equal(changedMode.decision, null);
   assert.equal(changedMode.reward, 0);
   assert.deepEqual(changedMode.events, []);
+});
+
+test('visibility cancellation clears an in-flight request so a fresh decision can commit', () => {
+  let run = reduceGameCommand(
+    { game: createGame('visibility-resume'), controllerStatus: 'ready' },
+    { type: 'controller-start', requestId: 1 },
+  );
+  assert.equal(run.pendingRequest, 1);
+
+  run = reduceGameCommand(run, { type: 'controller-cancel' });
+  assert.equal(run.pendingRequest, null);
+  assert.equal(run.controllerStatus, 'ready');
+  assert.equal(run.game.step, 0);
+
+  run = reduceGameCommand(run, { type: 'controller-start', requestId: 2 });
+  assert.equal(run.pendingRequest, 2);
+  run = reduceGameCommand(run, {
+    type: 'controller-decision',
+    requestId: 2,
+    decision: { action: 'forward', activity: [], diagnostics: {} },
+  });
+
+  assert.equal(run.game.step, 1);
+  assert.equal(run.pendingRequest, null);
+});
+
+test('human keyboard shortcuts ignore native interactive targets and their descendants', () => {
+  let selector = '';
+  const interactive = {
+    closest(value) {
+      selector = value;
+      return { tagName: 'BUTTON' };
+    },
+  };
+  const nonInteractive = { closest: () => null };
+
+  assert.equal(isInteractiveKeyboardTarget(interactive), true);
+  assert.equal(isInteractiveKeyboardTarget(nonInteractive), false);
+  assert.equal(isInteractiveKeyboardTarget(null), false);
+  for (const required of ['a[href]', 'button', 'input', 'select', 'textarea', '[contenteditable]']) {
+    assert.match(selector, new RegExp(required.replaceAll('[', '\\[').replaceAll(']', '\\]')));
+  }
 });
 
 test('controller failure pauses the run and exposes the error', () => {
