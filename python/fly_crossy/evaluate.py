@@ -341,7 +341,6 @@ def _load_checkpoint(
         expected_environment_version=expected_environment_version,
         expected_observation_size=OBSERVATION_INPUT_SIZE,
     )
-    model_metadata = validated.model
     state_dict = validated.state_dict
     training = validated.training
     observation_size = validated.observation_size
@@ -360,10 +359,9 @@ def _load_checkpoint(
             observation_size, hidden_size, actions
         )
     else:
-        try:
-            graph = ReducedGraphArtifact.from_checkpoint(model_metadata["graph"])
-        except (KeyError, TypeError, ValueError) as error:
-            raise ValueError("Connectome checkpoint graph is incompatible.") from error
+        graph = validated.graph
+        if graph is None:
+            raise ValueError("Connectome checkpoint graph is incompatible.")
         model = FixedGraphPolicy(graph, observation_size, actions)
     try:
         model.load_state_dict(state_dict, strict=True)

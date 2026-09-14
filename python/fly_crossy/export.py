@@ -42,13 +42,16 @@ def _finite_scalar(tensor: Tensor, label: str) -> float:
 
 
 def _load_dense_policy(
-    model_config: Mapping[str, object], state_dict: Mapping[str, Tensor]
+    observation_size: int,
+    hidden_size: int,
+    actions: int,
+    state_dict: Mapping[str, Tensor],
 ) -> DensePolicy:
     try:
         model = DensePolicy(
-            observation_size=model_config["observation_size"],
-            hidden_size=model_config["hidden_size"],
-            actions=model_config["actions"],
+            observation_size=observation_size,
+            hidden_size=hidden_size,
+            actions=actions,
         )
         model.load_state_dict(state_dict)
     except (KeyError, TypeError, ValueError, RuntimeError) as error:
@@ -57,17 +60,16 @@ def _load_dense_policy(
 
 
 def _load_fixed_graph_policy(
-    model_config: Mapping[str, object], state_dict: Mapping[str, Tensor]
+    graph: ReducedGraphArtifact,
+    observation_size: int,
+    actions: int,
+    state_dict: Mapping[str, Tensor],
 ) -> FixedGraphPolicy:
-    graph_value = model_config.get("graph")
-    if not isinstance(graph_value, Mapping):
-        raise ValueError("Connectome checkpoint is missing its reduced graph artifact.")
     try:
-        graph = ReducedGraphArtifact.from_checkpoint(graph_value)
         model = FixedGraphPolicy(
             graph=graph,
-            observation_size=model_config["observation_size"],
-            actions=model_config["actions"],
+            observation_size=observation_size,
+            actions=actions,
         )
         model.load_state_dict(state_dict)
     except (KeyError, TypeError, ValueError, RuntimeError) as error:
@@ -85,14 +87,28 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         raise ValueError(f"Checkpoint could not be loaded: {checkpoint_path}") from error
     checkpoint_metadata = validate_checkpoint(saved)
     controller = checkpoint_metadata.controller
-    model_config = checkpoint_metadata.model
     state_dict = checkpoint_metadata.state_dict
 
-    model = (
-        _load_fixed_graph_policy(model_config, state_dict)
-        if controller == "connectome"
-        else _load_dense_policy(model_config, state_dict)
-    )
+    if controller == "connectome":
+        graph = checkpoint_metadata.graph
+        if graph is None:
+            raise ValueError("Checkpoint connectome graph is incompatible.")
+        model = _load_fixed_graph_policy(
+            graph,
+            checkpoint_metadata.observation_size,
+            checkpoint_metadata.actions,
+            state_dict,
+        )
+    else:
+        hidden_size = checkpoint_metadata.hidden_size
+        if hidden_size is None:
+            raise ValueError("Checkpoint dense model is missing its hidden size.")
+        model = _load_dense_policy(
+            checkpoint_metadata.observation_size,
+            hidden_size,
+            checkpoint_metadata.actions,
+            state_dict,
+        )
     if model.actor.out_features != len(ACTION_ORDER):
         raise ValueError("Checkpoint actor does not match the canonical action order.")
 

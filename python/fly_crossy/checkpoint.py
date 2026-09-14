@@ -8,6 +8,7 @@ from typing import Any
 import torch
 from torch import Tensor
 
+from .connectome import ReducedGraphArtifact
 from .env import WORLD_VERSION
 from .schema import ACTION_ORDER
 
@@ -23,7 +24,7 @@ class ValidatedCheckpoint:
     observation_size: int
     actions: int
     hidden_size: int | None
-    model: Mapping[str, object]
+    graph: ReducedGraphArtifact | None
     state_dict: Mapping[str, Tensor]
     training: dict[str, Any]
 
@@ -53,12 +54,30 @@ def _finite_positive_number(value: object, label: str) -> float:
     return float(value)
 
 
-def _validate_state_dict(value: object) -> Mapping[str, Tensor]:
+def _validate_state_dict(
+    value: object, expected_shapes: Mapping[str, tuple[int, ...]]
+) -> Mapping[str, Tensor]:
     if not isinstance(value, Mapping):
         raise ValueError("Checkpoint model state must be a mapping.")
-    for name, tensor in value.items():
-        if not isinstance(name, str) or not isinstance(tensor, Tensor):
+    actual_keys = set(value)
+    expected_keys = set(expected_shapes)
+    if actual_keys != expected_keys:
+        missing = sorted(expected_keys - actual_keys)
+        unexpected = sorted(actual_keys - expected_keys, key=repr)
+        raise ValueError(
+            "Checkpoint model state keys are incompatible: "
+            f"missing={missing!r}, unexpected={unexpected!r}."
+        )
+    for name, expected_shape in expected_shapes.items():
+        tensor = value[name]
+        if not isinstance(tensor, Tensor):
             raise ValueError("Checkpoint model state must map string names to tensors.")
+        actual_shape = tuple(tensor.shape)
+        if actual_shape != expected_shape:
+            raise ValueError(
+                f"Checkpoint tensor {name!r} has shape {actual_shape!r}; "
+                f"expected {expected_shape!r}."
+            )
         if not tensor.is_floating_point():
             raise ValueError(
                 f"Checkpoint tensor {name!r} must use a floating-point dtype."
@@ -159,17 +178,42 @@ def validate_checkpoint(
         )
 
     hidden_size: int | None = None
+    graph: ReducedGraphArtifact | None = None
     if controller == "conventional":
         try:
             hidden_size = _strict_positive_integer(model["hidden_size"], "hidden size")
         except KeyError as error:
             raise ValueError("Checkpoint dense model is missing its hidden size.") from error
+        expected_shapes = {
+            "hidden_1.weight": (hidden_size, observation_size),
+            "hidden_1.bias": (hidden_size,),
+            "hidden_2.weight": (hidden_size, hidden_size),
+            "hidden_2.bias": (hidden_size,),
+            "actor.weight": (actions, hidden_size),
+            "actor.bias": (actions,),
+            "critic.weight": (1, hidden_size),
+            "critic.bias": (1,),
+        }
     else:
-        graph = model.get("graph")
-        if not isinstance(graph, Mapping):
+        graph_value = model.get("graph")
+        if not isinstance(graph_value, Mapping):
             raise ValueError("Checkpoint connectome model is missing its graph mapping.")
+        try:
+            graph = ReducedGraphArtifact.from_checkpoint(graph_value)
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError("Checkpoint connectome graph is incompatible.") from error
+        node_count = graph.node_count
+        expected_shapes = {
+            "recurrent_gain": (),
+            "time_constant": (),
+            "sensory.weight": (node_count, observation_size),
+            "actor.weight": (actions, node_count),
+            "actor.bias": (actions,),
+            "critic.weight": (1, node_count),
+            "critic.bias": (1,),
+        }
 
-    state_dict = _validate_state_dict(state_dict_value)
+    state_dict = _validate_state_dict(state_dict_value, expected_shapes)
     training = dict(training_value)
     training.update(
         {
@@ -186,7 +230,7 @@ def validate_checkpoint(
         observation_size=observation_size,
         actions=actions,
         hidden_size=hidden_size,
-        model=model,
+        graph=graph,
         state_dict=state_dict,
         training=training,
     )
