@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import tomllib
 
 import pytest
 from pydantic import ValidationError
@@ -94,3 +95,22 @@ def test_client_parser_rejects_oversized_frames_and_nonfinite_numbers() -> None:
             "type": "observation", "version": 2, "sessionId": "s-01234567", "episodeId": "e-01234567",
             "sequence": 0, "simulationTime": 0, "gameStep": 0, "observation": [float("nan")], "reward": 0,
         })
+
+
+@pytest.mark.parametrize(("field", "value"), [
+    ("sequence", "0"),
+    ("sequence", True),
+    ("simulationTime", "0"),
+    ("simulationTime", True),
+])
+def test_python_server_parser_rejects_non_numeric_json_values(field: str, value: object) -> None:
+    fixture = json.loads(FIXTURE.read_text())
+
+    with pytest.raises(ValidationError):
+        ServerMessageAdapter.validate_python({**fixture["server"], field: value})
+
+
+def test_protocol_declares_the_pydantic_alias_configuration_floor() -> None:
+    pyproject = tomllib.loads((FIXTURE.parents[2] / "python" / "pyproject.toml").read_text())
+
+    assert "pydantic>=2.11" in pyproject["project"]["dependencies"]

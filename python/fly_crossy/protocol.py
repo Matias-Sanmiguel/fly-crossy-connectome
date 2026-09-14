@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
-import math
 from typing import Annotated, Any, Literal, TypeAlias
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    StrictFloat,
+    StrictInt,
     StringConstraints,
     TypeAdapter,
     ValidationError,
@@ -34,11 +35,10 @@ ShortString = Annotated[str, StringConstraints(min_length=1, max_length=MAX_STRI
 Hash = Annotated[str, StringConstraints(pattern=r"^[a-f0-9]{64}$")]
 SessionOrEpisodeId = Annotated[str, StringConstraints(pattern=r"^[se]-[a-z0-9]{8,64}$")]
 IntentionId = Annotated[str, StringConstraints(pattern=r"^i-[a-z0-9]{8,64}$")]
-FiniteFloat = Annotated[float, Field(allow_inf_nan=False)]
-UnitFloat = Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)]
-NonNegativeFloat = Annotated[float, Field(ge=0, allow_inf_nan=False)]
-PositionFloat = Annotated[float, Field(ge=-10_000, le=10_000, allow_inf_nan=False)]
-JointFloat = Annotated[float, Field(ge=-100, le=100, allow_inf_nan=False)]
+FiniteFloat = Annotated[StrictFloat, Field(allow_inf_nan=False)]
+UnitFloat = Annotated[StrictFloat, Field(ge=0, le=1, allow_inf_nan=False)]
+PositionFloat = Annotated[StrictFloat, Field(ge=-10_000, le=10_000, allow_inf_nan=False)]
+JointFloat = Annotated[StrictFloat, Field(ge=-100, le=100, allow_inf_nan=False)]
 
 
 class ProtocolModel(BaseModel):
@@ -57,8 +57,8 @@ class Envelope(ProtocolModel):
     version: Literal[2]
     session_id: SessionOrEpisodeId
     episode_id: SessionOrEpisodeId
-    sequence: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
-    simulation_time: Annotated[float, Field(ge=0, le=MAX_SIMULATION_TIME, allow_inf_nan=False)]
+    sequence: Annotated[StrictInt, Field(ge=0, le=MAX_SEQUENCE)]
+    simulation_time: Annotated[StrictFloat, Field(ge=0, le=MAX_SIMULATION_TIME, allow_inf_nan=False)]
 
 
 class Hello(Envelope):
@@ -71,20 +71,20 @@ class Configure(Envelope):
     type: Literal["configure"]
     population: PopulationSize
     backend: BackendPreference
-    seed: Annotated[int, Field(ge=0, le=2**32 - 1)]
-    speed: Annotated[float, Field(gt=0, le=100, allow_inf_nan=False)]
+    seed: Annotated[StrictInt, Field(ge=0, le=2**32 - 1)]
+    speed: Annotated[StrictFloat, Field(gt=0, le=100, allow_inf_nan=False)]
 
 
 class Reset(Envelope):
     type: Literal["reset"]
-    seed: Annotated[int, Field(ge=0, le=2**32 - 1)] | None = None
+    seed: Annotated[StrictInt, Field(ge=0, le=2**32 - 1)] | None = None
 
 
 class Observation(Envelope):
     type: Literal["observation"]
-    game_step: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
+    game_step: Annotated[StrictInt, Field(ge=0, le=MAX_SEQUENCE)]
     observation: Annotated[list[FiniteFloat], Field(min_length=370, max_length=370)]
-    reward: Annotated[float, Field(ge=-1_000_000, le=1_000_000, allow_inf_nan=False)]
+    reward: Annotated[StrictFloat, Field(ge=-1_000_000, le=1_000_000, allow_inf_nan=False)]
 
 
 class Pause(Envelope):
@@ -110,8 +110,8 @@ class Ready(Envelope):
     graph_hash: Hash
     checkpoint_hash: Hash
     accepted_versions: Annotated[list[Literal[2]], Field(min_length=1, max_length=1)] | None = None
-    max_frame_bytes: Annotated[int, Field(ge=1, le=MAX_FRAME_BYTES)] | None = None
-    max_neural_updates: Annotated[int, Field(ge=1, le=MAX_NEURAL_UPDATES)] | None = None
+    max_frame_bytes: Annotated[StrictInt, Field(ge=1, le=MAX_FRAME_BYTES)] | None = None
+    max_neural_updates: Annotated[StrictInt, Field(ge=1, le=MAX_NEURAL_UPDATES)] | None = None
 
 
 class ResetComplete(Envelope):
@@ -133,8 +133,8 @@ class Snapshot(Envelope):
 
 
 class NeuralUpdate(ProtocolModel):
-    neuron_id: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
-    value: Annotated[float, Field(ge=-1_000_000, le=1_000_000, allow_inf_nan=False)]
+    neuron_id: Annotated[StrictInt, Field(ge=0, le=MAX_SEQUENCE)]
+    value: Annotated[StrictFloat, Field(ge=-1_000_000, le=1_000_000, allow_inf_nan=False)]
 
 
 class NeuralKeyframe(Envelope):
@@ -153,8 +153,8 @@ class Contact(Envelope):
     requested_key: KeyName
     touched_key: KeyName | None
     travel: UnitFloat
-    force: Annotated[float, Field(ge=0, le=10_000, allow_inf_nan=False)]
-    debounce: Annotated[float, Field(ge=0, le=10, allow_inf_nan=False)]
+    force: Annotated[StrictFloat, Field(ge=0, le=10_000, allow_inf_nan=False)]
+    debounce: Annotated[StrictFloat, Field(ge=0, le=10, allow_inf_nan=False)]
     confirmed: bool
 
 
@@ -166,12 +166,12 @@ class ActionResult(Envelope):
 
 class Metrics(Envelope):
     type: Literal["metrics"]
-    physics_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
-    motor_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
-    neural_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
-    render_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
-    latency_ms: Annotated[float, Field(ge=0, le=1_000_000, allow_inf_nan=False)]
-    dropped_render_frames: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
+    physics_hz: Annotated[StrictFloat, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    motor_hz: Annotated[StrictFloat, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    neural_hz: Annotated[StrictFloat, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    render_hz: Annotated[StrictFloat, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    latency_ms: Annotated[StrictFloat, Field(ge=0, le=1_000_000, allow_inf_nan=False)]
+    dropped_render_frames: Annotated[StrictInt, Field(ge=0, le=MAX_SEQUENCE)]
     backend_utilization: UnitFloat | None = None
 
 

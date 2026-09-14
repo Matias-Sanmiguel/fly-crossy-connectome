@@ -42,3 +42,11 @@ test('protocol v2 rejects committed invalid messages', async () => {
     assert.throws(() => parseServerMessage(message));
   }
 });
+
+test('protocol v2 rejects string and boolean numeric fields', () => {
+  for (const [field, value] of [
+    ['sequence', '0'], ['sequence', true], ['simulationTime', '0'], ['simulationTime', true],
+  ]) {
+    assert.throws(() => parseServerMessage({ ...fixture.server, [field]: value }));
+  }
+});

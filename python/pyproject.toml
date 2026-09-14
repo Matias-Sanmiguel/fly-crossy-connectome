@@ -9,7 +9,7 @@ description = "Deterministic training environment for Fly Crossy Connectome"
 requires-python = ">=3.11"
 dependencies = [
   "numpy>=2.0",
-  "pydantic>=2.0",
+  "pydantic>=2.11",
   "torch>=2.12",
 ]
 
