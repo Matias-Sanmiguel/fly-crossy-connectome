@@ -132,44 +132,68 @@ export function stepGame(state: GameState, action: Action): StepResult {
 
   const from = { ...state.fly };
   const toTime = state.time + DECISION_SECONDS;
-  let fly = movedPosition(state.fly, action);
-  const events: GameEvent[] = action === 'wait'
-    ? [{ type: 'waited', position: { ...fly } }]
-    : [{ type: 'moved', action, from, to: { ...fly } }];
-  const lane = laneFor(state, fly.row);
-
-  if (lane.kind === 'river' && action === 'wait') {
-    const support = lane.hazards.find((hazard) => (
-      hazard.kind === 'log' && hazardContains(lane, hazard, state.fly.column, state.time)
+  let fly = { ...state.fly };
+  const events: GameEvent[] = [];
+  const startingLane = laneFor(state, state.fly.row);
+  let terminal: TerminalReason | null = null;
+  if (startingLane.kind === 'road' || startingLane.kind === 'rail') {
+    const collision = startingLane.hazards.find((hazard) => (
+      hazardSweepsColumn(startingLane, hazard, state.fly.column, state.time, toTime)
     ));
-    if (support) {
-      const displacement = (lane.direction ?? 0) * (lane.speed ?? 0) * DECISION_SECONDS;
-      fly = { ...fly, column: fly.column + displacement };
-      events.push({ type: 'carried', row: fly.row, displacement });
+    if (collision) {
+      terminal = startingLane.kind === 'rail' || collision.kind === 'train' ? 'train' : 'vehicle';
     }
   }
 
-  let terminal: TerminalReason | null = null;
-  if (Math.abs(fly.column) > WORLD_HALF_WIDTH) {
-    terminal = 'bounds';
-  } else if (lane.kind === 'river') {
-    const supported = lane.hazards.some((hazard) => (
-      hazard.kind === 'log' && hazardContains(lane, hazard, fly.column, toTime)
-    ));
-    if (!supported) terminal = 'water';
-  } else if (lane.kind === 'road' || lane.kind === 'rail') {
-    const collision = lane.hazards.find((hazard) => (
-      hazardSweepsColumn(lane, hazard, fly.column, state.time, toTime)
-    ));
-    if (collision) terminal = lane.kind === 'rail' || collision.kind === 'train' ? 'train' : 'vehicle';
-  }
+  if (terminal === null) {
+    fly = movedPosition(state.fly, action);
+    if (action === 'wait') {
+      events.push({ type: 'waited', position: { ...fly } });
+    } else {
+      events.push({ type: 'moved', action, from, to: { ...fly } });
+    }
 
-  if (terminal === null && lane.kind === 'rail') {
-    const warningEnd = toTime + TRAIN_WARNING_SECONDS;
-    const approaching = lane.hazards.some((hazard) => (
-      hazard.kind === 'train' && hazardSweepsColumn(lane, hazard, fly.column, toTime, warningEnd)
-    ));
-    if (approaching) events.push({ type: 'train-warning', row: lane.row });
+    const destinationLane = laneFor(state, fly.row);
+    if (destinationLane.kind === 'river' && action === 'wait') {
+      const support = destinationLane.hazards.find((hazard) => (
+        hazard.kind === 'log'
+        && hazardContains(destinationLane, hazard, state.fly.column, state.time)
+      ));
+      if (support) {
+        const displacement = (destinationLane.direction ?? 0)
+          * (destinationLane.speed ?? 0)
+          * DECISION_SECONDS;
+        fly = { ...fly, column: fly.column + displacement };
+        events.push({ type: 'carried', row: fly.row, displacement });
+      }
+    }
+
+    if (Math.abs(fly.column) > WORLD_HALF_WIDTH) {
+      terminal = 'bounds';
+    } else if (destinationLane.kind === 'river') {
+      const supported = destinationLane.hazards.some((hazard) => (
+        hazard.kind === 'log' && hazardContains(destinationLane, hazard, fly.column, toTime)
+      ));
+      if (!supported) terminal = 'water';
+    } else if (destinationLane.kind === 'road' || destinationLane.kind === 'rail') {
+      const collision = destinationLane.hazards.find((hazard) => (
+        hazardContains(destinationLane, hazard, fly.column, toTime)
+      ));
+      if (collision) {
+        terminal = destinationLane.kind === 'rail' || collision.kind === 'train'
+          ? 'train'
+          : 'vehicle';
+      }
+    }
+
+    if (terminal === null && destinationLane.kind === 'rail') {
+      const warningEnd = toTime + TRAIN_WARNING_SECONDS;
+      const approaching = destinationLane.hazards.some((hazard) => (
+        hazard.kind === 'train'
+        && hazardSweepsColumn(destinationLane, hazard, fly.column, toTime, warningEnd)
+      ));
+      if (approaching) events.push({ type: 'train-warning', row: destinationLane.row });
+    }
   }
   if (terminal !== null) events.push(terminalEvent(terminal, fly));
 
