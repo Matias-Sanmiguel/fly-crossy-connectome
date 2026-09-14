@@ -1,4 +1,10 @@
-import { encodeObservation, OBSERVATION_INPUT_SIZE, POLICY_ACTIONS, runDenseNetwork } from './model.ts';
+import {
+  encodeObservation,
+  OBSERVATION_INPUT_SIZE,
+  POLICY_ACTIONS,
+  runDenseNetwork,
+  runFixedGraphNetwork,
+} from './model.ts';
 import type { ExportedPolicyV1, ModelSource } from './model.ts';
 import type { ObservationV1 } from './observation.ts';
 import type { Action } from './types.ts';
@@ -112,5 +118,41 @@ export function createDensePolicyController(policy: ExportedPolicyV1): Controlle
     },
     reset() {},
     dispose() {},
+  };
+}
+
+export function createFixedGraphPolicyController(policy: ExportedPolicyV1): Controller {
+  if (policy.network.kind !== 'fixed-graph') {
+    throw Error('Connectome controller requires a fixed graph policy.');
+  }
+  const { network } = policy;
+  if (network.inputSize !== OBSERVATION_INPUT_SIZE) {
+    throw Error('Fixed graph policy input shape does not match ObservationV1.');
+  }
+  let hidden = Array(network.bodyIds.length).fill(0) as number[];
+  return {
+    id: policy.source.name,
+    kind: 'connectome',
+    source: policy.source,
+    async decide(observation, signal) {
+      throwIfAborted(signal);
+      const result = runFixedGraphNetwork(network, encodeObservation(observation), hidden);
+      throwIfAborted(signal);
+      hidden = result.activity;
+      let selected = 0;
+      for (let index = 1; index < result.logits.length; index += 1) {
+        if (result.logits[index]! > result.logits[selected]!) selected = index;
+      }
+      const diagnostics = Object.fromEntries(
+        POLICY_ACTIONS.map((action, index) => [`logit.${action}`, result.logits[index]!] as const),
+      );
+      const activity = policy.activityBodyIds.map((bodyId, index): [number, number] => [
+        bodyId,
+        Math.max(0, Math.min(1, (result.activity[index]! + 1) / 2)),
+      ]);
+      return { action: policy.actions[selected]!, activity, diagnostics };
+    },
+    reset() { hidden = Array(network.bodyIds.length).fill(0) as number[]; },
+    dispose() { hidden = []; },
   };
 }

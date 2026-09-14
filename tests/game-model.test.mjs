@@ -2,10 +2,21 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { parsePolicy, runDenseNetwork } from '../src/game/model.ts';
+import { parsePolicy, runDenseNetwork, runFixedGraphNetwork } from '../src/game/model.ts';
 
 const fixture = JSON.parse(await readFile(new URL('./fixtures/policy-v1.json', import.meta.url)));
 const visibleIds = new Set([101, 102, 103]);
+const fixedSource = {
+  kind: 'predicted',
+  name: 'Fixed graph fixture',
+  normalization: 'Raw tanh activity mapped to [0, 1]',
+  datasetVersion: 'MaleCNS fixture v1',
+  sourceUrl: 'https://example.test/malecns',
+  license: 'CC BY 4.0',
+  selectionRule: 'Declared fixture cells.',
+  graphSourceHash: '1'.repeat(64),
+  graphArtifactHash: '2'.repeat(64),
+};
 
 test('policy parser rejects incompatible schema versions', () => {
   assert.throws(() => parsePolicy({ version: 99 }, visibleIds), /version 1/i);
@@ -63,6 +74,7 @@ test('policy parser rejects malformed layer shapes, activations, and numeric val
 test('policy parser validates fixed graph topology and array shapes', () => {
   const fixed = {
     ...fixture,
+    source: fixedSource,
     network: {
       kind: 'fixed-graph',
       inputSize: 3,
@@ -72,6 +84,8 @@ test('policy parser validates fixed graph topology and array shapes', () => {
       recurrentSource: [0],
       recurrentTarget: [1],
       recurrentWeights: [0.5],
+      recurrentGain: 1,
+      timeConstant: 1,
       actorWeights: Array(10).fill(0),
       actorBias: [0, 0, 0, 0, 0]
     },
@@ -81,6 +95,47 @@ test('policy parser validates fixed graph topology and array shapes', () => {
   assert.equal(parsePolicy(fixed, visibleIds).network.kind, 'fixed-graph');
   fixed.network.recurrentTarget = [3];
   assert.throws(() => parsePolicy(fixed, visibleIds), /topology/i);
+});
+
+test('policy parser rejects unsafe fixed graph dynamics', () => {
+  const fixedFixture = structuredClone({
+    ...fixture,
+    source: fixedSource,
+    network: {
+      kind: 'fixed-graph', inputSize: 3, bodyIds: [101], activation: 'tanh',
+      sensoryWeights: [0, 0, 0], recurrentSource: [], recurrentTarget: [],
+      recurrentWeights: [], recurrentGain: 1, timeConstant: 1,
+      actorWeights: Array(5).fill(0), actorBias: Array(5).fill(0),
+    },
+    activityBodyIds: [101],
+  });
+
+  fixedFixture.network.timeConstant = 0;
+  assert.throws(() => parsePolicy(fixedFixture, visibleIds), /time constant/i);
+  fixedFixture.network.timeConstant = 1;
+  fixedFixture.network.recurrentGain = Number.NaN;
+  assert.throws(() => parsePolicy(fixedFixture, visibleIds), /recurrent gain/i);
+});
+
+test('browser fixed graph one-step inference matches the Python fixture', async () => {
+  const fixedFixture = JSON.parse(await readFile(
+    new URL('./fixtures/fixed-graph-policy-v1.json', import.meta.url),
+  ));
+  const policy = parsePolicy(fixedFixture, visibleIds);
+  assert.equal(policy.network.kind, 'fixed-graph');
+
+  const result = runFixedGraphNetwork(
+    policy.network,
+    fixedFixture.parity.input,
+    fixedFixture.parity.hidden,
+  );
+
+  result.logits.forEach((value, index) => {
+    assert.ok(Math.abs(value - fixedFixture.parity.logits[index]) <= 1e-5);
+  });
+  result.activity.forEach((value, index) => {
+    assert.ok(Math.abs(value - fixedFixture.parity.activity[index]) <= 1e-5);
+  });
 });
 
 test('browser dense logits match the fixed Python export fixture', () => {

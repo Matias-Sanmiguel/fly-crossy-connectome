@@ -5,7 +5,11 @@ import { FlyScene } from './components/FlyScene';
 import { GameControls } from './components/GameControls';
 import { GameScene } from './components/GameScene';
 import { Telemetry } from './components/Telemetry';
-import { createDensePolicyController, createScriptedController } from './game/controllers';
+import {
+  createDensePolicyController,
+  createFixedGraphPolicyController,
+  createScriptedController,
+} from './game/controllers';
 import type { Controller } from './game/controllers';
 import { OBSERVATION_INPUT_SIZE, parsePolicy } from './game/model';
 import type { ExportedPolicyV1 } from './game/model';
@@ -26,7 +30,11 @@ export function App() {
     if (mode === 'scripted') {
       return createScriptedController(['forward', 'forward', 'wait', 'left', 'right']);
     }
-    if (mode === 'model' && policy) return createDensePolicyController(policy);
+    if (mode === 'model' && policy) {
+      return policy.network.kind === 'fixed-graph'
+        ? createFixedGraphPolicyController(policy)
+        : createDensePolicyController(policy);
+    }
     return null;
   }, [mode, policy]);
   const game = useGame({
@@ -47,9 +55,6 @@ export function App() {
   const acceptPolicy = (value: unknown) => {
     if (!atlas) throw Error('Wait for the measured MaleCNS atlas to load.');
     const nextPolicy = parsePolicy(value, atlas.visibleIds);
-    if (nextPolicy.network.kind !== 'dense') {
-      throw Error('This browser runtime currently accepts dense policies; fixed-graph execution is supplied by the connectome runtime.');
-    }
     if (nextPolicy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
       throw Error('Policy input shape does not match ObservationV1.');
     }
@@ -83,7 +88,9 @@ export function App() {
               <select value={mode} onChange={(event) => setMode(event.target.value as UiMode)}>
                 <option value="human">Human / manual</option>
                 <option value="scripted">Scripted control</option>
-                <option value="model" disabled={!policy}>Loaded dense policy</option>
+                <option value="model" disabled={!policy}>
+                  Loaded {policy?.network.kind === 'fixed-graph' ? 'connectome' : 'dense'} policy
+                </option>
               </select>
             </label>
             <button type="button" onClick={() => game.reset()}>Reset seed</button>

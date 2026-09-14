@@ -9,6 +9,12 @@ export type ModelSource = {
   name: string;
   normalization: string;
   checkpointHash?: string;
+  datasetVersion?: string;
+  sourceUrl?: string;
+  license?: string;
+  selectionRule?: string;
+  graphSourceHash?: string;
+  graphArtifactHash?: string;
 };
 
 export type Activation = 'tanh' | 'relu' | 'linear';
@@ -39,6 +45,8 @@ export type FixedGraphNetwork = {
   recurrentSource: number[];
   recurrentTarget: number[];
   recurrentWeights: number[];
+  recurrentGain: number;
+  timeConstant: number;
   /** Row-major [action, node]. */
   actorWeights: number[];
   actorBias: number[];
@@ -100,12 +108,39 @@ function parseSource(value: unknown): ModelSource {
     && (typeof source.checkpointHash !== 'string' || !/^[a-f0-9]{64}$/.test(source.checkpointHash))) {
     throw Error('Policy checkpoint hash must be a lowercase SHA-256 digest.');
   }
-  return {
+  const optionalText = (key: string): string | undefined => {
+    const candidate = source[key];
+    if (candidate === undefined) return undefined;
+    if (typeof candidate !== 'string' || !candidate.trim()) {
+      throw Error(`Policy source ${key} must be a non-empty string.`);
+    }
+    return candidate.trim();
+  };
+  const graphSourceHash = optionalText('graphSourceHash');
+  const graphArtifactHash = optionalText('graphArtifactHash');
+  const datasetVersion = optionalText('datasetVersion');
+  const sourceUrl = optionalText('sourceUrl');
+  const sourceLicense = optionalText('license');
+  const selectionRule = optionalText('selectionRule');
+  if (graphSourceHash !== undefined && !/^[a-f0-9]{64}$/.test(graphSourceHash)) {
+    throw Error('Policy graph source hash must be a lowercase SHA-256 digest.');
+  }
+  if (graphArtifactHash !== undefined && !/^[a-f0-9]{64}$/.test(graphArtifactHash)) {
+    throw Error('Policy graph artifact hash must be a lowercase SHA-256 digest.');
+  }
+  const parsed: ModelSource = {
     kind,
     name: source.name.trim(),
     normalization: source.normalization.trim(),
     ...(typeof source.checkpointHash === 'string' ? { checkpointHash: source.checkpointHash } : {}),
+    ...(datasetVersion !== undefined ? { datasetVersion } : {}),
+    ...(sourceUrl !== undefined ? { sourceUrl } : {}),
+    ...(sourceLicense !== undefined ? { license: sourceLicense } : {}),
+    ...(selectionRule !== undefined ? { selectionRule } : {}),
+    ...(graphSourceHash !== undefined ? { graphSourceHash } : {}),
+    ...(graphArtifactHash !== undefined ? { graphArtifactHash } : {}),
   };
+  return parsed;
 }
 
 function parseBodyIds(
@@ -177,6 +212,9 @@ function parseFixedGraphNetwork(
   const inputSize = requirePositiveInteger(value.inputSize, 'Fixed graph inputSize');
   const bodyIds = parseBodyIds(value.bodyIds, visibleIds, 'Fixed graph bodyIds');
   if (bodyIds.length === 0) throw Error('Fixed graph must contain at least one body ID.');
+  if (bodyIds.some((bodyId, index) => index > 0 && bodyIds[index - 1]! >= bodyId)) {
+    throw Error('Fixed graph body IDs must be in strictly increasing order.');
+  }
   const nodeCount = bodyIds.length;
   if (!Array.isArray(value.recurrentWeights)) {
     throw Error('Fixed graph recurrent weights must be an array.');
@@ -190,11 +228,21 @@ function parseFixedGraphNetwork(
     if (edges.has(edge)) throw Error('Fixed graph topology contains a duplicate edge.');
     edges.add(edge);
   }
+  const activation = requireActivation(value.activation, 'Fixed graph');
+  if (activation !== 'tanh') throw Error('Fixed graph activation must be tanh.');
+  if (typeof value.recurrentGain !== 'number' || !Number.isFinite(value.recurrentGain)
+    || value.recurrentGain < 0) {
+    throw Error('Fixed graph recurrent gain must be finite and non-negative.');
+  }
+  if (typeof value.timeConstant !== 'number' || !Number.isFinite(value.timeConstant)
+    || value.timeConstant <= 0 || value.timeConstant > 1) {
+    throw Error('Fixed graph time constant must be finite and in (0, 1].');
+  }
   return {
     kind: 'fixed-graph',
     inputSize,
     bodyIds,
-    activation: requireActivation(value.activation, 'Fixed graph'),
+    activation,
     sensoryWeights: requireFiniteArray(
       value.sensoryWeights,
       nodeCount * inputSize,
@@ -203,6 +251,8 @@ function parseFixedGraphNetwork(
     recurrentSource,
     recurrentTarget,
     recurrentWeights: requireFiniteArray(value.recurrentWeights, edgeCount, 'Fixed graph recurrent weights'),
+    recurrentGain: value.recurrentGain,
+    timeConstant: value.timeConstant,
     actorWeights: requireFiniteArray(
       value.actorWeights,
       POLICY_ACTIONS.length * nodeCount,
@@ -234,6 +284,17 @@ export function parsePolicy(input: unknown, visibleIds: ReadonlySet<number>): Ex
     if (activityBodyIds.length !== fixedNetwork.bodyIds.length
       || activityBodyIds.some((id, index) => fixedNetwork.bodyIds[index] !== id)) {
       throw Error('Fixed graph activity body IDs must match graph body IDs in order.');
+    }
+    const requiredGraphSource = [
+      source.datasetVersion,
+      source.sourceUrl,
+      source.license,
+      source.selectionRule,
+      source.graphSourceHash,
+      source.graphArtifactHash,
+    ];
+    if (requiredGraphSource.some((item) => item === undefined)) {
+      throw Error('Fixed graph policy source must declare dataset, license, selection, and graph hashes.');
     }
   } else throw Error('Policy network kind must be dense or fixed-graph.');
 
@@ -297,4 +358,49 @@ export function runDenseNetwork(
     if (index === network.layers.length - 2) hidden = output;
   });
   return { output, hidden };
+}
+
+/** Run one synchronous recurrent step using the exported target-by-source topology. */
+export function runFixedGraphNetwork(
+  network: FixedGraphNetwork,
+  input: readonly number[],
+  hidden: readonly number[],
+): { logits: number[]; activity: number[] } {
+  const nodeCount = network.bodyIds.length;
+  if (input.length !== network.inputSize || !input.every(Number.isFinite)) {
+    throw Error(`Fixed graph input must contain ${network.inputSize} finite values.`);
+  }
+  if (hidden.length !== nodeCount || !hidden.every(Number.isFinite)) {
+    throw Error(`Fixed graph hidden state must contain ${nodeCount} finite values.`);
+  }
+  const recurrent = Array(nodeCount).fill(0) as number[];
+  for (let edge = 0; edge < network.recurrentWeights.length; edge += 1) {
+    recurrent[network.recurrentTarget[edge]!]! += (
+      network.recurrentWeights[edge]! * hidden[network.recurrentSource[edge]!]!
+    );
+  }
+  const activity = Array.from({ length: nodeCount }, (_, node) => {
+    let sensory = 0;
+    const offset = node * network.inputSize;
+    for (let index = 0; index < network.inputSize; index += 1) {
+      sensory += network.sensoryWeights[offset + index]! * input[index]!;
+    }
+    const candidate = activate(
+      sensory + network.recurrentGain * recurrent[node]!,
+      network.activation,
+    );
+    return hidden[node]! + network.timeConstant * (candidate - hidden[node]!);
+  });
+  const logits = Array.from({ length: POLICY_ACTIONS.length }, (_, action) => {
+    let value = network.actorBias[action]!;
+    const offset = action * nodeCount;
+    for (let node = 0; node < nodeCount; node += 1) {
+      value += network.actorWeights[offset + node]! * activity[node]!;
+    }
+    return value;
+  });
+  if (!activity.every(Number.isFinite) || !logits.every(Number.isFinite)) {
+    throw Error('Fixed graph inference produced non-finite values.');
+  }
+  return { logits, activity };
 }

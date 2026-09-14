@@ -7,6 +7,7 @@ import { createGame } from '../src/game/simulation.ts';
 import { generateRows } from '../src/game/world.ts';
 import {
   createDensePolicyController,
+  createFixedGraphPolicyController,
   createScriptedController,
   validateControllerDecision,
 } from '../src/game/controllers.ts';
@@ -88,6 +89,36 @@ test('dense policy chooses the maximum logit using the canonical observation enc
   assert.equal(decision.action, 'backward');
   assert.deepEqual(decision.activity, []);
   assert.equal(decision.diagnostics['logit.backward'], 2);
+});
+
+test('fixed graph controller persists recurrence and resets simulated activity', async () => {
+  const observation = observe(createGame('fixed'));
+  const inputSize = 370;
+  const policy = {
+    version: 1,
+    observationVersion: 1,
+    actions: ['forward', 'backward', 'left', 'right', 'wait'],
+    source: { kind: 'predicted', name: 'Fixed fixture', normalization: 'tanh mapped to [0, 1]' },
+    network: {
+      kind: 'fixed-graph', inputSize, bodyIds: [101], activation: 'tanh',
+      sensoryWeights: Array(inputSize).fill(0),
+      recurrentSource: [0], recurrentTarget: [0], recurrentWeights: [1],
+      recurrentGain: 1, timeConstant: 1,
+      actorWeights: [1, 0, 0, 0, 0], actorBias: [0, 1, 0, 0, 0],
+    },
+    activityBodyIds: [101],
+  };
+  policy.network.sensoryWeights[0] = 1;
+  const controller = createFixedGraphPolicyController(policy);
+
+  const first = await controller.decide(observation, signal());
+  const second = await controller.decide(observation, signal());
+
+  assert.equal(controller.kind, 'connectome');
+  assert.equal(first.action, 'backward');
+  assert.ok(second.activity[0][1] > first.activity[0][1]);
+  controller.reset('fixed');
+  assert.deepEqual((await controller.decide(observation, signal())).activity, first.activity);
 });
 
 test('non-empty controller activity fails closed without atlas membership data', () => {

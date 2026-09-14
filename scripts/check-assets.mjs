@@ -8,4 +8,7 @@ for (const [directory,manifestFile,field] of [['brain-atlas','manifest.json','ex
     if(createHash('sha256').update(bytes).digest('hex')!==digest) throw Error(`Asset checksum mismatch: ${directory}/${name}`);
   }
 }
-console.log('Anatomical asset hashes verified.');
+const connectomeManifest=JSON.parse(await readFile(new URL('data/connectome/manifest.json',root),'utf8'));
+const connectomeBytes=await readFile(new URL('data/connectome/graph.json',root));
+if(createHash('sha256').update(connectomeBytes).digest('hex')!==connectomeManifest.graphSha256) throw Error('Asset checksum mismatch: connectome/graph.json');
+console.log('Anatomical and connectome asset hashes verified.');

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "observationVersion": 1,
+  "actions": ["forward", "backward", "left", "right", "wait"],
+  "source": {
+    "kind": "predicted",
+    "name": "Fixed graph parity fixture",
+    "normalization": "Raw tanh activity; display maps (activity + 1) / 2",
+    "datasetVersion": "MaleCNS fixture v1",
+    "sourceUrl": "https://example.test/malecns",
+    "license": "CC BY 4.0",
+    "selectionRule": "Declared two-cell fixture.",
+    "graphSourceHash": "1111111111111111111111111111111111111111111111111111111111111111",
+    "graphArtifactHash": "2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "network": {
+    "kind": "fixed-graph",
+    "inputSize": 3,
+    "bodyIds": [101, 102],
+    "activation": "tanh",
+    "sensoryWeights": [0.5, -0.25, 0.75, -0.4, 0.2, 0.1],
+    "recurrentSource": [0, 1],
+    "recurrentTarget": [1, 0],
+    "recurrentWeights": [0.6, -0.5],
+    "recurrentGain": 1.25,
+    "timeConstant": 0.8,
+    "actorWeights": [1, -1, 0.5, 0.25, -0.75, 0.4, 0, 2, -1, -0.5],
+    "actorBias": [0.1, -0.2, 0.05, 0.3, -0.1]
+  },
+  "activityBodyIds": [101, 102],
+  "parity": {
+    "input": [0.1, -0.2, 0.3],
+    "hidden": [0.2, -0.3],
+    "activity": [0.4175126303, 0.0197343957],
+    "logits": [0.4977782346, 0.0136899141, -0.2552407144, 0.3394687914, -0.5273798281]
+  }
+}
