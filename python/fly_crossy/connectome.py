@@ -232,15 +232,47 @@ def _metadata_value(
     raise ValueError(f"Reduced graph {keys[0]} must be declared.")
 
 
-def _node_endpoint(value: object, body_ids: list[int], id_to_source_index: dict[int, int]) -> int:
+def _node_index(value: object, node_count: int, label: str) -> int:
     if not isinstance(value, (int, np.integer)) or isinstance(value, bool):
-        raise ValueError("Reduced graph edge endpoints must be integer node indices or body IDs.")
+        raise ValueError(f"Reduced graph {label} must be an integer node index.")
     endpoint = int(value)
-    if 0 <= endpoint < len(body_ids):
+    if 0 <= endpoint < node_count:
         return endpoint
+    raise ValueError(f"Reduced graph {label} references an unknown node index.")
+
+
+def _body_id_index(
+    value: object, id_to_source_index: Mapping[int, int], label: str
+) -> int:
+    if not isinstance(value, (int, np.integer)) or isinstance(value, bool):
+        raise ValueError(f"Reduced graph {label} must be a positive integer body ID.")
+    endpoint = int(value)
     if endpoint in id_to_source_index:
         return id_to_source_index[endpoint]
-    raise ValueError("Reduced graph edge topology references an unknown node.")
+    raise ValueError(f"Reduced graph {label} references an unknown body ID.")
+
+
+def _positive_integral_ids(values: Iterable[object], label: str) -> list[int]:
+    try:
+        candidates = list(values)
+    except TypeError as error:
+        raise ValueError(
+            f"Reduced graph {label} must contain only positive integers."
+        ) from error
+    parsed: list[int] = []
+    for value in candidates:
+        if (
+            not isinstance(value, (int, np.integer))
+            or isinstance(value, (bool, np.bool_))
+            or int(value) <= 0
+        ):
+            raise ValueError(
+                f"Reduced graph {label} must contain only positive integers."
+            )
+        parsed.append(int(value))
+    if len(parsed) != len(set(parsed)):
+        raise ValueError(f"Reduced graph {label} must contain unique body IDs.")
+    return parsed
 
 
 def build_reduced_graph(
@@ -299,9 +331,10 @@ def build_reduced_graph(
         raise ValueError("Reduced graph source contains a duplicate body ID.")
     id_to_source_index = {body_id: index for index, body_id in enumerate(source_body_ids)}
 
-    selected = sorted(set(int(item) for item in selected_ids))
-    if not selected or any(item <= 0 for item in selected):
+    selected = sorted(_positive_integral_ids(selected_ids, "selected IDs"))
+    if not selected:
         raise ValueError("Reduced graph selected IDs must be positive and non-empty.")
+    selected_set = set(selected)
     missing_source = set(selected) - set(source_body_ids)
     if missing_source:
         raise ValueError("Reduced graph selected IDs are absent from the source node table.")
@@ -310,8 +343,10 @@ def build_reduced_graph(
         if not isinstance(declared_atlas, list):
             raise ValueError("Reduced graph atlas-visible body IDs must be supplied.")
         atlas_visible_ids = declared_atlas
-    visible = {int(item) for item in atlas_visible_ids}
-    if not set(selected).issubset(visible):
+    visible = set(
+        _positive_integral_ids(atlas_visible_ids, "atlas-visible body IDs")
+    )
+    if not selected_set.issubset(visible):
         raise ValueError("Reduced graph selected IDs must all be atlas-visible body IDs.")
 
     source_sensory = {
@@ -324,7 +359,9 @@ def build_reduced_graph(
         for item in inputs:
             if isinstance(item, list) and item:
                 source_sensory.add(
-                    source_body_ids[_node_endpoint(item[0], source_body_ids, id_to_source_index)]
+                    source_body_ids[
+                        _node_index(item[0], len(source_body_ids), "input node")
+                    ]
                 )
     source_readout = {
         source_body_ids[index]
@@ -335,16 +372,30 @@ def build_reduced_graph(
     if isinstance(outputs, list):
         for item in outputs:
             source_readout.add(
-                source_body_ids[_node_endpoint(item, source_body_ids, id_to_source_index)]
+                source_body_ids[
+                    _node_index(item, len(source_body_ids), "output node")
+                ]
             )
-    selected_sensory = sorted(
-        set(int(item) for item in sensory_ids) if sensory_ids is not None else source_sensory
-    )
-    selected_readout = sorted(
-        set(int(item) for item in readout_ids) if readout_ids is not None else source_readout
-    )
-    selected_sensory = [item for item in selected_sensory if item in set(selected)]
-    selected_readout = [item for item in selected_readout if item in set(selected)]
+    if sensory_ids is None:
+        selected_sensory = sorted(source_sensory & selected_set)
+    else:
+        selected_sensory = sorted(
+            _positive_integral_ids(sensory_ids, "sensory population IDs")
+        )
+        if not set(selected_sensory).issubset(selected_set & visible):
+            raise ValueError(
+                "Reduced graph sensory population IDs must all be selected atlas-visible body IDs."
+            )
+    if readout_ids is None:
+        selected_readout = sorted(source_readout & selected_set)
+    else:
+        selected_readout = sorted(
+            _positive_integral_ids(readout_ids, "readout population IDs")
+        )
+        if not set(selected_readout).issubset(selected_set & visible):
+            raise ValueError(
+                "Reduced graph readout population IDs must all be selected atlas-visible body IDs."
+            )
     if not selected_sensory:
         raise ValueError("Reduced graph sensory population must not be empty.")
     if not selected_readout:
@@ -354,22 +405,55 @@ def build_reduced_graph(
     if not isinstance(raw_edges, list):
         raise ValueError("Reduced graph source must declare an edge table.")
     aggregated: dict[tuple[int, int], float] = {}
-    selected_set = set(selected)
     for edge in raw_edges:
         if isinstance(edge, Mapping):
-            source_value = edge.get("source", edge.get("body_pre"))
-            target_value = edge.get("target", edge.get("body_post"))
+            has_body_ids = "body_pre" in edge or "body_post" in edge
+            has_indices = "source" in edge or "target" in edge
+            if has_body_ids and has_indices:
+                raise ValueError(
+                    "Reduced graph source edge cannot mix body-ID and node-index fields."
+                )
+            if has_body_ids:
+                if "body_pre" not in edge or "body_post" not in edge:
+                    raise ValueError(
+                        "Reduced graph body-ID edge requires body_pre and body_post."
+                    )
+                source_index = _body_id_index(
+                    edge["body_pre"], id_to_source_index, "body_pre"
+                )
+                target_index = _body_id_index(
+                    edge["body_post"], id_to_source_index, "body_post"
+                )
+            elif has_indices:
+                if "source" not in edge or "target" not in edge:
+                    raise ValueError(
+                        "Reduced graph index edge requires source and target."
+                    )
+                source_index = _node_index(
+                    edge["source"], len(source_body_ids), "edge source"
+                )
+                target_index = _node_index(
+                    edge["target"], len(source_body_ids), "edge target"
+                )
+            else:
+                raise ValueError(
+                    "Reduced graph source edge requires body_pre/body_post IDs or source/target indices."
+                )
             weight_value = edge.get("weight", edge.get("contacts"))
         elif isinstance(edge, list) and len(edge) == 3:
             source_value, target_value, weight_value = edge
+            source_index = _node_index(
+                source_value, len(source_body_ids), "edge source"
+            )
+            target_index = _node_index(
+                target_value, len(source_body_ids), "edge target"
+            )
         else:
             raise ValueError("Reduced graph source edges must contain source, target, and weight.")
         if not isinstance(weight_value, (int, float, np.integer, np.floating)) or not np.isfinite(
             weight_value
         ):
             raise ValueError("Reduced graph source edge weights must be finite.")
-        source_index = _node_endpoint(source_value, source_body_ids, id_to_source_index)
-        target_index = _node_endpoint(target_value, source_body_ids, id_to_source_index)
         source_id = source_body_ids[source_index]
         target_id = source_body_ids[target_index]
         raw_weight = float(weight_value)

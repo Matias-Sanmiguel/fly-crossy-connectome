@@ -18,6 +18,27 @@ from fly_crossy.connectome import (
 SELECTED_FIXTURE_IDS = (101, 102, 103)
 
 
+def _write_source(tmp_path: Path, source: object) -> Path:
+    source_path = tmp_path / "graph.json"
+    source_path.write_text(
+        json.dumps(source, separators=(",", ":")) + "\n", encoding="utf-8"
+    )
+    source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(
+            {
+                "dataset": "MaleCNS fixture v1.0",
+                "source": "https://example.test/malecns-fixture",
+                "license": "CC BY 4.0",
+                "selection": "Declared fixture cells; all internal edges retained.",
+                "graphSha256": source_sha256,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return source_path
+
+
 @pytest.fixture
 def source_fixture(tmp_path: Path) -> Path:
     source = {
@@ -35,24 +56,55 @@ def source_fixture(tmp_path: Path) -> Path:
         "inputs": [[1, 0]],
         "outputs": [0],
     }
-    source_path = tmp_path / "graph.json"
-    source_path.write_text(
-        json.dumps(source, separators=(",", ":")) + "\n", encoding="utf-8"
+    return _write_source(tmp_path, source)
+
+
+def test_body_id_edge_fields_cannot_be_misread_as_small_node_indices(
+    tmp_path: Path,
+) -> None:
+    source = _write_source(
+        tmp_path,
+        {
+            "version": "body-id-fixture-v1",
+            "nodes": [
+                {"id": 2, "sign": 1, "role": "output"},
+                {"id": 3, "sign": 1, "role": "interneuron"},
+                {"id": 1, "sign": 1, "role": "input"},
+            ],
+            "edges": [{"body_pre": 1, "body_post": 2, "weight": 4}],
+            "inputs": [[2, 0]],
+            "outputs": [0],
+        },
     )
-    source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
-    (tmp_path / "manifest.json").write_text(
-        json.dumps(
-            {
-                "dataset": "MaleCNS fixture v1.0",
-                "source": "https://example.test/malecns-fixture",
-                "license": "CC BY 4.0",
-                "selection": "Three declared fixture cells; all internal edges retained.",
-                "graphSha256": source_sha256,
-            }
-        ),
-        encoding="utf-8",
+
+    graph = build_reduced_graph(
+        source, selected_ids=(1, 2, 3), atlas_visible_ids=(1, 2, 3)
     )
-    return source_path
+
+    assert graph.edge_index.tolist() == [[0], [1]]
+
+
+def test_source_target_edge_fields_are_explicit_node_indices(tmp_path: Path) -> None:
+    source = _write_source(
+        tmp_path,
+        {
+            "version": "index-fixture-v1",
+            "nodes": [
+                {"id": 2, "sign": 1, "role": "output"},
+                {"id": 3, "sign": 1, "role": "interneuron"},
+                {"id": 1, "sign": 1, "role": "input"},
+            ],
+            "edges": [{"source": 1, "target": 2, "weight": 4}],
+            "inputs": [[2, 0]],
+            "outputs": [0],
+        },
+    )
+
+    graph = build_reduced_graph(
+        source, selected_ids=(1, 2, 3), atlas_visible_ids=(1, 2, 3)
+    )
+
+    assert graph.edge_index.tolist() == [[2], [0]]
 
 
 def test_reduced_graph_preserves_declared_edges_and_ids(source_fixture: Path) -> None:
@@ -115,6 +167,50 @@ def test_reduced_graph_rejects_unknown_atlas_ids_and_empty_populations(
             source_fixture,
             selected_ids=(101, 102),
             atlas_visible_ids=SELECTED_FIXTURE_IDS,
+        )
+
+
+@pytest.mark.parametrize("invalid", [101.9, "101", True])
+def test_reduced_graph_rejects_coercible_non_integer_selected_ids(
+    source_fixture: Path, invalid: object
+) -> None:
+    with pytest.raises(ValueError, match="selected IDs.*positive integers"):
+        build_reduced_graph(
+            source_fixture,
+            selected_ids=(invalid, 102, 103),
+            atlas_visible_ids=SELECTED_FIXTURE_IDS,
+        )
+
+
+@pytest.mark.parametrize("invalid", [101.9, "101", True])
+def test_reduced_graph_rejects_coercible_non_integer_atlas_ids(
+    source_fixture: Path, invalid: object
+) -> None:
+    with pytest.raises(ValueError, match="atlas-visible body IDs.*positive integers"):
+        build_reduced_graph(
+            source_fixture,
+            selected_ids=SELECTED_FIXTURE_IDS,
+            atlas_visible_ids=(invalid, 102, 103),
+        )
+
+
+@pytest.mark.parametrize(
+    ("argument", "values", "label"),
+    [
+        ("sensory_ids", (101, 999), "sensory"),
+        ("readout_ids", (103, 999), "readout"),
+        ("sensory_ids", (101.9,), "sensory"),
+    ],
+)
+def test_reduced_graph_rejects_every_invalid_explicit_population_id(
+    source_fixture: Path, argument: str, values: tuple[object, ...], label: str
+) -> None:
+    with pytest.raises(ValueError, match=rf"{label}.*(?:positive integers|selected)"):
+        build_reduced_graph(
+            source_fixture,
+            selected_ids=SELECTED_FIXTURE_IDS,
+            atlas_visible_ids=SELECTED_FIXTURE_IDS,
+            **{argument: values},
         )
 
 

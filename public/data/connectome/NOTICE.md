@@ -14,4 +14,4 @@ Important scope limit: these 80 cells were selected for FlyDino, not for Fly Cro
 
 The graph represents a small selected circuit, not a complete brain. Its activity is simulated and dimensionless. Input encoding and action readout are artificial.
 
-Reproduce: `uv run --with pyarrow --with numpy python scripts/build-connectome.py /tmp/pinfly-data`. Source hashes are checked before extraction. See docs/experiment.md for download commands, exact equations, boundary assumptions and validation.
+Original subset derivation: the pinned upstream [`scripts/build-connectome.py`](https://github.com/cobanov/flyjump/blob/c08c86bc18efd8125964b1d2ca4fc1df59700f30/scripts/build-connectome.py). That script checks the source-table hashes before extraction; use it from the pinned upstream commit, not as a claimed local file. This project's derivation, equations, boundary assumptions, hashes, and validation are documented at `docs/experiments/reduced-connectome-v1.md`.
