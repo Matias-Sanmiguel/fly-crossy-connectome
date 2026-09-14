@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { parsePolicy } from '../src/game/model.ts';
+import { parsePolicy, runDenseNetwork } from '../src/game/model.ts';
 
 const fixture = JSON.parse(await readFile(new URL('./fixtures/policy-v1.json', import.meta.url)));
 const visibleIds = new Set([101, 102, 103]);
@@ -20,7 +20,8 @@ test('policy parser accepts a strictly shaped dense policy', () => {
 
   assert.equal(policy.version, 1);
   assert.equal(policy.network.kind, 'dense');
-  assert.equal(policy.source.name, 'Policy validation fixture');
+  assert.equal(policy.source.name, 'Conventional PPO baseline');
+  assert.match(policy.source.checkpointHash, /^[a-f0-9]{64}$/);
 });
 
 test('policy parser rejects unknown MaleCNS activity IDs and duplicates', () => {
@@ -80,4 +81,16 @@ test('policy parser validates fixed graph topology and array shapes', () => {
   assert.equal(parsePolicy(fixed, visibleIds).network.kind, 'fixed-graph');
   fixed.network.recurrentTarget = [3];
   assert.throws(() => parsePolicy(fixed, visibleIds), /topology/i);
+});
+
+test('browser dense logits match the fixed Python export fixture', () => {
+  const policy = parsePolicy(fixture, visibleIds);
+  assert.equal(policy.network.kind, 'dense');
+
+  const { output } = runDenseNetwork(policy.network, fixture.parity.input);
+
+  assert.equal(output.length, fixture.parity.logits.length);
+  output.forEach((value, index) => {
+    assert.ok(Math.abs(value - fixture.parity.logits[index]) <= 1e-5);
+  });
 });

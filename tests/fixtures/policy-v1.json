@@ -1,25 +1,93 @@
 {
   "version": 1,
   "observationVersion": 1,
-  "actions": ["forward", "backward", "left", "right", "wait"],
+  "actions": [
+    "forward",
+    "backward",
+    "left",
+    "right",
+    "wait"
+  ],
   "source": {
     "kind": "predicted",
-    "name": "Policy validation fixture",
-    "normalization": "Unit-test activations clamped to [0, 1]"
+    "name": "Conventional PPO baseline",
+    "normalization": "ObservationV1 cells divided by 7; motion, support, previous-action one-hot, and edge distance unchanged",
+    "checkpointHash": "a5f9b46e79352ce33fb6fb850375477ce87cea6bbf17d0acc73a21623cbd8d67"
   },
   "network": {
     "kind": "dense",
     "inputSize": 3,
     "layers": [
       {
-        "name": "actor",
+        "name": "hidden_1",
         "inputSize": 3,
+        "outputSize": 2,
+        "activation": "tanh",
+        "weights": [
+          -0.30000001192092896,
+          -0.1900000125169754,
+          -0.08000001311302185,
+          0.030000001192092896,
+          0.14000000059604645,
+          0.25
+        ],
+        "bias": [
+          -0.25,
+          0.30000001192092896
+        ]
+      },
+      {
+        "name": "hidden_2",
+        "inputSize": 2,
+        "outputSize": 2,
+        "activation": "tanh",
+        "weights": [
+          -0.20000000298023224,
+          -0.01666666567325592,
+          0.1666666567325592,
+          0.3499999940395355
+        ],
+        "bias": [
+          -0.15000000596046448,
+          0.4000000059604645
+        ]
+      },
+      {
+        "name": "actor",
+        "inputSize": 2,
         "outputSize": 5,
         "activation": "linear",
-        "weights": [1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0, 0, -1, 0],
-        "bias": [0, 0, 0, 0, 0]
+        "weights": [
+          -0.10000000149011612,
+          -0.03888889029622078,
+          0.02222222089767456,
+          0.0833333283662796,
+          0.14444443583488464,
+          0.20555554330348969,
+          0.2666666507720947,
+          0.32777777314186096,
+          0.3888888657093048,
+          0.44999998807907104
+        ],
+        "bias": [
+          -0.05000000074505806,
+          0.08750000596046448,
+          0.22499999403953552,
+          0.36250001192092896,
+          0.5
+        ]
       }
     ]
   },
-  "activityBodyIds": []
+  "activityBodyIds": [],
+  "parity": {
+    "input": [0.25, -0.5, 0.75],
+    "logits": [
+      -0.05777556821703911,
+      0.12335368990898132,
+      0.30448293685913086,
+      0.4856122136116028,
+      0.6667414307594299
+    ]
+  }
 }

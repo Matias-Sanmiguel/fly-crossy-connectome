@@ -1,5 +1,5 @@
-import { encodeObservation, OBSERVATION_INPUT_SIZE, POLICY_ACTIONS } from './model.ts';
-import type { DenseLayer, ExportedPolicyV1, ModelSource } from './model.ts';
+import { encodeObservation, OBSERVATION_INPUT_SIZE, POLICY_ACTIONS, runDenseNetwork } from './model.ts';
+import type { ExportedPolicyV1, ModelSource } from './model.ts';
 import type { ObservationV1 } from './observation.ts';
 import type { Action } from './types.ts';
 
@@ -83,23 +83,6 @@ export function createScriptedController(actions: readonly Action[]): Controller
   };
 }
 
-function activate(value: number, activation: DenseLayer['activation']): number {
-  if (activation === 'tanh') return Math.tanh(value);
-  if (activation === 'relu') return Math.max(0, value);
-  return value;
-}
-
-function runLayer(input: readonly number[], layer: DenseLayer): number[] {
-  return Array.from({ length: layer.outputSize }, (_, output) => {
-    let value = layer.bias[output]!;
-    const offset = output * layer.inputSize;
-    for (let index = 0; index < layer.inputSize; index += 1) {
-      value += layer.weights[offset + index]! * input[index]!;
-    }
-    return activate(value, layer.activation);
-  });
-}
-
 export function createDensePolicyController(policy: ExportedPolicyV1): Controller {
   if (policy.network.kind !== 'dense') throw Error('Dense controller requires a dense policy.');
   const { network } = policy;
@@ -112,12 +95,7 @@ export function createDensePolicyController(policy: ExportedPolicyV1): Controlle
     source: policy.source,
     async decide(observation, signal) {
       throwIfAborted(signal);
-      let values = encodeObservation(observation);
-      let hidden: number[] = [];
-      network.layers.forEach((layer, index) => {
-        values = runLayer(values, layer);
-        if (index === network.layers.length - 2) hidden = values;
-      });
+      const { output: values, hidden } = runDenseNetwork(network, encodeObservation(observation));
       throwIfAborted(signal);
       let selected = 0;
       for (let index = 1; index < values.length; index += 1) {

@@ -8,6 +8,7 @@ export type ModelSource = {
   kind: 'synthetic' | 'predicted' | 'measured';
   name: string;
   normalization: string;
+  checkpointHash?: string;
 };
 
 export type Activation = 'tanh' | 'relu' | 'linear';
@@ -95,7 +96,16 @@ function parseSource(value: unknown): ModelSource {
     || typeof source.normalization !== 'string' || !source.normalization.trim()) {
     throw Error('Policy source must declare a supported kind, name, and normalization.');
   }
-  return { kind, name: source.name.trim(), normalization: source.normalization.trim() };
+  if (source.checkpointHash !== undefined
+    && (typeof source.checkpointHash !== 'string' || !/^[a-f0-9]{64}$/.test(source.checkpointHash))) {
+    throw Error('Policy checkpoint hash must be a lowercase SHA-256 digest.');
+  }
+  return {
+    kind,
+    name: source.name.trim(),
+    normalization: source.normalization.trim(),
+    ...(typeof source.checkpointHash === 'string' ? { checkpointHash: source.checkpointHash } : {}),
+  };
 }
 
 function parseBodyIds(
@@ -253,4 +263,38 @@ export function encodeObservation(observation: ObservationV1): number[] {
     throw Error(`Observation must encode to ${OBSERVATION_INPUT_SIZE} finite values.`);
   }
   return encoded;
+}
+
+function activate(value: number, activation: Activation): number {
+  if (activation === 'tanh') return Math.tanh(value);
+  if (activation === 'relu') return Math.max(0, value);
+  return value;
+}
+
+function runLayer(input: readonly number[], layer: DenseLayer): number[] {
+  return Array.from({ length: layer.outputSize }, (_, output) => {
+    let value = layer.bias[output]!;
+    const offset = output * layer.inputSize;
+    for (let index = 0; index < layer.inputSize; index += 1) {
+      value += layer.weights[offset + index]! * input[index]!;
+    }
+    return activate(value, layer.activation);
+  });
+}
+
+/** Run the row-major dense network exactly as exported by the Python trainer. */
+export function runDenseNetwork(
+  network: DenseNetwork,
+  input: readonly number[],
+): { output: number[]; hidden: number[] } {
+  if (input.length !== network.inputSize || !input.every(Number.isFinite)) {
+    throw Error(`Dense network input must contain ${network.inputSize} finite values.`);
+  }
+  let output = [...input];
+  let hidden: number[] = [];
+  network.layers.forEach((layer, index) => {
+    output = runLayer(output, layer);
+    if (index === network.layers.length - 2) hidden = output;
+  });
+  return { output, hidden };
 }
