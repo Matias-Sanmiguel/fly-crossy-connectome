@@ -1,0 +1,4 @@
+{
+  "client": {"type":"hello","version":2,"sessionId":"s-01234567","episodeId":"e-01234567","sequence":0,"simulationTime":0,"supportedVersions":[2],"uiBuild":"test"},
+  "server": {"type":"ready","version":2,"sessionId":"s-01234567","episodeId":"e-01234567","sequence":0,"simulationTime":0,"backend":"cpu","population":80,"graphHash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","checkpointHash":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+}

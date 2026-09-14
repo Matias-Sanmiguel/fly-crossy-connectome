@@ -1,0 +1,7 @@
+{
+  "server": [
+    {"type":"ready","version":2,"sessionId":"s-01234567","episodeId":"e-01234567","sequence":0,"simulationTime":0,"backend":"cpu","population":81,"graphHash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","checkpointHash":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+    {"type":"ready","version":2,"sessionId":"s-01234567","episodeId":"e-01234567","sequence":0,"simulationTime":0,"backend":"cpu","population":80,"graphHash":"not-a-hash","checkpointHash":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+    {"type":"contact","version":2,"sessionId":"s-01234567","episodeId":"e-01234567","sequence":0,"simulationTime":0,"intentionId":"i-01234567","requestedKey":"W","touchedKey":"W","travel":1.1,"force":2,"debounce":0.02,"confirmed":true}
+  ]
+}

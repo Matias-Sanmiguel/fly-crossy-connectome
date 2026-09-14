@@ -1,0 +1,225 @@
+"""Strict, bounded wire schemas for simulation protocol version 2."""
+
+from __future__ import annotations
+
+import json
+import math
+from typing import Annotated, Any, Literal, TypeAlias
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    TypeAdapter,
+    ValidationError,
+)
+
+MAX_FRAME_BYTES = 1_048_576
+MAX_NEURAL_UPDATES = 20_000
+MAX_STRING_LENGTH = 256
+MAX_SEQUENCE = 2**53 - 1
+MAX_SIMULATION_TIME = 86_400.0
+
+PopulationSize: TypeAlias = Literal[80, 1000, 5000, 20000, 124289]
+BackendPreference: TypeAlias = Literal["auto", "cpu", "gpu", "gpu-strict"]
+ResolvedBackend: TypeAlias = Literal["cpu", "gpu"]
+Action: TypeAlias = Literal["forward", "backward", "left", "right", "wait"]
+KeyName: TypeAlias = Literal["W", "A", "S", "D", "SPACE_LEFT", "SPACE_RIGHT"]
+MotorPhase: TypeAlias = Literal[
+    "neutral", "targeting", "reaching", "pressing", "confirmed", "retracting", "settling", "failed"
+]
+
+ShortString = Annotated[str, StringConstraints(min_length=1, max_length=MAX_STRING_LENGTH)]
+Hash = Annotated[str, StringConstraints(pattern=r"^[a-f0-9]{64}$")]
+SessionOrEpisodeId = Annotated[str, StringConstraints(pattern=r"^[se]-[a-z0-9]{8,64}$")]
+IntentionId = Annotated[str, StringConstraints(pattern=r"^i-[a-z0-9]{8,64}$")]
+FiniteFloat = Annotated[float, Field(allow_inf_nan=False)]
+UnitFloat = Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)]
+NonNegativeFloat = Annotated[float, Field(ge=0, allow_inf_nan=False)]
+PositionFloat = Annotated[float, Field(ge=-10_000, le=10_000, allow_inf_nan=False)]
+JointFloat = Annotated[float, Field(ge=-100, le=100, allow_inf_nan=False)]
+
+
+class ProtocolModel(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_by_alias=True,
+        validate_by_name=False,
+        alias_generator=lambda name: "".join(
+            part.capitalize() if index else part for index, part in enumerate(name.split("_"))
+        ),
+        allow_inf_nan=False,
+    )
+
+
+class Envelope(ProtocolModel):
+    version: Literal[2]
+    session_id: SessionOrEpisodeId
+    episode_id: SessionOrEpisodeId
+    sequence: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
+    simulation_time: Annotated[float, Field(ge=0, le=MAX_SIMULATION_TIME, allow_inf_nan=False)]
+
+
+class Hello(Envelope):
+    type: Literal["hello"]
+    supported_versions: Annotated[list[Literal[2]], Field(min_length=1, max_length=1)]
+    ui_build: ShortString
+
+
+class Configure(Envelope):
+    type: Literal["configure"]
+    population: PopulationSize
+    backend: BackendPreference
+    seed: Annotated[int, Field(ge=0, le=2**32 - 1)]
+    speed: Annotated[float, Field(gt=0, le=100, allow_inf_nan=False)]
+
+
+class Reset(Envelope):
+    type: Literal["reset"]
+    seed: Annotated[int, Field(ge=0, le=2**32 - 1)] | None = None
+
+
+class Observation(Envelope):
+    type: Literal["observation"]
+    game_step: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
+    observation: Annotated[list[FiniteFloat], Field(min_length=370, max_length=370)]
+    reward: Annotated[float, Field(ge=-1_000_000, le=1_000_000, allow_inf_nan=False)]
+
+
+class Pause(Envelope):
+    type: Literal["pause"]
+
+
+class Resume(Envelope):
+    type: Literal["resume"]
+
+
+class RequestKeyframe(Envelope):
+    type: Literal["request_keyframe"]
+
+
+ClientMessage: TypeAlias = Hello | Configure | Reset | Observation | Pause | Resume | RequestKeyframe
+ClientMessageAdapter = TypeAdapter(Annotated[ClientMessage, Field(discriminator="type")])
+
+
+class Ready(Envelope):
+    type: Literal["ready"]
+    backend: ResolvedBackend
+    population: PopulationSize
+    graph_hash: Hash
+    checkpoint_hash: Hash
+    accepted_versions: Annotated[list[Literal[2]], Field(min_length=1, max_length=1)] | None = None
+    max_frame_bytes: Annotated[int, Field(ge=1, le=MAX_FRAME_BYTES)] | None = None
+    max_neural_updates: Annotated[int, Field(ge=1, le=MAX_NEURAL_UPDATES)] | None = None
+
+
+class ResetComplete(Envelope):
+    type: Literal["reset_complete"]
+
+
+class Intention(Envelope):
+    type: Literal["intention"]
+    intention_id: IntentionId
+    action: Action
+    motor_phase: MotorPhase
+
+
+class Snapshot(Envelope):
+    type: Literal["snapshot"]
+    body: Annotated[list[PositionFloat], Field(min_length=3, max_length=3)]
+    joints: Annotated[list[JointFloat], Field(max_length=256)]
+    keys: Annotated[dict[KeyName, UnitFloat], Field(max_length=6)]
+
+
+class NeuralUpdate(ProtocolModel):
+    neuron_id: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
+    value: Annotated[float, Field(ge=-1_000_000, le=1_000_000, allow_inf_nan=False)]
+
+
+class NeuralKeyframe(Envelope):
+    type: Literal["neural_keyframe"]
+    updates: Annotated[list[NeuralUpdate], Field(max_length=MAX_NEURAL_UPDATES)]
+
+
+class NeuralDelta(Envelope):
+    type: Literal["neural_delta"]
+    updates: Annotated[list[NeuralUpdate], Field(max_length=MAX_NEURAL_UPDATES)]
+
+
+class Contact(Envelope):
+    type: Literal["contact"]
+    intention_id: IntentionId
+    requested_key: KeyName
+    touched_key: KeyName | None
+    travel: UnitFloat
+    force: Annotated[float, Field(ge=0, le=10_000, allow_inf_nan=False)]
+    debounce: Annotated[float, Field(ge=0, le=10, allow_inf_nan=False)]
+    confirmed: bool
+
+
+class ActionResult(Envelope):
+    type: Literal["action_result"]
+    intention_id: IntentionId
+    result: Literal["confirmed", "waited", "failed"]
+
+
+class Metrics(Envelope):
+    type: Literal["metrics"]
+    physics_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    motor_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    neural_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    render_hz: Annotated[float, Field(ge=0, le=100_000, allow_inf_nan=False)]
+    latency_ms: Annotated[float, Field(ge=0, le=1_000_000, allow_inf_nan=False)]
+    dropped_render_frames: Annotated[int, Field(ge=0, le=MAX_SEQUENCE)]
+    backend_utilization: UnitFloat | None = None
+
+
+class Paused(Envelope):
+    type: Literal["paused"]
+    code: ShortString
+    message: ShortString
+
+
+class Error(Envelope):
+    type: Literal["error"]
+    code: ShortString
+    message: ShortString
+
+
+ServerMessage: TypeAlias = (
+    Ready | ResetComplete | Intention | Snapshot | NeuralKeyframe | NeuralDelta | Contact | ActionResult | Metrics | Paused | Error
+)
+ServerMessageAdapter = TypeAdapter(Annotated[ServerMessage, Field(discriminator="type")])
+
+
+def _load_frame(value: Any) -> Any:
+    """Decode one bounded JSON control frame without accepting non-object payloads."""
+    if isinstance(value, bytes):
+        if len(value) > MAX_FRAME_BYTES:
+            raise ValueError("Protocol JSON frame exceeds 1 MiB.")
+        value = value.decode("utf-8")
+    if isinstance(value, str):
+        if len(value.encode("utf-8")) > MAX_FRAME_BYTES:
+            raise ValueError("Protocol JSON frame exceeds 1 MiB.")
+        value = json.loads(value)
+    else:
+        try:
+            encoded = json.dumps(value, separators=(",", ":"), allow_nan=True).encode("utf-8")
+        except (TypeError, ValueError) as error:
+            raise ValueError("Protocol frame must be JSON serializable.") from error
+        if len(encoded) > MAX_FRAME_BYTES:
+            raise ValueError("Protocol JSON frame exceeds 1 MiB.")
+    if not isinstance(value, dict):
+        raise ValueError("Protocol frame must be a JSON object.")
+    return value
+
+
+def parse_client_message(value: Any) -> ClientMessage:
+    """Validate a bounded v2 client message from decoded JSON or a JSON frame."""
+    return ClientMessageAdapter.validate_python(_load_frame(value))
+
+
+def parse_server_message(value: Any) -> ServerMessage:
+    """Validate a bounded v2 server message from decoded JSON or a JSON frame."""
+    return ServerMessageAdapter.validate_python(_load_frame(value))
