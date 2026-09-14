@@ -593,7 +593,7 @@ footer {
     border-radius: 0;
   }
 
-  .eyebrow { font-size: 11px; }
+  .eyebrow { font-size: var(--text-xs); }
   h1 { font-size: var(--text-lg); }
 
   .header-link {

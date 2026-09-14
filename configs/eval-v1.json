@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "environmentVersion": 1,
+  "trainingSeeds": ["smoke"],
+  "evaluationSeeds": [
+    "eval-v1-001",
+    "eval-v1-002",
+    "eval-v1-003",
+    "eval-v1-004",
+    "eval-v1-005",
+    "eval-v1-006",
+    "eval-v1-007",
+    "eval-v1-008",
+    "eval-v1-009",
+    "eval-v1-010",
+    "eval-v1-011",
+    "eval-v1-012"
+  ],
+  "maxStepsPerEpisode": 128,
+  "checkpoints": {
+    "conventional": "../python/runs/smoke-conventional/checkpoint.pt",
+    "connectome": "../python/runs/smoke-connectome/checkpoint.pt"
+  },
+  "controls": {
+    "rewiring": {
+      "seed": "rewired-control-v1",
+      "swaps": 1296
+    },
+    "silencing": {
+      "population": "sensory"
+    },
+    "untrainedReadout": {
+      "seed": 9173
+    }
+  },
+  "humanTraceFiles": []
+}

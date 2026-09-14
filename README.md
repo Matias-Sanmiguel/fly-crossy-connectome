@@ -38,6 +38,42 @@ Choose **Load policy JSON** to read a dense policy locally in the browser. The v
 
 Training and inference stay in your own stack. No trained policy, neural simulator, or biological firing data is included.
 
+## Reproduce the bounded controller evaluation
+
+The Python package lives under `python/`. From the repository root:
+
+```sh
+cd python
+python -m pip install -e '.[test]'
+python -m pytest tests -q
+
+timeout 180s python -m fly_crossy.train \
+  --controller conventional \
+  --seed smoke \
+  --steps 2048 \
+  --envs 4 \
+  --learning-rate 0.0003 \
+  --output runs/smoke-conventional \
+  --device cpu
+
+timeout 180s python -m fly_crossy.train \
+  --controller connectome \
+  --seed smoke \
+  --steps 2048 \
+  --envs 4 \
+  --learning-rate 0.0003 \
+  --output runs/smoke-connectome \
+  --device cpu
+
+timeout 180s python -m fly_crossy.evaluate \
+  --config ../configs/eval-v1.json \
+  --output runs/eval-v1
+```
+
+`timeout` above is the GNU command used for the first-release CPU time box. The evaluator writes `metrics.json`, `metrics.csv`, and `summary.md` under `python/runs/eval-v1/`; local runs are intentionally ignored by Git. See [Controller evaluation v1](docs/experiments/evaluation-v1.md) for the exact released budgets, hashes, held-out results, controls, and limitations. No human-recorded traces were available for evaluation v1.
+
+The reduced controller learns a 370-value `ObservationV1` to 80-cell sensory projection. The bundled manifest's eight-channel injection language describes the reused FlyDino source artifact, not the input interface implemented here.
+
 ## Verify and build
 
 ```sh
@@ -53,6 +89,8 @@ npm run preview
 ```
 
 The static output is written to `dist/` and supports deployment under a subpath.
+
+Vite may emit a non-blocking large-chunk advisory for the Three.js renderer. The first release keeps that renderer in the main bundle; the advisory does not indicate a failed build, and code splitting remains a future loading optimization.
 
 ## Licence and attribution
 

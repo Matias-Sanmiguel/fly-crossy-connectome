@@ -39,6 +39,7 @@ test('semantic tokens, desktop split, mobile stack, and accessible control sizin
   assert.match(css, /button,\s*select,\s*\.header-link\s*\{[^}]*min-width:\s*44px/is);
   assert.match(css, /a\s*\{[^}]*min-width:\s*44px/is);
   assert.match(css, /a\s*\{[^}]*min-(?:block-size|height):\s*44px/is);
+  assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*?\.eyebrow\s*\{[^}]*font-size:\s*var\(--text-xs\)/i);
   assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*grid-template-areas:\s*['"]environment['"]\s*['"]brain['"]\s*['"]telemetry['"]\s*['"]fly['"]/i);
   assert.doesNotMatch(css, /(?:environment|brain)-(?:panel|viewport)[^}]*display:\s*none/is);
 });

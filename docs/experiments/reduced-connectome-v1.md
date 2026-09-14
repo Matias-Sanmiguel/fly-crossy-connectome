@@ -62,6 +62,8 @@ Trainable parameters are the 370-to-80 sensory projection `S` without bias, recu
 
 The browser exports actor inference only. It applies the same synchronous equation and preserves recurrent state until controller reset. Actor logits choose `forward`, `backward`, `left`, `right`, or `wait` by deterministic argmax. A shared Python/browser fixture verifies logits and node activity within absolute tolerance `1e-5`.
 
+The bundled manifest's phrase **“Engineered 8-channel input injection”** describes the reused FlyDino source artifact and is retained as source provenance. It is not this controller's input interface. Fly Crossy encodes `ObservationV1` as 370 values and learns the 370-to-80 projection `S` shown above.
+
 ## Activity normalization
 
 Raw state remains bounded by the leaky update when initialized in `[-1,1]`. The policy and recurrence use raw `h`. Only the atlas display mapping is normalized:
