@@ -1,5 +1,10 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import {
+  RENDER_HAZARD_CAPACITY,
+  RENDER_LANE_CAPACITY,
+  selectRenderableInstances,
+} from '../game/rendering';
 import { hazardPositionAt, HAZARD_CIRCUIT } from '../game/simulation';
 import type { GameEvent, GameState, GridPosition } from '../game/simulation';
 import type { HazardKind, LaneKind } from '../game/types';
@@ -9,8 +14,6 @@ type GameSceneProps = {
   events: GameEvent[];
 };
 
-const MAX_LANES = 32;
-const MAX_HAZARDS = 128;
 const HOP_MILLISECONDS = 160;
 
 function worldPosition(position: GridPosition, target: THREE.Vector3): THREE.Vector3 {
@@ -76,16 +79,16 @@ export function GameScene({ state, events }: GameSceneProps) {
       return mesh;
     };
     const laneMeshes: Record<LaneKind, THREE.InstancedMesh> = {
-      grass: createInstances(laneMaterials.grass, MAX_LANES),
-      road: createInstances(laneMaterials.road, MAX_LANES),
-      rail: createInstances(laneMaterials.rail, MAX_LANES),
-      river: createInstances(laneMaterials.river, MAX_LANES),
+      grass: createInstances(laneMaterials.grass, RENDER_LANE_CAPACITY),
+      road: createInstances(laneMaterials.road, RENDER_LANE_CAPACITY),
+      rail: createInstances(laneMaterials.rail, RENDER_LANE_CAPACITY),
+      river: createInstances(laneMaterials.river, RENDER_LANE_CAPACITY),
     };
     const hazardMeshes: Record<HazardKind, THREE.InstancedMesh> = {
-      car: createInstances(hazardMaterials.car, MAX_HAZARDS),
-      truck: createInstances(hazardMaterials.truck, MAX_HAZARDS),
-      train: createInstances(hazardMaterials.train, MAX_HAZARDS),
-      log: createInstances(hazardMaterials.log, MAX_HAZARDS),
+      car: createInstances(hazardMaterials.car, RENDER_HAZARD_CAPACITY),
+      truck: createInstances(hazardMaterials.truck, RENDER_HAZARD_CAPACITY),
+      train: createInstances(hazardMaterials.train, RENDER_HAZARD_CAPACITY),
+      log: createInstances(hazardMaterials.log, RENDER_HAZARD_CAPACITY),
     };
 
     const fly = new THREE.Group();
@@ -138,8 +141,9 @@ export function GameScene({ state, events }: GameSceneProps) {
     const rebuildInstances = (game: GameState) => {
       const laneCounts: Record<LaneKind, number> = { grass: 0, road: 0, rail: 0, river: 0 };
       const hazardCounts: Record<HazardKind, number> = { car: 0, truck: 0, train: 0, log: 0 };
+      const renderable = selectRenderableInstances(game);
 
-      for (const lane of game.lanes) {
+      for (const lane of renderable.lanes) {
         const laneIndex = laneCounts[lane.kind]++;
         composeInstance(
           laneMeshes[lane.kind],
@@ -151,23 +155,23 @@ export function GameScene({ state, events }: GameSceneProps) {
           0.2,
           0.94,
         );
+      }
 
-        for (const hazard of lane.hazards) {
-          const hazardIndex = hazardCounts[hazard.kind]++;
-          const isLog = hazard.kind === 'log';
-          const height = hazard.kind === 'train' ? 0.72 : isLog ? 0.25 : 0.48;
-          const depth = hazard.kind === 'train' ? 0.72 : isLog ? 0.48 : 0.58;
-          composeInstance(
-            hazardMeshes[hazard.kind],
-            hazardIndex,
-            hazardPositionAt(lane, hazard, game.time),
-            height / 2,
-            -lane.row,
-            hazard.size,
-            height,
-            depth,
-          );
-        }
+      for (const { lane, hazard } of renderable.hazards) {
+        const hazardIndex = hazardCounts[hazard.kind]++;
+        const isLog = hazard.kind === 'log';
+        const height = hazard.kind === 'train' ? 0.72 : isLog ? 0.25 : 0.48;
+        const depth = hazard.kind === 'train' ? 0.72 : isLog ? 0.48 : 0.58;
+        composeInstance(
+          hazardMeshes[hazard.kind],
+          hazardIndex,
+          hazardPositionAt(lane, hazard, game.time),
+          height / 2,
+          -lane.row,
+          hazard.size,
+          height,
+          depth,
+        );
       }
 
       for (const kind of Object.keys(laneMeshes) as LaneKind[]) {
