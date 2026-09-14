@@ -8,6 +8,7 @@ import { generateRows } from '../src/game/world.ts';
 import {
   createDensePolicyController,
   createScriptedController,
+  validateControllerDecision,
 } from '../src/game/controllers.ts';
 import { createRemoteController } from '../src/game/remote.ts';
 import { reduceGameCommand } from '../src/hooks/useGame.ts';
@@ -89,6 +90,16 @@ test('dense policy chooses the maximum logit using the canonical observation enc
   assert.equal(decision.diagnostics['logit.backward'], 2);
 });
 
+test('non-empty controller activity fails closed without atlas membership data', () => {
+  const decision = { action: 'wait', activity: [[999, 0.5]], diagnostics: {} };
+
+  assert.throws(() => validateControllerDecision(decision), /atlas.*required/i);
+  assert.throws(
+    () => validateControllerDecision(decision, new Set([101])),
+    /visible MaleCNS/i,
+  );
+});
+
 test('controller reducer ignores stale decisions and clears activity on reset or mode change', () => {
   let run = reduceGameCommand(
     { game: createGame('runtime') },
@@ -154,6 +165,10 @@ class FakeSocket extends EventTarget {
 
   send(payload) { this.sent.push(JSON.parse(payload)); }
   close() { this.closed = true; this.readyState = 3; }
+  disconnect() {
+    this.readyState = 3;
+    this.dispatchEvent(new Event('close'));
+  }
   receive(payload) {
     this.dispatchEvent(new MessageEvent('message', { data: JSON.stringify(payload) }));
   }
@@ -199,6 +214,47 @@ test('remote controller queues reset and one observation while its socket connec
   });
 
   assert.equal((await pending).action, 'left');
+  controller.dispose();
+});
+
+test('idle remote disconnect persists and clears prior runtime activity immediately', () => {
+  const socket = new FakeSocket();
+  const controller = createRemoteController('ws://idle-close', {
+    socketFactory: () => socket,
+    timeoutMs: 100,
+    visibleIds: new Set([101]),
+  });
+  socket.open();
+  let run = reduceGameCommand(
+    { game: createGame('idle-close') },
+    { type: 'controller-start', requestId: 3 },
+  );
+  run = reduceGameCommand(run, {
+    type: 'controller-decision',
+    requestId: 3,
+    decision: { action: 'wait', activity: [[101, 0.8]], diagnostics: {} },
+  });
+  assert.deepEqual(run.activity?.values, [[101, 0.8]]);
+
+  assert.equal(typeof controller.subscribeFailure, 'function');
+  const unsubscribe = controller.subscribeFailure((error) => {
+    run = reduceGameCommand(run, {
+      type: 'controller-connection-failure',
+      error: error.message,
+    });
+  });
+  socket.disconnect();
+
+  assert.equal(run.paused, true);
+  assert.equal(run.controllerStatus, 'error');
+  assert.match(run.controllerError, /disconnected/i);
+  assert.equal(run.activity, null);
+
+  let retainedError = '';
+  const unsubscribeLate = controller.subscribeFailure((error) => { retainedError = error.message; });
+  assert.match(retainedError, /disconnected/i);
+  unsubscribeLate();
+  unsubscribe();
   controller.dispose();
 });
 

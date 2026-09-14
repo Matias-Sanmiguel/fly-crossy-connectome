@@ -17,6 +17,7 @@ export type GameCommand =
   | { type: 'controller-start'; requestId: number }
   | { type: 'controller-decision'; requestId: number; decision: ControllerDecision }
   | { type: 'controller-failure'; requestId: number; error: string }
+  | { type: 'controller-connection-failure'; error: string }
   | { type: 'controller-clear'; status?: 'manual' | 'ready' };
 
 export type GameRun = {
@@ -129,6 +130,17 @@ export function reduceGameCommand(state: GameRun, command: GameCommand): Require
     };
   }
 
+  if (command.type === 'controller-connection-failure') {
+    return {
+      ...current,
+      paused: true,
+      activity: null,
+      pendingRequest: null,
+      controllerStatus: 'error',
+      controllerError: command.error,
+    };
+  }
+
   if (command.type === 'controller-decision') {
     if (current.pendingRequest !== command.requestId || current.paused || current.game.terminal !== null) {
       return current;
@@ -201,6 +213,14 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
   }, [abortPending, controller, mode]);
 
   useEffect(() => () => abortPending(), [abortPending]);
+
+  useEffect(() => {
+    if (mode === 'human' || !controller?.subscribeFailure) return;
+    return controller.subscribeFailure((error) => {
+      abortPending();
+      dispatch({ type: 'controller-connection-failure', error: error.message });
+    });
+  }, [abortPending, controller, mode]);
 
   useEffect(() => {
     if (mode === 'human' || !controller || run.paused || run.game.terminal !== null || pending.current) {

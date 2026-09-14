@@ -57,6 +57,8 @@ export function createRemoteController(
   let pending: PendingDecision | null = null;
   let queuedReset: RemoteResetMessage | null = null;
   let queuedObservation: RemoteObserveMessage | null = null;
+  let connectionFailure: Error | null = null;
+  const failureListeners = new Set<(error: Error) => void>();
   let disposed = false;
 
   const cleanup = (current: PendingDecision) => {
@@ -72,6 +74,12 @@ export function createRemoteController(
     const current = pending;
     cleanup(current);
     current.reject(error);
+  };
+  const reportConnectionFailure = (error: Error) => {
+    if (disposed || connectionFailure) return;
+    connectionFailure = error;
+    rejectPending(error);
+    for (const listener of failureListeners) listener(error);
   };
   const send = (message: RemoteResetMessage | RemoteObserveMessage) => {
     if (socket.readyState !== 1) throw Error('Remote controller is not connected.');
@@ -112,8 +120,8 @@ export function createRemoteController(
       rejectPending(error instanceof Error ? error : Error(String(error)));
     }
   };
-  const onError: EventListener = () => rejectPending(Error('Remote controller connection failed.'));
-  const onClose: EventListener = () => rejectPending(Error('Remote controller disconnected.'));
+  const onError: EventListener = () => reportConnectionFailure(Error('Remote controller connection failed.'));
+  const onClose: EventListener = () => reportConnectionFailure(Error('Remote controller disconnected.'));
   socket.addEventListener('open', onOpen);
   socket.addEventListener('message', onMessage);
   socket.addEventListener('error', onError);
@@ -124,6 +132,7 @@ export function createRemoteController(
     kind: 'remote',
     decide(observation, signal) {
       if (disposed) return Promise.reject(Error('Remote controller is disposed.'));
+      if (connectionFailure) return Promise.reject(connectionFailure);
       if (pending) return Promise.reject(Error('Remote controller already has a pending decision.'));
       if (signal.aborted) return Promise.reject(new DOMException('Controller decision aborted.', 'AbortError'));
       const requestId = nextRequestId;
@@ -169,7 +178,13 @@ export function createRemoteController(
       socket.removeEventListener('message', onMessage);
       socket.removeEventListener('error', onError);
       socket.removeEventListener('close', onClose);
+      failureListeners.clear();
       socket.close();
+    },
+    subscribeFailure(listener) {
+      failureListeners.add(listener);
+      if (connectionFailure) listener(connectionFailure);
+      return () => failureListeners.delete(listener);
     },
   };
 }

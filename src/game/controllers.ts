@@ -16,6 +16,7 @@ export interface Controller {
   decide(observation: ObservationV1, signal: AbortSignal): Promise<ControllerDecision>;
   reset(seed: string): void;
   dispose(): void;
+  subscribeFailure?(listener: (error: Error) => void): () => void;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => (
@@ -31,6 +32,9 @@ export function validateControllerDecision(
     throw Error('Controller decision contains an invalid action.');
   }
   if (!Array.isArray(value.activity)) throw Error('Controller decision activity must be an array.');
+  if (value.activity.length > 0 && !visibleIds) {
+    throw Error('Atlas visible IDs are required for non-empty controller activity.');
+  }
   const seen = new Set<number>();
   const activity = value.activity.map((candidate): [number, number] => {
     if (!Array.isArray(candidate) || candidate.length !== 2
