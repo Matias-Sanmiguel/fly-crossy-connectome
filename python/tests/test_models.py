@@ -10,6 +10,7 @@ import pytest
 import torch
 
 from fly_crossy.connectome import ReducedGraphArtifact, build_reduced_graph
+from fly_crossy.env import WORLD_VERSION
 from fly_crossy.models import DensePolicy, FixedGraphPolicy
 from fly_crossy.schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE
 from fly_crossy.train import TrainingConfig, train
@@ -196,10 +197,13 @@ def test_tiny_ppo_run_writes_a_consistent_artifact_bundle(tmp_path: Path) -> Non
     metadata = json.loads((output / "metadata.json").read_text(encoding="utf-8"))
     metrics = json.loads((output / "metrics.json").read_text(encoding="utf-8"))
     policy = json.loads((output / "policy.json").read_text(encoding="utf-8"))
+    checkpoint_payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
     digest = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
     assert result["checkpointHash"] == digest
     assert metadata["checkpoint"]["sha256"] == digest
     assert metadata["configuration"]["steps"] == 16
+    assert metadata["environmentVersion"] == WORLD_VERSION
+    assert checkpoint_payload["environment_version"] == WORLD_VERSION
     assert metadata["software"]["torch"] == torch.__version__
     assert metrics["totalSteps"] == 16
     assert metrics["trainingCurve"]

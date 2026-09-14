@@ -10,6 +10,7 @@ import pytest
 import torch
 
 from fly_crossy.connectome import load_default_reduced_graph
+from fly_crossy.env import WORLD_VERSION
 from fly_crossy.evaluate import (
     degree_preserving_rewire,
     evaluate,
@@ -83,7 +84,33 @@ def test_rewired_control_preserves_each_nodes_directed_degrees() -> None:
     assert rewired.artifact_sha256 == repeated.artifact_sha256
 
 
-def _write_checkpoint_pair(directory: Path) -> tuple[Path, Path]:
+def test_rewired_control_renormalizes_absolute_incoming_weight_per_target() -> None:
+    graph = load_default_reduced_graph()
+
+    rewired = degree_preserving_rewire(graph, seed="rewire-normalization", swaps=256)
+
+    original_sums = np.bincount(
+        graph.edge_index[1], weights=np.abs(graph.edge_weight), minlength=graph.node_count
+    )
+    rewired_sums = np.bincount(
+        rewired.edge_index[1],
+        weights=np.abs(rewired.edge_weight),
+        minlength=rewired.node_count,
+    )
+    connected_targets = np.bincount(
+        graph.edge_index[1], minlength=graph.node_count
+    ) > 0
+    assert rewired_sums[connected_targets] == pytest.approx(
+        original_sums[connected_targets], abs=1e-6
+    )
+
+
+def _write_checkpoint_pair(
+    directory: Path,
+    *,
+    conventional_environment_version: int | None = None,
+    connectome_environment_version: int | None = None,
+) -> tuple[Path, Path]:
     torch.manual_seed(31)
     conventional = DensePolicy(
         observation_size=OBSERVATION_INPUT_SIZE,
@@ -91,40 +118,40 @@ def _write_checkpoint_pair(directory: Path) -> tuple[Path, Path]:
         actions=len(ACTION_ORDER),
     )
     conventional_path = directory / "conventional.pt"
-    torch.save(
-        {
-            "format_version": 1,
-            "controller": "conventional",
-            "model": {
-                "observation_size": OBSERVATION_INPUT_SIZE,
-                "hidden_size": 4,
-                "actions": len(ACTION_ORDER),
-            },
-            "model_state_dict": conventional.state_dict(),
-            "training": {"seed": "train-fixture", "steps": 8, "envs": 1},
+    conventional_checkpoint = {
+        "format_version": 1,
+        "controller": "conventional",
+        "model": {
+            "observation_size": OBSERVATION_INPUT_SIZE,
+            "hidden_size": 4,
+            "actions": len(ACTION_ORDER),
         },
-        conventional_path,
-    )
+        "model_state_dict": conventional.state_dict(),
+        "training": {"seed": "train-fixture", "steps": 8, "envs": 1},
+    }
+    if conventional_environment_version is not None:
+        conventional_checkpoint["environment_version"] = conventional_environment_version
+    torch.save(conventional_checkpoint, conventional_path)
 
     graph = load_default_reduced_graph()
     connectome = FixedGraphPolicy(
         graph, observation_size=OBSERVATION_INPUT_SIZE, actions=len(ACTION_ORDER)
     )
     connectome_path = directory / "connectome.pt"
-    torch.save(
-        {
-            "format_version": 1,
-            "controller": "connectome",
-            "model": {
-                "observation_size": OBSERVATION_INPUT_SIZE,
-                "actions": len(ACTION_ORDER),
-                "graph": graph.to_checkpoint(),
-            },
-            "model_state_dict": connectome.state_dict(),
-            "training": {"seed": "train-fixture", "steps": 8, "envs": 1},
+    connectome_checkpoint = {
+        "format_version": 1,
+        "controller": "connectome",
+        "model": {
+            "observation_size": OBSERVATION_INPUT_SIZE,
+            "actions": len(ACTION_ORDER),
+            "graph": graph.to_checkpoint(),
         },
-        connectome_path,
-    )
+        "model_state_dict": connectome.state_dict(),
+        "training": {"seed": "train-fixture", "steps": 8, "envs": 1},
+    }
+    if connectome_environment_version is not None:
+        connectome_checkpoint["environment_version"] = connectome_environment_version
+    torch.save(connectome_checkpoint, connectome_path)
     return conventional_path, connectome_path
 
 
@@ -190,6 +217,10 @@ def test_evaluate_writes_versioned_json_csv_and_markdown_from_real_runs(
     assert {row["version"] for row in rows} == {"1"}
     assert {row["environmentVersion"] for row in rows} == {"1"}
     assert {row["configSha256"] for row in rows} == {payload["config"]["sha256"]}
+    assert {row["checkpointEnvironmentVersion"] for row in rows} == {""}
+    assert {row["checkpointEnvironmentVersionStatus"] for row in rows} == {
+        "legacy-unrecorded"
+    }
     for controller in payload["controllers"]:
         assert [episode["seed"] for episode in controller["episodes"]] == [
             "held-out-a",
@@ -199,6 +230,11 @@ def test_evaluate_writes_versioned_json_csv_and_markdown_from_real_runs(
         assert controller["evidence"]["modelParameters"] > 0
         assert controller["evidence"]["trainingEnvironmentSteps"] == 8
         assert len(controller["evidence"]["checkpointSha256"]) == 64
+        assert controller["evidence"]["checkpointEnvironmentVersion"] is None
+        assert (
+            controller["evidence"]["checkpointEnvironmentVersionStatus"]
+            == "legacy-unrecorded"
+        )
         assert controller["summary"]["inferencePerformance"]["calls"] > 0
         assert controller["summary"]["inferencePerformance"]["wallSeconds"] >= 0
     markdown = (output / "summary.md").read_text(encoding="utf-8")
@@ -207,7 +243,52 @@ def test_evaluate_writes_versioned_json_csv_and_markdown_from_real_runs(
     assert "## Inference performance" in markdown
     assert "## Evidence hashes" in markdown
     assert "Terminal reasons" in markdown
+    assert "does not isolate topology" in markdown
     assert hashlib.sha256(conventional.read_bytes()).hexdigest() in markdown
+    assert "legacy-unrecorded" in markdown
+
+
+def test_evaluate_rejects_checkpoint_environment_version_mismatch(
+    tmp_path: Path,
+) -> None:
+    conventional, connectome = _write_checkpoint_pair(
+        tmp_path,
+        conventional_environment_version=WORLD_VERSION + 1,
+        connectome_environment_version=WORLD_VERSION,
+    )
+    config_path = tmp_path / "eval-mismatch.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "environmentVersion": WORLD_VERSION,
+                "trainingSeeds": ["train-fixture"],
+                "evaluationSeeds": ["held-out-a"],
+                "maxStepsPerEpisode": 4,
+                "checkpoints": {
+                    "conventional": conventional.name,
+                    "connectome": connectome.name,
+                },
+                "controls": {
+                    "rewiring": {"seed": "rewire-fixture", "swaps": 2},
+                    "silencing": {"population": "sensory"},
+                    "untrainedReadout": {"seed": 71},
+                },
+                "humanTraceFiles": [],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Checkpoint environment version 2 does not match "
+            "evaluation environment version 1"
+        ),
+    ):
+        evaluate(config_path, tmp_path / "evaluation-mismatch")
 
 
 def test_evaluate_replays_configured_human_actions_without_inventing_activity(

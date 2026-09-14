@@ -202,6 +202,29 @@ def degree_preserving_rewire(
         raise ValueError(
             f"Could not complete {swaps} degree-preserving swaps after {attempts} attempts."
         )
+    original_incoming = np.bincount(
+        graph.edge_index[1],
+        weights=np.abs(graph.edge_weight),
+        minlength=graph.node_count,
+    )
+    edge_weight = graph.edge_weight.copy()
+    rewired_incoming = np.bincount(
+        edge_index[1], weights=np.abs(edge_weight), minlength=graph.node_count
+    )
+    connected_targets = np.bincount(
+        edge_index[1], minlength=graph.node_count
+    ) > 0
+    if np.any(original_incoming[connected_targets] <= 0) or np.any(
+        rewired_incoming[connected_targets] <= 0
+    ):
+        raise ValueError("Connected targets require non-zero absolute incoming weight.")
+    target_scales = np.ones(graph.node_count, dtype=np.float64)
+    target_scales[connected_targets] = (
+        original_incoming[connected_targets] / rewired_incoming[connected_targets]
+    )
+    edge_weight = np.asarray(
+        edge_weight * target_scales[edge_index[1]], dtype=np.float32
+    )
     return ReducedGraphArtifact(
         dataset_version=graph.dataset_version,
         source_url=graph.source_url,
@@ -209,12 +232,13 @@ def degree_preserving_rewire(
         source_sha256=graph.source_sha256,
         selection_rule=(
             f"{graph.selection_rule} Degree-preserving evaluator control: "
-            f"{swaps} directed target swaps with seed {seed}."
+            f"{swaps} directed target swaps with seed {seed}; signed weights "
+            "renormalized to preserve each target's absolute incoming sum."
         ),
         minimum_edge_threshold=graph.minimum_edge_threshold,
         body_ids=graph.body_ids.copy(),
         edge_index=edge_index,
-        edge_weight=graph.edge_weight.copy(),
+        edge_weight=edge_weight,
         sensory_body_ids=graph.sensory_body_ids.copy(),
         readout_body_ids=graph.readout_body_ids.copy(),
     )
@@ -258,8 +282,11 @@ def _sha256(path: Path) -> str:
 
 
 def _load_checkpoint(
-    path: Path, expected_controller: str, training_seeds: Sequence[str]
-) -> tuple[DensePolicy | FixedGraphPolicy, dict[str, Any], dict[str, Any]]:
+    path: Path,
+    expected_controller: str,
+    training_seeds: Sequence[str],
+    expected_environment_version: int,
+) -> tuple[DensePolicy | FixedGraphPolicy, dict[str, Any], int | None]:
     if not path.is_file():
         raise ValueError(f"Evaluation checkpoint does not exist: {path}")
     try:
@@ -268,6 +295,22 @@ def _load_checkpoint(
         raise ValueError(f"Evaluation checkpoint could not be loaded: {path}") from error
     if not isinstance(checkpoint, Mapping):
         raise ValueError("Evaluation checkpoint must contain an object.")
+    checkpoint_environment_version: int | None
+    if "environment_version" not in checkpoint:
+        checkpoint_environment_version = None
+    else:
+        raw_environment_version = checkpoint["environment_version"]
+        if isinstance(raw_environment_version, bool) or not isinstance(
+            raw_environment_version, int
+        ):
+            raise ValueError("Checkpoint environment version must be an integer.")
+        checkpoint_environment_version = raw_environment_version
+        if checkpoint_environment_version != expected_environment_version:
+            raise ValueError(
+                f"Checkpoint environment version {checkpoint_environment_version} "
+                f"does not match evaluation environment version "
+                f"{expected_environment_version}."
+            )
     try:
         if checkpoint["format_version"] != 1:
             raise ValueError("Evaluation checkpoint format version must be 1.")
@@ -314,7 +357,7 @@ def _load_checkpoint(
     except (RuntimeError, TypeError) as error:
         raise ValueError("Evaluation checkpoint parameters are incompatible.") from error
     model.eval()
-    return model, training, dict(checkpoint)
+    return model, training, checkpoint_environment_version
 
 
 def _parameter_count(model: DensePolicy | FixedGraphPolicy) -> tuple[int, int]:
@@ -370,6 +413,7 @@ def _evidence(
     checkpoint_path: Path,
     training: Mapping[str, Any],
     *,
+    checkpoint_environment_version: int | None,
     control_graph_hash: str | None = None,
     silenced_body_ids: Sequence[int] = (),
 ) -> dict[str, Any]:
@@ -385,6 +429,12 @@ def _evidence(
         ),
         "trainingSeed": str(training["seed"]),
         "trainingEnvironmentSteps": int(training["steps"]),
+        "checkpointEnvironmentVersion": checkpoint_environment_version,
+        "checkpointEnvironmentVersionStatus": (
+            "recorded-match"
+            if checkpoint_environment_version is not None
+            else "legacy-unrecorded"
+        ),
         "modelParameters": parameters,
         "trainableParameters": trainable_parameters,
         "graphArtifactSha256": graph_hash,
@@ -529,6 +579,8 @@ def _evaluate_human_traces(
             "checkpointController": "human-recorded",
             "trainingSeed": None,
             "trainingEnvironmentSteps": 0,
+            "checkpointEnvironmentVersion": None,
+            "checkpointEnvironmentVersionStatus": "not-applicable",
             "modelParameters": 0,
             "trainableParameters": 0,
             "graphArtifactSha256": None,
@@ -569,6 +621,8 @@ def _write_csv(path: Path, payload: Mapping[str, Any]) -> None:
         "modelParameters",
         "trainableParameters",
         "trainingEnvironmentSteps",
+        "checkpointEnvironmentVersion",
+        "checkpointEnvironmentVersionStatus",
         "inferenceCalls",
         "inferenceWallSeconds",
         "inferenceMeanMilliseconds",
@@ -609,6 +663,14 @@ def _write_csv(path: Path, payload: Mapping[str, Any]) -> None:
                     "modelParameters": evidence["modelParameters"],
                     "trainableParameters": evidence["trainableParameters"],
                     "trainingEnvironmentSteps": evidence["trainingEnvironmentSteps"],
+                    "checkpointEnvironmentVersion": (
+                        evidence["checkpointEnvironmentVersion"]
+                        if evidence["checkpointEnvironmentVersion"] is not None
+                        else ""
+                    ),
+                    "checkpointEnvironmentVersionStatus": evidence[
+                        "checkpointEnvironmentVersionStatus"
+                    ],
                     "inferenceCalls": inference["calls"],
                     "inferenceWallSeconds": inference["wallSeconds"],
                     "inferenceMeanMilliseconds": inference["meanMilliseconds"],
@@ -720,20 +782,27 @@ def _write_markdown(path: Path, payload: Mapping[str, Any]) -> None:
             "",
             f"Config SHA-256: `{payload['config']['sha256']}`.",
             "",
-            "| Controller / control | Checkpoint SHA-256 | Graph artifact SHA-256 | Control graph artifact SHA-256 |",
-            "| --- | --- | --- | --- |",
+            "| Controller / control | Checkpoint environment provenance | Checkpoint SHA-256 | Graph artifact SHA-256 | Control graph artifact SHA-256 |",
+            "| --- | --- | --- | --- | --- |",
         ]
     )
     for controller in payload["controllers"]:
         evidence = controller["evidence"]
         lines.append(
             f"| {controller['label']}"
+            f" | {evidence['checkpointEnvironmentVersionStatus']}"
             f" | `{evidence['checkpointSha256'] or 'n/a'}`"
             f" | `{evidence['graphArtifactSha256'] or 'n/a'}`"
             f" | `{evidence['controlGraphArtifactSha256'] or 'n/a'}` |"
         )
     lines.extend(
         [
+            "",
+            (
+                "The rewired control matches directed degree and per-target absolute "
+                "incoming normalization; it does not match every weighted-network "
+                "statistic and does not isolate topology."
+            ),
             "",
             "These bounded runs report observed smoke-checkpoint behavior only; they are not convergence or biological-superiority claims.",
             "",
@@ -746,11 +815,17 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
     """Evaluate trained policies and controls on one held-out seed suite."""
     source_path = Path(config_path).resolve()
     config = load_eval_config(source_path)
-    conventional, conventional_training, _ = _load_checkpoint(
-        config.conventional_checkpoint, "conventional", config.training_seeds
+    conventional, conventional_training, conventional_environment_version = _load_checkpoint(
+        config.conventional_checkpoint,
+        "conventional",
+        config.training_seeds,
+        config.environment_version,
     )
-    connectome, connectome_training, _ = _load_checkpoint(
-        config.connectome_checkpoint, "connectome", config.training_seeds
+    connectome, connectome_training, connectome_environment_version = _load_checkpoint(
+        config.connectome_checkpoint,
+        "connectome",
+        config.training_seeds,
+        config.environment_version,
     )
     if not isinstance(connectome, FixedGraphPolicy):
         raise ValueError("Connectome evaluation requires a fixed graph policy.")
@@ -800,7 +875,10 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
             seeds=config.evaluation_seeds,
             maximum_steps=config.max_steps_per_episode,
             evidence=_evidence(
-                conventional, config.conventional_checkpoint, conventional_training
+                conventional,
+                config.conventional_checkpoint,
+                conventional_training,
+                checkpoint_environment_version=conventional_environment_version,
             ),
         ),
         _controller_result(
@@ -811,15 +889,19 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
             seeds=config.evaluation_seeds,
             maximum_steps=config.max_steps_per_episode,
             evidence=_evidence(
-                connectome, config.connectome_checkpoint, connectome_training
+                connectome,
+                config.connectome_checkpoint,
+                connectome_training,
+                checkpoint_environment_version=connectome_environment_version,
             ),
         ),
         _controller_result(
             controller_id="degree-preserving-rewired",
-            label="Degree-preserving rewired control",
+            label="Degree/normalization-matched rewired control",
             control=(
                 f"{config.rewiring_swaps} directed double-edge swaps; "
-                f"seed {config.rewiring_seed}"
+                f"seed {config.rewiring_seed}; preserve directed degree and "
+                "per-target absolute incoming normalization"
             ),
             runner=_PolicyRunner(rewired),
             seeds=config.evaluation_seeds,
@@ -828,6 +910,7 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
                 rewired,
                 config.connectome_checkpoint,
                 connectome_training,
+                checkpoint_environment_version=connectome_environment_version,
                 control_graph_hash=rewired_graph.artifact_sha256,
             ),
         ),
@@ -842,6 +925,7 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
                 silenced,
                 config.connectome_checkpoint,
                 connectome_training,
+                checkpoint_environment_version=connectome_environment_version,
                 silenced_body_ids=silenced_body_ids,
             ),
         ),
@@ -853,7 +937,10 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
             seeds=config.evaluation_seeds,
             maximum_steps=config.max_steps_per_episode,
             evidence=_evidence(
-                untrained, config.connectome_checkpoint, connectome_training
+                untrained,
+                config.connectome_checkpoint,
+                connectome_training,
+                checkpoint_environment_version=connectome_environment_version,
             ),
         ),
     ]

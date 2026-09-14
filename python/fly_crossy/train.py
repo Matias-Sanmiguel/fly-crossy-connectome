@@ -15,7 +15,7 @@ from torch import Tensor
 from torch.distributions import Categorical
 
 from .connectome import load_default_reduced_graph
-from .env import FlyCrossyEnv, hash_seed
+from .env import FlyCrossyEnv, WORLD_VERSION, hash_seed
 from .export import export_policy
 from .models import DensePolicy, FixedGraphPolicy
 from .schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE
@@ -332,6 +332,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
     torch.save(
         {
             "format_version": 1,
+            "environment_version": WORLD_VERSION,
             "controller": config.controller,
             "model": model_metadata,
             "model_state_dict": model.state_dict(),
@@ -350,6 +351,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
 
     metadata = {
         "version": 1,
+        "environmentVersion": WORLD_VERSION,
         "configuration": {
             **asdict(config),
             "output": str(config.output),
