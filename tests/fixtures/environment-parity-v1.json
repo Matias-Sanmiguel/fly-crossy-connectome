@@ -1,0 +1,296 @@
+{
+  "version": 1,
+  "observationEncoding": "float32-le-sha256",
+  "positionChecks": [
+    {
+      "seed": "episode-v1-safe-opening",
+      "row": 3,
+      "hazardIndex": 0,
+      "time": 3.800000000000001,
+      "expected": 2.9999999999999964
+    }
+  ],
+  "cases": [
+    {
+      "name": "remainder-boundary-water",
+      "state": {
+        "base": "createGame",
+        "seed": "episode-v1-safe-opening",
+        "overrides": {
+          "step": 18,
+          "time": 3.600000000000001,
+          "fly": { "row": 2, "column": 4 },
+          "score": 2
+        }
+      },
+      "action": "forward",
+      "expected": {
+        "beforeObservationSha256": "d8242357561d3d0a2d9ae559218d1a0a2f7753861599419bc064423021850d60",
+        "afterObservationSha256": "51dfbc989bccdb5906edb12fe53cb90ae9b759ac4a3a1cb465fdd4f2b0c5d297",
+        "reward": -9.01,
+        "fly": { "row": 3, "column": 4 },
+        "step": 19,
+        "time": 3.800000000000001,
+        "score": 3,
+        "terminalReason": "water",
+        "previousAction": "forward",
+        "events": [
+          {
+            "type": "moved",
+            "action": "forward",
+            "from": { "row": 2, "column": 4 },
+            "to": { "row": 3, "column": 4 }
+          },
+          {
+            "type": "terminal",
+            "reason": "water",
+            "position": { "row": 3, "column": 4 }
+          }
+        ],
+        "laneRows": [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+      }
+    },
+    {
+      "name": "negative-wrap-hazard-occupancy",
+      "state": {
+        "base": "custom",
+        "value": {
+          "version": 1,
+          "seed": "negative-wrap",
+          "step": 50,
+          "time": 10,
+          "fly": { "row": 3, "column": 0 },
+          "score": 3,
+          "lanes": [
+            {
+              "row": 3,
+              "kind": "road",
+              "hazards": [{ "kind": "car", "position": 12, "size": 1 }],
+              "direction": 1,
+              "speed": 1,
+              "phase": 0
+            }
+          ],
+          "terminal": null,
+          "previousAction": "wait"
+        }
+      },
+      "action": "wait",
+      "expected": {
+        "beforeObservationSha256": "f3aa31723b4c3002383a0dcd795b489150caf133b82083a8287e786036ac4e2e",
+        "afterObservationSha256": "9fcc53f42b465c426dabcf3d123fd5a66da8a8afad5f306180435f79ffa82d3f",
+        "reward": -0.01,
+        "fly": { "row": 3, "column": 0 },
+        "step": 51,
+        "time": 10.2,
+        "score": 3,
+        "terminalReason": null,
+        "previousAction": "wait",
+        "events": [{ "type": "waited", "position": { "row": 3, "column": 0 } }],
+        "laneRows": [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+      }
+    },
+    {
+      "name": "river-support-and-carry",
+      "state": {
+        "base": "custom",
+        "value": {
+          "version": 1,
+          "seed": "river-carry",
+          "step": 0,
+          "time": 0,
+          "fly": { "row": 3, "column": 0 },
+          "score": 3,
+          "lanes": [
+            {
+              "row": 3,
+              "kind": "river",
+              "hazards": [{ "kind": "log", "position": -0.5, "size": 2 }],
+              "direction": 1,
+              "speed": 1,
+              "phase": 0
+            }
+          ],
+          "terminal": null,
+          "previousAction": "wait"
+        }
+      },
+      "action": "wait",
+      "expected": {
+        "beforeObservationSha256": "2f5b659fe31b269c1c9f3c2b799085744c8dd8377724a5af7324ee3ef13137ea",
+        "afterObservationSha256": "bdd2f15b5943254f49a7ecbd3ceabcd566b25f4b6d76a302a20d4096a1b842ab",
+        "reward": -0.01,
+        "fly": { "row": 3, "column": 0.2 },
+        "step": 1,
+        "time": 0.2,
+        "score": 3,
+        "terminalReason": null,
+        "previousAction": "wait",
+        "events": [
+          { "type": "waited", "position": { "row": 3, "column": 0 } },
+          { "type": "carried", "row": 3, "displacement": 0.2 }
+        ],
+        "laneRows": [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+      }
+    },
+    {
+      "name": "starting-lane-collision-precedes-movement",
+      "state": {
+        "base": "custom",
+        "value": {
+          "version": 1,
+          "seed": "collision-order",
+          "step": 0,
+          "time": 0,
+          "fly": { "row": 3, "column": 0 },
+          "score": 3,
+          "lanes": [
+            {
+              "row": 3,
+              "kind": "road",
+              "hazards": [{ "kind": "car", "position": -1.5, "size": 1 }],
+              "direction": 1,
+              "speed": 10,
+              "phase": 0
+            },
+            { "row": 4, "kind": "grass", "hazards": [] }
+          ],
+          "terminal": null,
+          "previousAction": "wait"
+        }
+      },
+      "action": "forward",
+      "expected": {
+        "beforeObservationSha256": "506a5679da18d2a03e1a4de699171d1c9d3e8adb7b927ea00c470027ecb3e321",
+        "afterObservationSha256": "743d2cc683c80213539db15de71ec281961eee46f80515d40ffce4593711e019",
+        "reward": -10.01,
+        "fly": { "row": 3, "column": 0 },
+        "step": 1,
+        "time": 0.2,
+        "score": 3,
+        "terminalReason": "vehicle",
+        "previousAction": "forward",
+        "events": [{ "type": "terminal", "reason": "vehicle", "position": { "row": 3, "column": 0 } }],
+        "laneRows": [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+      }
+    },
+    {
+      "name": "rail-warning-before-impact",
+      "state": {
+        "base": "custom",
+        "value": {
+          "version": 1,
+          "seed": "rail-warning",
+          "step": 0,
+          "time": 0,
+          "fly": { "row": 3, "column": 0 },
+          "score": 3,
+          "lanes": [
+            {
+              "row": 3,
+              "kind": "rail",
+              "hazards": [{ "kind": "train", "position": -6, "size": 4 }],
+              "direction": 1,
+              "speed": 2,
+              "phase": 0
+            }
+          ],
+          "terminal": null,
+          "previousAction": "wait"
+        }
+      },
+      "action": "wait",
+      "expected": {
+        "beforeObservationSha256": "3e6f2b123e8ff50925424859b70c3958e63d12d21ca4987cb07ce0dc7104a2c5",
+        "afterObservationSha256": "1b5fda33ce1e83e77a02ac9cdd3a49aaff2de15f2d88dfde8c38d919afb7ebfd",
+        "reward": -0.01,
+        "fly": { "row": 3, "column": 0 },
+        "step": 1,
+        "time": 0.2,
+        "score": 3,
+        "terminalReason": null,
+        "previousAction": "wait",
+        "events": [
+          { "type": "waited", "position": { "row": 3, "column": 0 } },
+          { "type": "train-warning", "row": 3 }
+        ],
+        "laneRows": [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+      }
+    },
+    {
+      "name": "rail-swept-impact",
+      "state": {
+        "base": "custom",
+        "value": {
+          "version": 1,
+          "seed": "rail-impact",
+          "step": 0,
+          "time": 0,
+          "fly": { "row": 3, "column": 0 },
+          "score": 3,
+          "lanes": [
+            {
+              "row": 3,
+              "kind": "rail",
+              "hazards": [{ "kind": "train", "position": -2.5, "size": 4 }],
+              "direction": 1,
+              "speed": 10,
+              "phase": 0
+            }
+          ],
+          "terminal": null,
+          "previousAction": "wait"
+        }
+      },
+      "action": "wait",
+      "expected": {
+        "beforeObservationSha256": "cf77714f3d85169cee107e4fe363eb194bf1a66e5b9b2125f25bed285de66885",
+        "afterObservationSha256": "ef2576fe759fae48e7157c36786f37fdbb4de188cc4d5b744c4985a450416502",
+        "reward": -10.01,
+        "fly": { "row": 3, "column": 0 },
+        "step": 1,
+        "time": 0.2,
+        "score": 3,
+        "terminalReason": "train",
+        "previousAction": "wait",
+        "events": [{ "type": "terminal", "reason": "train", "position": { "row": 3, "column": 0 } }],
+        "laneRows": [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+      }
+    },
+    {
+      "name": "world-extension-and-retention",
+      "state": {
+        "base": "custom",
+        "value": {
+          "version": 1,
+          "seed": "world-extension",
+          "step": 0,
+          "time": 0,
+          "fly": { "row": 100, "column": 0 },
+          "score": 100,
+          "lanes": [
+            { "row": 50, "kind": "grass", "hazards": [] },
+            { "row": 100, "kind": "grass", "hazards": [] },
+            { "row": 130, "kind": "grass", "hazards": [] }
+          ],
+          "terminal": null,
+          "previousAction": "wait"
+        }
+      },
+      "action": "wait",
+      "expected": {
+        "beforeObservationSha256": "f0ad6a3df512a2ec78f5776b7402b61c37c494d833e6213c6527ea2930fe4a1a",
+        "afterObservationSha256": "8df554e7fefada3c92d3b25c661915fb7f271e509baaec3ecf70a88e65b89a09",
+        "reward": -0.01,
+        "fly": { "row": 100, "column": 0 },
+        "step": 1,
+        "time": 0.2,
+        "score": 100,
+        "terminalReason": null,
+        "previousAction": "wait",
+        "events": [{ "type": "waited", "position": { "row": 100, "column": 0 } }],
+        "laneRows": [92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 130]
+      }
+    }
+  ]
+}

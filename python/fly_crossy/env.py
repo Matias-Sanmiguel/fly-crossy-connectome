@@ -210,9 +210,8 @@ def _unwrapped_hazard_position_at(lane: Lane, hazard: Hazard, time: float) -> fl
 def hazard_position_at(lane: Lane, hazard: Hazard, time: float) -> float:
     unwrapped = _unwrapped_hazard_position_at(lane, hazard, time)
     half_circuit = HAZARD_CIRCUIT / 2
-    return (
-        (unwrapped + half_circuit) % HAZARD_CIRCUIT + HAZARD_CIRCUIT
-    ) % HAZARD_CIRCUIT - half_circuit
+    first_remainder = math.fmod(unwrapped + half_circuit, HAZARD_CIRCUIT)
+    return math.fmod(first_remainder + HAZARD_CIRCUIT, HAZARD_CIRCUIT) - half_circuit
 
 
 def hazard_contains(lane: Lane, hazard: Hazard, column: float, time: float) -> bool:
