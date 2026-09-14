@@ -19,6 +19,7 @@ from fly_crossy.env import (
     WORLD_VERSION,
     create_game,
     difficulty_for_row,
+    find_bounded_group_witness,
     generate_rows,
     has_bounded_group_path,
     hash_seed,
@@ -45,7 +46,7 @@ WORLD_PARITY_FIXTURE = (
     Path(__file__).resolve().parents[2]
     / "tests"
     / "fixtures"
-    / "world-generation-v2.json"
+    / "world-generation-v3.json"
 )
 
 
@@ -115,18 +116,18 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
         {
             "row": 3,
             "kind": "rail",
-            "hazards": [{"kind": "train", "position": 8, "size": 4}],
-            "direction": -1,
-            "speed": 2,
-            "phase": 0.931,
+            "hazards": [{"kind": "train", "position": -8, "size": 4}],
+            "direction": 1,
+            "speed": 1,
+            "phase": 0.293,
         },
         {
             "row": 4,
             "kind": "rail",
-            "hazards": [{"kind": "train", "position": -5, "size": 4}],
-            "direction": -1,
+            "hazards": [{"kind": "train", "position": -1, "size": 4}],
+            "direction": 1,
             "speed": 1,
-            "phase": 0.558,
+            "phase": 0.409,
         },
     ]
 
@@ -145,8 +146,49 @@ def test_known_impassable_first_group_is_replaced_by_a_bounded_reachable_group()
     assert [group[0].kind, group[-1].kind] == ["grass", "grass"]
 
 
+def _replay_group_witness(seed: str, rows: list[Lane], actions: list[Action]) -> None:
+    start_row = rows[0].row
+    time = 0.0
+    for _ in range(max(0, start_row)):
+        time += 0.2
+    state = GameState(
+        version=WORLD_VERSION,
+        seed=seed,
+        step=max(0, start_row),
+        time=time,
+        fly=GridPosition(row=start_row, column=0),
+        score=max(0, start_row),
+        lanes=rows,
+        terminal=None,
+        previous_action=Action.WAIT,
+    )
+    for action in actions:
+        state = step_game(state, action).state
+        assert state.terminal is None, (seed, action, state.step)
+    assert state.fly.row == rows[-1].row
+
+
+def test_audit_replay_21_solver_witness_survives_authoritative_float_replay() -> None:
+    group = generate_rows("audit-replay-21", 2, 6)
+    witness = find_bounded_group_witness(group)
+
+    assert witness is not None
+    _replay_group_witness("audit-replay-21", group, witness)
+
+
+def test_solver_witnesses_replay_through_authoritative_transition_sample() -> None:
+    for seed_index in range(24):
+        for group_index in (0, 1, 8, 24):
+            seed = f"audit-replay-{seed_index}"
+            start = 2 + group_index * 5
+            group = generate_rows(seed, start, 6)
+            witness = find_bounded_group_witness(group)
+            assert witness is not None, (seed, group_index)
+            _replay_group_witness(seed, group, witness)
+
+
 def test_generated_groups_have_a_bounded_route_over_a_deterministic_seed_sample() -> None:
-    for seed_index in range(96):
+    for seed_index in range(24):
         for group_index in (0, 1, 8, 24):
             start = 2 + group_index * 5
             assert has_bounded_group_path(

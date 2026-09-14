@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Mapping
 import hashlib
 import json
 from pathlib import Path
@@ -9,6 +10,7 @@ from typing import Any
 import torch
 from torch import Tensor, nn
 
+from .checkpoint import validate_checkpoint
 from .connectome import ReducedGraphArtifact
 from .models import DensePolicy, FixedGraphPolicy
 from .schema import ACTION_ORDER
@@ -40,13 +42,13 @@ def _finite_scalar(tensor: Tensor, label: str) -> float:
 
 
 def _load_dense_policy(
-    model_config: dict[str, object], state_dict: dict[str, object]
+    model_config: Mapping[str, object], state_dict: Mapping[str, Tensor]
 ) -> DensePolicy:
     try:
         model = DensePolicy(
-            observation_size=int(model_config["observation_size"]),
-            hidden_size=int(model_config["hidden_size"]),
-            actions=int(model_config["actions"]),
+            observation_size=model_config["observation_size"],
+            hidden_size=model_config["hidden_size"],
+            actions=model_config["actions"],
         )
         model.load_state_dict(state_dict)
     except (KeyError, TypeError, ValueError, RuntimeError) as error:
@@ -55,17 +57,17 @@ def _load_dense_policy(
 
 
 def _load_fixed_graph_policy(
-    model_config: dict[str, object], state_dict: dict[str, object]
+    model_config: Mapping[str, object], state_dict: Mapping[str, Tensor]
 ) -> FixedGraphPolicy:
     graph_value = model_config.get("graph")
-    if not isinstance(graph_value, dict):
+    if not isinstance(graph_value, Mapping):
         raise ValueError("Connectome checkpoint is missing its reduced graph artifact.")
     try:
         graph = ReducedGraphArtifact.from_checkpoint(graph_value)
         model = FixedGraphPolicy(
             graph=graph,
-            observation_size=int(model_config["observation_size"]),
-            actions=int(model_config["actions"]),
+            observation_size=model_config["observation_size"],
+            actions=model_config["actions"],
         )
         model.load_state_dict(state_dict)
     except (KeyError, TypeError, ValueError, RuntimeError) as error:
@@ -77,14 +79,14 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     """Export a conventional or fixed-graph actor checkpoint for browser inference."""
     checkpoint_path = Path(checkpoint)
     output_path = Path(output)
-    saved = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
-    controller = saved.get("controller") if isinstance(saved, dict) else None
-    if controller not in ("conventional", "connectome"):
-        raise ValueError("Checkpoint controller must be conventional or connectome.")
-    model_config = saved.get("model")
-    state_dict = saved.get("model_state_dict")
-    if not isinstance(model_config, dict) or not isinstance(state_dict, dict):
-        raise ValueError("Checkpoint is missing model configuration or weights.")
+    try:
+        saved = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    except (OSError, RuntimeError, TypeError, ValueError) as error:
+        raise ValueError(f"Checkpoint could not be loaded: {checkpoint_path}") from error
+    checkpoint_metadata = validate_checkpoint(saved)
+    controller = checkpoint_metadata.controller
+    model_config = checkpoint_metadata.model
+    state_dict = checkpoint_metadata.state_dict
 
     model = (
         _load_fixed_graph_policy(model_config, state_dict)

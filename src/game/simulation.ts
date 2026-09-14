@@ -1,20 +1,18 @@
 import { reward as calculateReward } from './reward.ts';
-import type { Action, Hazard, Lane } from './types.ts';
+import type { Action, Lane } from './types.ts';
 import { generateRows, WORLD_VERSION } from './world.ts';
+import { advanceLaneTransition } from './transition.ts';
+import type { GridPosition, TerminalReason, TransitionEvent } from './transition.ts';
 
-export type TerminalReason = 'vehicle' | 'train' | 'water' | 'bounds';
-
-export type GridPosition = {
-  row: number;
-  column: number;
-};
-
-export type GameEvent =
-  | { type: 'moved'; action: Exclude<Action, 'wait'>; from: GridPosition; to: GridPosition }
-  | { type: 'waited'; position: GridPosition }
-  | { type: 'carried'; row: number; displacement: number }
-  | { type: 'train-warning'; row: number }
-  | { type: 'terminal'; reason: TerminalReason; position: GridPosition };
+export {
+  DECISION_SECONDS,
+  HAZARD_CIRCUIT,
+  WORLD_HALF_WIDTH,
+  hazardContains,
+  hazardPositionAt,
+} from './transition.ts';
+export type { GridPosition, TerminalReason } from './transition.ts';
+export type GameEvent = TransitionEvent;
 
 export type GameState = {
   version: typeof WORLD_VERSION;
@@ -34,63 +32,11 @@ export type StepResult = {
   events: GameEvent[];
 };
 
-export const DECISION_SECONDS = 0.2;
-export const WORLD_HALF_WIDTH = 5;
-export const HAZARD_CIRCUIT = 25;
-
 const ROWS_AHEAD = 15;
 const ROWS_BEHIND = 8;
-const TRAIN_WARNING_SECONDS = 2;
 
 function laneFor(state: GameState, row: number): Lane {
   return state.lanes.find((lane) => lane.row === row) ?? generateRows(state.seed, row, 1)[0]!;
-}
-
-function unwrappedHazardPositionAt(lane: Lane, hazard: Hazard, time: number): number {
-  const direction = lane.direction ?? 0;
-  const speed = lane.speed ?? 0;
-  const phase = lane.phase ?? 0;
-  return hazard.position + direction * speed * (time + phase);
-}
-
-/** Horizontal center on the repeating hazard circuit at an authoritative time. */
-export function hazardPositionAt(lane: Lane, hazard: Hazard, time: number): number {
-  const unwrapped = unwrappedHazardPositionAt(lane, hazard, time);
-  const halfCircuit = HAZARD_CIRCUIT / 2;
-  return ((unwrapped + halfCircuit) % HAZARD_CIRCUIT + HAZARD_CIRCUIT) % HAZARD_CIRCUIT
-    - halfCircuit;
-}
-
-export function hazardContains(lane: Lane, hazard: Hazard, column: number, time: number): boolean {
-  return Math.abs(hazardPositionAt(lane, hazard, time) - column) <= hazard.size / 2;
-}
-
-function hazardSweepsColumn(
-  lane: Lane,
-  hazard: Hazard,
-  column: number,
-  fromTime: number,
-  toTime: number,
-): boolean {
-  const from = unwrappedHazardPositionAt(lane, hazard, fromTime);
-  const to = unwrappedHazardPositionAt(lane, hazard, toTime);
-  const halfSize = hazard.size / 2;
-  const lower = Math.min(from, to) - halfSize;
-  const upper = Math.max(from, to) + halfSize;
-  const firstImage = Math.ceil((lower - column) / HAZARD_CIRCUIT);
-  const lastImage = Math.floor((upper - column) / HAZARD_CIRCUIT);
-  return firstImage <= lastImage;
-}
-
-function movedPosition(fly: GridPosition, action: Action): GridPosition {
-  switch (action) {
-    case 'forward': return { row: fly.row + 1, column: fly.column };
-    case 'backward': return { row: fly.row - 1, column: fly.column };
-    case 'left': return { row: fly.row, column: fly.column - 1 };
-    case 'right': return { row: fly.row, column: fly.column + 1 };
-    case 'wait': return { ...fly };
-    default: throw Error(`Unknown game action: ${String(action)}`);
-  }
 }
 
 function extendWorld(state: GameState, flyRow: number): Lane[] {
@@ -102,15 +48,11 @@ function extendWorld(state: GameState, flyRow: number): Lane[] {
       .map((lane) => [lane.row, lane]),
   );
 
-  for (let row = minimum; row <= maximum; row += 1) {
-    if (!retained.has(row)) retained.set(row, generateRows(state.seed, row, 1)[0]!);
+  for (const lane of generateRows(state.seed, minimum, maximum - minimum + 1)) {
+    if (!retained.has(lane.row)) retained.set(lane.row, lane);
   }
 
   return [...retained.values()].sort((left, right) => left.row - right.row);
-}
-
-function terminalEvent(reason: TerminalReason, position: GridPosition): GameEvent {
-  return { type: 'terminal', reason, position: { ...position } };
 }
 
 export function createGame(seed: string): GameState {
@@ -129,85 +71,24 @@ export function createGame(seed: string): GameState {
 
 export function stepGame(state: GameState, action: Action): StepResult {
   if (state.terminal !== null) return { state, reward: 0, events: [] };
-
-  const from = { ...state.fly };
-  const toTime = state.time + DECISION_SECONDS;
-  let fly = { ...state.fly };
-  const events: GameEvent[] = [];
-  const startingLane = laneFor(state, state.fly.row);
-  let terminal: TerminalReason | null = null;
-  if (startingLane.kind === 'road' || startingLane.kind === 'rail') {
-    const collision = startingLane.hazards.find((hazard) => (
-      hazardSweepsColumn(startingLane, hazard, state.fly.column, state.time, toTime)
-    ));
-    if (collision) {
-      terminal = startingLane.kind === 'rail' || collision.kind === 'train' ? 'train' : 'vehicle';
-    }
-  }
-
-  if (terminal === null) {
-    fly = movedPosition(state.fly, action);
-    if (action === 'wait') {
-      events.push({ type: 'waited', position: { ...fly } });
-    } else {
-      events.push({ type: 'moved', action, from, to: { ...fly } });
-    }
-
-    const destinationLane = laneFor(state, fly.row);
-    if (destinationLane.kind === 'river' && action === 'wait') {
-      const support = destinationLane.hazards.find((hazard) => (
-        hazard.kind === 'log'
-        && hazardContains(destinationLane, hazard, state.fly.column, state.time)
-      ));
-      if (support) {
-        const displacement = (destinationLane.direction ?? 0)
-          * (destinationLane.speed ?? 0)
-          * DECISION_SECONDS;
-        fly = { ...fly, column: fly.column + displacement };
-        events.push({ type: 'carried', row: fly.row, displacement });
-      }
-    }
-
-    if (Math.abs(fly.column) > WORLD_HALF_WIDTH) {
-      terminal = 'bounds';
-    } else if (destinationLane.kind === 'river') {
-      const supported = destinationLane.hazards.some((hazard) => (
-        hazard.kind === 'log' && hazardContains(destinationLane, hazard, fly.column, toTime)
-      ));
-      if (!supported) terminal = 'water';
-    } else if (destinationLane.kind === 'road' || destinationLane.kind === 'rail') {
-      const collision = destinationLane.hazards.find((hazard) => (
-        hazardContains(destinationLane, hazard, fly.column, toTime)
-      ));
-      if (collision) {
-        terminal = destinationLane.kind === 'rail' || collision.kind === 'train'
-          ? 'train'
-          : 'vehicle';
-      }
-    }
-
-    if (terminal === null && destinationLane.kind === 'rail') {
-      const warningEnd = toTime + TRAIN_WARNING_SECONDS;
-      const approaching = destinationLane.hazards.some((hazard) => (
-        hazard.kind === 'train'
-        && hazardSweepsColumn(destinationLane, hazard, fly.column, toTime, warningEnd)
-      ));
-      if (approaching) events.push({ type: 'train-warning', row: destinationLane.row });
-    }
-  }
-  if (terminal !== null) events.push(terminalEvent(terminal, fly));
+  const transition = advanceLaneTransition(
+    state.fly,
+    state.time,
+    action,
+    (row) => laneFor(state, row),
+  );
 
   const next: GameState = {
     version: WORLD_VERSION,
     seed: state.seed,
     step: state.step + 1,
-    time: toTime,
-    fly,
-    score: Math.max(state.score, fly.row),
-    lanes: extendWorld(state, fly.row),
-    terminal,
+    time: transition.time,
+    fly: transition.fly,
+    score: Math.max(state.score, transition.fly.row),
+    lanes: extendWorld(state, transition.fly.row),
+    terminal: transition.terminal,
     previousAction: action,
   };
 
-  return { state: next, reward: calculateReward(state, next), events };
+  return { state: next, reward: calculateReward(state, next), events: transition.events };
 }

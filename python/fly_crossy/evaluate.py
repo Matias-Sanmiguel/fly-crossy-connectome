@@ -16,9 +16,10 @@ import torch
 from torch import Tensor
 
 from .connectome import ReducedGraphArtifact
+from .checkpoint import validate_checkpoint
 from .env import FlyCrossyEnv, WORLD_VERSION, hash_seed
 from .models import DensePolicy, FixedGraphPolicy
-from .schema import ACTION_ORDER, Action
+from .schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE, Action
 
 
 @dataclass(frozen=True, slots=True)
@@ -334,62 +335,27 @@ def _load_checkpoint(
         checkpoint = torch.load(path, map_location="cpu", weights_only=True)
     except (OSError, RuntimeError, ValueError) as error:
         raise ValueError(f"Evaluation checkpoint could not be loaded: {path}") from error
-    if not isinstance(checkpoint, Mapping):
-        raise ValueError("Evaluation checkpoint must contain an object.")
-    if "environment_version" not in checkpoint:
-        raise ValueError("Checkpoint environment version must be recorded.")
-    raw_environment_version = checkpoint["environment_version"]
-    if isinstance(raw_environment_version, bool) or not isinstance(
-        raw_environment_version, int
-    ):
-        raise ValueError("Checkpoint environment version must be an integer.")
-    checkpoint_environment_version = raw_environment_version
-    if checkpoint_environment_version != expected_environment_version:
-        raise ValueError(
-            f"Checkpoint environment version {checkpoint_environment_version} "
-            f"does not match evaluation environment version "
-            f"{expected_environment_version}."
-        )
-    try:
-        if checkpoint["format_version"] != 1:
-            raise ValueError("Evaluation checkpoint format version must be 1.")
-        if checkpoint["controller"] != expected_controller:
-            raise ValueError(
-                f"Evaluation checkpoint must contain a {expected_controller} controller."
-            )
-        model_metadata = checkpoint["model"]
-        state_dict = checkpoint["model_state_dict"]
-        training = dict(checkpoint["training"])
-        observation_size = int(model_metadata["observation_size"])
-        actions = int(model_metadata["actions"])
-        training_seed = _required_string(training["seed"], "checkpoint training seed")
-        training_steps = _required_integer(training["steps"], "checkpoint training steps")
-        training_envs = _required_integer(training["envs"], "checkpoint environment count")
-        training_world_seeds = _string_tuple(
-            training["world_seeds"], "checkpoint concrete training world seeds"
-        )
-    except (KeyError, TypeError, ValueError) as error:
-        if isinstance(error, ValueError) and str(error).startswith("Evaluation "):
-            raise
-        raise ValueError("Evaluation checkpoint metadata is incompatible.") from error
-    if actions != len(ACTION_ORDER) or observation_size <= 0:
-        raise ValueError("Evaluation checkpoint model dimensions are incompatible.")
+    validated = validate_checkpoint(
+        checkpoint,
+        expected_controller=expected_controller,
+        expected_environment_version=expected_environment_version,
+        expected_observation_size=OBSERVATION_INPUT_SIZE,
+    )
+    model_metadata = validated.model
+    state_dict = validated.state_dict
+    training = validated.training
+    observation_size = validated.observation_size
+    actions = validated.actions
+    training_seed = training["seed"]
+    checkpoint_environment_version = validated.environment_version
     if training_seed not in training_seeds:
         raise ValueError(
             f"Checkpoint training seed {training_seed!r} is not declared in trainingSeeds."
         )
-    if training_steps <= 0 or training_envs <= 0:
-        raise ValueError("Evaluation checkpoint training steps and environments must be positive.")
-    if any(not seed.startswith(f"{training_seed}:") for seed in training_world_seeds):
-        raise ValueError(
-            "Evaluation checkpoint concrete training world seeds do not match its root seed."
-        )
-
     if expected_controller == "conventional":
-        try:
-            hidden_size = int(model_metadata["hidden_size"])
-        except (KeyError, TypeError, ValueError) as error:
-            raise ValueError("Conventional checkpoint hidden size is incompatible.") from error
+        hidden_size = validated.hidden_size
+        if hidden_size is None:
+            raise ValueError("Conventional checkpoint hidden size is incompatible.")
         model: DensePolicy | FixedGraphPolicy = DensePolicy(
             observation_size, hidden_size, actions
         )

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 2,
+  "environmentVersion": 3,
   "trainingSeeds": ["smoke"],
   "evaluationSeeds": [
     "eval-v1-001",
@@ -20,11 +20,11 @@
   "checkpoints": {
     "conventional": {
       "path": "../release/eval-v1/training/conventional/checkpoint.pt",
-      "sha256": "c336a53086e765e242e74ec396225f51d744679aff8fe1ae7fe8c31e78b2ed4d"
+      "sha256": "03640098bf3ff5e8e2164c1cd43dff0791dea6d2f51e711a8d2d7217648c2620"
     },
     "connectome": {
       "path": "../release/eval-v1/training/connectome/checkpoint.pt",
-      "sha256": "218d319c050983c225c943ab8de7493af672de561749a1892aa507a1c676cec5"
+      "sha256": "abd1dc3f472de7687599d60cf73ecfbc31207ede197deeae353b8f4d4cb76e9f"
     }
   },
   "controls": {

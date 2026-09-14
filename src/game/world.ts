@@ -1,16 +1,18 @@
 import { createRng } from './random.ts';
 import type { Direction, Hazard, HazardKind, Lane, LaneKind } from './types.ts';
+import type { Action } from './types.ts';
+import { advanceLaneTransition, decisionTimeAfterSteps } from './transition.ts';
 
-export const WORLD_VERSION = 2;
+export const WORLD_VERSION = 3;
 
 const OPENING_ROWS = 3;
 const HAZARD_ROWS_PER_GROUP = 4;
 const GROUP_ROWS = HAZARD_ROWS_PER_GROUP + 1;
-const WORLD_HALF_WIDTH = 5;
-const HAZARD_CIRCUIT = 25;
-const DECISION_SECONDS = 0.2;
 const SOLVABILITY_STEP_LIMIT = 80;
+const SOLVABILITY_TRANSITION_LIMIT = 1_024;
 const GENERATION_ATTEMPTS = 8;
+const GROUP_CACHE_LIMIT = 512;
+const groupCache = new Map<string, Lane[]>();
 
 export type DifficultyProfile = {
   level: number;
@@ -99,92 +101,58 @@ function hazardLane(seed: string, row: number, groupIndex: number, attempt: numb
   };
 }
 
-function unwrappedHazardPositionAt(lane: Lane, hazard: Hazard, time: number): number {
-  return hazard.position + (lane.direction ?? 0) * (lane.speed ?? 0) * (time + (lane.phase ?? 0));
-}
-
-function hazardPositionAt(lane: Lane, hazard: Hazard, time: number): number {
-  const unwrapped = unwrappedHazardPositionAt(lane, hazard, time);
-  const halfCircuit = HAZARD_CIRCUIT / 2;
-  return ((unwrapped + halfCircuit) % HAZARD_CIRCUIT + HAZARD_CIRCUIT) % HAZARD_CIRCUIT
-    - halfCircuit;
-}
-
-function hazardContains(lane: Lane, hazard: Hazard, column: number, time: number): boolean {
-  return Math.abs(hazardPositionAt(lane, hazard, time) - column) <= hazard.size / 2;
-}
-
-function hazardSweepsColumn(
-  lane: Lane,
-  hazard: Hazard,
-  column: number,
-  fromTime: number,
-  toTime: number,
-): boolean {
-  const from = unwrappedHazardPositionAt(lane, hazard, fromTime);
-  const to = unwrappedHazardPositionAt(lane, hazard, toTime);
-  const lower = Math.min(from, to) - hazard.size / 2;
-  const upper = Math.max(from, to) + hazard.size / 2;
-  return Math.ceil((lower - column) / HAZARD_CIRCUIT)
-    <= Math.floor((upper - column) / HAZARD_CIRCUIT);
-}
-
-type ReachableState = { row: number; columnTicks: number; step: number };
+type ReachableState = { row: number; column: number; time: number; actions: Action[] };
 
 /**
  * Check for a route from the safe row immediately before one generated group
  * to its recovery row. The bounded search uses the authoritative 0.2-second
- * movement/collision rules and integer fifth-cell ticks for exact JS/Python
- * parity. A canonical earliest-arrival phase is used for each group; the safe
+ * movement/collision rules and repeated floating-point time accumulation used
+ * by the game. A canonical earliest-arrival phase is used for each group; the safe
  * row also permits waiting and lateral setup within the bound.
  */
-export function hasBoundedGroupPath(rows: readonly Lane[]): boolean {
-  if (rows.length !== HAZARD_ROWS_PER_GROUP + 2) return false;
+export function findBoundedGroupWitness(rows: readonly Lane[]): Action[] | null {
+  if (rows.length !== HAZARD_ROWS_PER_GROUP + 2) return null;
   const ordered = [...rows].sort((left, right) => left.row - right.row);
   if (ordered.some((lane, index) => index > 0 && lane.row !== ordered[index - 1]!.row + 1)
-    || ordered[0]!.kind !== 'grass' || ordered.at(-1)!.kind !== 'grass') return false;
+    || ordered[0]!.kind !== 'grass' || ordered.at(-1)!.kind !== 'grass') return null;
   const lanes = new Map(ordered.map((lane) => [lane.row, lane]));
   const startRow = ordered[0]!.row;
   const goalRow = ordered.at(-1)!.row;
-  let frontier: ReachableState[] = [{ row: startRow, columnTicks: 0, step: Math.max(0, startRow) }];
+  let frontier: ReachableState[] = [{
+    row: startRow,
+    column: 0,
+    time: decisionTimeAfterSteps(Math.max(0, startRow)),
+    actions: [],
+  }];
   const visited = new Set<string>();
-  const actions = ['forward', 'backward', 'left', 'right', 'wait'] as const;
+  const actions: readonly Action[] = ['forward', 'backward', 'left', 'right', 'wait'];
+  let transitionsChecked = 0;
 
   for (let depth = 0; depth < SOLVABILITY_STEP_LIMIT && frontier.length > 0; depth += 1) {
     const next: ReachableState[] = [];
     for (const state of frontier) {
-      const lane = lanes.get(state.row)!;
-      const fromTime = state.step * DECISION_SECONDS;
-      const toTime = fromTime + DECISION_SECONDS;
-      const column = state.columnTicks / 5;
-      if ((lane.kind === 'road' || lane.kind === 'rail')
-        && lane.hazards.some((hazard) => hazardSweepsColumn(lane, hazard, column, fromTime, toTime))) {
-        continue;
-      }
       for (const action of actions) {
-        let row = state.row + (action === 'forward' ? 1 : action === 'backward' ? -1 : 0);
-        let columnTicks = state.columnTicks + (action === 'right' ? 5 : action === 'left' ? -5 : 0);
-        if (row < startRow || row > goalRow || Math.abs(columnTicks) > WORLD_HALF_WIDTH * 5) continue;
-        const destination = lanes.get(row)!;
-        if (destination.kind === 'river' && action === 'wait') {
-          const supportedBefore = destination.hazards.some((hazard) => (
-            hazard.kind === 'log' && hazardContains(destination, hazard, column, fromTime)
-          ));
-          if (supportedBefore) columnTicks += (destination.direction ?? 0) * (destination.speed ?? 0);
-        }
-        const nextColumn = columnTicks / 5;
-        if (Math.abs(columnTicks) > WORLD_HALF_WIDTH * 5) continue;
-        if (destination.kind === 'river'
-          && !destination.hazards.some((hazard) => (
-            hazard.kind === 'log' && hazardContains(destination, hazard, nextColumn, toTime)
-          ))) continue;
-        if ((destination.kind === 'road' || destination.kind === 'rail')
-          && destination.hazards.some((hazard) => hazardContains(destination, hazard, nextColumn, toTime))) {
-          continue;
-        }
-        if (row === goalRow) return true;
-        const candidate = { row, columnTicks, step: state.step + 1 };
-        const key = `${candidate.step}:${candidate.row}:${candidate.columnTicks}`;
+        if (transitionsChecked >= SOLVABILITY_TRANSITION_LIMIT) return null;
+        transitionsChecked += 1;
+        const attemptedRow = state.row
+          + (action === 'forward' ? 1 : action === 'backward' ? -1 : 0);
+        if (attemptedRow < startRow || attemptedRow > goalRow) continue;
+        const transition = advanceLaneTransition(
+          { row: state.row, column: state.column },
+          state.time,
+          action,
+          (row) => lanes.get(row)!,
+        );
+        if (transition.terminal !== null) continue;
+        const witness = [...state.actions, action];
+        if (transition.fly.row === goalRow) return witness;
+        const candidate = {
+          row: transition.fly.row,
+          column: transition.fly.column,
+          time: transition.time,
+          actions: witness,
+        };
+        const key = `${depth + 1}:${candidate.row}:${candidate.column}`;
         if (!visited.has(key)) {
           visited.add(key);
           next.push(candidate);
@@ -193,24 +161,39 @@ export function hasBoundedGroupPath(rows: readonly Lane[]): boolean {
     }
     frontier = next;
   }
-  return false;
+  return null;
+}
+
+export function hasBoundedGroupPath(rows: readonly Lane[]): boolean {
+  return findBoundedGroupWitness(rows) !== null;
 }
 
 function generateGroup(seed: string, groupIndex: number): Lane[] {
+  const cacheKey = `${seed}:${groupIndex}`;
+  const cached = groupCache.get(cacheKey);
+  if (cached) return cached.map((lane) => ({ ...lane, hazards: [...lane.hazards] }));
   const first = OPENING_ROWS + groupIndex * GROUP_ROWS;
+  let generated: Lane[] | null = null;
   for (let attempt = 0; attempt < GENERATION_ATTEMPTS; attempt += 1) {
     const hazards = Array.from(
       { length: HAZARD_ROWS_PER_GROUP },
       (_, offset) => hazardLane(seed, first + offset, groupIndex, attempt),
     );
     if (hasBoundedGroupPath([grass(first - 1), ...hazards, grass(first + HAZARD_ROWS_PER_GROUP)])) {
-      return hazards;
+      generated = hazards;
+      break;
     }
   }
   // Deterministic safe fallback: the full group becomes a grass crossing. This
   // is intentionally conservative and guarantees recovery instead of emitting
   // a knowingly impassable layout after the bounded retry budget.
-  return Array.from({ length: HAZARD_ROWS_PER_GROUP }, (_, offset) => grass(first + offset));
+  generated ??= Array.from(
+    { length: HAZARD_ROWS_PER_GROUP },
+    (_, offset) => grass(first + offset),
+  );
+  groupCache.set(cacheKey, generated);
+  if (groupCache.size > GROUP_CACHE_LIMIT) groupCache.delete(groupCache.keys().next().value!);
+  return generated.map((lane) => ({ ...lane, hazards: [...lane.hazards] }));
 }
 
 /**

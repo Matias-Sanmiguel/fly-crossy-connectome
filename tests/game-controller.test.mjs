@@ -32,9 +32,9 @@ test('human action commands advance the authoritative game state', () => {
 });
 
 test('long forward-then-backtrack states stay within renderer instance capacity', () => {
-  const retainedLanes = generateRows('manual', -8, 249);
+  const retainedLanes = generateRows('capacity-95', -8, 249);
   const backtracked = {
-    ...createGame('manual'),
+    ...createGame('capacity-95'),
     step: 420,
     fly: { row: 20, column: 0 },
     score: 220,

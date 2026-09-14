@@ -10,6 +10,7 @@ import torch
 
 from fly_crossy.export import export_policy
 from fly_crossy.connectome import build_reduced_graph
+from fly_crossy.env import WORLD_VERSION
 from fly_crossy.models import DensePolicy, FixedGraphPolicy
 from fly_crossy.schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE
 
@@ -31,6 +32,14 @@ def _checkpoint(path: Path, hidden_size: int = 4) -> tuple[Path, DensePolicy]:
                 "actions": len(ACTION_ORDER),
             },
             "model_state_dict": policy.state_dict(),
+            "environment_version": WORLD_VERSION,
+            "training": {
+                "seed": "export-fixture",
+                "steps": 8,
+                "envs": 1,
+                "learning_rate": 0.0003,
+                "world_seeds": ["export-fixture:0:0"],
+            },
         },
         path,
     )
@@ -141,6 +150,14 @@ def _fixed_checkpoint(path: Path) -> tuple[Path, FixedGraphPolicy]:
                 "graph": graph.to_checkpoint(),
             },
             "model_state_dict": policy.state_dict(),
+            "environment_version": WORLD_VERSION,
+            "training": {
+                "seed": "export-fixture",
+                "steps": 8,
+                "envs": 1,
+                "learning_rate": 0.0003,
+                "world_seeds": ["export-fixture:0:0"],
+            },
         },
         path,
     )
@@ -211,3 +228,60 @@ def test_exported_fixed_graph_one_step_matches_pytorch(tmp_path: Path) -> None:
     assert actual_logits.tolist() == pytest.approx(
         expected_logits.squeeze(0).tolist(), abs=1e-5
     )
+
+
+_INVALID_CHECKPOINT_MUTATIONS = [
+    pytest.param(("format_version",), True, id="boolean-format-version"),
+    pytest.param(("model", "observation_size"), "370", id="string-observation-size"),
+    pytest.param(("model", "observation_size"), 370.9, id="fractional-observation-size"),
+    pytest.param(("model", "actions"), 5.9, id="fractional-actions"),
+    pytest.param(("model", "hidden_size"), 64.9, id="fractional-hidden-size"),
+    pytest.param(("model",), [], id="model-not-mapping"),
+    pytest.param(("model_state_dict",), [], id="state-dict-not-mapping"),
+    pytest.param(("training",), [], id="training-not-mapping"),
+    pytest.param(("training", "learning_rate"), True, id="boolean-learning-rate"),
+    pytest.param(("environment_version",), None, id="missing-environment-version"),
+    pytest.param(("environment_version",), WORLD_VERSION + 1, id="unsupported-environment-version"),
+]
+
+
+@pytest.mark.parametrize(("field_path", "invalid"), _INVALID_CHECKPOINT_MUTATIONS)
+def test_export_rejects_untrusted_checkpoint_metadata_before_conversion(
+    tmp_path: Path, field_path: tuple[str, ...], invalid: object
+) -> None:
+    checkpoint, _ = _checkpoint(tmp_path / "checkpoint.pt")
+    payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+    if invalid is None:
+        del payload[field_path[0]]
+    else:
+        cursor = payload
+        for key in field_path[:-1]:
+            cursor = cursor[key]
+        cursor[field_path[-1]] = invalid
+    torch.save(payload, checkpoint)
+
+    with pytest.raises(ValueError, match="[Cc]heckpoint"):
+        export_policy(checkpoint, tmp_path / "policy.json")
+
+
+def test_export_rejects_non_mapping_checkpoint_and_nonfinite_tensor(
+    tmp_path: Path,
+) -> None:
+    checkpoint = tmp_path / "checkpoint.pt"
+    torch.save([], checkpoint)
+    with pytest.raises(ValueError, match="[Cc]heckpoint"):
+        export_policy(checkpoint, tmp_path / "policy.json")
+
+    checkpoint, _ = _checkpoint(checkpoint)
+    payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+    payload["model_state_dict"]["actor.bias"][0] = float("nan")
+    torch.save(payload, checkpoint)
+    with pytest.raises(ValueError, match="finite"):
+        export_policy(checkpoint, tmp_path / "policy.json")
+
+    checkpoint, _ = _checkpoint(checkpoint)
+    payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+    payload["model_state_dict"]["actor.bias"] = torch.zeros(5, dtype=torch.bool)
+    torch.save(payload, checkpoint)
+    with pytest.raises(ValueError, match="floating-point"):
+        export_policy(checkpoint, tmp_path / "policy.json")

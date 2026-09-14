@@ -12,6 +12,7 @@ import torch
 from fly_crossy.connectome import load_default_reduced_graph
 from fly_crossy.env import WORLD_VERSION
 from fly_crossy.evaluate import (
+    _load_checkpoint,
     degree_preserving_rewire,
     evaluate,
     load_eval_config,
@@ -157,6 +158,7 @@ def _write_checkpoint_pair(
             "seed": "train-fixture",
             "steps": 8,
             "envs": 1,
+            "learning_rate": 0.0003,
             "world_seeds": ["train-fixture:0:0"],
         },
     }
@@ -182,6 +184,7 @@ def _write_checkpoint_pair(
             "seed": "train-fixture",
             "steps": 8,
             "envs": 1,
+            "learning_rate": 0.0003,
             "world_seeds": ["train-fixture:0:0"],
         },
     }
@@ -196,6 +199,87 @@ def _checkpoint_reference(path: Path) -> dict[str, str]:
         "path": path.name,
         "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
     }
+
+
+@pytest.mark.parametrize(
+    ("field_path", "invalid"),
+    [
+        pytest.param(("format_version",), True, id="boolean-format-version"),
+        pytest.param(("model", "observation_size"), "370", id="string-observation-size"),
+        pytest.param(("model", "observation_size"), 370.9, id="fractional-observation-size"),
+        pytest.param(("model", "actions"), 5.9, id="fractional-actions"),
+        pytest.param(("model", "hidden_size"), 64.9, id="fractional-hidden-size"),
+        pytest.param(("model",), [], id="model-not-mapping"),
+        pytest.param(("model_state_dict",), [], id="state-dict-not-mapping"),
+        pytest.param(("training",), [], id="training-not-mapping"),
+        pytest.param(("training", "learning_rate"), True, id="boolean-learning-rate"),
+        pytest.param(("environment_version",), None, id="missing-environment-version"),
+        pytest.param(("environment_version",), WORLD_VERSION + 1, id="unsupported-environment-version"),
+    ],
+)
+def test_evaluator_rejects_untrusted_checkpoint_metadata_before_conversion(
+    tmp_path: Path, field_path: tuple[str, ...], invalid: object
+) -> None:
+    conventional, _ = _write_checkpoint_pair(tmp_path)
+    payload = torch.load(conventional, map_location="cpu", weights_only=True)
+    if invalid is None:
+        del payload[field_path[0]]
+    else:
+        cursor = payload
+        for key in field_path[:-1]:
+            cursor = cursor[key]
+        cursor[field_path[-1]] = invalid
+    torch.save(payload, conventional)
+
+    with pytest.raises(ValueError, match="[Cc]heckpoint"):
+        _load_checkpoint(
+            conventional,
+            hashlib.sha256(conventional.read_bytes()).hexdigest(),
+            "conventional",
+            ["train-fixture"],
+            WORLD_VERSION,
+        )
+
+
+def test_evaluator_rejects_non_mapping_checkpoint_and_nonfinite_tensor(
+    tmp_path: Path,
+) -> None:
+    checkpoint = tmp_path / "checkpoint.pt"
+    torch.save([], checkpoint)
+    with pytest.raises(ValueError, match="checkpoint must contain an object"):
+        _load_checkpoint(
+            checkpoint,
+            hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+            "conventional",
+            ["train-fixture"],
+            WORLD_VERSION,
+        )
+
+    checkpoint, _ = _write_checkpoint_pair(tmp_path)
+    payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+    payload["model_state_dict"]["actor.bias"][0] = float("inf")
+    torch.save(payload, checkpoint)
+    with pytest.raises(ValueError, match="finite"):
+        _load_checkpoint(
+            checkpoint,
+            hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+            "conventional",
+            ["train-fixture"],
+            WORLD_VERSION,
+        )
+
+    checkpoint, _ = _write_checkpoint_pair(tmp_path)
+    payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+    payload["model_state_dict"]["actor.bias"] = torch.zeros(5, dtype=torch.bool)
+    torch.save(payload, checkpoint)
+    with pytest.raises(ValueError, match="floating-point"):
+        _load_checkpoint(
+            checkpoint,
+            hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+            "conventional",
+            ["train-fixture"],
+            WORLD_VERSION,
+        )
 
 
 def test_evaluate_writes_versioned_json_csv_and_markdown_from_real_runs(

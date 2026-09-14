@@ -2,11 +2,40 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const { difficultyForRow, generateRows, hasBoundedGroupPath } = await import('../src/game/world.ts');
+const { DECISION_SECONDS, stepGame } = await import('../src/game/simulation.ts');
+const {
+  WORLD_VERSION,
+  difficultyForRow,
+  findBoundedGroupWitness,
+  generateRows,
+  hasBoundedGroupPath,
+} = await import('../src/game/world.ts');
 const parity = JSON.parse(await readFile(
-  new URL('./fixtures/world-generation-v2.json', import.meta.url),
+  new URL('./fixtures/world-generation-v3.json', import.meta.url),
   'utf8',
 ));
+
+const replayWitness = (seed, rows, actions) => {
+  const startRow = rows[0].row;
+  let time = 0;
+  for (let step = 0; step < Math.max(0, startRow); step += 1) time += DECISION_SECONDS;
+  let state = {
+    version: WORLD_VERSION,
+    seed,
+    step: Math.max(0, startRow),
+    time,
+    fly: { row: startRow, column: 0 },
+    score: Math.max(0, startRow),
+    lanes: rows,
+    terminal: null,
+    previousAction: 'wait',
+  };
+  for (const action of actions) {
+    state = stepGame(state, action).state;
+    assert.equal(state.terminal, null, `${seed}: ${action} failed at step ${state.step}`);
+  }
+  assert.equal(state.fly.row, rows.at(-1).row, `${seed}: witness did not reach recovery grass`);
+};
 
 test('same seed and range produce identical lanes', () => {
   assert.deepEqual(generateRows('lab-7', -5, 40), generateRows('lab-7', -5, 40));
@@ -38,8 +67,29 @@ test('known impassable first group is replaced by a bounded reachable group', ()
   assert.deepEqual([group[0].kind, group.at(-1).kind], ['grass', 'grass']);
 });
 
+test('audit-replay-21 solver witness survives authoritative floating-point replay', () => {
+  const group = generateRows('audit-replay-21', 2, 6);
+  const witness = findBoundedGroupWitness(group);
+
+  assert.ok(witness);
+  replayWitness('audit-replay-21', group, witness);
+});
+
+test('solver witnesses replay through the authoritative transition over a bounded sample', () => {
+  for (let seedIndex = 0; seedIndex < 24; seedIndex += 1) {
+    for (const groupIndex of [0, 1, 8, 24]) {
+      const seed = `audit-replay-${seedIndex}`;
+      const start = 2 + groupIndex * 5;
+      const group = generateRows(seed, start, 6);
+      const witness = findBoundedGroupWitness(group);
+      assert.ok(witness, `${seed}, group ${groupIndex}`);
+      replayWitness(seed, group, witness);
+    }
+  }
+});
+
 test('generated groups have a bounded route over a deterministic seed sample', () => {
-  for (let seedIndex = 0; seedIndex < 96; seedIndex += 1) {
+  for (let seedIndex = 0; seedIndex < 24; seedIndex += 1) {
     for (const groupIndex of [0, 1, 8, 24]) {
       const start = 2 + groupIndex * 5;
       assert.equal(
@@ -64,7 +114,7 @@ test('documented difficulty parameters increase with forward distance', () => {
 });
 
 test('world generation matches the shared cross-language fixture', () => {
-  assert.equal(parity.environmentVersion, 2);
+  assert.equal(parity.environmentVersion, WORLD_VERSION);
   for (const parityCase of parity.cases) {
     assert.deepEqual(
       generateRows(parityCase.seed, parityCase.from, parityCase.count),

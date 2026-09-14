@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "purpose": "Environment observed while producing the bounded release evidence",
+  "declaredPlatform": {
+    "implementation": "CPython",
+    "pythonFullVersion": "3.14.7",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "libc": {
+    "name": "glibc",
+    "version": "2.44"
+  },
+  "pipVersion": "26.2.1",
+  "indexUrl": "https://pypi.org/simple",
+  "requirementsFile": "requirements-linux-x86_64-cu130.txt",
+  "requirementsSha256": "99a0889fb8e589a970f4ebf945c8876f52cc8d80af464a86892a23f929d35240",
+  "roots": [
+    "numpy",
+    "torch",
+    "pytest"
+  ],
+  "torch": {
+    "distributionVersion": "2.12.1",
+    "runtimeVersion": "2.12.1+cu130",
+    "cudaBuild": "13.0",
+    "cudaAvailableDuringRelease": false,
+    "executionDevice": "cpu"
+  },
+  "integrityBoundary": "exact-versions-without-wheel-hashes",
+  "notes": [
+    "The requirements file lists the complete active dependency closure for the declared platform, including torch's Linux CUDA runtime dependencies even though release commands used CPU.",
+    "The installed metadata did not retain wheel filenames, download URLs, or wheel hashes. This manifest therefore does not claim a hermetic supply-chain lock or cross-platform byte identity.",
+    "Checkpoint hashes verify the tracked release artifacts; recreating identical bytes additionally depends on the declared platform, package builds, and deterministic runtime behavior."
+  ]
+}

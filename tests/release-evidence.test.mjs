@@ -10,8 +10,12 @@ const sha256 = async (url) => createHash('sha256').update(await readFile(url)).d
 
 test('tracked release manifest verifies checkpoints, policies, and evaluation evidence', async () => {
   assert.equal(manifest.version, 1);
-  assert.equal(manifest.environmentVersion, 2);
+  assert.equal(manifest.environmentVersion, 3);
   assert.equal(await sha256(new URL(manifest.config.path, releaseRoot)), manifest.config.sha256);
+  for (const artifact of Object.values(manifest.reconstructionEnvironment)) {
+    assert.match(artifact.sha256, /^[a-f0-9]{64}$/);
+    assert.equal(await sha256(new URL(artifact.path, releaseRoot)), artifact.sha256);
+  }
   assert.ok(manifest.files.length >= 11);
   for (const file of manifest.files) {
     assert.match(file.sha256, /^[a-f0-9]{64}$/);

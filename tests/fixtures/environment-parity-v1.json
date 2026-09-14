@@ -7,7 +7,7 @@
       "row": 3,
       "hazardIndex": 0,
       "time": 3.800000000000001,
-      "expected": 12.376999999999999
+      "expected": 4.369
     }
   ],
   "cases": [
@@ -28,9 +28,9 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "1bd522e00e72fdea91c1227058ca23a2b8576654cf3da9306c91ac7d49560de8",
-        "afterObservationSha256": "c2e453fbf6c0e7790ebc365c8f65b6863a4fb704834c95345129e1a03b24f5a9",
-        "reward": 0.99,
+        "beforeObservationSha256": "1328d2428d3b18f0263184b30b54b1ec9fc53efed3840b737ae031802c7ab322",
+        "afterObservationSha256": "1bd5af1bd1f10490718632adb16cbeb979e05911002df41bcb54619d6295d994",
+        "reward": -9.01,
         "fly": {
           "row": 3,
           "column": 4
@@ -38,7 +38,7 @@
         "step": 19,
         "time": 3.800000000000001,
         "score": 3,
-        "terminalReason": null,
+        "terminalReason": "vehicle",
         "previousAction": "forward",
         "events": [
           {
@@ -49,6 +49,14 @@
               "column": 4
             },
             "to": {
+              "row": 3,
+              "column": 4
+            }
+          },
+          {
+            "type": "terminal",
+            "reason": "vehicle",
+            "position": {
               "row": 3,
               "column": 4
             }
@@ -119,7 +127,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f3aa31723b4c3002383a0dcd795b489150caf133b82083a8287e786036ac4e2e",
-        "afterObservationSha256": "353543fe166a0aa808488e34fc14039311915dfd995197cab10f89334205be9d",
+        "afterObservationSha256": "e2fddd82462c66f049b1b662fa3f98b92f81cf29f272187f5ae70b5cc3242c12",
         "reward": -0.01,
         "fly": {
           "row": 3,
@@ -204,7 +212,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "2f5b659fe31b269c1c9f3c2b799085744c8dd8377724a5af7324ee3ef13137ea",
-        "afterObservationSha256": "5a76e8b733f996d6067c23fa41869c49182d7e277c7c9925f48d1597e1bdb4a8",
+        "afterObservationSha256": "da5962667234d0ff76e38211cc920e1525a5e4b22ffd0ee4fd796c9054bf3eca",
         "reward": -0.01,
         "fly": {
           "row": 3,
@@ -299,7 +307,7 @@
       "action": "forward",
       "expected": {
         "beforeObservationSha256": "506a5679da18d2a03e1a4de699171d1c9d3e8adb7b927ea00c470027ecb3e321",
-        "afterObservationSha256": "1cab1facee335de4e3c07baeea7244583c69369f53378dc87fc4e9a2c1d8fccc",
+        "afterObservationSha256": "18ff6e43d0de238046b31a0b606aafc8190ce5af40ee53be0f94a60a19ea6d9c",
         "reward": -10.01,
         "fly": {
           "row": 3,
@@ -385,7 +393,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "3e6f2b123e8ff50925424859b70c3958e63d12d21ca4987cb07ce0dc7104a2c5",
-        "afterObservationSha256": "73147a63fc9535857acdd836cb9b3720d406554e75fe76b7aaa6303b52edb958",
+        "afterObservationSha256": "1738156cafa4397126c3afbd8ece63e28608ed468459fb7b9449ac4870d298ad",
         "reward": -0.01,
         "fly": {
           "row": 3,
@@ -474,7 +482,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "cf77714f3d85169cee107e4fe363eb194bf1a66e5b9b2125f25bed285de66885",
-        "afterObservationSha256": "b063502b972e79d4c1c978ee75d9ed041a726bf35f9b2421a50a21dc634e73fe",
+        "afterObservationSha256": "e5661342a80869d74407cd97d8d972dcabc54ca96eb51abefc8f25c54ee8784c",
         "reward": -10.01,
         "fly": {
           "row": 3,
@@ -561,7 +569,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f0ad6a3df512a2ec78f5776b7402b61c37c494d833e6213c6527ea2930fe4a1a",
-        "afterObservationSha256": "a8f553138b9c8a4f3ded71aa47fce5252e984fade129e5dea90342223450a635",
+        "afterObservationSha256": "684a4dfea18c93b03ca8a7192f9b98dc3c8a5108b3c977338d89a8406c3ee36b",
         "reward": -0.01,
         "fly": {
           "row": 100,
@@ -611,5 +619,5 @@
       }
     }
   ],
-  "environmentVersion": 2
+  "environmentVersion": 3
 }

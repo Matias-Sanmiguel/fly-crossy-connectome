@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 import math
-from typing import Literal, Sequence, TypeVar
+from typing import Callable, Literal, Sequence, TypeVar
 
 import numpy as np
 from numpy.typing import NDArray
@@ -10,7 +11,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 2
+WORLD_VERSION = 3
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
 HAZARD_CIRCUIT = 25
@@ -19,6 +20,7 @@ OPENING_ROWS = 3
 HAZARD_ROWS_PER_GROUP = 4
 GROUP_ROWS = HAZARD_ROWS_PER_GROUP + 1
 SOLVABILITY_STEP_LIMIT = 80
+SOLVABILITY_TRANSITION_LIMIT = 1_024
 GENERATION_ATTEMPTS = 8
 ROWS_AHEAD = 15
 ROWS_BEHIND = 8
@@ -73,6 +75,14 @@ class GameState:
 class StepResult:
     state: GameState
     reward: float
+    events: list[dict[str, object]]
+
+
+@dataclass(frozen=True, slots=True)
+class _LaneTransition:
+    fly: GridPosition
+    time: float
+    terminal: TerminalReason | None
     events: list[dict[str, object]]
 
 
@@ -206,85 +216,8 @@ def _hazard_lane(seed: str, row: int, group_index: int, attempt: int) -> Lane:
     )
 
 
-def has_bounded_group_path(rows: Sequence[Lane]) -> bool:
-    """Mirror the browser's bounded authoritative-rule group reachability check."""
-    if len(rows) != HAZARD_ROWS_PER_GROUP + 2:
-        return False
-    ordered = sorted(rows, key=lambda lane: lane.row)
-    if (
-        any(
-            lane.row != ordered[index - 1].row + 1
-            for index, lane in enumerate(ordered)
-            if index > 0
-        )
-        or ordered[0].kind != "grass"
-        or ordered[-1].kind != "grass"
-    ):
-        return False
-    lanes = {lane.row: lane for lane in ordered}
-    start_row = ordered[0].row
-    goal_row = ordered[-1].row
-    frontier = [(start_row, 0, max(0, start_row))]
-    visited: set[tuple[int, int, int]] = set()
-    actions = ("forward", "backward", "left", "right", "wait")
-
-    for _ in range(SOLVABILITY_STEP_LIMIT):
-        if not frontier:
-            break
-        next_frontier: list[tuple[int, int, int]] = []
-        for current_row, current_ticks, step in frontier:
-            lane = lanes[current_row]
-            from_time = step * DECISION_SECONDS
-            to_time = from_time + DECISION_SECONDS
-            column = current_ticks / 5
-            if lane.kind in ("road", "rail") and any(
-                _hazard_sweeps_column(lane, hazard, column, from_time, to_time)
-                for hazard in lane.hazards
-            ):
-                continue
-            for action in actions:
-                row = current_row + (1 if action == "forward" else -1 if action == "backward" else 0)
-                column_ticks = current_ticks + (5 if action == "right" else -5 if action == "left" else 0)
-                if (
-                    row < start_row
-                    or row > goal_row
-                    or abs(column_ticks) > WORLD_HALF_WIDTH * 5
-                ):
-                    continue
-                destination = lanes[row]
-                if destination.kind == "river" and action == "wait":
-                    supported_before = any(
-                        hazard.kind == "log"
-                        and hazard_contains(destination, hazard, column, from_time)
-                        for hazard in destination.hazards
-                    )
-                    if supported_before:
-                        column_ticks += (destination.direction or 0) * (destination.speed or 0)
-                next_column = column_ticks / 5
-                if abs(column_ticks) > WORLD_HALF_WIDTH * 5:
-                    continue
-                if destination.kind == "river" and not any(
-                    hazard.kind == "log"
-                    and hazard_contains(destination, hazard, next_column, to_time)
-                    for hazard in destination.hazards
-                ):
-                    continue
-                if destination.kind in ("road", "rail") and any(
-                    hazard_contains(destination, hazard, next_column, to_time)
-                    for hazard in destination.hazards
-                ):
-                    continue
-                if row == goal_row:
-                    return True
-                candidate = (row, column_ticks, step + 1)
-                if candidate not in visited:
-                    visited.add(candidate)
-                    next_frontier.append(candidate)
-        frontier = next_frontier
-    return False
-
-
-def _generate_group(seed: str, group_index: int) -> list[Lane]:
+@lru_cache(maxsize=512)
+def _generate_group_cached(seed: str, group_index: int) -> tuple[Lane, ...]:
     first = OPENING_ROWS + group_index * GROUP_ROWS
     for attempt in range(GENERATION_ATTEMPTS):
         hazards = [
@@ -294,8 +227,22 @@ def _generate_group(seed: str, group_index: int) -> list[Lane]:
         if has_bounded_group_path(
             [_grass(first - 1), *hazards, _grass(first + HAZARD_ROWS_PER_GROUP)]
         ):
-            return hazards
-    return [_grass(first + offset) for offset in range(HAZARD_ROWS_PER_GROUP)]
+            return tuple(hazards)
+    return tuple(_grass(first + offset) for offset in range(HAZARD_ROWS_PER_GROUP))
+
+
+def _generate_group(seed: str, group_index: int) -> list[Lane]:
+    return [
+        Lane(
+            row=lane.row,
+            kind=lane.kind,
+            hazards=list(lane.hazards),
+            direction=lane.direction,
+            speed=lane.speed,
+            phase=lane.phase,
+        )
+        for lane in _generate_group_cached(seed, group_index)
+    ]
 
 
 def generate_rows(seed: str, start: int, count: int) -> list[Lane]:
@@ -371,13 +318,203 @@ def _moved_position(fly: GridPosition, action: Action) -> GridPosition:
     raise ValueError(f"Unknown game action: {action!s}")
 
 
+def _collision_reason(lane: Lane, hazard: Hazard) -> TerminalReason:
+    return "train" if lane.kind == "rail" or hazard.kind == "train" else "vehicle"
+
+
+def _advance_lane_transition(
+    position: GridPosition,
+    time: float,
+    action: Action,
+    lane_for: Callable[[int], Lane],
+) -> _LaneTransition:
+    """Advance one action with the authoritative collision, carry, and bounds rules."""
+    start_position = position
+    to_time = time + DECISION_SECONDS
+    fly = position
+    events: list[dict[str, object]] = []
+    starting_lane = lane_for(position.row)
+    terminal: TerminalReason | None = None
+
+    if starting_lane.kind in ("road", "rail"):
+        collision = next(
+            (
+                hazard
+                for hazard in starting_lane.hazards
+                if _hazard_sweeps_column(
+                    starting_lane, hazard, position.column, time, to_time
+                )
+            ),
+            None,
+        )
+        if collision is not None:
+            terminal = _collision_reason(starting_lane, collision)
+
+    if terminal is None:
+        fly = _moved_position(position, action)
+        if action == Action.WAIT:
+            events.append({"type": "waited", "position": fly})
+        else:
+            events.append(
+                {"type": "moved", "action": action, "from": start_position, "to": fly}
+            )
+
+        destination_lane = lane_for(fly.row)
+        if destination_lane.kind == "river" and action == Action.WAIT:
+            support = next(
+                (
+                    hazard
+                    for hazard in destination_lane.hazards
+                    if hazard.kind == "log"
+                    and hazard_contains(
+                        destination_lane, hazard, position.column, time
+                    )
+                ),
+                None,
+            )
+            if support is not None:
+                displacement = (
+                    (destination_lane.direction or 0)
+                    * (destination_lane.speed or 0)
+                    * DECISION_SECONDS
+                )
+                fly = GridPosition(row=fly.row, column=fly.column + displacement)
+                events.append(
+                    {"type": "carried", "row": fly.row, "displacement": displacement}
+                )
+
+        if abs(fly.column) > WORLD_HALF_WIDTH:
+            terminal = "bounds"
+        elif destination_lane.kind == "river":
+            supported = any(
+                hazard.kind == "log"
+                and hazard_contains(destination_lane, hazard, fly.column, to_time)
+                for hazard in destination_lane.hazards
+            )
+            if not supported:
+                terminal = "water"
+        elif destination_lane.kind in ("road", "rail"):
+            collision = next(
+                (
+                    hazard
+                    for hazard in destination_lane.hazards
+                    if hazard_contains(destination_lane, hazard, fly.column, to_time)
+                ),
+                None,
+            )
+            if collision is not None:
+                terminal = _collision_reason(destination_lane, collision)
+
+        if terminal is None and destination_lane.kind == "rail":
+            warning_end = to_time + TRAIN_WARNING_SECONDS
+            approaching = any(
+                hazard.kind == "train"
+                and _hazard_sweeps_column(
+                    destination_lane, hazard, fly.column, to_time, warning_end
+                )
+                for hazard in destination_lane.hazards
+            )
+            if approaching:
+                events.append({"type": "train-warning", "row": destination_lane.row})
+
+    if terminal is not None:
+        events.append({"type": "terminal", "reason": terminal, "position": fly})
+    return _LaneTransition(fly=fly, time=to_time, terminal=terminal, events=events)
+
+
+def _decision_time_after_steps(steps: int) -> float:
+    time = 0.0
+    for _ in range(steps):
+        time += DECISION_SECONDS
+    return time
+
+
+def find_bounded_group_witness(rows: Sequence[Lane]) -> list[Action] | None:
+    """Find an action witness using the same float transition as ``step_game``."""
+    if len(rows) != HAZARD_ROWS_PER_GROUP + 2:
+        return None
+    ordered = sorted(rows, key=lambda lane: lane.row)
+    if (
+        any(
+            lane.row != ordered[index - 1].row + 1
+            for index, lane in enumerate(ordered)
+            if index > 0
+        )
+        or ordered[0].kind != "grass"
+        or ordered[-1].kind != "grass"
+    ):
+        return None
+    lanes = {lane.row: lane for lane in ordered}
+    start_row = ordered[0].row
+    goal_row = ordered[-1].row
+    frontier: list[tuple[GridPosition, float, list[Action]]] = [
+        (
+            GridPosition(row=start_row, column=0),
+            _decision_time_after_steps(max(0, start_row)),
+            [],
+        )
+    ]
+    visited: set[tuple[int, int, float]] = set()
+    actions = (
+        Action.FORWARD,
+        Action.BACKWARD,
+        Action.LEFT,
+        Action.RIGHT,
+        Action.WAIT,
+    )
+    transitions_checked = 0
+
+    for depth in range(SOLVABILITY_STEP_LIMIT):
+        if not frontier:
+            break
+        next_frontier: list[tuple[GridPosition, float, list[Action]]] = []
+        for position, time, witness in frontier:
+            for action in actions:
+                if transitions_checked >= SOLVABILITY_TRANSITION_LIMIT:
+                    return None
+                transitions_checked += 1
+                attempted_row = position.row + (
+                    1
+                    if action == Action.FORWARD
+                    else -1
+                    if action == Action.BACKWARD
+                    else 0
+                )
+                if attempted_row < start_row or attempted_row > goal_row:
+                    continue
+                transition = _advance_lane_transition(
+                    position, time, action, lambda row: lanes[row]
+                )
+                if transition.terminal is not None:
+                    continue
+                candidate_witness = [*witness, action]
+                if transition.fly.row == goal_row:
+                    return candidate_witness
+                candidate = (
+                    transition.fly,
+                    transition.time,
+                    candidate_witness,
+                )
+                key = (depth + 1, transition.fly.row, transition.fly.column)
+                if key not in visited:
+                    visited.add(key)
+                    next_frontier.append(candidate)
+        frontier = next_frontier
+    return None
+
+
+def has_bounded_group_path(rows: Sequence[Lane]) -> bool:
+    """Return whether the authoritative transition yields a bounded witness."""
+    return find_bounded_group_witness(rows) is not None
+
+
 def _extend_world(state: GameState, fly_row: int) -> list[Lane]:
     minimum = fly_row - ROWS_BEHIND
     maximum = fly_row + ROWS_AHEAD
     retained = {lane.row: lane for lane in state.lanes if lane.row >= minimum}
-    for row in range(minimum, maximum + 1):
-        if row not in retained:
-            retained[row] = generate_rows(state.seed, row, 1)[0]
+    for lane in generate_rows(state.seed, minimum, maximum - minimum + 1):
+        if lane.row not in retained:
+            retained[lane.row] = lane
     return [retained[row] for row in sorted(retained)]
 
 
@@ -404,107 +541,26 @@ def _reward(previous: GameState, next_state: GameState) -> float:
 def step_game(state: GameState, action: Action) -> StepResult:
     if state.terminal is not None:
         return StepResult(state=state, reward=0, events=[])
-
-    start_position = state.fly
-    to_time = state.time + DECISION_SECONDS
-    fly = state.fly
-    events: list[dict[str, object]] = []
-    starting_lane = _lane_for(state, state.fly.row)
-    terminal: TerminalReason | None = None
-
-    if starting_lane.kind in ("road", "rail"):
-        collision = next(
-            (
-                hazard
-                for hazard in starting_lane.hazards
-                if _hazard_sweeps_column(starting_lane, hazard, state.fly.column, state.time, to_time)
-            ),
-            None,
-        )
-        if collision is not None:
-            terminal = (
-                "train"
-                if starting_lane.kind == "rail" or collision.kind == "train"
-                else "vehicle"
-            )
-
-    if terminal is None:
-        fly = _moved_position(state.fly, action)
-        if action == Action.WAIT:
-            events.append({"type": "waited", "position": fly})
-        else:
-            events.append({"type": "moved", "action": action, "from": start_position, "to": fly})
-
-        destination_lane = _lane_for(state, fly.row)
-        if destination_lane.kind == "river" and action == Action.WAIT:
-            support = next(
-                (
-                    hazard
-                    for hazard in destination_lane.hazards
-                    if hazard.kind == "log"
-                    and hazard_contains(destination_lane, hazard, state.fly.column, state.time)
-                ),
-                None,
-            )
-            if support is not None:
-                displacement = (
-                    (destination_lane.direction or 0)
-                    * (destination_lane.speed or 0)
-                    * DECISION_SECONDS
-                )
-                fly = GridPosition(row=fly.row, column=fly.column + displacement)
-                events.append({"type": "carried", "row": fly.row, "displacement": displacement})
-
-        if abs(fly.column) > WORLD_HALF_WIDTH:
-            terminal = "bounds"
-        elif destination_lane.kind == "river":
-            supported = any(
-                hazard.kind == "log" and hazard_contains(destination_lane, hazard, fly.column, to_time)
-                for hazard in destination_lane.hazards
-            )
-            if not supported:
-                terminal = "water"
-        elif destination_lane.kind in ("road", "rail"):
-            collision = next(
-                (
-                    hazard
-                    for hazard in destination_lane.hazards
-                    if hazard_contains(destination_lane, hazard, fly.column, to_time)
-                ),
-                None,
-            )
-            if collision is not None:
-                terminal = (
-                    "train"
-                    if destination_lane.kind == "rail" or collision.kind == "train"
-                    else "vehicle"
-                )
-
-        if terminal is None and destination_lane.kind == "rail":
-            warning_end = to_time + TRAIN_WARNING_SECONDS
-            approaching = any(
-                hazard.kind == "train"
-                and _hazard_sweeps_column(destination_lane, hazard, fly.column, to_time, warning_end)
-                for hazard in destination_lane.hazards
-            )
-            if approaching:
-                events.append({"type": "train-warning", "row": destination_lane.row})
-
-    if terminal is not None:
-        events.append({"type": "terminal", "reason": terminal, "position": fly})
+    transition = _advance_lane_transition(
+        state.fly, state.time, action, lambda row: _lane_for(state, row)
+    )
 
     next_state = GameState(
         version=WORLD_VERSION,
         seed=state.seed,
         step=state.step + 1,
-        time=to_time,
-        fly=fly,
-        score=max(state.score, fly.row),
-        lanes=_extend_world(state, fly.row),
-        terminal=terminal,
+        time=transition.time,
+        fly=transition.fly,
+        score=max(state.score, transition.fly.row),
+        lanes=_extend_world(state, transition.fly.row),
+        terminal=transition.terminal,
         previous_action=action,
     )
-    return StepResult(state=next_state, reward=_reward(state, next_state), events=events)
+    return StepResult(
+        state=next_state,
+        reward=_reward(state, next_state),
+        events=transition.events,
+    )
 
 
 def _occupying_hazard(lane: Lane, column: float, time: float) -> Hazard | None:

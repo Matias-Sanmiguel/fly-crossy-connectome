@@ -1,9 +1,19 @@
 {
   "version": 1,
-  "environmentVersion": 2,
+  "environmentVersion": 3,
   "config": {
     "path": "../../configs/eval-v1.json",
-    "sha256": "7eeca30f06824330b8287ce2a23088765d0eba456c08df93d7f044c14c62234a"
+    "sha256": "1abb2fc0f49ad4bff4f774ddf55a6af667e80e8c810eac4ef2bbb51cdc4e57fd"
+  },
+  "reconstructionEnvironment": {
+    "manifest": {
+      "path": "../../python/release-environment-linux-x86_64.json",
+      "sha256": "47fb7dcc51cd51afbd79ea56b5deac51c46858f612200cefd6f5c74a7048f9f1"
+    },
+    "requirements": {
+      "path": "../../python/requirements-linux-x86_64-cu130.txt",
+      "sha256": "99a0889fb8e589a970f4ebf945c8876f52cc8d80af464a86892a23f929d35240"
+    }
   },
   "training": {
     "seed": "smoke",
@@ -13,21 +23,22 @@
     "device": "cpu"
   },
   "files": [
-    {"path": "training/conventional/checkpoint.pt", "sha256": "c336a53086e765e242e74ec396225f51d744679aff8fe1ae7fe8c31e78b2ed4d"},
-    {"path": "training/conventional/metadata.json", "sha256": "6451d139729952d595fa6f557b8573a77ac8ed07367a15cb90209c8f5ab53cab"},
-    {"path": "training/conventional/metrics.json", "sha256": "32da8a037626b34edeb2c0040674696341d9e6d6fab2d3ba8d229551a397249f"},
-    {"path": "training/conventional/policy.json", "sha256": "20469705ca540d6c832bd3a015f31362b63540033d7e676c8a09627bca5f8001"},
-    {"path": "training/connectome/checkpoint.pt", "sha256": "218d319c050983c225c943ab8de7493af672de561749a1892aa507a1c676cec5"},
-    {"path": "training/connectome/metadata.json", "sha256": "e026617615cb5b9936d163f2d5a6e5a0016be6feadbb6dafc42ee19570e9e92f"},
-    {"path": "training/connectome/metrics.json", "sha256": "2e25c4dfaa9d71ac1819f10c03e46f3d92dad513524a988a72106179e53e2314"},
-    {"path": "training/connectome/policy.json", "sha256": "1cd36d90f84bf8a9e05f712a66527cbe1697dbe78d84bb0c4531f84afb414c63"},
-    {"path": "evaluation/metrics.json", "sha256": "eacb91c12b4426e338e67dfa4f01fe9f222ef8dabed145e7f216b27e4ab6410e"},
-    {"path": "evaluation/metrics.csv", "sha256": "b8339143c872d6edc445fe29f5d4f1f261e5e2e1522807021f7eb1cd53e66729"},
-    {"path": "evaluation/summary.md", "sha256": "2129b5b143d2300b4872bc581897d0ce3e4e9d2aae72a659e9220493ae07b118"}
+    {"path": "training/conventional/checkpoint.pt", "sha256": "03640098bf3ff5e8e2164c1cd43dff0791dea6d2f51e711a8d2d7217648c2620"},
+    {"path": "training/conventional/metadata.json", "sha256": "645ed6709c514de997d9f3524ae374816b117b815ad80e7bac05c6eb3f43c8b7"},
+    {"path": "training/conventional/metrics.json", "sha256": "4831f8535d1f3193b9bc9753432caf8410c48549de762ba07e445647f558d77c"},
+    {"path": "training/conventional/policy.json", "sha256": "fc8203f5ac6ac3a1f3b06bf7f72d56be0e79c8b82a13da0fa51c31c2a5a64e7a"},
+    {"path": "training/connectome/checkpoint.pt", "sha256": "abd1dc3f472de7687599d60cf73ecfbc31207ede197deeae353b8f4d4cb76e9f"},
+    {"path": "training/connectome/metadata.json", "sha256": "8e794941a8e02df94d0dd375c93f6236c4678ab0a80d2669462e26693dc2f88e"},
+    {"path": "training/connectome/metrics.json", "sha256": "1b4fa91634aa6f2c31a850cf2462ec954addba006fa6a3579bf89ba14b467352"},
+    {"path": "training/connectome/policy.json", "sha256": "3b159c1cae8ce2b6c4c8f162dc6770bd0462a3acd7b6e90b4a90dd364f979fe5"},
+    {"path": "evaluation/metrics.json", "sha256": "84ccc4a2f988a94f7909adc27037d523cd48be927f7d4ab160b6462a7e16c6e9"},
+    {"path": "evaluation/metrics.csv", "sha256": "3759770334f79fb552333fa92786557076e1ac750b2368c12138c7352075086c"},
+    {"path": "evaluation/summary.md", "sha256": "49eb89d417c57524713cb34bea9bb59aec427bbaf1b3631b38319792379cfe9f"}
   ],
   "limitations": [
     "Smoke budgets are too small to establish convergence.",
     "The controls do not establish a beneficial topology effect.",
-    "No human-recorded traces were available; no human baseline was fabricated."
+    "No human-recorded traces were available; no human baseline was fabricated.",
+    "The reconstruction environment pins exact active versions for the declared Linux build but has no wheel hashes and does not claim cross-platform byte identity."
   ]
 }

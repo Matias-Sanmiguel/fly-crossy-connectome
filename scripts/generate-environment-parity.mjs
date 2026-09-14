@@ -51,7 +51,7 @@ for (const parityCase of fixture.cases) {
 
 await writeFile(fixtureUrl, `${JSON.stringify(fixture, null, 2)}\n`, 'utf8');
 
-const worldFixtureUrl = new URL('../tests/fixtures/world-generation-v2.json', import.meta.url);
+const worldFixtureUrl = new URL('../tests/fixtures/world-generation-v3.json', import.meta.url);
 const worldFixture = {
   version: 1,
   environmentVersion: WORLD_VERSION,
