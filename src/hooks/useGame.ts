@@ -38,7 +38,27 @@ export type UseGameOptions = {
   mode?: ControllerMode;
   controller?: Controller | null;
   visibleIds?: ReadonlySet<number>;
+  autonomousSpeed?: AutonomousSpeed;
 };
+
+export type AutonomousSpeed = 0.5 | 1 | 2 | 4;
+
+export function autonomousDecisionDelayMs(speed: number): number {
+  if (speed !== 0.5 && speed !== 1 && speed !== 2 && speed !== 4) {
+    throw Error('Autonomous speed must be 0.5, 1, 2, or 4.');
+  }
+  return DECISION_SECONDS * 1_000 / speed;
+}
+
+export function normalizeSeed(value: string): string {
+  const normalized = value.trim();
+  if (!normalized) throw Error('Seed must not be empty.');
+  if (normalized.length > 64) throw Error('Seed must be 64 characters or fewer.');
+  if ([...normalized].some((character) => /\p{C}/u.test(character))) {
+    throw Error('Seed must contain printable characters only.');
+  }
+  return normalized;
+}
 
 const KEY_ACTIONS: Readonly<Record<string, Action>> = {
   ArrowUp: 'forward',
@@ -194,7 +214,13 @@ export function reduceGameCommand(state: GameRun, command: GameCommand): Require
   };
 }
 
-export function useGame({ seed, mode = 'human', controller = null, visibleIds }: UseGameOptions) {
+export function useGame({
+  seed,
+  mode = 'human',
+  controller = null,
+  visibleIds,
+  autonomousSpeed = 1,
+}: UseGameOptions) {
   const [run, dispatch] = useReducer(reduceGameCommand, seed, (initialSeed): Required<GameRun> => ({
     game: createGame(initialSeed),
     events: [],
@@ -282,9 +308,9 @@ export function useGame({ seed, mode = 'human', controller = null, visibleIds }:
           error: error instanceof Error ? error.message : String(error),
         });
       });
-    }, DECISION_SECONDS * 1_000);
+    }, autonomousDecisionDelayMs(autonomousSpeed));
     return () => window.clearTimeout(timer);
-  }, [controller, documentVisible, mode, run.game, run.paused, visibleIds]);
+  }, [autonomousSpeed, controller, documentVisible, mode, run.game, run.paused, visibleIds]);
 
   const onAction = useCallback((action: Action) => {
     if (mode !== 'human') return;

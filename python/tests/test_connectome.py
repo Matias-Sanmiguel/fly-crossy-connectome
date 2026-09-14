@@ -289,3 +289,68 @@ def test_pinned_reduced_graph_matches_its_declared_integrity_counts() -> None:
     assert graph.artifact_sha256 == (
         "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862"
     )
+
+
+@pytest.mark.parametrize(
+    ("field", "invalid"),
+    [
+        ("body_ids", [True, 102, 103]),
+        ("body_ids", ["101", 102, 103]),
+        ("body_ids", [101.5, 102, 103]),
+        ("edge_index", [[0, 1, 2], [1, False, 1]]),
+        ("edge_index", [[0, 1, 2], [1, "2", 1]]),
+        ("sensory_body_ids", [True]),
+        ("readout_body_ids", [103.0]),
+        ("edge_weight", ["0.5", 1.0, -0.5]),
+        ("edge_weight", [True, 1.0, -0.5]),
+        ("edge_weight", [float("inf"), 1.0, -0.5]),
+    ],
+)
+def test_checkpoint_graph_rejects_values_that_numpy_would_coerce(
+    source_fixture: Path, field: str, invalid: object
+) -> None:
+    graph = build_reduced_graph(
+        source_fixture,
+        selected_ids=SELECTED_FIXTURE_IDS,
+        atlas_visible_ids=SELECTED_FIXTURE_IDS,
+    )
+    payload = graph.to_checkpoint()
+    payload[field] = invalid
+
+    with pytest.raises(ValueError, match="incompatible reduced graph"):
+        ReducedGraphArtifact.from_checkpoint(payload)
+
+
+@pytest.mark.parametrize(
+    "digest",
+    ["A" * 64, "g" * 64, "0" * 63, 123],
+)
+def test_checkpoint_graph_requires_exact_lowercase_artifact_digest(
+    source_fixture: Path, digest: object
+) -> None:
+    graph = build_reduced_graph(
+        source_fixture,
+        selected_ids=SELECTED_FIXTURE_IDS,
+        atlas_visible_ids=SELECTED_FIXTURE_IDS,
+    )
+    payload = graph.to_checkpoint()
+    payload["artifact_sha256"] = digest
+
+    with pytest.raises(ValueError, match="incompatible reduced graph"):
+        ReducedGraphArtifact.from_checkpoint(payload)
+
+
+@pytest.mark.parametrize("invalid", [True, "1", float("nan")])
+def test_reduced_graph_threshold_rejects_coercible_non_numbers(
+    source_fixture: Path, invalid: object
+) -> None:
+    graph = build_reduced_graph(
+        source_fixture,
+        selected_ids=SELECTED_FIXTURE_IDS,
+        atlas_visible_ids=SELECTED_FIXTURE_IDS,
+    )
+    payload = graph.to_checkpoint()
+    payload["minimum_edge_threshold"] = invalid
+
+    with pytest.raises(ValueError, match="incompatible reduced graph"):
+        ReducedGraphArtifact.from_checkpoint(payload)

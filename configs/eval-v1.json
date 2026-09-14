@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 1,
+  "environmentVersion": 2,
   "trainingSeeds": ["smoke"],
   "evaluationSeeds": [
     "eval-v1-001",
@@ -18,8 +18,14 @@
   ],
   "maxStepsPerEpisode": 128,
   "checkpoints": {
-    "conventional": "../python/runs/smoke-conventional/checkpoint.pt",
-    "connectome": "../python/runs/smoke-connectome/checkpoint.pt"
+    "conventional": {
+      "path": "../release/eval-v1/training/conventional/checkpoint.pt",
+      "sha256": "c336a53086e765e242e74ec396225f51d744679aff8fe1ae7fe8c31e78b2ed4d"
+    },
+    "connectome": {
+      "path": "../release/eval-v1/training/connectome/checkpoint.pt",
+      "sha256": "218d319c050983c225c943ab8de7493af672de561749a1892aa507a1c676cec5"
+    }
   },
   "controls": {
     "rewiring": {

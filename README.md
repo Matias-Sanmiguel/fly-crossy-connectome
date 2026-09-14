@@ -17,7 +17,8 @@ Open the local address printed by Vite. The default mode is keyboard-first manua
 
 ## What is included
 
-- A deterministic crossing world with roads, rails, rivers, hazards, rewards, terminal states, and seeded replay.
+- A deterministic environment-v2 crossing world with roads, rails, rivers, hazards, rewards, terminal states, and seeded replay.
+- Bounded group-level route checks with deterministic retries and a safe grass fallback, plus speed and hazard-density progression over distance.
 - A human controller, a scripted controller, local dense-policy JSON loading, and a versioned remote-controller protocol.
 - A fixed-size `ObservationV1` boundary shared by every non-human controller.
 - A measured MaleCNS v1.0 soma atlas whose activity values are keyed only by verified body IDs.
@@ -28,15 +29,21 @@ Open the local address printed by Vite. The default mode is keyboard-first manua
 
 The atlas contains **cell-body positions**, not neurite morphology, synaptic edges, or a complete brain segmentation. Of 140,024 bundled measured positions, the viewer draws 124,289 classified optic, central, and descending somata. Missing positions are never generated, and native coordinate proportions are preserved.
 
-Manual mode deliberately shows no neural output. Scripted and model policies receive the same bounded observation and return one action per authoritative simulation step. Model activity is accepted only for atlas-visible MaleCNS body IDs with normalized values in `[0, 1]`.
+Human and scripted modes deliberately show **no neural output**. Dense policies show **model output** only when a policy explicitly maps a hidden layer to atlas-visible body IDs; the released dense policy has no such mapping. The fixed graph shows **simulated reduced-circuit activity**. None of these values are measured neural activity. Model values are accepted only for atlas-visible MaleCNS body IDs with normalized values in `[0, 1]`.
 
 The [atlas manifest](public/data/brain-atlas/manifest.json) records source filters and hashes. The [data notice](public/data/brain-atlas/NOTICE.md) documents the export and its provenance.
 
 ## Policy files
 
-Choose **Load policy JSON** to read a dense policy locally in the browser. The validator rejects incompatible versions, observation shapes, action sets, layer dimensions, non-finite values, duplicate or unknown anatomy IDs, and invalid provenance. Policy files are limited to 10 MB.
+Choose **Load policy JSON** to read a dense or reduced-connectome policy locally in the browser. The validator rejects incompatible versions, observation shapes, action sets, layer dimensions, non-finite values, duplicate or unknown anatomy IDs, and invalid provenance. Policy files are limited to 10 MB.
 
-Training and inference stay in your own stack. No trained policy, neural simulator, or biological firing data is included.
+The exact first-release smoke checkpoints, browser policies, training metadata, training curves, and evaluation outputs are tracked under [`release/eval-v1/`](release/eval-v1/). They are simulated controller artifacts, not biological firing data.
+
+## Deterministic world and difficulty
+
+Environment v2 generates every five-row group only from its world seed and group coordinate, so requesting one row or a large chunk produces identical row content. Eight deterministic candidate groups are checked with the authoritative 0.2-second movement and collision rules for a route from the preceding safe row to the recovery row. If none passes the 80-step bound, the group becomes a conservative grass fallback instead of emitting a knowingly impassable crossing.
+
+Difficulty advances every ten forward groups, capped at level 3. Maximum hazard speed rises from 2 to 5 cells/second; minimum speed rises from 1 to 2; non-rail hazard counts rise from 2–3 to 3–6. Every candidate is checked after those parameters are applied. These are generation guarantees, not a guarantee that every player action or arbitrary arrival phase survives.
 
 ## Reproduce the bounded controller evaluation
 
@@ -44,7 +51,8 @@ The Python package lives under `python/`. From the repository root:
 
 ```sh
 cd python
-python -m pip install -e '.[test]'
+python -m pip install -r requirements-lock.txt
+python -m pip install -e . --no-deps
 python -m pytest tests -q
 
 timeout 180s python -m fly_crossy.train \
@@ -53,7 +61,7 @@ timeout 180s python -m fly_crossy.train \
   --steps 2048 \
   --envs 4 \
   --learning-rate 0.0003 \
-  --output runs/smoke-conventional \
+  --output runs/reproduce-conventional \
   --device cpu
 
 timeout 180s python -m fly_crossy.train \
@@ -62,15 +70,20 @@ timeout 180s python -m fly_crossy.train \
   --steps 2048 \
   --envs 4 \
   --learning-rate 0.0003 \
-  --output runs/smoke-connectome \
+  --output runs/reproduce-connectome \
   --device cpu
 
 timeout 180s python -m fly_crossy.evaluate \
   --config ../configs/eval-v1.json \
   --output runs/eval-v1
+
+sha256sum runs/reproduce-conventional/checkpoint.pt \
+  runs/reproduce-connectome/checkpoint.pt
 ```
 
-`timeout` above is the GNU command used for the first-release CPU time box. The evaluator writes `metrics.json`, `metrics.csv`, and `summary.md` under `python/runs/eval-v1/`; local runs are intentionally ignored by Git. See [Controller evaluation v1](docs/experiments/evaluation-v1.md) for the exact released budgets, hashes, held-out results, controls, and limitations. No human-recorded traces were available for evaluation v1.
+Use Python 3.14.7 as recorded in [`.python-version`](.python-version). [`requirements-lock.txt`](python/requirements-lock.txt) pins the direct and transitive Python packages used for this CPU release. `timeout` is the GNU command used for the 180-second per-run time box. The expected checkpoint hashes are `c336a53086e765e242e74ec396225f51d744679aff8fe1ae7fe8c31e78b2ed4d` and `218d319c050983c225c943ab8de7493af672de561749a1892aa507a1c676cec5`; the evaluator verifies those hashes **before** loading the tracked checkpoints declared in [`configs/eval-v1.json`](configs/eval-v1.json).
+
+The evaluator writes a local copy of `metrics.json`, `metrics.csv`, and `summary.md` under `python/runs/eval-v1/`. The immutable released copies and full file hashes are in [`release/eval-v1/manifest.json`](release/eval-v1/manifest.json), and `npm test` verifies the manifest from a clean checkout. See [Controller evaluation v1](docs/experiments/evaluation-v1.md) for budgets, held-out results, controls, and limitations. No human-recorded traces were available; none were fabricated.
 
 The reduced controller learns a 370-value `ObservationV1` to 80-cell sensory projection. The bundled manifest's eight-channel injection language describes the reused FlyDino source artifact, not the input interface implemented here.
 

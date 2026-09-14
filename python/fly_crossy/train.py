@@ -158,8 +158,14 @@ def train(config: TrainingConfig) -> dict[str, Any]:
 
     environments = [FlyCrossyEnv() for _ in range(config.envs)]
     episode_counts = [0] * config.envs
+    training_world_seeds = [
+        f"{config.seed}:{index}:0" for index in range(config.envs)
+    ]
     observations = np.stack(
-        [environment.reset(f"{config.seed}:{index}:0")[0] for index, environment in enumerate(environments)]
+        [
+            environment.reset(training_world_seeds[index])[0]
+            for index, environment in enumerate(environments)
+        ]
     )
     episode_returns = [0.0] * config.envs
     episode_lengths = [0] * config.envs
@@ -237,9 +243,12 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                         }
                     )
                     episode_counts[environment_index] += 1
-                    next_observation, _ = environment.reset(
-                        f"{config.seed}:{environment_index}:{episode_counts[environment_index]}"
+                    next_seed = (
+                        f"{config.seed}:{environment_index}:"
+                        f"{episode_counts[environment_index]}"
                     )
+                    training_world_seeds.append(next_seed)
+                    next_observation, _ = environment.reset(next_seed)
                     episode_returns[environment_index] = 0.0
                     episode_lengths[environment_index] = 0
                 next_observations.append(next_observation)
@@ -341,6 +350,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                 "steps": config.steps,
                 "envs": config.envs,
                 "learning_rate": config.learning_rate,
+                "world_seeds": training_world_seeds,
             },
         },
         checkpoint_path,
@@ -356,6 +366,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             **asdict(config),
             "output": str(config.output),
             "resolvedDevice": str(device),
+            "trainingWorldSeeds": training_world_seeds,
             **(
                 {
                     "graphNodes": model.graph.node_count,

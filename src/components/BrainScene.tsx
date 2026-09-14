@@ -7,11 +7,11 @@ import type { Atlas } from "../lib/atlas";
 export function BrainScene({
   atlas,
   frame,
-  activityMode = 'simulated',
+  activityMode = 'none',
 }: {
   atlas: Atlas;
   frame: ActivityFrame | null;
-  activityMode?: 'manual' | 'simulated';
+  activityMode?: 'none' | 'model-output' | 'simulated-reduced-circuit';
 }) {
   const signal = useRef(frame);
   const orbit = useRef(true);
@@ -146,9 +146,11 @@ export function BrainScene({
       <button aria-pressed={orbiting} onClick={() => { orbit.current = !orbit.current; setOrbiting(orbit.current); }}>Orbit {orbiting ? "on" : "off"}</button>
     </div>
     <div className="brain-legend">
-      {activityMode === 'manual'
-        ? 'Blue: measured anatomy · manual mode has no neural output'
-        : 'Blue: measured anatomy · cyan/white: simulated model activity [0, 1]'}
+      {activityMode === 'none'
+        ? 'Blue: measured anatomy · no neural output'
+        : activityMode === 'model-output'
+          ? 'Blue: measured anatomy · cyan/white: mapped model output [0, 1], not measured activity'
+          : 'Blue: measured anatomy · cyan/white: simulated reduced-circuit activity [0, 1]'}
     </div>
     <div ref={host} className="three-viewport brain-viewport" aria-label="MaleCNS brain soma atlas">
       {state !== "ready" && <span className="neural-load" role="status">{state === "error" ? "Atlas unavailable" : "Loading anatomy"}</span>}

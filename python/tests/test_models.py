@@ -204,6 +204,13 @@ def test_tiny_ppo_run_writes_a_consistent_artifact_bundle(tmp_path: Path) -> Non
     assert metadata["configuration"]["steps"] == 16
     assert metadata["environmentVersion"] == WORLD_VERSION
     assert checkpoint_payload["environment_version"] == WORLD_VERSION
+    assert checkpoint_payload["training"]["world_seeds"][:2] == [
+        "tiny-test:0:0",
+        "tiny-test:1:0",
+    ]
+    assert metadata["configuration"]["trainingWorldSeeds"] == checkpoint_payload[
+        "training"
+    ]["world_seeds"]
     assert metadata["software"]["torch"] == torch.__version__
     assert metrics["totalSteps"] == 16
     assert metrics["trainingCurve"]

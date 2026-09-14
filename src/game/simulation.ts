@@ -1,6 +1,6 @@
 import { reward as calculateReward } from './reward.ts';
 import type { Action, Hazard, Lane } from './types.ts';
-import { generateRows } from './world.ts';
+import { generateRows, WORLD_VERSION } from './world.ts';
 
 export type TerminalReason = 'vehicle' | 'train' | 'water' | 'bounds';
 
@@ -17,7 +17,7 @@ export type GameEvent =
   | { type: 'terminal'; reason: TerminalReason; position: GridPosition };
 
 export type GameState = {
-  version: 1;
+  version: typeof WORLD_VERSION;
   seed: string;
   step: number;
   time: number;
@@ -115,7 +115,7 @@ function terminalEvent(reason: TerminalReason, position: GridPosition): GameEven
 
 export function createGame(seed: string): GameState {
   return {
-    version: 1,
+    version: WORLD_VERSION,
     seed,
     step: 0,
     time: 0,
@@ -198,7 +198,7 @@ export function stepGame(state: GameState, action: Action): StepResult {
   if (terminal !== null) events.push(terminalEvent(terminal, fly));
 
   const next: GameState = {
-    version: 1,
+    version: WORLD_VERSION,
     seed: state.seed,
     step: state.step + 1,
     time: toTime,

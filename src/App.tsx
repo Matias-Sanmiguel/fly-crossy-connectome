@@ -13,7 +13,9 @@ import {
 import type { Controller } from './game/controllers';
 import { OBSERVATION_INPUT_SIZE, parsePolicy } from './game/model';
 import type { ExportedPolicyV1 } from './game/model';
-import { useGame } from './hooks/useGame';
+import { activityPresentation } from './game/provenance';
+import { normalizeSeed, useGame } from './hooks/useGame';
+import type { AutonomousSpeed } from './hooks/useGame';
 import { asset, loadAtlas } from './lib/atlas';
 import type { Atlas } from './lib/atlas';
 
@@ -24,6 +26,10 @@ export function App() {
   const [atlas, setAtlas] = useState<Atlas | null>(null);
   const [loadError, setLoadError] = useState('');
   const [mode, setMode] = useState<UiMode>('human');
+  const [activeSeed, setActiveSeed] = useState('experiment-001');
+  const [seedInput, setSeedInput] = useState('experiment-001');
+  const [seedError, setSeedError] = useState('');
+  const [autonomousSpeed, setAutonomousSpeed] = useState<AutonomousSpeed>(1);
   const [policy, setPolicy] = useState<ExportedPolicyV1 | null>(null);
   const policyFile = useRef<HTMLInputElement>(null);
   const controller = useMemo<Controller | null>(() => {
@@ -38,10 +44,11 @@ export function App() {
     return null;
   }, [mode, policy]);
   const game = useGame({
-    seed: 'experiment-001',
+    seed: activeSeed,
     mode: mode === 'human' ? 'human' : controller?.kind ?? 'conventional',
     controller,
     visibleIds: atlas?.visibleIds,
+    autonomousSpeed,
   });
 
   useEffect(() => {
@@ -64,7 +71,33 @@ export function App() {
   };
 
   const manual = mode === 'human';
-  const frame = manual ? null : game.activity;
+  const activity = activityPresentation(controller, game.activity);
+  const trainWarning = game.events.some((event) => event.type === 'train-warning');
+
+  const applySeed = () => {
+    try {
+      const nextSeed = normalizeSeed(seedInput);
+      setSeedInput(nextSeed);
+      setSeedError('');
+      if (nextSeed === activeSeed) game.reset(nextSeed);
+      else setActiveSeed(nextSeed);
+    } catch (error) {
+      setSeedError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const newSeed = () => {
+    const nextSeed = `experiment-${globalThis.crypto.randomUUID().slice(0, 8)}`;
+    setSeedInput(nextSeed);
+    setSeedError('');
+    setActiveSeed(nextSeed);
+  };
+
+  const resetCurrent = () => {
+    setSeedInput(activeSeed);
+    setSeedError('');
+    game.reset(activeSeed);
+  };
 
   return (
     <>
@@ -93,7 +126,39 @@ export function App() {
                 </option>
               </select>
             </label>
-            <button type="button" onClick={() => game.reset()}>Reset seed</button>
+            <label>
+              Seed
+              <input
+                className="seed-input"
+                value={seedInput}
+                maxLength={64}
+                aria-invalid={seedError ? 'true' : 'false'}
+                aria-describedby={seedError ? 'seed-error' : undefined}
+                onChange={(event) => setSeedInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    applySeed();
+                  }
+                }}
+              />
+            </label>
+            <button type="button" onClick={applySeed}>Apply seed</button>
+            <button type="button" onClick={newSeed}>New seed</button>
+            <button type="button" onClick={resetCurrent}>Reset current</button>
+            <label>
+              Autonomous speed
+              <select
+                value={autonomousSpeed}
+                disabled={manual}
+                onChange={(event) => setAutonomousSpeed(Number(event.target.value) as AutonomousSpeed)}
+              >
+                <option value={0.5}>0.5×</option>
+                <option value={1}>1×</option>
+                <option value={2}>2×</option>
+                <option value={4}>4×</option>
+              </select>
+            </label>
             <button className="primary-action" type="button" disabled={!atlas} onClick={() => policyFile.current?.click()}>
               Load policy JSON
             </button>
@@ -116,31 +181,34 @@ export function App() {
             />
           </div>
         </div>
+        {seedError && <p id="seed-error" className="error" role="alert">{seedError}</p>}
         {loadError && <p className="error" role="alert">{loadError}</p>}
         <div className="workbench">
           <section className="panel environment-panel">
             <h2>01 / CROSSING ENVIRONMENT <span>{manual ? 'Human' : controller?.kind ?? 'No controller'}</span></h2>
             <GameScene state={game.state} events={game.events} />
+            {trainWarning && <p className="game-warning" role="alert">Train approaching — move off the rail.</p>}
             <GameControls
               onAction={game.onAction}
               paused={game.paused}
               terminal={game.state.terminal !== null}
               onTogglePause={game.onTogglePause}
+              manual={manual}
             />
             <div className="panel-bottom game-status-bar">
               <span>
                 {game.state.terminal
                   ? `Terminal: ${game.state.terminal}`
-                  : manual ? 'Manual control · no neural output' : `${game.controllerStatus} · ${controller?.id}`}
+                  : `${game.controllerStatus} · ${activity.heading.toLowerCase()}`}
               </span>
               <span>Score {game.state.score}</span>
-              <button type="button" onClick={() => game.reset()}>Repeat seed</button>
+              <button type="button" onClick={resetCurrent}>Repeat current</button>
             </div>
           </section>
           <section className="panel brain-panel">
             <h2>02 / BRAIN SOMA ATLAS <span>MaleCNS v1.0</span></h2>
             {atlas
-              ? <BrainScene atlas={atlas} frame={frame} activityMode={manual ? 'manual' : 'simulated'} />
+              ? <BrainScene atlas={atlas} frame={activity.frame} activityMode={activity.kind} />
               : <p className="loading" role="status">Loading measured anatomy…</p>}
             <div className="panel-bottom">
               {atlas?.visibleIds.size.toLocaleString('en-US') ?? '…'} measured somata
@@ -148,8 +216,8 @@ export function App() {
             </div>
           </section>
           <Telemetry
-            manual={manual}
             controller={controller}
+            activity={activity}
             state={game.state}
             decision={game.decision}
             reward={game.reward}
@@ -165,7 +233,7 @@ export function App() {
         <details>
           <summary>Scientific scope &amp; customization</summary>
           <p>The atlas contains curated cell-body positions, not neurite morphology or synaptic edges. Points keep native proportions. Missing soma locations are never generated. The brain filter selects optic, central and descending classes; it is not a complete brain segmentation.</p>
-          <p>Policies receive the same bounded ObservationV1 input and return one action per authoritative simulation step. Activity is accepted only for atlas-visible MaleCNS body IDs. Manual mode always clears neural output.</p>
+          <p>Policies receive the same bounded ObservationV1 input and return one action per authoritative simulation step. Activity is accepted only for atlas-visible MaleCNS body IDs. Human and scripted modes have no neural output. Dense policies show model output only when they declare an explicit mapped activity layer; the fixed graph shows simulated reduced-circuit activity.</p>
           <p>Dataset creators: FlyEM / HHMI Janelia, University of Cambridge, MRC Laboratory of Molecular Biology and Google Research. <a href="https://male-cns.janelia.org/download/">MaleCNS data and publication</a>, CC BY 4.0. <a href={asset('data/brain-atlas/manifest.json')}>Exact source, filters and hashes</a>.</p>
           <p>Template code has a custom attribution-required license. Keep the linked template/author credit in your web UI and repository README. Third-party assets retain their own licenses.</p>
         </details>

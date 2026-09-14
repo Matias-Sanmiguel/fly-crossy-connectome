@@ -130,6 +130,7 @@ export function createRemoteController(
   return {
     id: url,
     kind: 'remote',
+    activityProvenance: 'model-output',
     decide(observation, signal) {
       if (disposed) return Promise.reject(Error('Remote controller is disposed.'));
       if (connectionFailure) return Promise.reject(connectionFailure);

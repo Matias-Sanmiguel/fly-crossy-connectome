@@ -8,6 +8,7 @@ import {
 import type { ExportedPolicyV1, ModelSource } from './model.ts';
 import type { ObservationV1 } from './observation.ts';
 import type { Action } from './types.ts';
+import type { ActivityProvenance } from './provenance.ts';
 
 export type ControllerDecision = {
   action: Action;
@@ -18,6 +19,7 @@ export type ControllerDecision = {
 export interface Controller {
   readonly id: string;
   readonly kind: 'scripted' | 'conventional' | 'connectome' | 'remote';
+  readonly activityProvenance: ActivityProvenance;
   readonly source?: ModelSource;
   decide(observation: ObservationV1, signal: AbortSignal): Promise<ControllerDecision>;
   reset(seed: string): void;
@@ -78,6 +80,7 @@ export function createScriptedController(actions: readonly Action[]): Controller
   return {
     id: 'scripted-sequence',
     kind: 'scripted',
+    activityProvenance: 'none',
     async decide(_observation, signal) {
       throwIfAborted(signal);
       const action = actions[index % actions.length]!;
@@ -98,6 +101,7 @@ export function createDensePolicyController(policy: ExportedPolicyV1): Controlle
   return {
     id: policy.source.name,
     kind: 'conventional',
+    activityProvenance: policy.activityBodyIds.length > 0 ? 'model-output' : 'none',
     source: policy.source,
     async decide(observation, signal) {
       throwIfAborted(signal);
@@ -133,6 +137,7 @@ export function createFixedGraphPolicyController(policy: ExportedPolicyV1): Cont
   return {
     id: policy.source.name,
     kind: 'connectome',
+    activityProvenance: 'simulated-reduced-circuit',
     source: policy.source,
     async decide(observation, signal) {
       throwIfAborted(signal);

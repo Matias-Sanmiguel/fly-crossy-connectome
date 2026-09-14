@@ -10,7 +10,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 1
+WORLD_VERSION = 2
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
 HAZARD_CIRCUIT = 25
@@ -18,6 +18,8 @@ HAZARD_CIRCUIT = 25
 OPENING_ROWS = 3
 HAZARD_ROWS_PER_GROUP = 4
 GROUP_ROWS = HAZARD_ROWS_PER_GROUP + 1
+SOLVABILITY_STEP_LIMIT = 80
+GENERATION_ATTEMPTS = 8
 ROWS_AHEAD = 15
 ROWS_BEHIND = 8
 TRAIN_WARNING_SECONDS = 2
@@ -72,6 +74,15 @@ class StepResult:
     state: GameState
     reward: float
     events: list[dict[str, object]]
+
+
+@dataclass(frozen=True, slots=True)
+class DifficultyProfile:
+    level: int
+    minimum_speed: int
+    maximum_speed: int
+    minimum_hazards: int
+    maximum_hazards: int
 
 
 _T = TypeVar("_T")
@@ -141,20 +152,35 @@ def _seed_for_group(seed: str, group_index: int) -> str:
     return f"{WORLD_VERSION}:{seed}:{group_index}"
 
 
-def _hazard_count(kind: LaneKind, rng: _Rng) -> int:
+def difficulty_for_row(row: int) -> DifficultyProfile:
+    """Return the versioned distance-based speed and density progression."""
+    forward_group = max(0, _group_index_for(row))
+    level = min(3, forward_group // 10)
+    return DifficultyProfile(
+        level=level,
+        minimum_speed=min(3, 1 + level // 2),
+        maximum_speed=2 + level,
+        minimum_hazards=2 + level // 2,
+        maximum_hazards=3 + level,
+    )
+
+
+def _hazard_count(kind: LaneKind, rng: _Rng, difficulty: DifficultyProfile) -> int:
     if kind == "rail":
         return 1
-    return rng.integer(2, 4)
+    return rng.integer(difficulty.minimum_hazards, difficulty.maximum_hazards)
 
 
-def _create_hazards(kind: LaneKind, rng: _Rng) -> list[Hazard]:
+def _create_hazards(
+    kind: LaneKind, rng: _Rng, difficulty: DifficultyProfile
+) -> list[Hazard]:
     return [
         Hazard(
             kind=rng.pick(_HAZARD_KINDS[kind]),
             position=rng.integer(-12, 12),
             size=4 if kind == "rail" else rng.integer(1, 3),
         )
-        for _ in range(_hazard_count(kind, rng))
+        for _ in range(_hazard_count(kind, rng, difficulty))
     ]
 
 
@@ -162,21 +188,114 @@ def _grass(row: int) -> Lane:
     return Lane(row=row, kind="grass", hazards=[])
 
 
-def _hazard_lane(seed: str, row: int) -> Lane:
-    group_index = _group_index_for(row)
+def _hazard_lane(seed: str, row: int, group_index: int, attempt: int) -> Lane:
     row_offset = row - (OPENING_ROWS + group_index * GROUP_ROWS)
-    group_seed = _seed_for_group(seed, group_index)
+    base_seed = _seed_for_group(seed, group_index)
+    group_seed = base_seed if attempt == 0 else f"{base_seed}:retry:{attempt}"
     group_rng = _Rng(group_seed)
     kind = group_rng.pick(("road", "rail", "river"))
     lane_rng = _Rng(f"{group_seed}:{row_offset}")
+    difficulty = difficulty_for_row(row)
     return Lane(
         row=row,
         kind=kind,
         direction=lane_rng.pick((-1, 1)),
-        speed=lane_rng.integer(1, 3),
+        speed=lane_rng.integer(difficulty.minimum_speed, difficulty.maximum_speed),
         phase=lane_rng.integer(0, 999) / 1000,
-        hazards=_create_hazards(kind, lane_rng),
+        hazards=_create_hazards(kind, lane_rng, difficulty),
     )
+
+
+def has_bounded_group_path(rows: Sequence[Lane]) -> bool:
+    """Mirror the browser's bounded authoritative-rule group reachability check."""
+    if len(rows) != HAZARD_ROWS_PER_GROUP + 2:
+        return False
+    ordered = sorted(rows, key=lambda lane: lane.row)
+    if (
+        any(
+            lane.row != ordered[index - 1].row + 1
+            for index, lane in enumerate(ordered)
+            if index > 0
+        )
+        or ordered[0].kind != "grass"
+        or ordered[-1].kind != "grass"
+    ):
+        return False
+    lanes = {lane.row: lane for lane in ordered}
+    start_row = ordered[0].row
+    goal_row = ordered[-1].row
+    frontier = [(start_row, 0, max(0, start_row))]
+    visited: set[tuple[int, int, int]] = set()
+    actions = ("forward", "backward", "left", "right", "wait")
+
+    for _ in range(SOLVABILITY_STEP_LIMIT):
+        if not frontier:
+            break
+        next_frontier: list[tuple[int, int, int]] = []
+        for current_row, current_ticks, step in frontier:
+            lane = lanes[current_row]
+            from_time = step * DECISION_SECONDS
+            to_time = from_time + DECISION_SECONDS
+            column = current_ticks / 5
+            if lane.kind in ("road", "rail") and any(
+                _hazard_sweeps_column(lane, hazard, column, from_time, to_time)
+                for hazard in lane.hazards
+            ):
+                continue
+            for action in actions:
+                row = current_row + (1 if action == "forward" else -1 if action == "backward" else 0)
+                column_ticks = current_ticks + (5 if action == "right" else -5 if action == "left" else 0)
+                if (
+                    row < start_row
+                    or row > goal_row
+                    or abs(column_ticks) > WORLD_HALF_WIDTH * 5
+                ):
+                    continue
+                destination = lanes[row]
+                if destination.kind == "river" and action == "wait":
+                    supported_before = any(
+                        hazard.kind == "log"
+                        and hazard_contains(destination, hazard, column, from_time)
+                        for hazard in destination.hazards
+                    )
+                    if supported_before:
+                        column_ticks += (destination.direction or 0) * (destination.speed or 0)
+                next_column = column_ticks / 5
+                if abs(column_ticks) > WORLD_HALF_WIDTH * 5:
+                    continue
+                if destination.kind == "river" and not any(
+                    hazard.kind == "log"
+                    and hazard_contains(destination, hazard, next_column, to_time)
+                    for hazard in destination.hazards
+                ):
+                    continue
+                if destination.kind in ("road", "rail") and any(
+                    hazard_contains(destination, hazard, next_column, to_time)
+                    for hazard in destination.hazards
+                ):
+                    continue
+                if row == goal_row:
+                    return True
+                candidate = (row, column_ticks, step + 1)
+                if candidate not in visited:
+                    visited.add(candidate)
+                    next_frontier.append(candidate)
+        frontier = next_frontier
+    return False
+
+
+def _generate_group(seed: str, group_index: int) -> list[Lane]:
+    first = OPENING_ROWS + group_index * GROUP_ROWS
+    for attempt in range(GENERATION_ATTEMPTS):
+        hazards = [
+            _hazard_lane(seed, first + offset, group_index, attempt)
+            for offset in range(HAZARD_ROWS_PER_GROUP)
+        ]
+        if has_bounded_group_path(
+            [_grass(first - 1), *hazards, _grass(first + HAZARD_ROWS_PER_GROUP)]
+        ):
+            return hazards
+    return [_grass(first + offset) for offset in range(HAZARD_ROWS_PER_GROUP)]
 
 
 def generate_rows(seed: str, start: int, count: int) -> list[Lane]:
@@ -184,17 +303,20 @@ def generate_rows(seed: str, start: int, count: int) -> list[Lane]:
         raise ValueError("Expected an integer starting row and nonnegative row count.")
 
     rows: list[Lane] = []
+    groups: dict[int, list[Lane]] = {}
     for offset in range(count):
         row = start + offset
         if 0 <= row < OPENING_ROWS:
             rows.append(_grass(row))
             continue
         group_offset = row - (OPENING_ROWS + _group_index_for(row) * GROUP_ROWS)
-        rows.append(
-            _grass(row)
-            if group_offset == HAZARD_ROWS_PER_GROUP
-            else _hazard_lane(seed, row)
-        )
+        if group_offset == HAZARD_ROWS_PER_GROUP:
+            rows.append(_grass(row))
+            continue
+        group_index = _group_index_for(row)
+        if group_index not in groups:
+            groups[group_index] = _generate_group(seed, group_index)
+        rows.append(groups[group_index][group_offset])
     return rows
 
 
@@ -261,7 +383,7 @@ def _extend_world(state: GameState, fly_row: int) -> list[Lane]:
 
 def create_game(seed: str) -> GameState:
     return GameState(
-        version=1,
+        version=WORLD_VERSION,
         seed=seed,
         step=0,
         time=0,
@@ -372,7 +494,7 @@ def step_game(state: GameState, action: Action) -> StepResult:
         events.append({"type": "terminal", "reason": terminal, "position": fly})
 
     next_state = GameState(
-        version=1,
+        version=WORLD_VERSION,
         seed=state.seed,
         step=state.step + 1,
         time=to_time,

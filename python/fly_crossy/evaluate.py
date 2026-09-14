@@ -29,7 +29,9 @@ class EvalConfig:
     evaluation_seeds: tuple[str, ...]
     max_steps_per_episode: int
     conventional_checkpoint: Path
+    conventional_checkpoint_sha256: str
     connectome_checkpoint: Path
+    connectome_checkpoint_sha256: str
     rewiring_seed: str
     rewiring_swaps: int
     silencing_population: str
@@ -41,6 +43,26 @@ def _required_string(value: object, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"Evaluation {label} must be a non-empty string.")
     return value.strip()
+
+
+def _required_integer(value: object, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"Evaluation {label} must be an integer.")
+    return value
+
+
+def _checkpoint_reference(value: object, label: str) -> tuple[str, str]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"Evaluation {label} checkpoint must be an object.")
+    path = _required_string(value.get("path"), f"{label} checkpoint path")
+    digest = value.get("sha256")
+    if not isinstance(digest, str) or len(digest) != 64 or any(
+        character not in "0123456789abcdef" for character in digest
+    ):
+        raise ValueError(
+            f"Evaluation {label} checkpoint SHA-256 must be a lowercase digest."
+        )
+    return path, digest
 
 
 def _string_tuple(value: object, label: str, *, allow_empty: bool = False) -> tuple[str, ...]:
@@ -62,11 +84,15 @@ def load_eval_config(path: str | Path) -> EvalConfig:
     if not isinstance(payload, Mapping):
         raise ValueError("Evaluation config must be a JSON object.")
     try:
-        version = int(payload["version"])
-        environment_version = int(payload["environmentVersion"])
+        version = _required_integer(payload["version"], "version")
+        environment_version = _required_integer(
+            payload["environmentVersion"], "environment version"
+        )
         training_seeds = _string_tuple(payload["trainingSeeds"], "training seeds")
         evaluation_seeds = _string_tuple(payload["evaluationSeeds"], "evaluation seeds")
-        max_steps = int(payload["maxStepsPerEpisode"])
+        max_steps = _required_integer(
+            payload["maxStepsPerEpisode"], "max steps per episode"
+        )
         checkpoints = payload["checkpoints"]
         controls = payload["controls"]
         rewiring = controls["rewiring"]
@@ -75,14 +101,20 @@ def load_eval_config(path: str | Path) -> EvalConfig:
         human_files = _string_tuple(
             payload.get("humanTraceFiles", []), "human trace files", allow_empty=True
         )
-        conventional = _required_string(checkpoints["conventional"], "conventional checkpoint")
-        connectome = _required_string(checkpoints["connectome"], "connectome checkpoint")
+        conventional, conventional_sha256 = _checkpoint_reference(
+            checkpoints["conventional"], "conventional"
+        )
+        connectome, connectome_sha256 = _checkpoint_reference(
+            checkpoints["connectome"], "connectome"
+        )
         rewiring_seed = _required_string(rewiring["seed"], "rewiring seed")
-        rewiring_swaps = int(rewiring["swaps"])
+        rewiring_swaps = _required_integer(rewiring["swaps"], "rewiring swaps")
         silencing_population = _required_string(
             silencing["population"], "silencing population"
         )
-        untrained_seed = int(untrained["seed"])
+        untrained_seed = _required_integer(
+            untrained["seed"], "untrained readout seed"
+        )
     except (KeyError, TypeError, ValueError) as error:
         if isinstance(error, ValueError) and str(error).startswith("Evaluation "):
             raise
@@ -111,7 +143,9 @@ def load_eval_config(path: str | Path) -> EvalConfig:
         evaluation_seeds=evaluation_seeds,
         max_steps_per_episode=max_steps,
         conventional_checkpoint=(base / conventional).resolve(),
+        conventional_checkpoint_sha256=conventional_sha256,
         connectome_checkpoint=(base / connectome).resolve(),
+        connectome_checkpoint_sha256=connectome_sha256,
         rewiring_seed=rewiring_seed,
         rewiring_swaps=rewiring_swaps,
         silencing_population=silencing_population,
@@ -283,34 +317,39 @@ def _sha256(path: Path) -> str:
 
 def _load_checkpoint(
     path: Path,
+    expected_sha256: str,
     expected_controller: str,
     training_seeds: Sequence[str],
     expected_environment_version: int,
 ) -> tuple[DensePolicy | FixedGraphPolicy, dict[str, Any], int | None]:
     if not path.is_file():
         raise ValueError(f"Evaluation checkpoint does not exist: {path}")
+    actual_sha256 = _sha256(path)
+    if actual_sha256 != expected_sha256:
+        raise ValueError(
+            f"Evaluation checkpoint SHA-256 mismatch for {path}: "
+            f"expected {expected_sha256}, got {actual_sha256}."
+        )
     try:
         checkpoint = torch.load(path, map_location="cpu", weights_only=True)
     except (OSError, RuntimeError, ValueError) as error:
         raise ValueError(f"Evaluation checkpoint could not be loaded: {path}") from error
     if not isinstance(checkpoint, Mapping):
         raise ValueError("Evaluation checkpoint must contain an object.")
-    checkpoint_environment_version: int | None
     if "environment_version" not in checkpoint:
-        checkpoint_environment_version = None
-    else:
-        raw_environment_version = checkpoint["environment_version"]
-        if isinstance(raw_environment_version, bool) or not isinstance(
-            raw_environment_version, int
-        ):
-            raise ValueError("Checkpoint environment version must be an integer.")
-        checkpoint_environment_version = raw_environment_version
-        if checkpoint_environment_version != expected_environment_version:
-            raise ValueError(
-                f"Checkpoint environment version {checkpoint_environment_version} "
-                f"does not match evaluation environment version "
-                f"{expected_environment_version}."
-            )
+        raise ValueError("Checkpoint environment version must be recorded.")
+    raw_environment_version = checkpoint["environment_version"]
+    if isinstance(raw_environment_version, bool) or not isinstance(
+        raw_environment_version, int
+    ):
+        raise ValueError("Checkpoint environment version must be an integer.")
+    checkpoint_environment_version = raw_environment_version
+    if checkpoint_environment_version != expected_environment_version:
+        raise ValueError(
+            f"Checkpoint environment version {checkpoint_environment_version} "
+            f"does not match evaluation environment version "
+            f"{expected_environment_version}."
+        )
     try:
         if checkpoint["format_version"] != 1:
             raise ValueError("Evaluation checkpoint format version must be 1.")
@@ -324,7 +363,11 @@ def _load_checkpoint(
         observation_size = int(model_metadata["observation_size"])
         actions = int(model_metadata["actions"])
         training_seed = _required_string(training["seed"], "checkpoint training seed")
-        training_steps = int(training["steps"])
+        training_steps = _required_integer(training["steps"], "checkpoint training steps")
+        training_envs = _required_integer(training["envs"], "checkpoint environment count")
+        training_world_seeds = _string_tuple(
+            training["world_seeds"], "checkpoint concrete training world seeds"
+        )
     except (KeyError, TypeError, ValueError) as error:
         if isinstance(error, ValueError) and str(error).startswith("Evaluation "):
             raise
@@ -335,8 +378,12 @@ def _load_checkpoint(
         raise ValueError(
             f"Checkpoint training seed {training_seed!r} is not declared in trainingSeeds."
         )
-    if training_steps <= 0:
-        raise ValueError("Evaluation checkpoint training steps must be positive.")
+    if training_steps <= 0 or training_envs <= 0:
+        raise ValueError("Evaluation checkpoint training steps and environments must be positive.")
+    if any(not seed.startswith(f"{training_seed}:") for seed in training_world_seeds):
+        raise ValueError(
+            "Evaluation checkpoint concrete training world seeds do not match its root seed."
+        )
 
     if expected_controller == "conventional":
         try:
@@ -429,6 +476,7 @@ def _evidence(
         ),
         "trainingSeed": str(training["seed"]),
         "trainingEnvironmentSteps": int(training["steps"]),
+        "trainingWorldSeeds": list(training["world_seeds"]),
         "checkpointEnvironmentVersion": checkpoint_environment_version,
         "checkpointEnvironmentVersionStatus": (
             "recorded-match"
@@ -632,7 +680,7 @@ def _write_csv(path: Path, payload: Mapping[str, Any]) -> None:
         "controlGraphArtifactSha256",
     ]
     with path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fieldnames)
+        writer = csv.DictWriter(stream, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         for controller in payload["controllers"]:
             summary = controller["summary"]
@@ -813,20 +861,32 @@ def _write_markdown(path: Path, payload: Mapping[str, Any]) -> None:
 
 def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
     """Evaluate trained policies and controls on one held-out seed suite."""
-    source_path = Path(config_path).resolve()
+    declared_config_path = Path(config_path)
+    source_path = declared_config_path.resolve()
     config = load_eval_config(source_path)
     conventional, conventional_training, conventional_environment_version = _load_checkpoint(
         config.conventional_checkpoint,
+        config.conventional_checkpoint_sha256,
         "conventional",
         config.training_seeds,
         config.environment_version,
     )
     connectome, connectome_training, connectome_environment_version = _load_checkpoint(
         config.connectome_checkpoint,
+        config.connectome_checkpoint_sha256,
         "connectome",
         config.training_seeds,
         config.environment_version,
     )
+    concrete_training_world_seeds = set(conventional_training["world_seeds"]) | set(
+        connectome_training["world_seeds"]
+    )
+    overlap = concrete_training_world_seeds & set(config.evaluation_seeds)
+    if overlap:
+        raise ValueError(
+            "Evaluation concrete training world seeds overlap held-out seeds: "
+            + ", ".join(sorted(overlap))
+        )
     if not isinstance(connectome, FixedGraphPolicy):
         raise ValueError("Connectome evaluation requires a fixed graph policy.")
 
@@ -960,11 +1020,12 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
         "version": 1,
         "environmentVersion": config.environment_version,
         "config": {
-            "path": str(source_path),
+            "path": str(declared_config_path),
             "sha256": _sha256(source_path),
             "trainingSeeds": list(config.training_seeds),
             "evaluationSeeds": list(config.evaluation_seeds),
             "maxStepsPerEpisode": config.max_steps_per_episode,
+            "concreteTrainingWorldSeeds": sorted(concrete_training_world_seeds),
         },
         "humanRecordedTraces": human_recorded,
         "controllers": controllers,

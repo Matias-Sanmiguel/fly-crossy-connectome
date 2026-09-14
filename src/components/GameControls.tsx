@@ -5,16 +5,17 @@ type GameControlsProps = {
   paused: boolean;
   terminal: boolean;
   onTogglePause: () => void;
+  manual: boolean;
 };
 
-export function GameControls({ onAction, paused, terminal, onTogglePause }: GameControlsProps) {
+export function GameControls({ onAction, paused, terminal, onTogglePause, manual }: GameControlsProps) {
   const actionButton = (action: Action, label: string, glyph: string, key: string) => (
     <button
       className={`game-action game-action-${action}`}
       type="button"
       aria-label={label}
       title={`${label} (${key})`}
-      disabled={paused || terminal}
+      disabled={paused || terminal || !manual}
       onClick={() => onAction(action)}
     >
       <strong aria-hidden="true">{glyph}</strong>
@@ -24,6 +25,11 @@ export function GameControls({ onAction, paused, terminal, onTogglePause }: Game
 
   return (
     <div className="game-controls" aria-label="Fly movement controls">
+      {!manual && (
+        <span className="autonomous-control-notice" role="status">
+          Manual movement unavailable while an autonomous controller is selected
+        </span>
+      )}
       <div className="game-dpad">
         {actionButton('forward', 'Move forward', '↑', 'W')}
         {actionButton('left', 'Move left', '←', 'A')}

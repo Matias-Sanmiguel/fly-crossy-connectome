@@ -7,6 +7,7 @@ import { encodeObservation } from '../src/game/model.ts';
 import { observe } from '../src/game/observation.ts';
 import { createGame, hazardPositionAt, stepGame } from '../src/game/simulation.ts';
 import { generateRows } from '../src/game/world.ts';
+import { WORLD_VERSION } from '../src/game/world.ts';
 
 const fixture = JSON.parse(readFileSync(
   new URL('./fixtures/environment-parity-v1.json', import.meta.url),
@@ -32,6 +33,7 @@ const observationSha256 = (state) => {
 
 test('environment parity fixture matches authoritative browser behavior', () => {
   assert.equal(fixture.version, 1);
+  assert.equal(fixture.environmentVersion, WORLD_VERSION);
   assert.equal(fixture.observationEncoding, 'float32-le-sha256');
 
   for (const check of fixture.positionChecks) {

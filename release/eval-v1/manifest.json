@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "environmentVersion": 2,
+  "config": {
+    "path": "../../configs/eval-v1.json",
+    "sha256": "7eeca30f06824330b8287ce2a23088765d0eba456c08df93d7f044c14c62234a"
+  },
+  "training": {
+    "seed": "smoke",
+    "steps": 2048,
+    "envs": 4,
+    "learningRate": 0.0003,
+    "device": "cpu"
+  },
+  "files": [
+    {"path": "training/conventional/checkpoint.pt", "sha256": "c336a53086e765e242e74ec396225f51d744679aff8fe1ae7fe8c31e78b2ed4d"},
+    {"path": "training/conventional/metadata.json", "sha256": "6451d139729952d595fa6f557b8573a77ac8ed07367a15cb90209c8f5ab53cab"},
+    {"path": "training/conventional/metrics.json", "sha256": "32da8a037626b34edeb2c0040674696341d9e6d6fab2d3ba8d229551a397249f"},
+    {"path": "training/conventional/policy.json", "sha256": "20469705ca540d6c832bd3a015f31362b63540033d7e676c8a09627bca5f8001"},
+    {"path": "training/connectome/checkpoint.pt", "sha256": "218d319c050983c225c943ab8de7493af672de561749a1892aa507a1c676cec5"},
+    {"path": "training/connectome/metadata.json", "sha256": "e026617615cb5b9936d163f2d5a6e5a0016be6feadbb6dafc42ee19570e9e92f"},
+    {"path": "training/connectome/metrics.json", "sha256": "2e25c4dfaa9d71ac1819f10c03e46f3d92dad513524a988a72106179e53e2314"},
+    {"path": "training/connectome/policy.json", "sha256": "1cd36d90f84bf8a9e05f712a66527cbe1697dbe78d84bb0c4531f84afb414c63"},
+    {"path": "evaluation/metrics.json", "sha256": "eacb91c12b4426e338e67dfa4f01fe9f222ef8dabed145e7f216b27e4ab6410e"},
+    {"path": "evaluation/metrics.csv", "sha256": "b8339143c872d6edc445fe29f5d4f1f261e5e2e1522807021f7eb1cd53e66729"},
+    {"path": "evaluation/summary.md", "sha256": "2129b5b143d2300b4872bc581897d0ce3e4e9d2aae72a659e9220493ae07b118"}
+  ],
+  "limitations": [
+    "Smoke budgets are too small to establish convergence.",
+    "The controls do not establish a beneficial topology effect.",
+    "No human-recorded traces were available; no human baseline was fabricated."
+  ]
+}

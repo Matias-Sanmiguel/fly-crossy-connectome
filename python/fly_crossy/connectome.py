@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any, Iterable, Mapping
 
 import numpy as np
@@ -27,6 +28,48 @@ def _required_text(value: object, label: str) -> str:
 
 def _sha256_bytes(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
+
+
+_SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _strict_number(value: object, label: str) -> float:
+    if (
+        isinstance(value, (bool, np.bool_))
+        or not isinstance(value, (int, float, np.integer, np.floating))
+        or not np.isfinite(value)
+    ):
+        raise ValueError(f"Reduced graph {label} must be a finite number.")
+    return float(value)
+
+
+def _strict_integer_array(value: object, label: str) -> np.ndarray:
+    array = np.asarray(value, dtype=object)
+    if any(
+        isinstance(item, (bool, np.bool_))
+        or not isinstance(item, (int, np.integer))
+        for item in array.flat
+    ):
+        raise ValueError(f"Reduced graph {label} must contain only integers.")
+    return np.asarray(value, dtype=np.int64)
+
+
+def _strict_number_array(value: object, label: str) -> np.ndarray:
+    array = np.asarray(value, dtype=object)
+    if any(
+        isinstance(item, (bool, np.bool_))
+        or not isinstance(item, (int, float, np.integer, np.floating))
+        or not np.isfinite(item)
+        for item in array.flat
+    ):
+        raise ValueError(f"Reduced graph {label} must contain only finite numbers.")
+    return np.asarray(value, dtype=np.float32)
+
+
+def _required_sha256(value: object, label: str) -> str:
+    if not isinstance(value, str) or _SHA256_PATTERN.fullmatch(value) is None:
+        raise ValueError(f"Reduced graph {label} must be a lowercase SHA-256 digest.")
+    return value
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,23 +97,18 @@ class ReducedGraphArtifact:
             (self.selection_rule, "selection rule"),
         ):
             _required_text(value, label)
-        if not isinstance(self.source_sha256, str) or len(self.source_sha256) != 64:
-            raise ValueError("Reduced graph source SHA-256 must be a 64-character digest.")
-        try:
-            int(self.source_sha256, 16)
-        except ValueError as error:
-            raise ValueError("Reduced graph source SHA-256 is invalid.") from error
-        if (
-            not np.isfinite(self.minimum_edge_threshold)
-            or self.minimum_edge_threshold <= 0
-        ):
+        _required_sha256(self.source_sha256, "source SHA-256")
+        minimum_edge_threshold = _strict_number(
+            self.minimum_edge_threshold, "minimum edge threshold"
+        )
+        if minimum_edge_threshold <= 0:
             raise ValueError("Reduced graph minimum edge threshold must be positive and finite.")
 
-        body_ids = np.asarray(self.body_ids, dtype=np.int64)
-        edge_index = np.asarray(self.edge_index, dtype=np.int64)
-        edge_weight = np.asarray(self.edge_weight, dtype=np.float32)
-        sensory_ids = np.asarray(self.sensory_body_ids, dtype=np.int64)
-        readout_ids = np.asarray(self.readout_body_ids, dtype=np.int64)
+        body_ids = _strict_integer_array(self.body_ids, "body IDs")
+        edge_index = _strict_integer_array(self.edge_index, "topology indices")
+        edge_weight = _strict_number_array(self.edge_weight, "edge weights")
+        sensory_ids = _strict_integer_array(self.sensory_body_ids, "sensory body IDs")
+        readout_ids = _strict_integer_array(self.readout_body_ids, "readout body IDs")
         if body_ids.ndim != 1 or body_ids.size == 0 or np.any(body_ids <= 0):
             raise ValueError("Reduced graph body IDs must be a non-empty positive vector.")
         if body_ids.tolist() != sorted(set(int(item) for item in body_ids)):
@@ -113,6 +151,8 @@ class ReducedGraphArtifact:
                 self._canonical_payload(), sort_keys=True, separators=(",", ":"), allow_nan=False
             ).encode("utf-8")
         )
+        if self.artifact_sha256:
+            _required_sha256(self.artifact_sha256, "artifact SHA-256")
         if self.artifact_sha256 and self.artifact_sha256 != digest:
             raise ValueError("Reduced graph artifact SHA-256 does not match its contents.")
         object.__setattr__(self, "artifact_sha256", digest)
@@ -151,7 +191,7 @@ class ReducedGraphArtifact:
     @classmethod
     def from_checkpoint(cls, value: Mapping[str, object]) -> ReducedGraphArtifact:
         try:
-            return cls(
+            graph = cls(
                 dataset_version=_required_text(
                     value["dataset_version"], "dataset version"
                 ),
@@ -163,14 +203,34 @@ class ReducedGraphArtifact:
                 selection_rule=_required_text(
                     value["selection_rule"], "selection rule"
                 ),
-                minimum_edge_threshold=float(value["minimum_edge_threshold"]),
-                body_ids=np.asarray(value["body_ids"], dtype=np.int64),
-                edge_index=np.asarray(value["edge_index"], dtype=np.int64),
-                edge_weight=np.asarray(value["edge_weight"], dtype=np.float32),
-                sensory_body_ids=np.asarray(value["sensory_body_ids"], dtype=np.int64),
-                readout_body_ids=np.asarray(value["readout_body_ids"], dtype=np.int64),
-                artifact_sha256=str(value["artifact_sha256"]),
+                minimum_edge_threshold=_strict_number(
+                    value["minimum_edge_threshold"], "minimum edge threshold"
+                ),
+                body_ids=_strict_integer_array(value["body_ids"], "body IDs"),
+                edge_index=_strict_integer_array(value["edge_index"], "topology indices"),
+                edge_weight=_strict_number_array(value["edge_weight"], "edge weights"),
+                sensory_body_ids=_strict_integer_array(
+                    value["sensory_body_ids"], "sensory body IDs"
+                ),
+                readout_body_ids=_strict_integer_array(
+                    value["readout_body_ids"], "readout body IDs"
+                ),
+                artifact_sha256=_required_sha256(
+                    value["artifact_sha256"], "artifact SHA-256"
+                ),
             )
+            for key, actual in (
+                ("node_count", graph.node_count),
+                ("edge_count", graph.edge_count),
+            ):
+                declared = value[key]
+                if (
+                    isinstance(declared, (bool, np.bool_))
+                    or not isinstance(declared, (int, np.integer))
+                    or int(declared) != actual
+                ):
+                    raise ValueError(f"Reduced graph {key} is incompatible.")
+            return graph
         except (KeyError, TypeError, ValueError) as error:
             raise ValueError("Checkpoint contains an incompatible reduced graph.") from error
 
@@ -297,7 +357,10 @@ def build_reduced_graph(
     expected_hash = _required_text(expected_hash_value, "source SHA-256")
     if expected_hash != computed_source_hash:
         raise ValueError("Reduced graph source SHA-256 does not match the source file.")
-    if not np.isfinite(minimum_edge_threshold) or minimum_edge_threshold <= 0:
+    minimum_edge_threshold = _strict_number(
+        minimum_edge_threshold, "minimum edge threshold"
+    )
+    if minimum_edge_threshold <= 0:
         raise ValueError("Reduced graph minimum edge threshold must be positive and finite.")
 
     nodes = payload.get("nodes")
@@ -450,8 +513,10 @@ def build_reduced_graph(
             )
         else:
             raise ValueError("Reduced graph source edges must contain source, target, and weight.")
-        if not isinstance(weight_value, (int, float, np.integer, np.floating)) or not np.isfinite(
-            weight_value
+        if (
+            isinstance(weight_value, (bool, np.bool_))
+            or not isinstance(weight_value, (int, float, np.integer, np.floating))
+            or not np.isfinite(weight_value)
         ):
             raise ValueError("Reduced graph source edge weights must be finite.")
         source_id = source_body_ids[source_index]

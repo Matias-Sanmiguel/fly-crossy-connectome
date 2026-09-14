@@ -53,10 +53,48 @@ test('terminal controls, hidden-tab scheduling, and controller disposal are wire
 
   assert.match(app, /terminal=\{game\.state\.terminal !== null\}/);
   assert.match(controls, /terminal:\s*boolean/);
-  assert.match(controls, /disabled=\{paused \|\| terminal\}/);
+  assert.match(controls, /disabled=\{paused \|\| terminal(?: \|\| !manual)?\}/);
   assert.match(hook, /document\.hidden/);
   assert.match(hook, /visibilitychange/);
   assert.match(hook, /if \(!visible\)[\s\S]{0,160}dispatch\(\{ type: 'controller-cancel' \}\)/);
   assert.match(hook, /if \(isInteractiveKeyboardTarget\(event\.target\)\) return;[\s\S]{0,240}event\.preventDefault\(\)/);
   assert.match(hook, /controller\?\.dispose\(\)/);
+});
+
+test('seed, repeat, reset, autonomous speed, and manual-mode controls are explicit', async () => {
+  const [app, controls, hook] = await Promise.all([
+    read('src/App.tsx'),
+    read('src/components/GameControls.tsx'),
+    read('src/hooks/useGame.ts'),
+  ]);
+
+  assert.match(app, /Seed\s*<input/);
+  assert.match(app, />Apply seed</);
+  assert.match(app, />New seed</);
+  assert.match(app, />Reset current</);
+  assert.match(app, />Repeat current</);
+  assert.match(app, /Autonomous speed/);
+  assert.match(app, /autonomousSpeed/);
+  assert.match(hook, /autonomousDecisionDelayMs\(autonomousSpeed\)/);
+  assert.match(controls, /manual:\s*boolean/);
+  assert.match(controls, /disabled=\{paused \|\| terminal \|\| !manual\}/);
+  assert.match(controls, /Manual movement unavailable while an autonomous controller is selected/);
+});
+
+test('train warnings and neural-output provenance are visible and accessible', async () => {
+  const [app, telemetry, brain, provenance] = await Promise.all([
+    read('src/App.tsx'),
+    read('src/components/Telemetry.tsx'),
+    read('src/components/BrainScene.tsx'),
+    read('src/game/provenance.ts'),
+  ]);
+
+  assert.match(app, /event\.type === 'train-warning'/);
+  assert.match(app, /role="alert"[^>]*>Train approaching/);
+  assert.match(telemetry + provenance, /NO NEURAL OUTPUT/);
+  assert.match(telemetry + provenance, /MODEL OUTPUT/);
+  assert.match(telemetry + provenance, /SIMULATED REDUCED-CIRCUIT ACTIVITY/);
+  assert.match(brain, /no neural output/i);
+  assert.match(brain, /mapped model output/i);
+  assert.match(brain, /simulated reduced-circuit activity/i);
 });

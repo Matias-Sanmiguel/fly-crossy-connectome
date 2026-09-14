@@ -12,7 +12,13 @@ import {
   validateControllerDecision,
 } from '../src/game/controllers.ts';
 import { createRemoteController } from '../src/game/remote.ts';
-import { isInteractiveKeyboardTarget, reduceGameCommand } from '../src/hooks/useGame.ts';
+import { activityPresentation } from '../src/game/provenance.ts';
+import {
+  autonomousDecisionDelayMs,
+  isInteractiveKeyboardTarget,
+  normalizeSeed,
+  reduceGameCommand,
+} from '../src/hooks/useGame.ts';
 
 const signal = () => new AbortController().signal;
 
@@ -63,6 +69,7 @@ test('scripted controller returns actions in order without invented neural activ
   assert.equal((await controller.decide(observation, signal())).action, 'wait');
   controller.reset('scripted');
   assert.equal((await controller.decide(observation, signal())).action, 'forward');
+  assert.equal(controller.activityProvenance, 'none');
 });
 
 test('dense policy chooses the maximum logit using the canonical observation encoding', async () => {
@@ -89,6 +96,7 @@ test('dense policy chooses the maximum logit using the canonical observation enc
   assert.equal(decision.action, 'backward');
   assert.deepEqual(decision.activity, []);
   assert.equal(decision.diagnostics['logit.backward'], 2);
+  assert.equal(createDensePolicyController(policy).activityProvenance, 'none');
 });
 
 test('fixed graph controller persists recurrence and resets simulated activity', async () => {
@@ -115,10 +123,64 @@ test('fixed graph controller persists recurrence and resets simulated activity',
   const second = await controller.decide(observation, signal());
 
   assert.equal(controller.kind, 'connectome');
+  assert.equal(controller.activityProvenance, 'simulated-reduced-circuit');
   assert.equal(first.action, 'backward');
   assert.ok(second.activity[0][1] > first.activity[0][1]);
   controller.reset('fixed');
   assert.deepEqual((await controller.decide(observation, signal())).activity, first.activity);
+});
+
+test('activity presentation distinguishes absent, model, and reduced-circuit output', () => {
+  const frame = { time: 0.2, values: [[101, 0.75]] };
+
+  assert.deepEqual(activityPresentation(null, frame), {
+    kind: 'none',
+    frame: null,
+    heading: 'NO NEURAL OUTPUT',
+  });
+  assert.deepEqual(activityPresentation({ kind: 'scripted', activityProvenance: 'none' }, frame), {
+    kind: 'none',
+    frame: null,
+    heading: 'NO NEURAL OUTPUT',
+  });
+  assert.equal(
+    activityPresentation({ kind: 'conventional', activityProvenance: 'model-output' }, frame).kind,
+    'model-output',
+  );
+  assert.equal(
+    activityPresentation({ kind: 'connectome', activityProvenance: 'simulated-reduced-circuit' }, frame).kind,
+    'simulated-reduced-circuit',
+  );
+  assert.equal(
+    activityPresentation({ kind: 'conventional', activityProvenance: 'model-output' }, { time: 0.2, values: [] }).kind,
+    'none',
+  );
+});
+
+test('seed normalization rejects invisible or overlong values and preserves repeatability', () => {
+  assert.equal(normalizeSeed('  experiment-042  '), 'experiment-042');
+  assert.throws(() => normalizeSeed('   '), /seed/i);
+  assert.throws(() => normalizeSeed('x'.repeat(65)), /64/);
+  assert.throws(() => normalizeSeed('line\nbreak'), /printable/i);
+
+  const first = reduceGameCommand(
+    { game: createGame('experiment-042') },
+    { type: 'action', action: 'forward' },
+  );
+  const reset = reduceGameCommand(first, { type: 'reset' });
+  const repeated = reduceGameCommand(first, { type: 'reset', seed: 'experiment-042' });
+  const switched = reduceGameCommand(first, { type: 'reset', seed: 'experiment-043' });
+  assert.deepEqual(reset.game, repeated.game);
+  assert.equal(switched.game.seed, 'experiment-043');
+  assert.equal(switched.game.step, 0);
+});
+
+test('autonomous speed maps to a deterministic controller schedule', () => {
+  assert.equal(autonomousDecisionDelayMs(0.5), 400);
+  assert.equal(autonomousDecisionDelayMs(1), 200);
+  assert.equal(autonomousDecisionDelayMs(2), 100);
+  assert.equal(autonomousDecisionDelayMs(4), 50);
+  assert.throws(() => autonomousDecisionDelayMs(3), /speed/i);
 });
 
 test('non-empty controller activity fails closed without atlas membership data', () => {

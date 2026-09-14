@@ -8,37 +8,47 @@ No human-recorded traces were configured for this run. No human baseline, human 
 
 ## Reproduction and budget
 
-The commands were run from `python/` on CPU. GNU `timeout` imposed a 180-second wall limit on each new bounded run.
+The commands were run from `python/` on CPU. GNU `timeout` imposed a 180-second wall limit on each bounded run. Python 3.14.7 and the exact package set are pinned by `.python-version` and `python/requirements-lock.txt`.
 
 ```sh
+python -m pip install -r requirements-lock.txt
+python -m pip install -e . --no-deps
 python -m pytest tests -q
+timeout 180s python -m fly_crossy.train \
+  --controller conventional \
+  --seed smoke \
+  --steps 2048 \
+  --envs 4 \
+  --learning-rate 0.0003 \
+  --output runs/reproduce-conventional \
+  --device cpu
 timeout 180s python -m fly_crossy.train \
   --controller connectome \
   --seed smoke \
   --steps 2048 \
   --envs 4 \
   --learning-rate 0.0003 \
-  --output runs/smoke-connectome \
+  --output runs/reproduce-connectome \
   --device cpu
 timeout 180s python -m fly_crossy.evaluate \
   --config ../configs/eval-v1.json \
   --output runs/eval-v1
 ```
 
-The connectome smoke train completed in 6.08 seconds of observed wall time, and evaluation completed in 3.34 seconds. The conventional checkpoint was the existing Task 7 smoke artifact; its original wall time was not recorded. Both checkpoint metadata files report 2,048 training environment steps, four parallel environments, seed `smoke`, learning rate `0.0003`, and CPU as the resolved device. These are actual finite budgets, not convergence claims.
+Both checkpoints were freshly retrained with the current trainer and environment v2. The two bounded training commands completed in 26.9 seconds combined in the recorded release run; the final evaluation completed in 5.0 seconds. Both checkpoint metadata files report 2,048 training environment steps, four parallel environments, seed `smoke`, learning rate `0.0003`, and CPU as the resolved device. These are actual finite budgets, not convergence claims.
 
-Evaluation used environment version 1, deterministic argmax actions, 12 seeds (`eval-v1-001` through `eval-v1-012`) disjoint from training seed `smoke`, and a maximum of 128 decisions per episode. Every learned and control policy used the identical evaluation suite. The config SHA-256 is `1f58d0760547cde4e7fc43eebd0ffb28913b296ca45bfe708bb512789efb208f`.
+Evaluation used environment version 2, deterministic argmax actions, 12 seeds (`eval-v1-001` through `eval-v1-012`), and a maximum of 128 decisions per episode. Every learned and control policy used the identical evaluation suite. The evaluator checked all 118 concrete training-world seeds recorded across both checkpoints—not only the root `smoke` label—and found no overlap with the held-out suite. The config SHA-256 is `7eeca30f06824330b8287ce2a23088765d0eba456c08df93d7f044c14c62234a`.
 
-The newly generated reduced-connectome checkpoint records environment version 1 and the evaluator verifies that it matches the evaluation config. The reused conventional checkpoint predates that checkpoint field, so the emitted evidence labels its environment provenance `legacy-unrecorded`. The evaluator accepts this legacy artifact for reproducibility, but the checkpoint itself does not cryptographically bind its training to environment v1; the evaluation config must not be mistaken for checkpoint provenance.
+Both checkpoints record environment version 2. The evaluator fails closed if a checkpoint is missing that version, differs from the config, or does not match the lowercase SHA-256 declared in the config. It performs the hash check before deserialization.
 
-The generated machine-readable evidence is `runs/eval-v1/metrics.json`, `runs/eval-v1/metrics.csv`, and `runs/eval-v1/summary.md`. The `runs/` directory is intentionally local and ignored; rerun the command above to regenerate it.
+The tracked release is [`release/eval-v1/`](../../release/eval-v1/): it contains both training bundles and the machine-readable `evaluation/metrics.json`, `evaluation/metrics.csv`, and `evaluation/summary.md`. [`manifest.json`](../../release/eval-v1/manifest.json) pins every released file. The `python/runs/` directory remains ignored scratch space for clean-checkout reproduction.
 
 ## Checkpoints and controls
 
 | Method | Parameters | Training environment steps | Environment provenance | Checkpoint SHA-256 |
 | --- | ---: | ---: | --- | --- |
-| Conventional PPO | 28,294 | 2,048 | `legacy-unrecorded` | `37d9aded682a11c88404f14f3f8a0d09ef941efb18512a65ff4e89734e691c69` |
-| Reduced-connectome PPO and controls | 30,088 | 2,048 | `recorded-match` (v1) | `420c84775af12aa257935c920abc0e4da2c31e56f6701bb378a47335cfda56e2` |
+| Conventional PPO | 28,294 | 2,048 | `recorded-match` (v2) | `c336a53086e765e242e74ec396225f51d744679aff8fe1ae7fe8c31e78b2ed4d` |
+| Reduced-connectome PPO and controls | 30,088 | 2,048 | `recorded-match` (v2) | `218d319c050983c225c943ab8de7493af672de561749a1892aa507a1c676cec5` |
 
 The reduced-connectome graph artifact SHA-256 is `e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862`. The rewired control performed 1,296 deterministic directed double-edge swaps with seed `rewired-control-v1`, preserving every node's in-degree and out-degree, then renormalized signed weights to preserve each connected target's absolute incoming sum. Its graph artifact SHA-256 is `6cad0da5dc79c14ca9ddfe7040525a2495f3c7c7ec40c3f28fe5ad107e13c218`.
 
@@ -50,21 +60,21 @@ Values below come from the emitted `metrics.json`; displayed decimals are rounde
 
 | Method | Score mean / median / max | Survival steps mean / median / max | Wait frequency | Terminal reasons |
 | --- | ---: | ---: | ---: | --- |
-| Conventional PPO | 0.000 / 0.000 / 0.000 | 6.000 / 6.000 / 6.000 | 0.000 | bounds 12 |
-| Reduced-connectome PPO | 3.667 / 3.000 / 6.000 | 10.583 / 7.000 / 28.000 | 0.638 | train 4, water 8 |
-| Degree/normalization-matched rewired | 4.583 / 3.000 / 10.000 | 7.583 / 4.000 / 20.000 | 0.297 | bounds 1, train 4, water 7 |
-| Sensory population silenced | 5.833 / 4.000 / 15.000 | 5.833 / 4.000 / 15.000 | 0.000 | train 3, vehicle 1, water 8 |
-| Untrained readout | 1.000 / 1.000 / 2.000 | 17.417 / 14.500 / 68.000 | 0.560 | train 3, vehicle 4, water 5 |
+| Conventional PPO | 0.000 / 0.000 / 0.000 | 16.167 / 9.000 / 50.000 | 0.000 | bounds 12 |
+| Reduced-connectome PPO | 6.500 / 5.000 / 13.000 | 11.583 / 10.000 / 28.000 | 0.374 | train 5, vehicle 5, water 2 |
+| Degree/normalization-matched rewired | 8.333 / 5.000 / 28.000 | 8.583 / 5.000 / 29.000 | 0.019 | train 5, vehicle 4, water 3 |
+| Sensory population silenced | 8.333 / 5.000 / 28.000 | 8.333 / 5.000 / 28.000 | 0.000 | train 5, vehicle 4, water 3 |
+| Untrained readout | 0.917 / 1.000 / 2.000 | 20.417 / 16.000 / 54.000 | 0.624 | train 4, vehicle 5, water 3 |
 
 | Method | Forward | Backward | Left | Right | Wait |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Conventional PPO | 0 / 0.000 | 0 / 0.000 | 72 / 1.000 | 0 / 0.000 | 0 / 0.000 |
-| Reduced-connectome PPO | 45 / 0.354 | 0 / 0.000 | 0 / 0.000 | 1 / 0.008 | 81 / 0.638 |
-| Degree/normalization-matched rewired | 55 / 0.604 | 0 / 0.000 | 0 / 0.000 | 9 / 0.099 | 27 / 0.297 |
-| Sensory population silenced | 70 / 1.000 | 0 / 0.000 | 0 / 0.000 | 0 / 0.000 | 0 / 0.000 |
-| Untrained readout | 31 / 0.148 | 61 / 0.292 | 0 / 0.000 | 0 / 0.000 | 117 / 0.560 |
+| Conventional PPO | 0 / 0.000 | 0 / 0.000 | 91 / 0.469 | 103 / 0.531 | 0 / 0.000 |
+| Reduced-connectome PPO | 79 / 0.568 | 0 / 0.000 | 0 / 0.000 | 8 / 0.058 | 52 / 0.374 |
+| Degree/normalization-matched rewired | 100 / 0.971 | 0 / 0.000 | 0 / 0.000 | 1 / 0.010 | 2 / 0.019 |
+| Sensory population silenced | 100 / 1.000 | 0 / 0.000 | 0 / 0.000 | 0 / 0.000 | 0 / 0.000 |
+| Untrained readout | 29 / 0.118 | 63 / 0.257 | 0 / 0.000 | 0 / 0.000 | 153 / 0.624 |
 
-Each action cell is `count / frequency`. The matched rewired and silenced controls have higher mean and maximum score than the trained reduced-connectome smoke checkpoint on this suite. That outcome is evidence against claiming a beneficial connectome-topology effect from this short run, but it does not isolate a causal topology effect. The conventional checkpoint collapsed to moving left until a bounds terminal. More training, multiple training seeds, and a preregistered larger evaluation would be required before making learning-performance claims.
+Each action cell is `count / frequency`. The matched rewired and silenced controls have higher mean and maximum score than the trained reduced-connectome smoke checkpoint on this suite. That outcome is evidence against claiming a beneficial connectome-topology effect from this short run, but it does not isolate a causal topology effect. The conventional checkpoint alternated left/right decisions but still reached a bounds terminal in every episode. More training, multiple training seeds, and a preregistered larger evaluation would be required before making learning-performance claims.
 
 ## Inference timing
 
@@ -72,11 +82,11 @@ Wall-clock inference timing includes only model decision calls and is machine-de
 
 | Method | Calls | Wall seconds | Mean milliseconds | Calls per second |
 | --- | ---: | ---: | ---: | ---: |
-| Conventional PPO | 72 | 0.048074 | 0.667692 | 1,497.697 |
-| Reduced-connectome PPO | 127 | 0.118056 | 0.929574 | 1,075.762 |
-| Degree/normalization-matched rewired | 91 | 0.082295 | 0.904338 | 1,105.781 |
-| Sensory population silenced | 70 | 0.075859 | 1.083702 | 922.763 |
-| Untrained readout | 209 | 0.176669 | 0.845306 | 1,183.004 |
+| Conventional PPO | 194 | 0.061821 | 0.318666 | 3,138.084 |
+| Reduced-connectome PPO | 139 | 0.051263 | 0.368801 | 2,711.490 |
+| Degree/normalization-matched rewired | 103 | 0.041846 | 0.406269 | 2,461.425 |
+| Sensory population silenced | 100 | 0.042550 | 0.425502 | 2,350.163 |
+| Untrained readout | 245 | 0.093648 | 0.382235 | 2,616.190 |
 
 ## Source-artifact terminology
 

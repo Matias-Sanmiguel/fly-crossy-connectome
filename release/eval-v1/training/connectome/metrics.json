@@ -1,0 +1,829 @@
+{
+  "version": 1,
+  "totalSteps": 2048,
+  "trainingCurve": [
+    {
+      "update": 1,
+      "totalSteps": 512,
+      "policyLoss": -0.005442547611892223,
+      "valueLoss": 11.923799633979797,
+      "entropy": 1.6012353748083115,
+      "approximateKl": 0.0006250399746932089,
+      "episodesCompleted": 26,
+      "meanEpisodeReturn": -8.780384615384616
+    },
+    {
+      "update": 2,
+      "totalSteps": 1024,
+      "policyLoss": -0.003363148309290409,
+      "valueLoss": 10.2111736536026,
+      "entropy": 1.601862519979477,
+      "approximateKl": 0.0007687776524107903,
+      "episodesCompleted": 49,
+      "meanEpisodeReturn": -8.642173913043477
+    },
+    {
+      "update": 3,
+      "totalSteps": 1536,
+      "policyLoss": -0.003052761545404792,
+      "valueLoss": 8.467386603355408,
+      "entropy": 1.5977296233177185,
+      "approximateKl": 0.0007854225987102836,
+      "episodesCompleted": 75,
+      "meanEpisodeReturn": -7.801153846153846
+    },
+    {
+      "update": 4,
+      "totalSteps": 2048,
+      "policyLoss": -0.004616213496774435,
+      "valueLoss": 7.5191561579704285,
+      "entropy": 1.5880293399095535,
+      "approximateKl": 0.0010242205462418497,
+      "episodesCompleted": 97,
+      "meanEpisodeReturn": -7.799090909090908
+    }
+  ],
+  "episodes": [
+    {
+      "episode": 1,
+      "environment": 1,
+      "return": -10.02,
+      "length": 2,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 2,
+      "environment": 2,
+      "return": -10.02,
+      "length": 2,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 3,
+      "environment": 0,
+      "return": -10.04,
+      "length": 4,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 4,
+      "environment": 1,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 5,
+      "environment": 0,
+      "return": -9.12,
+      "length": 12,
+      "score": 1.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 6,
+      "environment": 0,
+      "return": -10.02,
+      "length": 2,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 7,
+      "environment": 1,
+      "return": -10.19,
+      "length": 19,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 8,
+      "environment": 2,
+      "return": -7.23,
+      "length": 23,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 9,
+      "environment": 3,
+      "return": -8.25,
+      "length": 25,
+      "score": 2.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 10,
+      "environment": 1,
+      "return": -5.119999999999998,
+      "length": 12,
+      "score": 5.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 11,
+      "environment": 3,
+      "return": -8.14,
+      "length": 14,
+      "score": 2.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 12,
+      "environment": 3,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 13,
+      "environment": 1,
+      "return": -8.15,
+      "length": 15,
+      "score": 2.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 14,
+      "environment": 1,
+      "return": -9.04,
+      "length": 4,
+      "score": 1.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 15,
+      "environment": 0,
+      "return": -8.4,
+      "length": 40,
+      "score": 2.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 16,
+      "environment": 3,
+      "return": -10.22,
+      "length": 22,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 17,
+      "environment": 1,
+      "return": -6.16,
+      "length": 16,
+      "score": 4.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 18,
+      "environment": 0,
+      "return": -10.14,
+      "length": 14,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 19,
+      "environment": 2,
+      "return": -5.83999999999999,
+      "length": 84,
+      "score": 5.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 20,
+      "environment": 1,
+      "return": -9.39,
+      "length": 39,
+      "score": 1.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 21,
+      "environment": 1,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 22,
+      "environment": 1,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 23,
+      "environment": 0,
+      "return": -5.449999999999995,
+      "length": 45,
+      "score": 5.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 24,
+      "environment": 2,
+      "return": -9.09,
+      "length": 9,
+      "score": 1.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 25,
+      "environment": 0,
+      "return": -10.049999999999999,
+      "length": 5,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 26,
+      "environment": 1,
+      "return": -8.09,
+      "length": 9,
+      "score": 2.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 27,
+      "environment": 3,
+      "return": -9.65,
+      "length": 65,
+      "score": 1.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 28,
+      "environment": 0,
+      "return": -8.08,
+      "length": 8,
+      "score": 2.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 29,
+      "environment": 1,
+      "return": -7.26,
+      "length": 26,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 30,
+      "environment": 2,
+      "return": -9.36,
+      "length": 36,
+      "score": 1.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 31,
+      "environment": 0,
+      "return": -8.39,
+      "length": 39,
+      "score": 2.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 32,
+      "environment": 3,
+      "return": -6.41,
+      "length": 41,
+      "score": 4.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 33,
+      "environment": 0,
+      "return": -10.04,
+      "length": 4,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 34,
+      "environment": 1,
+      "return": -10.23,
+      "length": 23,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 35,
+      "environment": 3,
+      "return": -9.09,
+      "length": 9,
+      "score": 1.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 36,
+      "environment": 1,
+      "return": -4.1499999999999995,
+      "length": 15,
+      "score": 6.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 37,
+      "environment": 1,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 38,
+      "environment": 0,
+      "return": -9.33,
+      "length": 33,
+      "score": 1.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 39,
+      "environment": 3,
+      "return": -5.359999999999994,
+      "length": 36,
+      "score": 5.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 40,
+      "environment": 0,
+      "return": -10.14,
+      "length": 14,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 41,
+      "environment": 0,
+      "return": -10.01,
+      "length": 1,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 42,
+      "environment": 2,
+      "return": -7.759999999999995,
+      "length": 76,
+      "score": 3.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 43,
+      "environment": 3,
+      "return": -9.22,
+      "length": 22,
+      "score": 1.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 44,
+      "environment": 1,
+      "return": -8.49,
+      "length": 49,
+      "score": 2.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 45,
+      "environment": 3,
+      "return": -7.04,
+      "length": 4,
+      "score": 3.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 46,
+      "environment": 0,
+      "return": -10.209999999999999,
+      "length": 21,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 47,
+      "environment": 3,
+      "return": -10.129999999999999,
+      "length": 13,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 48,
+      "environment": 0,
+      "return": -8.129999999999999,
+      "length": 13,
+      "score": 2.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 49,
+      "environment": 2,
+      "return": -10.26,
+      "length": 26,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 50,
+      "environment": 3,
+      "return": -7.09,
+      "length": 9,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 51,
+      "environment": 3,
+      "return": -10.01,
+      "length": 1,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 52,
+      "environment": 3,
+      "return": -10.06,
+      "length": 6,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 53,
+      "environment": 1,
+      "return": -9.33,
+      "length": 33,
+      "score": 1.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 54,
+      "environment": 1,
+      "return": -7.04,
+      "length": 4,
+      "score": 3.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 55,
+      "environment": 2,
+      "return": -8.29,
+      "length": 29,
+      "score": 2.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 56,
+      "environment": 0,
+      "return": -7.459999999999993,
+      "length": 46,
+      "score": 3.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 57,
+      "environment": 2,
+      "return": -7.21,
+      "length": 21,
+      "score": 3.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 58,
+      "environment": 3,
+      "return": -7.4399999999999995,
+      "length": 44,
+      "score": 3.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 59,
+      "environment": 1,
+      "return": -6.3799999999999955,
+      "length": 38,
+      "score": 4.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 60,
+      "environment": 1,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 61,
+      "environment": 1,
+      "return": -10.02,
+      "length": 2,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 62,
+      "environment": 3,
+      "return": -9.09,
+      "length": 9,
+      "score": 1.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 63,
+      "environment": 2,
+      "return": -5.229999999999997,
+      "length": 23,
+      "score": 5.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 64,
+      "environment": 3,
+      "return": -6.13,
+      "length": 13,
+      "score": 4.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 65,
+      "environment": 0,
+      "return": -1.4199999999999964,
+      "length": 42,
+      "score": 9.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 66,
+      "environment": 1,
+      "return": -7.28,
+      "length": 28,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 67,
+      "environment": 1,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 68,
+      "environment": 1,
+      "return": -10.07,
+      "length": 7,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 69,
+      "environment": 2,
+      "return": -9.32,
+      "length": 32,
+      "score": 1.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 70,
+      "environment": 0,
+      "return": -7.1899999999999995,
+      "length": 19,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 71,
+      "environment": 3,
+      "return": -6.309999999999995,
+      "length": 31,
+      "score": 4.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 72,
+      "environment": 2,
+      "return": -7.1,
+      "length": 10,
+      "score": 3.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 73,
+      "environment": 2,
+      "return": -10.02,
+      "length": 2,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 74,
+      "environment": 0,
+      "return": -7.12,
+      "length": 12,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 75,
+      "environment": 1,
+      "return": -6.159999999999999,
+      "length": 16,
+      "score": 4.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 76,
+      "environment": 3,
+      "return": -10.34,
+      "length": 34,
+      "score": 0.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 77,
+      "environment": 0,
+      "return": -7.279999999999997,
+      "length": 28,
+      "score": 3.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 78,
+      "environment": 1,
+      "return": -10.29,
+      "length": 29,
+      "score": 0.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 79,
+      "environment": 2,
+      "return": -10.31,
+      "length": 31,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 80,
+      "environment": 0,
+      "return": -10.049999999999999,
+      "length": 5,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 81,
+      "environment": 2,
+      "return": -7.06,
+      "length": 6,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 82,
+      "environment": 1,
+      "return": -7.07,
+      "length": 7,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 83,
+      "environment": 3,
+      "return": -10.11,
+      "length": 11,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 84,
+      "environment": 0,
+      "return": -10.07,
+      "length": 7,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 85,
+      "environment": 3,
+      "return": -10.07,
+      "length": 7,
+      "score": 0.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 86,
+      "environment": 0,
+      "return": -9.22,
+      "length": 22,
+      "score": 1.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 87,
+      "environment": 0,
+      "return": -10.03,
+      "length": 3,
+      "score": 0.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 88,
+      "environment": 2,
+      "return": -4.289999999999998,
+      "length": 29,
+      "score": 6.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 89,
+      "environment": 1,
+      "return": -4.289999999999999,
+      "length": 29,
+      "score": 6.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 90,
+      "environment": 3,
+      "return": -3.3799999999999963,
+      "length": 38,
+      "score": 7.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 91,
+      "environment": 2,
+      "return": -7.24,
+      "length": 24,
+      "score": 3.0,
+      "terminalReason": "bounds"
+    },
+    {
+      "episode": 92,
+      "environment": 0,
+      "return": -4.269999999999996,
+      "length": 27,
+      "score": 6.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 93,
+      "environment": 2,
+      "return": -10.04,
+      "length": 4,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 94,
+      "environment": 3,
+      "return": -7.339999999999998,
+      "length": 34,
+      "score": 3.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 95,
+      "environment": 0,
+      "return": -7.319999999999999,
+      "length": 32,
+      "score": 3.0,
+      "terminalReason": "train"
+    },
+    {
+      "episode": 96,
+      "environment": 3,
+      "return": -7.08,
+      "length": 8,
+      "score": 3.0,
+      "terminalReason": "water"
+    },
+    {
+      "episode": 97,
+      "environment": 2,
+      "return": -4.429999999999997,
+      "length": 43,
+      "score": 6.0,
+      "terminalReason": "bounds"
+    }
+  ],
+  "summary": {
+    "episodesCompleted": 97,
+    "meanEpisodeReturn": -8.262577319587628,
+    "bestScore": 9.0
+  }
+}
