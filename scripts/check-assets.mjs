@@ -17,4 +17,9 @@ if(!connectomeNotice.includes(protocolPath)) throw Error(`Connectome notice must
 await readFile(new URL(`../${protocolPath}`,root));
 const upstreamBuilder='https://github.com/cobanov/flyjump/blob/c08c86bc18efd8125964b1d2ca4fc1df59700f30/scripts/build-connectome.py';
 if(!connectomeNotice.includes(upstreamBuilder)) throw Error('Connectome notice must pin its upstream derivation script.');
+const bundledPolicy=await readFile(new URL('models/reduced-connectome-policy-v3.json',root));
+const releasedPolicy=await readFile(new URL('../release/eval-v1/training/connectome/policy.json',root));
+const bundledPolicyHash=createHash('sha256').update(bundledPolicy).digest('hex');
+const releasedPolicyHash=createHash('sha256').update(releasedPolicy).digest('hex');
+if(bundledPolicyHash!==releasedPolicyHash) throw Error('Bundled autoplay policy must match the released connectome policy.');
 console.log('Anatomical and connectome asset hashes verified.');

@@ -13,13 +13,16 @@ npm ci
 npm run dev
 ```
 
-Open the local address printed by Vite. The default mode is keyboard-first manual control: use the arrow keys or W/A/S/D to move, Space to wait, and Escape to pause. The on-screen controls provide the same actions for touch and pointer input.
+Open the local address printed by Vite. Once the anatomy loads, the bundled reduced-connectome controller starts playing automatically at 1× speed and updates its 80 mapped model values in the brain panel on every decision. After a terminal outcome it waits one second, changes to a new seed, and continues. These are simulated controller values over measured soma positions, not recordings from a living fly.
+
+Choose **Human / manual** to take over: use the arrow keys or W/A/S/D to move, Space to wait, and Escape to pause. The on-screen controls provide the same actions for touch and pointer input.
 
 ## What is included
 
 - A deterministic environment-v3 crossing world with roads, rails, rivers, hazards, rewards, terminal states, and seeded replay.
 - Bounded group-level route checks with deterministic retries and a safe grass fallback, plus speed and hazard-density progression over distance.
 - A human controller, a scripted controller, local dense-policy JSON loading, and a versioned remote-controller protocol.
+- A bundled reduced-connectome policy that autoplays continuously while the brain panel visualizes its simulated activity in real time.
 - A fixed-size `ObservationV1` boundary shared by every non-human controller.
 - A measured MaleCNS v1.0 soma atlas whose activity values are keyed only by verified body IDs.
 - A separate Flybody anatomical surface view; it is not a motor or physics simulation.

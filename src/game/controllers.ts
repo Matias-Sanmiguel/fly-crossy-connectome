@@ -2,6 +2,7 @@ import {
   encodeObservation,
   OBSERVATION_INPUT_SIZE,
   POLICY_ACTIONS,
+  parsePolicy,
   runDenseNetwork,
   runFixedGraphNetwork,
 } from './model.ts';
@@ -25,6 +26,22 @@ export interface Controller {
   reset(seed: string): void;
   dispose(): void;
   subscribeFailure?(listener: (error: Error) => void): () => void;
+}
+
+export const BUNDLED_CONNECTOME_POLICY_PATH = 'models/reduced-connectome-policy-v3.json';
+
+export function parseBundledConnectomePolicy(
+  value: unknown,
+  visibleIds: ReadonlySet<number>,
+): ExportedPolicyV1 {
+  const policy = parsePolicy(value, visibleIds);
+  if (policy.network.kind !== 'fixed-graph' || policy.activityBodyIds.length === 0) {
+    throw Error('Bundled autoplay policy must provide mapped reduced-connectome activity.');
+  }
+  if (policy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
+    throw Error('Bundled autoplay policy input shape does not match ObservationV1.');
+  }
+  return policy;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => (

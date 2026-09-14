@@ -6,15 +6,17 @@ import { GameControls } from './components/GameControls';
 import { GameScene } from './components/GameScene';
 import { Telemetry } from './components/Telemetry';
 import {
+  BUNDLED_CONNECTOME_POLICY_PATH,
   createDensePolicyController,
   createFixedGraphPolicyController,
   createScriptedController,
+  parseBundledConnectomePolicy,
 } from './game/controllers';
 import type { Controller } from './game/controllers';
 import { OBSERVATION_INPUT_SIZE, parsePolicy } from './game/model';
 import type { ExportedPolicyV1 } from './game/model';
 import { activityPresentation } from './game/provenance';
-import { normalizeSeed, useGame } from './hooks/useGame';
+import { nextAutoplaySeed, normalizeSeed, useGame } from './hooks/useGame';
 import type { AutonomousSpeed } from './hooks/useGame';
 import { asset, loadAtlas } from './lib/atlas';
 import type { Atlas } from './lib/atlas';
@@ -58,6 +60,40 @@ export function App() {
     });
     return () => abort.abort();
   }, []);
+
+  useEffect(() => {
+    if (!atlas) return;
+    const abort = new AbortController();
+    void fetch(asset(BUNDLED_CONNECTOME_POLICY_PATH), { signal: abort.signal })
+      .then((response) => {
+        if (!response.ok) throw Error('Bundled connectome controller could not load.');
+        return response.json() as Promise<unknown>;
+      })
+      .then((value) => {
+        if (abort.signal.aborted) return;
+        setPolicy(parseBundledConnectomePolicy(value, atlas.visibleIds));
+        setMode('model');
+        setLoadError('');
+      })
+      .catch((error: unknown) => {
+        if (abort.signal.aborted) return;
+        setMode('human');
+        setLoadError(error instanceof Error ? error.message : String(error));
+      });
+    return () => abort.abort();
+  }, [atlas]);
+
+  useEffect(() => {
+    if (mode !== 'model' || !controller || game.state.terminal === null) return;
+    const timer = window.setTimeout(() => {
+      const token = globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 8);
+      const nextSeed = nextAutoplaySeed(activeSeed, token);
+      setSeedInput(nextSeed);
+      setSeedError('');
+      setActiveSeed(nextSeed);
+    }, 1_000);
+    return () => window.clearTimeout(timer);
+  }, [activeSeed, controller, game.state.terminal, mode]);
 
   const acceptPolicy = (value: unknown) => {
     if (!atlas) throw Error('Wait for the measured MaleCNS atlas to load.');

@@ -60,6 +60,15 @@ export function normalizeSeed(value: string): string {
   return normalized;
 }
 
+export function nextAutoplaySeed(currentSeed: string, episodeToken: string): string {
+  if (!/^[a-f0-9]{8}$/.test(episodeToken)) {
+    throw Error('Autoplay episode token must contain eight lowercase hexadecimal characters.');
+  }
+  const root = normalizeSeed(currentSeed).replace(/:auto:[a-f0-9]{8}$/, '');
+  const suffix = `:auto:${episodeToken}`;
+  return `${root.slice(0, 64 - suffix.length)}${suffix}`;
+}
+
 const KEY_ACTIONS: Readonly<Record<string, Action>> = {
   ArrowUp: 'forward',
   ArrowDown: 'backward',

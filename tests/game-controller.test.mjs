@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { selectRenderableInstances } from '../src/game/rendering.ts';
@@ -11,6 +12,7 @@ import {
   createScriptedController,
   validateControllerDecision,
 } from '../src/game/controllers.ts';
+import * as controllerRuntime from '../src/game/controllers.ts';
 import { createRemoteController } from '../src/game/remote.ts';
 import { activityPresentation } from '../src/game/provenance.ts';
 import {
@@ -19,6 +21,7 @@ import {
   normalizeSeed,
   reduceGameCommand,
 } from '../src/hooks/useGame.ts';
+import * as gameRuntime from '../src/hooks/useGame.ts';
 
 const signal = () => new AbortController().signal;
 
@@ -128,6 +131,38 @@ test('fixed graph controller persists recurrence and resets simulated activity',
   assert.ok(second.activity[0][1] > first.activity[0][1]);
   controller.reset('fixed');
   assert.deepEqual((await controller.decide(observation, signal())).activity, first.activity);
+});
+
+test('bundled connectome policy drives actions with mapped neural activity', async () => {
+  const raw = JSON.parse(await readFile(
+    new URL('../public/models/reduced-connectome-policy-v3.json', import.meta.url),
+    'utf8',
+  ));
+  const visibleIds = new Set(raw.activityBodyIds);
+  const policy = controllerRuntime.parseBundledConnectomePolicy(raw, visibleIds);
+  const controller = createFixedGraphPolicyController(policy);
+
+  const decision = await controller.decide(observe(createGame('autoplay')), signal());
+
+  assert.equal(policy.network.kind, 'fixed-graph');
+  assert.equal(controller.activityProvenance, 'simulated-reduced-circuit');
+  assert.equal(decision.activity.length, 80);
+  assert.ok(decision.activity.every(([bodyId, value]) => (
+    visibleIds.has(bodyId) && Number.isFinite(value) && value >= 0 && value <= 1
+  )));
+});
+
+test('autoplay episode seeds change without growing beyond the seed contract', () => {
+  assert.equal(
+    gameRuntime.nextAutoplaySeed('experiment-001', 'deadbeef'),
+    'experiment-001:auto:deadbeef',
+  );
+  assert.equal(
+    gameRuntime.nextAutoplaySeed('experiment-001:auto:deadbeef', '0123abcd'),
+    'experiment-001:auto:0123abcd',
+  );
+  assert.equal(gameRuntime.nextAutoplaySeed('x'.repeat(64), '12345678').length, 64);
+  assert.throws(() => gameRuntime.nextAutoplaySeed('experiment-001', 'not valid'), /token/i);
 });
 
 test('activity presentation distinguishes absent, model, and reduced-circuit output', () => {

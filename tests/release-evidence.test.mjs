@@ -30,3 +30,19 @@ test('tracked release manifest verifies checkpoints, policies, and evaluation ev
     assert.equal(expected.sha256, released.sha256);
   }
 });
+
+test('browser ships the exact released connectome policy for autonomous startup', async () => {
+  const released = manifest.files.find(
+    (file) => file.path === 'training/connectome/policy.json',
+  );
+  const bundledUrl = new URL(
+    '../public/models/reduced-connectome-policy-v3.json',
+    import.meta.url,
+  );
+
+  assert.ok(released);
+  assert.equal(await sha256(bundledUrl), released.sha256);
+  const bundled = JSON.parse(await readFile(bundledUrl, 'utf8'));
+  assert.equal(bundled.network.kind, 'fixed-graph');
+  assert.equal(bundled.activityBodyIds.length, 80);
+});
