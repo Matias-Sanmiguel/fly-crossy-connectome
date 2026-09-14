@@ -60,7 +60,7 @@ export function isInteractiveKeyboardTarget(target: EventTarget | null): boolean
   const element = target as Element | null;
   if (typeof element?.closest !== 'function') return false;
   return element.closest(
-    'a[href], button, input, select, textarea, [contenteditable]:not([contenteditable="false"])',
+    'a[href], button, input, select, textarea, summary, [contenteditable]:not([contenteditable="false"])',
   ) !== null;
 }
 

@@ -162,11 +162,20 @@ test('human keyboard shortcuts ignore native interactive targets and their desce
     },
   };
   const nonInteractive = { closest: () => null };
+  const summary = {
+    tagName: 'SUMMARY',
+    closest(value) { return value.includes('summary') ? this : null; },
+  };
+  const summaryChild = {
+    closest(value) { return value.includes('summary') ? summary : null; },
+  };
 
   assert.equal(isInteractiveKeyboardTarget(interactive), true);
+  assert.equal(isInteractiveKeyboardTarget(summary), true);
+  assert.equal(isInteractiveKeyboardTarget(summaryChild), true);
   assert.equal(isInteractiveKeyboardTarget(nonInteractive), false);
   assert.equal(isInteractiveKeyboardTarget(null), false);
-  for (const required of ['a[href]', 'button', 'input', 'select', 'textarea', '[contenteditable]']) {
+  for (const required of ['a[href]', 'button', 'input', 'select', 'textarea', 'summary', '[contenteditable]']) {
     assert.match(selector, new RegExp(required.replaceAll('[', '\\[').replaceAll(']', '\\]')));
   }
 });
