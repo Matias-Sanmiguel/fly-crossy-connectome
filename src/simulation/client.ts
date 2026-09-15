@@ -5,7 +5,7 @@ import {
   type PopulationSize,
   type ServerMessage,
 } from './protocol.ts';
-import { OutboundQueue, type OutboundMessage } from './queue.ts';
+import { OutboundQueue, type OutboundMessage, validateOutboundMessage } from './queue.ts';
 
 export type SimulationClientState = {
   phase: 'connecting' | 'ready' | 'acting' | 'paused' | 'error' | 'closed';
@@ -424,13 +424,26 @@ export function createSimulationClient(
     reset(resetOptions = {}) {
       if (disposed) throw Error('Simulation client is closed.');
       if (!configuration) throw Error('Simulation client must be configured before reset.');
+      const time = simulationTime(resetOptions.simulationTime ?? 0);
+      const seed = resetOptions.seed === undefined
+        ? undefined
+        : integer(resetOptions.seed, 'seed', 0, 2 ** 32 - 1);
+      const episodeId = requireId(episodeIdFactory(), episodePattern, 'Episode ID');
+      const reset: OutboundMessage = {
+        type: 'reset',
+        version: 2,
+        sessionId: state.sessionId,
+        episodeId,
+        sequence: nextOutboundSequence,
+        simulationTime: time,
+      };
+      if (seed !== undefined) reset.seed = seed;
+      validateOutboundMessage(reset);
       queue.removeType('observation');
       pendingObservation = null;
       awaitingReset = true;
-      const episodeId = requireId(episodeIdFactory(), episodePattern, 'Episode ID');
       setState({ episodeId });
-      const reset = envelope('reset', simulationTime(resetOptions.simulationTime ?? 0));
-      if (resetOptions.seed !== undefined) reset.seed = integer(resetOptions.seed, 'seed', 0, 2 ** 32 - 1);
+      nextOutboundSequence += 1;
       enqueue(reset);
     },
     observe(nextObservation) {

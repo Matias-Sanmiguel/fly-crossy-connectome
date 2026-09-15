@@ -115,6 +115,16 @@ test('queue rejects critical-only saturation without exceeding capacity', () => 
   assert.deepEqual(queue.drain().map((item) => item.type), ['reset', 'pause']);
 });
 
+test('queue preserves queued critical keyframes when replacement admission is full', () => {
+  for (const type of ['request_keyframe', 'neural_keyframe']) {
+    const queue = new OutboundQueue(1);
+    queue.enqueue({ type, sequence: 1 });
+
+    assert.throws(() => queue.enqueue({ type, sequence: 2 }), /capacity|backpressure/i);
+    assert.deepEqual(queue.drain(), [{ type, sequence: 1 }]);
+  }
+});
+
 test('queue rejects non-finite and oversized serialized payloads before retaining them', () => {
   const queue = new OutboundQueue(2);
 
@@ -282,6 +292,22 @@ test('client fails an unsolicited reset_complete instead of clearing active work
 
   assert.equal(client.state.phase, 'error');
   assert.match(client.state.error ?? '', /reset_complete/i);
+  client.close();
+});
+
+test('client leaves reset state untouched when reset input is invalid', () => {
+  const { client, sockets } = createHarness();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  const before = client.state;
+
+  assert.throws(() => client.reset({ simulationTime: -1 }), /simulation time/i);
+  assert.deepEqual(client.state, before);
+  sockets[0].receive({ type: 'reset_complete', ...envelope(1) });
+  assert.equal(client.state.phase, 'error');
+  assert.match(client.state.error ?? '', /unsolicited/i);
   client.close();
 });
 

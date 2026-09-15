@@ -4,7 +4,7 @@ import { MAX_FRAME_BYTES } from './protocol.ts';
 export type OutboundMessage = { type: string; [field: string]: unknown };
 
 const replaceable = new Set(['observation', 'snapshot', 'neural_delta', 'metrics']);
-const latestOnly = new Set(['observation', 'snapshot', 'neural_delta', 'neural_keyframe', 'request_keyframe']);
+const latestOnly = new Set(['observation', 'snapshot', 'neural_delta']);
 
 export class OutboundQueueFullError extends Error {
   constructor() {
@@ -44,6 +44,11 @@ function snapshotMessage<T extends OutboundMessage>(message: T): T {
     throw Error('Outbound message exceeds 1 MiB.');
   }
   return JSON.parse(serialized) as T;
+}
+
+/** Validate a message without admitting it to the queue. */
+export function validateOutboundMessage(message: OutboundMessage): void {
+  snapshotMessage(message);
 }
 
 export class OutboundQueue<T extends OutboundMessage = OutboundMessage> {
