@@ -277,10 +277,34 @@ def test_socket_answers_keyframe_request_with_an_honest_empty_keyframe(
 @pytest.mark.parametrize(
     ("payload", "code"),
     [
-        ("{", CLOSE_MALFORMED_MESSAGE),
-        ("x" * (MAX_FRAME_BYTES + 1), CLOSE_OVERSIZE_FRAME),
+        pytest.param(
+            "{",
+            CLOSE_MALFORMED_MESSAGE,
+            id="malformed-json",
+        ),
+        pytest.param(
+            "x" * (MAX_FRAME_BYTES + 1),
+            CLOSE_OVERSIZE_FRAME,
+            id="oversize-frame",
+        ),
     ],
 )
+def test_socket_closes_invalid_first_frames_with_stable_codes(
+    client: TestClient,
+    payload: str,
+    code: int,
+) -> None:
+    with client.websocket_connect(
+        "/api/simulation",
+        headers=SAME_ORIGIN,
+    ) as socket:
+        socket.send_text(payload)
+
+        with pytest.raises(WebSocketDisconnect) as error:
+            socket.receive_json()
+
+    assert error.value.code == code
+    
 def test_socket_closes_invalid_first_frames_with_stable_codes(
     client: TestClient, payload: str, code: int
 ) -> None:

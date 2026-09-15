@@ -83,7 +83,17 @@ EXPECTED_ACTION_NAMES = (
 
 
 def _inventory_digest(files: list[dict[str, object]]) -> str:
-    encoded = json.dumps(files, sort_keys=True, separators=(",", ":")).encode()
+    canonical_files = sorted(
+        files,
+        key=lambda item: str(item["path"]),
+    )
+
+    encoded = json.dumps(
+        canonical_files,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
     return hashlib.sha256(encoded).hexdigest()
 
 

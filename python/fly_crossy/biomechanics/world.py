@@ -378,10 +378,30 @@ class BiomechanicalWorld:
             self._wait_elapsed += 1.0 / self.config.physics_hz
         elif active is not None and self._outer_tick % self._motor_stride == 0:
             contact = self._pending_contact
+
+            target_touched = False
+
+            if active is not None and active.action in ACTION_TARGETS:
+                expected_leg, expected_key = ACTION_TARGETS[active.action]
+
+                physical_sample = self._contact_sample()
+
+                intended_key_state = next(
+                    item
+                    for item in physical_sample.contacts
+                    if item.key == expected_key
+                )
+
+                target_touched = (
+                    intended_key_state.touching_tarsi
+                    == (expected_leg,)
+                )
+
             state = BodyState.from_mujoco(
                 self.body,
                 self.data,
                 contact=contact,
+                target_touched=target_touched,
                 stable=self._is_stable(),
             )
             command = self._motor.update(state, 1.0 / self.config.motor_hz)

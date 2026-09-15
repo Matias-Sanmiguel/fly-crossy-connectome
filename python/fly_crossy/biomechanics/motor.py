@@ -83,6 +83,7 @@ class BodyState:
     joint_velocities: np.ndarray
     site_positions: Mapping[LegName, tuple[float, float, float]]
     contact: ContactOutcome | None = None
+    target_touched: bool = False
     stable: bool = True
 
     def __post_init__(self) -> None:
@@ -110,6 +111,8 @@ class BodyState:
             immutable_sites[leg] = tuple(float(item) for item in vector)
         if not isinstance(self.stable, bool):
             raise ValueError("stable must be boolean")
+        if not isinstance(self.target_touched, bool):
+            raise ValueError("target_touched must be boolean")
         if self.contact is not None and not isinstance(self.contact, ContactOutcome):
             raise TypeError("contact must be a ContactOutcome or None")
         copied_positions = np.array(positions, dtype=np.float64, copy=True)
@@ -127,6 +130,7 @@ class BodyState:
         data: mujoco.MjData,
         *,
         contact: ContactOutcome | None = None,
+        target_touched: bool = False,
         stable: bool = True,
     ) -> "BodyState":
         if not isinstance(body, FlyBodyModel) or not isinstance(data, mujoco.MjData):
@@ -141,7 +145,14 @@ class BodyState:
             leg: tuple(float(value) / 1_000.0 for value in data.site_xpos[site_id])
             for leg, site_id in body.leg_sites.items()
         }
-        return cls(positions, velocities, sites, contact=contact, stable=stable)
+        return cls(
+            positions,
+            velocities,
+            sites,
+            contact=contact,
+            target_touched=target_touched,
+            stable=stable,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -309,12 +320,14 @@ class MotorController:
             self._transition(MotorPhase.REACHING)
             desired = trajectory.pre_key_pose
         elif self._phase is MotorPhase.REACHING:
-            if self._at_target(
+            reached_pre_key = self._at_target(
                 state,
                 active.leg,
                 trajectory.pre_key_pose,
                 self._site_targets[active.action]["pre_key"],
-            ):
+            )
+
+            if reached_pre_key or state.target_touched:
                 self._transition(MotorPhase.PRESSING)
                 desired = trajectory.press_pose
             else:

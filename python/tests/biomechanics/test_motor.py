@@ -70,6 +70,7 @@ def state(
     pose: str = "neutral",
     contact: ContactOutcome | None = None,
     stable: bool = True,
+    target_touched: bool = False,
 ) -> BodyState:
     values = calibration.neutral_pose if pose == "neutral" else getattr(
         calibration.trajectories["forward"], f"{pose}_pose"
@@ -80,7 +81,13 @@ def state(
         qpos_address = int(body.model.jnt_qposadr[joint_id])
         data.qpos[qpos_address] = values[actuator_index]
     mujoco.mj_forward(body.model, data)
-    return BodyState.from_mujoco(body, data, contact=contact, stable=stable)
+    return BodyState.from_mujoco(
+        body,
+        data,
+        contact=contact,
+        target_touched=target_touched,
+        stable=stable,
+    )
 
 
 @pytest.mark.parametrize(
@@ -578,3 +585,30 @@ def test_loader_recomputes_strict_physical_artifact_invariants(
 
     with pytest.raises(ValueError, match=message):
         load_calibration(path, body, config, MANIFEST_PATH, CONFIG_PATH)
+
+def test_correct_physical_target_contact_can_enter_pressing_before_fk_waypoint(
+    motor: MotorController,
+    calibration: CalibrationArtifact,
+    body: FlyBodyModel,
+) -> None:
+    motor.request(
+        intention("i-physical-arrival", "forward")
+    )
+
+    reaching = motor.update(
+        state(calibration, body),
+        0.01,
+    )
+
+    assert reaching.phase is MotorPhase.REACHING
+
+    pressing = motor.update(
+        state(
+            calibration,
+            body,
+            target_touched=True,
+        ),
+        0.01,
+    )
+
+    assert pressing.phase is MotorPhase.PRESSING
