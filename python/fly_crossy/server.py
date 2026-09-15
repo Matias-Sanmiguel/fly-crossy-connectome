@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
 import re
+from fly_crossy.biomechanics.motor import MotorIntention
+from fly_crossy.biomechanics.world import BiomechanicalWorld
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +36,8 @@ from fly_crossy.protocol import (
     Resume,
     Ready,
     ServerMessage,
+    Action,
+    Observation,
     chunk_neural_frames,
     parse_client_message,
     serialize_server_message,
@@ -54,6 +59,13 @@ _POPULATIONS = [80, 1000, 5000, 20_000, 124_289]
 _HASH_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 _DEFAULT_ARTIFACT_REGISTRY: Mapping[int, "_ArtifactIdentity"] = MappingProxyType({})
 _DEVELOPMENT_ORIGINS = frozenset({"http://127.0.0.1:5173", "http://localhost:5173"})
+
+ActionSelector = Callable[[Observation], Action]
+WorldFactory = Callable[[], BiomechanicalWorld]
+
+
+def _safe_wait_selector(_: Observation) -> Action:
+    return "wait"
 
 class FrameFault(Exception):
     """A bounded WebSocket frame that is safe to reject publicly."""
@@ -208,6 +220,8 @@ def create_app(
     artifact_manifest: Path | None = None,
     allowed_origins: frozenset[str] = _DEVELOPMENT_ORIGINS,
     backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
+    action_selector: ActionSelector = _safe_wait_selector,
+    world_factory: WorldFactory | None = None,
 ) -> FastAPI:
     """Create a service with explicit artifacts and browser-origin boundaries."""
     artifact_registry = (
@@ -241,6 +255,8 @@ def create_app(
             max_bytes=MAX_FRAME_BYTES,
             artifact_registry=artifact_registry,
             backend_resolver=backend_resolver,
+            action_selector=action_selector,
+            world_factory=world_factory,
         )
 
     return application
@@ -255,6 +271,8 @@ async def serve_session(
     max_bytes: int,
     artifact_registry: Mapping[int, _ArtifactIdentity] = _DEFAULT_ARTIFACT_REGISTRY,
     backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
+    action_selector: ActionSelector = _safe_wait_selector,
+    world_factory: WorldFactory | None = None,
 ) -> None:
     """Serve one connection; state transitions remain owned by SimulationSession."""
     session_id: str | None = None
@@ -272,10 +290,18 @@ async def serve_session(
         )
         session_id = session.session_id
         sender = SessionSender(websocket, session)
+        world = world_factory() if world_factory is not None else None
 
         while True:
             message = _parse_frame(await _receive_frame(websocket, max_bytes))
-            await _apply_message(message, sender, artifact_registry, backend_resolver)
+            await _apply_message(
+                message,
+                sender,
+                artifact_registry,
+                backend_resolver,
+                action_selector,
+                world,
+            )
     except WebSocketDisconnect:
         return
     except FrameFault as fault:
@@ -310,6 +336,8 @@ async def _apply_message(
     sender: SessionSender,
     artifact_registry: Mapping[int, _ArtifactIdentity],
     backend_resolver: Callable[[BackendPreference], BackendStatus],
+    action_selector: ActionSelector,
+    world: BiomechanicalWorld | None,
 ) -> None:
     session = sender.session
     if isinstance(message, Hello):
@@ -343,6 +371,8 @@ async def _apply_message(
         return
     if isinstance(message, Reset):
         session.reset(message)
+        if world is not None:
+            world.reset()
         await sender.send(
             ResetComplete.model_validate(
                 {
@@ -386,8 +416,92 @@ async def _apply_message(
         )
         return
 
-    intention = session.accept_observation(message)
+    if not isinstance(message, Observation):
+        raise SessionFault(
+            "INVALID_MESSAGE",
+            "Unsupported simulation message.",
+        )
+
+    action = action_selector(message)
+
+    if action not in ("forward", "backward", "left", "right", "wait"):
+        raise SessionFault(
+            "INVALID_ACTION",
+            "Controller returned an unsupported action.",
+        )
+
+    motor_phase = "neutral" if action == "wait" else "targeting"
+
+    intention = session.accept_observation(
+        message,
+        action=action,
+        motor_phase=motor_phase,
+    )
+
     await sender.send(intention)
+
+    # The safe placeholder can complete without instantiating MuJoCo.
+    if world is None:
+        if action != "wait":
+            raise SessionFault(
+                "BIOMECHANICS_UNAVAILABLE",
+                "Directional action requires the biomechanical runtime.",
+            )
+
+        terminal = session.finish_action(
+            intention.intention_id,
+            "waited",
+            completion_time=message.simulation_time,
+        )
+
+        if terminal is not None:
+            await sender.send(terminal)
+
+        return
+
+    physical_result = await asyncio.to_thread(
+        world.run,
+        MotorIntention(
+            intention.intention_id,
+            action,
+        ),
+        1.5,
+    )
+
+    recovery_pending = not world.ready
+
+    terminal = session.finish_action(
+        intention.intention_id,
+        physical_result.outcome,
+        completion_time=physical_result.completion_time,
+        recovery_pending=recovery_pending,
+    )
+
+    if terminal is not None:
+        await sender.send(terminal)
+
+    if recovery_pending:
+        await asyncio.to_thread(
+            _recover_world,
+            world,
+        )
+        session.finish_recovery()
+
+def _recover_world(
+    world: BiomechanicalWorld,
+) -> None:
+    """Keep stepping until the fly has physically returned to neutral."""
+
+    for _ in range(1500):
+        if world.ready:
+            return
+
+        world.step()
+
+    if not world.ready:
+        raise RuntimeError(
+            "Biomechanical world failed to recover to neutral."
+        )
 
 
 async def _receive_frame(websocket: WebSocket, max_bytes: int) -> str | bytes:

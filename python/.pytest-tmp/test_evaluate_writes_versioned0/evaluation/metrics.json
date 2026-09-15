@@ -56,7 +56,7 @@
             "backward",
             "backward"
           ],
-          "inferenceWallSeconds": 0.0007935999965411611
+          "inferenceWallSeconds": 0.0008534999942639843
         },
         {
           "seed": "held-out-b",
@@ -70,7 +70,7 @@
             "backward",
             "backward"
           ],
-          "inferenceWallSeconds": 0.0001815999967220705
+          "inferenceWallSeconds": 0.00015210000128718093
         }
       ],
       "summary": {
@@ -105,9 +105,9 @@
         "waitFrequency": 0.0,
         "inferencePerformance": {
           "calls": 8,
-          "wallSeconds": 0.0009751999932632316,
-          "meanMilliseconds": 0.12189999915790395,
-          "stepsPerSecond": 8203.445503757908
+          "wallSeconds": 0.0010055999955511652,
+          "meanMilliseconds": 0.12569999944389565,
+          "stepsPerSecond": 7955.44951809117
         }
       }
     },
@@ -145,7 +145,7 @@
             "wait",
             "forward"
           ],
-          "inferenceWallSeconds": 0.00045700000191573054
+          "inferenceWallSeconds": 0.0005504000073415227
         },
         {
           "seed": "held-out-b",
@@ -159,7 +159,7 @@
             "wait",
             "wait"
           ],
-          "inferenceWallSeconds": 0.0002432000001135748
+          "inferenceWallSeconds": 0.0002491999985068105
         }
       ],
       "summary": {
@@ -195,9 +195,9 @@
         "waitFrequency": 0.625,
         "inferencePerformance": {
           "calls": 8,
-          "wallSeconds": 0.0007002000020293053,
-          "meanMilliseconds": 0.08752500025366317,
-          "stepsPerSecond": 11425.307022014515
+          "wallSeconds": 0.0007996000058483332,
+          "meanMilliseconds": 0.09995000073104165,
+          "stepsPerSecond": 10005.002428073301
         }
       }
     },
@@ -235,7 +235,7 @@
             "wait",
             "forward"
           ],
-          "inferenceWallSeconds": 0.00031320000198320486
+          "inferenceWallSeconds": 0.0002874000056181103
         },
         {
           "seed": "held-out-b",
@@ -249,7 +249,7 @@
             "wait",
             "wait"
           ],
-          "inferenceWallSeconds": 0.00022470000112662092
+          "inferenceWallSeconds": 0.00023079999664332718
         }
       ],
       "summary": {
@@ -285,9 +285,9 @@
         "waitFrequency": 0.625,
         "inferencePerformance": {
           "calls": 8,
-          "wallSeconds": 0.0005379000031098258,
-          "meanMilliseconds": 0.06723750038872822,
-          "stepsPerSecond": 14872.652823477674
+          "wallSeconds": 0.0005182000022614375,
+          "meanMilliseconds": 0.06477500028267968,
+          "stepsPerSecond": 15438.05473772251
         }
       }
     },
@@ -358,7 +358,7 @@
             "wait",
             "forward"
           ],
-          "inferenceWallSeconds": 0.0004372000003058929
+          "inferenceWallSeconds": 0.0004315999976824969
         },
         {
           "seed": "held-out-b",
@@ -372,7 +372,7 @@
             "wait",
             "left"
           ],
-          "inferenceWallSeconds": 0.0002921999985119328
+          "inferenceWallSeconds": 0.0002930999908130616
         }
       ],
       "summary": {
@@ -408,9 +408,9 @@
         "waitFrequency": 0.5,
         "inferencePerformance": {
           "calls": 8,
-          "wallSeconds": 0.0007293999988178257,
-          "meanMilliseconds": 0.09117499985222821,
-          "stepsPerSecond": 10967.918855176848
+          "wallSeconds": 0.0007246999884955585,
+          "meanMilliseconds": 0.09058749856194481,
+          "stepsPerSecond": 11039.050816887146
         }
       }
     },
@@ -448,7 +448,7 @@
             "wait",
             "wait"
           ],
-          "inferenceWallSeconds": 0.00031229999876813963
+          "inferenceWallSeconds": 0.00027150000096298754
         },
         {
           "seed": "held-out-b",
@@ -462,7 +462,7 @@
             "wait",
             "wait"
           ],
-          "inferenceWallSeconds": 0.00022770000214222819
+          "inferenceWallSeconds": 0.0002283000067109242
         }
       ],
       "summary": {
@@ -497,9 +497,9 @@
         "waitFrequency": 1.0,
         "inferencePerformance": {
           "calls": 8,
-          "wallSeconds": 0.0005400000009103678,
-          "meanMilliseconds": 0.06750000011379598,
-          "stepsPerSecond": 14814.814789839018
+          "wallSeconds": 0.0004998000076739118,
+          "meanMilliseconds": 0.06247500095923897,
+          "stepsPerSecond": 16006.402315262667
         }
       }
     }

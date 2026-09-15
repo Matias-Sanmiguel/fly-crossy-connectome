@@ -31,11 +31,11 @@ Wall-clock values include model decision calls only and are machine-dependent.
 | Controller / control | Calls | Wall seconds | Mean milliseconds | Calls per second |
 | --- | ---: | ---: | ---: | ---: |
 | Human-recorded traces | 0 | 0.000000 | 0.000000 | 0.000 |
-| Conventional PPO | 1 | 0.000093 | 0.093400 | 10706.638 |
-| Reduced-connectome PPO | 3 | 0.000271 | 0.090267 | 11078.286 |
-| Degree/normalization-matched rewired control | 3 | 0.000224 | 0.074667 | 13392.857 |
-| Sensory-population silencing control | 3 | 0.000314 | 0.104533 | 9566.326 |
-| Untrained-readout control | 3 | 0.000243 | 0.080933 | 12355.848 |
+| Conventional PPO | 1 | 0.000114 | 0.114000 | 8771.930 |
+| Reduced-connectome PPO | 3 | 0.000260 | 0.086500 | 11560.693 |
+| Degree/normalization-matched rewired control | 3 | 0.000208 | 0.069167 | 14457.831 |
+| Sensory-population silencing control | 3 | 0.000289 | 0.096300 | 10384.216 |
+| Untrained-readout control | 3 | 0.000207 | 0.068967 | 14499.759 |
 
 ## Evidence hashes
 

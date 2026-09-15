@@ -181,7 +181,7 @@
           "actions": [
             "backward"
           ],
-          "inferenceWallSeconds": 9.339999814983457e-05
+          "inferenceWallSeconds": 0.0001140000022132881
         }
       ],
       "summary": {
@@ -216,9 +216,9 @@
         "waitFrequency": 0.0,
         "inferencePerformance": {
           "calls": 1,
-          "wallSeconds": 9.339999814983457e-05,
-          "meanMilliseconds": 0.09339999814983457,
-          "stepsPerSecond": 10706.638327720044
+          "wallSeconds": 0.0001140000022132881,
+          "meanMilliseconds": 0.1140000022132881,
+          "stepsPerSecond": 8771.929654256075
         }
       }
     },
@@ -255,7 +255,7 @@
             "wait",
             "wait"
           ],
-          "inferenceWallSeconds": 0.0002708000029087998
+          "inferenceWallSeconds": 0.0002595000041765161
         }
       ],
       "summary": {
@@ -290,9 +290,9 @@
         "waitFrequency": 0.6666666666666666,
         "inferencePerformance": {
           "calls": 3,
-          "wallSeconds": 0.0002708000029087998,
-          "meanMilliseconds": 0.0902666676362666,
-          "stepsPerSecond": 11078.286439348163
+          "wallSeconds": 0.0002595000041765161,
+          "meanMilliseconds": 0.08650000139217202,
+          "stepsPerSecond": 11560.693455555212
         }
       }
     },
@@ -329,7 +329,7 @@
             "wait",
             "wait"
           ],
-          "inferenceWallSeconds": 0.00022400000307243317
+          "inferenceWallSeconds": 0.000207500001124572
         }
       ],
       "summary": {
@@ -364,9 +364,9 @@
         "waitFrequency": 0.6666666666666666,
         "inferencePerformance": {
           "calls": 3,
-          "wallSeconds": 0.00022400000307243317,
-          "meanMilliseconds": 0.07466666769081105,
-          "stepsPerSecond": 13392.856959157776
+          "wallSeconds": 0.000207500001124572,
+          "meanMilliseconds": 0.06916666704152401,
+          "stepsPerSecond": 14457.831246945194
         }
       }
     },
@@ -436,7 +436,7 @@
             "wait",
             "wait"
           ],
-          "inferenceWallSeconds": 0.0003136000013910234
+          "inferenceWallSeconds": 0.0002889000024879351
         }
       ],
       "summary": {
@@ -471,9 +471,9 @@
         "waitFrequency": 1.0,
         "inferencePerformance": {
           "calls": 3,
-          "wallSeconds": 0.0003136000013910234,
-          "meanMilliseconds": 0.1045333337970078,
-          "stepsPerSecond": 9566.32648817926
+          "wallSeconds": 0.0002889000024879351,
+          "meanMilliseconds": 0.09630000082931171,
+          "stepsPerSecond": 10384.215902266336
         }
       }
     },
@@ -510,7 +510,7 @@
             "wait",
             "backward"
           ],
-          "inferenceWallSeconds": 0.00024280000070575625
+          "inferenceWallSeconds": 0.000206899996555876
         }
       ],
       "summary": {
@@ -545,9 +545,9 @@
         "waitFrequency": 0.6666666666666666,
         "inferencePerformance": {
           "calls": 3,
-          "wallSeconds": 0.00024280000070575625,
-          "meanMilliseconds": 0.08093333356858541,
-          "stepsPerSecond": 12355.848399010638
+          "wallSeconds": 0.000206899996555876,
+          "meanMilliseconds": 0.06896666551862533,
+          "stepsPerSecond": 14499.758578728693
         }
       }
     }

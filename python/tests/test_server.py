@@ -9,6 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
+from fly_crossy.biomechanics.world import WorldActionResult
 from fly_crossy.backend import BackendStatus
 from fly_crossy.protocol import Error, MAX_FRAME_BYTES, MAX_NEURAL_UPDATES, parse_server_message
 from fly_crossy.session import SimulationSession
@@ -217,6 +218,7 @@ def test_socket_configures_and_emits_the_safe_wait_placeholder(
         ready = socket.receive_json()
         socket.send_json(observation())
         intention = socket.receive_json()
+        result = socket.receive_json()
 
     assert ready["type"] == "ready"
     assert ready["sequence"] == 0
@@ -238,6 +240,16 @@ def test_socket_configures_and_emits_the_safe_wait_placeholder(
         "intentionId": "i-00000001",
         "action": "wait",
         "motorPhase": "neutral",
+    }
+    assert result == {
+        "type": "action_result",
+        "version": 2,
+        "sessionId": "s-00000001",
+        "episodeId": "e-00000001",
+        "sequence": 2,
+        "simulationTime": 1.0,
+        "intentionId": "i-00000001",
+        "result": "waited",
     }
 
 
@@ -495,3 +507,76 @@ def test_app_construction_rejects_a_forged_all_zero_registry() -> None:
 
     with pytest.raises(TypeError, match="artifact_registry"):
         create_app(artifact_registry=forged_registry)
+
+def test_socket_direction_waits_for_biomechanical_confirmation(
+    artifact_manifest: Path,
+) -> None:
+    class FakeWorld:
+        def __init__(self) -> None:
+            self.ready = True
+            self.actions: list[str] = []
+            self.recovery_steps = 0
+
+        def run(
+            self,
+            intention: object,
+            limit_seconds: float = 1.5,
+        ) -> WorldActionResult:
+            assert limit_seconds == 1.5
+
+            action = getattr(intention, "action")
+            intention_id = getattr(intention, "intention_id")
+
+            self.actions.append(action)
+            self.ready = False
+
+            return WorldActionResult(
+                intention_id=intention_id,
+                outcome="confirmed",
+                action=action,
+                requested_action=action,
+                completion_time=1.25,
+            )
+
+        def step(self) -> tuple[object, ...]:
+            self.recovery_steps += 1
+            self.ready = True
+            return ()
+
+        def reset(self) -> None:
+            self.ready = True
+
+    world = FakeWorld()
+
+    bridge_app = create_app(
+        artifact_manifest=artifact_manifest,
+        action_selector=lambda _: "forward",
+        world_factory=lambda: world,  # type: ignore[arg-type]
+    )
+
+    with TestClient(bridge_app) as bridge_client:
+        with bridge_client.websocket_connect(
+            "/api/simulation",
+            headers=SAME_ORIGIN,
+        ) as socket:
+            socket.send_json(hello())
+            socket.send_json(configure())
+            socket.receive_json()
+
+            socket.send_json(observation())
+
+            intention = socket.receive_json()
+            result = socket.receive_json()
+
+    assert intention["type"] == "intention"
+    assert intention["action"] == "forward"
+    assert intention["motorPhase"] == "targeting"
+
+    assert result["type"] == "action_result"
+    assert result["intentionId"] == intention["intentionId"]
+    assert result["result"] == "confirmed"
+    assert result["simulationTime"] == 1.25
+
+    assert world.actions == ["forward"]
+    assert world.recovery_steps == 1
+    assert world.ready
