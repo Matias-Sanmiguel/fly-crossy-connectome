@@ -1,0 +1,3 @@
+configs/biomechanics-v1.json text eol=lf
+data/manifests/flybody-v1.json text eol=lf
+data/calibration/keyboard-reach-v1.json text eol=lf
