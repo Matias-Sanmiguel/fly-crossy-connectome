@@ -154,7 +154,13 @@ class _ActiveIntention:
 
 
 class ContactGate:
-    """Confirm physical key presses using config-owned SI thresholds."""
+    """Confirm physical key presses using config-owned SI thresholds.
+
+    A travel reading beyond the configured mechanical limit is treated as
+    invalid evidence: it resets continuous debounce and can only end through
+    later valid evidence or timeout.  The intention clock starts with its
+    first sampled physics frame, never with an earlier idle frame.
+    """
 
     def __init__(self, config: KeyboardConfig) -> None:
         if not isinstance(config, KeyboardConfig):
@@ -181,7 +187,7 @@ class ContactGate:
         self._active = _ActiveIntention(
             intention_id=intention_id,
             intended_key=intended_key,
-            started_at=self._last_time,
+            started_at=None,
         )
 
     def cancel(self) -> ContactOutcome | None:
@@ -196,8 +202,11 @@ class ContactGate:
         """Evaluate one atomic keyboard frame and emit at most one terminal."""
         if not isinstance(sample, ContactSample):
             raise TypeError("sample must be a ContactSample")
-        if self._last_time is not None and sample.time < self._last_time:
-            raise ValueError("contact sample timestamps must be monotonic")
+        if self._last_time is not None and sample.time <= self._last_time:
+            raise ValueError(
+                "contact sample timestamps must be strictly increasing "
+                "(strictly monotonic)"
+            )
         self._last_time = sample.time
         states = {contact.key: contact for contact in sample.contacts}
         self._last_states = states
@@ -240,7 +249,9 @@ class ContactGate:
         has_valid_evidence = (
             active.intended_key not in self._blocked_keys
             and intended_state.touching_tarsi == (expected_tarsus,)
-            and intended_state.travel >= self._config.minimum_travel_meters
+            and self._config.minimum_travel_meters
+            <= intended_state.travel
+            <= self._config.key_travel_meters
             and self._config.minimum_force_newtons
             <= intended_state.normal_force
             <= self._config.maximum_force_newtons

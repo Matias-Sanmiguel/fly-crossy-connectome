@@ -104,6 +104,25 @@ def test_invalid_physical_evidence_resets_the_continuous_debounce(
     assert gate.sample(frame(0.042, valid_contact("W"))).kind == "confirmed"
 
 
+def test_travel_above_the_physical_key_limit_resets_debounce(
+    gate: ContactGate, config: KeyboardConfig
+) -> None:
+    gate.begin("i-overtravel", "W")
+    assert gate.sample(frame(0.000, valid_contact("W"))).kind == "pending"
+    assert gate.sample(
+        frame(
+            0.019,
+            valid_contact(
+                "W",
+                travel=config.key_travel_meters + 0.000001,
+            ),
+        )
+    ).kind == "pending"
+    assert gate.sample(frame(0.021, valid_contact("W"))).kind == "pending"
+
+    assert gate.sample(frame(0.042, valid_contact("W"))).kind == "confirmed"
+
+
 def test_wrong_key_is_a_terminal_failure_and_never_confirms_requested_key(
     gate: ContactGate,
 ) -> None:
@@ -155,6 +174,17 @@ def test_timeout_is_terminal_and_cannot_later_confirm(gate: ContactGate) -> None
     assert outcome.kind == "timed-out"
     assert outcome.key is None
     assert gate.sample(frame(1.501, valid_contact("W"))) is None
+
+
+def test_timeout_starts_at_first_sample_after_begin_not_at_last_idle_frame(
+    gate: ContactGate,
+) -> None:
+    assert gate.sample(frame(0.000)) is None
+    gate.begin("i-idle-history", "W")
+
+    assert gate.sample(frame(2.000)).kind == "pending"
+    assert gate.sample(frame(3.499)).kind == "pending"
+    assert gate.sample(frame(3.500)).kind == "timed-out"
 
 
 def test_cancel_emits_one_terminal_outcome_and_is_idempotent(
@@ -270,6 +300,22 @@ def test_sample_timestamps_must_be_monotonic(gate: ContactGate) -> None:
 
     with pytest.raises(ValueError, match="monotonic"):
         gate.sample(frame(0.099))
+
+
+def test_equal_timestamp_cannot_release_and_rearm_a_confirmed_key(
+    gate: ContactGate,
+) -> None:
+    gate.begin("i-same-time-1", "W")
+    assert gate.sample(frame(0.000, valid_contact("W"))).kind == "pending"
+    assert gate.sample(frame(0.021, valid_contact("W"))).kind == "confirmed"
+
+    gate.begin("i-same-time-2", "W")
+    with pytest.raises(ValueError, match="strictly increasing"):
+        gate.sample(frame(0.021))
+    assert gate.sample(frame(0.022, valid_contact("W"))).kind == "pending"
+    assert gate.sample(frame(0.023)).kind == "pending"
+    assert gate.sample(frame(0.024, valid_contact("W"))).kind == "pending"
+    assert gate.sample(frame(0.045, valid_contact("W"))).kind == "confirmed"
 
 
 def test_frame_requires_one_state_for_every_key_and_rejects_duplicates() -> None:
