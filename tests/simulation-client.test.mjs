@@ -64,7 +64,7 @@ class FakeSocket {
   }
 }
 
-const createHarness = (sessionIds = ['s-current1'], episodeIds = ['e-current1']) => {
+const createHarness = (sessionIds = ['s-current1'], episodeIds = ['e-current1'], options = {}) => {
   const sockets = [];
   const scheduled = [];
   const client = createSimulationClient('ws://simulation.test/api/simulation', {
@@ -82,6 +82,7 @@ const createHarness = (sessionIds = ['s-current1'], episodeIds = ['e-current1'])
       },
       clearTimeout() {},
     },
+    ...options,
   });
   return { client, sockets, scheduled };
 };
@@ -102,6 +103,24 @@ test('queue makes room by dropping observations before critical messages', () =>
   queue.enqueue({ type: 'request_keyframe', sequence: 3 });
 
   assert.deepEqual(queue.drain().map((item) => item.type), ['reset', 'request_keyframe']);
+});
+
+test('queue rejects critical-only saturation without exceeding capacity', () => {
+  const queue = new OutboundQueue(2);
+  queue.enqueue({ type: 'reset', sequence: 1 });
+  queue.enqueue({ type: 'pause', sequence: 2 });
+
+  assert.throws(() => queue.enqueue({ type: 'resume', sequence: 3 }), /capacity|backpressure/i);
+  assert.equal(queue.size, 2);
+  assert.deepEqual(queue.drain().map((item) => item.type), ['reset', 'pause']);
+});
+
+test('queue rejects non-finite and oversized serialized payloads before retaining them', () => {
+  const queue = new OutboundQueue(2);
+
+  assert.throws(() => queue.enqueue({ type: 'metrics', value: Number.NaN }), /finite/i);
+  assert.throws(() => queue.enqueue({ type: 'reset', value: 'x'.repeat(1_048_576) }), /1 MiB/i);
+  assert.equal(queue.size, 0);
 });
 
 test('client ignores frames from an old session', () => {
@@ -151,6 +170,67 @@ test('client permits one observation until its action result arrives', () => {
   client.close();
 });
 
+test('client rejects malformed observations before they enter the outbound queue', () => {
+  const { client, sockets } = createHarness();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+
+  assert.throws(
+    () => client.observe({ gameStep: 3, observation: Array(369).fill(0), reward: 0, simulationTime: 1 }),
+    /observation/i,
+  );
+  assert.equal(client.state.phase, 'ready');
+  assert.equal(sockets[0].sent.some(({ type }) => type === 'observation'), false);
+  client.close();
+});
+
+test('client rejects non-finite observation values before they enter the outbound queue', () => {
+  const { client, sockets } = createHarness();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+
+  assert.throws(
+    () => client.observe({ gameStep: 3, observation: [...Array(369).fill(0), Number.NaN], reward: 0, simulationTime: 1 }),
+    /observation value/i,
+  );
+  assert.equal(sockets[0].sent.some(({ type }) => type === 'observation'), false);
+  client.close();
+});
+
+test('client rejects non-finite configuration values before they enter the outbound queue', () => {
+  const { client } = createHarness();
+
+  assert.throws(
+    () => client.configure({ population: 80, backend: 'cpu', seed: 7, speed: Infinity }),
+    /speed/i,
+  );
+  assert.equal(client.state.phase, 'connecting');
+  client.close();
+});
+
+test('client transitions to controlled error when critical queue admission is saturated', () => {
+  const { client } = createHarness(['s-current1'], ['e-current1'], { maxQueue: 1 });
+
+  assert.throws(
+    () => client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 }),
+    /capacity|backpressure/i,
+  );
+  assert.equal(client.state.phase, 'error');
+  client.close();
+});
+
+test('client contains configuration replay backpressure during reconnect', () => {
+  const { client, sockets } = createHarness(['s-current1', 's-current2'], ['e-current1', 'e-current2'], { maxQueue: 1 });
+  sockets[0].open();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+
+  assert.doesNotThrow(() => client.reconnect());
+  assert.equal(client.state.phase, 'error');
+  client.close();
+});
+
 test('client requests a keyframe after a neural delta sequence gap', () => {
   const { client, sockets } = createHarness();
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
@@ -161,6 +241,47 @@ test('client requests a keyframe after a neural delta sequence gap', () => {
   assert.deepEqual(sockets[0].sent.at(-1), {
     type: 'request_keyframe', version: 2, sessionId: 's-current1', episodeId: 'e-current1', sequence: 2, simulationTime: 2,
   });
+  client.close();
+});
+
+test('client requests one keyframe when a sequence gap is first seen on a snapshot', () => {
+  const { client, sockets } = createHarness();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  sockets[0].receive({ type: 'neural_delta', ...envelope(1), updates: [] });
+  sockets[0].receive({ type: 'snapshot', ...envelope(3), body: [0, 0, 0], joints: [], keys: {} });
+  sockets[0].receive({ type: 'neural_delta', ...envelope(4), updates: [] });
+
+  assert.deepEqual(sockets[0].sent.filter(({ type }) => type === 'request_keyframe').map(({ sequence }) => sequence), [2]);
+  client.close();
+});
+
+test('client retains controlled error when keyframe recovery is backpressured during an action result', () => {
+  const { client, sockets } = createHarness(['s-current1'], ['e-current1'], { maxQueue: 1 });
+  sockets[0].open();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].receive(ready());
+  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  sockets[0].receive({ type: 'intention', ...envelope(1), intentionId: 'i-current1', action: 'wait', motorPhase: 'neutral' });
+  sockets[0].readyState = 0;
+  client.pause(1);
+  sockets[0].receive({ type: 'action_result', ...envelope(3), intentionId: 'i-current1', result: 'waited' });
+
+  assert.equal(client.state.phase, 'error');
+  client.close();
+});
+
+test('client fails an unsolicited reset_complete instead of clearing active work', () => {
+  const { client, sockets } = createHarness();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  sockets[0].receive({ type: 'reset_complete', ...envelope(1) });
+
+  assert.equal(client.state.phase, 'error');
+  assert.match(client.state.error ?? '', /reset_complete/i);
   client.close();
 });
 
@@ -179,5 +300,30 @@ test('client creates a new session and restarts its sequence on reconnect', () =
     { type: 'configure', sessionId: 's-current2', sequence: 1 },
   ]);
   assert.equal(client.state.sessionId, 's-current2');
+  client.close();
+});
+
+test('client suppresses stale reconnect scheduling after a close subscriber reconnects immediately', () => {
+  const { client, sockets, scheduled } = createHarness(
+    ['s-current1', 's-current2', 's-current3'],
+    ['e-current1', 'e-current2', 'e-current3'],
+  );
+  let reconnectOnClose = false;
+  let reconnectRequested = false;
+  client.subscribeState((state) => {
+    if (reconnectOnClose && !reconnectRequested && state.phase === 'connecting') {
+      reconnectRequested = true;
+      client.reconnect();
+    }
+  });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  reconnectOnClose = true;
+  sockets[0].readyState = 3;
+  sockets[0].emit('close');
+
+  assert.equal(client.state.sessionId, 's-current2');
+  assert.equal(sockets.length, 2);
+  assert.equal(scheduled.length, 0);
   client.close();
 });

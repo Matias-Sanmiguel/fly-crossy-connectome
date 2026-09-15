@@ -1,4 +1,5 @@
 import {
+  MAX_SEQUENCE,
   parseServerMessage,
   type BackendPreference,
   type PopulationSize,
@@ -70,6 +71,8 @@ type PendingObservation = { intentionId: string | null };
 const OPEN = 1;
 const sessionPattern = /^s-[a-z0-9]{8,64}$/;
 const episodePattern = /^e-[a-z0-9]{8,64}$/;
+const populations = new Set<PopulationSize>([80, 1000, 5000, 20000, 124289]);
+const backends = new Set<BackendPreference>(['auto', 'cpu', 'gpu', 'gpu-strict']);
 let generatedId = 0;
 
 function browserSocket(url: string): SimulationSocket {
@@ -94,6 +97,48 @@ function requireId(value: string, pattern: RegExp, label: string): string {
 
 function validUrl(url: string): void {
   if (!/^wss?:\/\//i.test(url)) throw Error('Simulation URL must use ws:// or wss://.');
+}
+
+function finite(value: unknown, label: string, min: number, max: number): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) {
+    throw Error(`Simulation ${label} must be a finite number between ${min} and ${max}.`);
+  }
+  return value;
+}
+
+function integer(value: unknown, label: string, min: number, max: number): number {
+  const number = finite(value, label, min, max);
+  if (!Number.isSafeInteger(number)) throw Error(`Simulation ${label} must be a safe integer.`);
+  return number;
+}
+
+function simulationTime(value: unknown): number {
+  return finite(value, 'simulation time', 0, 86_400);
+}
+
+function validateConfiguration(value: SimulationConfiguration): SimulationConfiguration {
+  if (!populations.has(value.population)) throw Error('Simulation population is invalid.');
+  if (!backends.has(value.backend)) throw Error('Simulation backend is invalid.');
+  const configuration: SimulationConfiguration = {
+    population: value.population,
+    backend: value.backend,
+    seed: integer(value.seed, 'seed', 0, 2 ** 32 - 1),
+    speed: finite(value.speed, 'speed', Number.MIN_VALUE, 100),
+  };
+  if (value.simulationTime !== undefined) configuration.simulationTime = simulationTime(value.simulationTime);
+  return configuration;
+}
+
+function validateObservation(value: SimulationObservation): SimulationObservation {
+  if (!Array.isArray(value.observation) || value.observation.length !== 370) {
+    throw Error('Simulation observation must contain exactly 370 values.');
+  }
+  return {
+    gameStep: integer(value.gameStep, 'game step', 0, MAX_SEQUENCE),
+    observation: value.observation.map((entry) => finite(entry, 'observation value', -1_000_000, 1_000_000)),
+    reward: finite(value.reward, 'reward', -1_000_000, 1_000_000),
+    simulationTime: simulationTime(value.simulationTime),
+  };
 }
 
 /**
@@ -138,6 +183,7 @@ export function createSimulationClient(
   let awaitingReset = false;
   let awaitingKeyframe = false;
   let configuration: SimulationConfiguration | null = null;
+  let connectionGeneration = 0;
   const completedIntentions: string[] = [];
   const socketListeners = new Map<SimulationSocket, {
     open: () => void;
@@ -155,9 +201,15 @@ export function createSimulationClient(
     state = { ...state, ...next };
     publishState();
   };
-  const enqueue = (message: OutboundMessage) => {
-    queue.enqueue(message);
-    flush();
+  const enqueue = (message: OutboundMessage): boolean => {
+    try {
+      const admitted = queue.enqueue(message);
+      if (admitted) flush();
+      return admitted;
+    } catch (error) {
+      fail(error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   };
   const envelope = (type: string, simulationTime: number): OutboundMessage => ({
     type,
@@ -185,10 +237,17 @@ export function createSimulationClient(
     completedIntentions.push(intentionId);
     if (completedIntentions.length > 256) completedIntentions.shift();
   };
-  const requestKeyframe = (simulationTime: number) => {
-    if (awaitingKeyframe || disposed) return;
+  const requestKeyframe = (simulationTime: number): boolean => {
+    if (awaitingKeyframe) return true;
+    if (disposed) return false;
     awaitingKeyframe = true;
-    enqueue(envelope('request_keyframe', simulationTime));
+    try {
+      enqueue(envelope('request_keyframe', simulationTime));
+      return true;
+    } catch {
+      // `enqueue` has already moved the client into a controlled error state.
+      return false;
+    }
   };
   const publishMessage = (message: ServerMessage) => {
     for (const listener of messageListeners) listener(message);
@@ -223,7 +282,7 @@ export function createSimulationClient(
     }
     const hasGap = message.sequence > lastInboundSequence + 1;
     lastInboundSequence = message.sequence;
-    if (message.type === 'neural_delta' && hasGap) requestKeyframe(message.simulationTime);
+    if (hasGap && !requestKeyframe(message.simulationTime)) return;
     if (message.type === 'neural_keyframe') awaitingKeyframe = false;
 
     switch (message.type) {
@@ -254,6 +313,10 @@ export function createSimulationClient(
         setState({ phase: 'ready', error: null });
         break;
       case 'reset_complete':
+        if (!awaitingReset) {
+          fail('Simulation sent an unsolicited reset_complete frame.');
+          return;
+        }
         awaitingReset = false;
         pendingObservation = null;
         completedIntentions.length = 0;
@@ -279,14 +342,16 @@ export function createSimulationClient(
     current.removeEventListener('close', listeners.close);
     socketListeners.delete(current);
   };
-  const scheduleReconnect = () => {
-    if (disposed || reconnectTimer !== null) return;
-    reconnectTimer = timers.setTimeout(() => {
-      reconnectTimer = null;
+  const scheduleReconnect = (generation: number) => {
+    if (disposed || reconnectTimer !== null || generation !== connectionGeneration) return;
+    const timer = timers.setTimeout(() => {
+      if (reconnectTimer === timer) reconnectTimer = null;
+      if (generation !== connectionGeneration || disposed) return;
       beginConnection();
     }, reconnectDelayMs);
+    reconnectTimer = timer;
   };
-  const attachSocket = (current: SimulationSocket) => {
+  const attachSocket = (current: SimulationSocket, generation: number) => {
     const listeners = {
       open: () => {
         if (socket === current) flush();
@@ -298,11 +363,12 @@ export function createSimulationClient(
         if (socket === current) fail('Simulation connection failed.');
       },
       close: () => {
-        if (disposed || socket !== current) return;
+        if (disposed || socket !== current || generation !== connectionGeneration) return;
         socket = null;
         disconnect(current);
         setState({ phase: 'connecting', backend: null, error: null });
-        scheduleReconnect();
+        if (generation !== connectionGeneration || socket !== null) return;
+        scheduleReconnect(generation);
       },
     };
     socketListeners.set(current, listeners);
@@ -313,6 +379,7 @@ export function createSimulationClient(
   };
   const beginConnection = () => {
     if (disposed) return;
+    const generation = ++connectionGeneration;
     if (socket) disconnect(socket);
     queue.clear();
     pendingObservation = null;
@@ -325,13 +392,19 @@ export function createSimulationClient(
     const episodeId = requireId(episodeIdFactory(), episodePattern, 'Episode ID');
     state = { phase: 'connecting', sessionId, episodeId, backend: null, error: null };
     publishState();
+    if (generation !== connectionGeneration) return;
     enqueue({ ...envelope('hello', 0), supportedVersions: [2], uiBuild });
     if (configuration) {
-      enqueue({ ...envelope('configure', configuration.simulationTime ?? 0), ...configuration });
+      try {
+        enqueue({ ...envelope('configure', configuration.simulationTime ?? 0), ...configuration });
+      } catch {
+        return;
+      }
     }
     const nextSocket = socketFactory(url);
+    if (generation !== connectionGeneration) return;
     socket = nextSocket;
-    attachSocket(nextSocket);
+    attachSocket(nextSocket, generation);
     flush();
   };
 
@@ -342,8 +415,11 @@ export function createSimulationClient(
     configure(nextConfiguration) {
       if (disposed) throw Error('Simulation client is closed.');
       if (configuration) throw Error('Simulation client is already configured for this session.');
-      configuration = { ...nextConfiguration };
-      enqueue({ ...envelope('configure', nextConfiguration.simulationTime ?? 0), ...nextConfiguration });
+      const validated = validateConfiguration(nextConfiguration);
+      if (!enqueue({ ...envelope('configure', validated.simulationTime ?? 0), ...validated })) {
+        throw Error('Simulation configuration was backpressured.');
+      }
+      configuration = validated;
     },
     reset(resetOptions = {}) {
       if (disposed) throw Error('Simulation client is closed.');
@@ -353,23 +429,28 @@ export function createSimulationClient(
       awaitingReset = true;
       const episodeId = requireId(episodeIdFactory(), episodePattern, 'Episode ID');
       setState({ episodeId });
-      enqueue({ ...envelope('reset', resetOptions.simulationTime ?? 0), seed: resetOptions.seed });
+      const reset = envelope('reset', simulationTime(resetOptions.simulationTime ?? 0));
+      if (resetOptions.seed !== undefined) reset.seed = integer(resetOptions.seed, 'seed', 0, 2 ** 32 - 1);
+      enqueue(reset);
     },
     observe(nextObservation) {
       if (disposed) throw Error('Simulation client is closed.');
       if (pendingObservation) throw Error('Simulation client already has a pending observation.');
       if (state.phase !== 'ready' || awaitingReset) throw Error('Simulation client is not ready for an observation.');
+      const validated = validateObservation(nextObservation);
+      if (!enqueue({ ...envelope('observation', validated.simulationTime), ...validated })) {
+        throw Error('Simulation observation was backpressured.');
+      }
       pendingObservation = { intentionId: null };
       setState({ phase: 'acting', error: null });
-      enqueue({ ...envelope('observation', nextObservation.simulationTime), ...nextObservation });
     },
     pause(simulationTime = 0) {
       if (disposed) throw Error('Simulation client is closed.');
-      enqueue(envelope('pause', simulationTime));
+      enqueue(envelope('pause', finite(simulationTime, 'simulation time', 0, 86_400)));
     },
     resume(simulationTime = 0) {
       if (disposed) throw Error('Simulation client is closed.');
-      enqueue(envelope('resume', simulationTime));
+      enqueue(envelope('resume', finite(simulationTime, 'simulation time', 0, 86_400)));
     },
     reconnect() {
       if (disposed) throw Error('Simulation client is closed.');
