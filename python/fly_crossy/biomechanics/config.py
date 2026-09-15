@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from itertools import combinations
 from pathlib import Path
-from typing import Annotated, Literal, Self
+from types import MappingProxyType
+from typing import Annotated, Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictInt,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from fly_crossy.protocol import KeyName
 
@@ -22,6 +33,8 @@ KEY_NAMES: tuple[KeyName, ...] = (
 FiniteFloat = Annotated[float, Field(strict=True, allow_inf_nan=False)]
 PositiveFloat = Annotated[float, Field(strict=True, gt=0, allow_inf_nan=False)]
 PositiveInt = Annotated[int, Field(strict=True, gt=0)]
+SchemaVersion = Annotated[StrictInt, Field(ge=1, le=1)]
+CAP_SEPARATION_TOLERANCE_METERS = 1e-12
 
 
 def _to_camel(name: str) -> str:
@@ -48,7 +61,7 @@ class KeyConfig(ConfigModel):
 class KeyboardConfig(ConfigModel):
     """Complete keyboard physics contract; every dimensional value is SI."""
 
-    schema_version: Literal[1]
+    schema_version: SchemaVersion
     physics_hz: PositiveInt
     motor_hz: PositiveInt
     decision_timeout_seconds: PositiveFloat
@@ -62,7 +75,18 @@ class KeyboardConfig(ConfigModel):
     key_mass_kilograms: PositiveFloat
     return_stiffness_newtons_per_meter: PositiveFloat
     return_damping_newton_seconds_per_meter: PositiveFloat
-    keys: dict[KeyName, KeyConfig]
+    keys: Mapping[KeyName, KeyConfig]
+
+    @field_validator("keys", mode="after")
+    @classmethod
+    def freeze_keys(
+        cls, keys: Mapping[KeyName, KeyConfig]
+    ) -> Mapping[KeyName, KeyConfig]:
+        return MappingProxyType(dict(keys))
+
+    @field_serializer("keys")
+    def serialize_keys(self, keys: Mapping[KeyName, KeyConfig]) -> dict[str, KeyConfig]:
+        return dict(keys)
 
     @classmethod
     def load(cls, path: str | Path) -> Self:
@@ -79,6 +103,22 @@ class KeyboardConfig(ConfigModel):
         centers = tuple(key.center for key in self.keys.values())
         if len(set(centers)) != len(centers):
             raise ValueError("key centers must be unique")
+        half_width, half_depth, _ = self.key_half_extents_meters
+        for left_name, right_name in combinations(KEY_NAMES, 2):
+            left = self.keys[left_name].center
+            right = self.keys[right_name].center
+            # Edge contact is allowed; only penetration beyond float tolerance
+            # is an invalid initial layout.
+            penetrates_x = abs(left[0] - right[0]) < (
+                2 * half_width - CAP_SEPARATION_TOLERANCE_METERS
+            )
+            penetrates_y = abs(left[1] - right[1]) < (
+                2 * half_depth - CAP_SEPARATION_TOLERANCE_METERS
+            )
+            if penetrates_x and penetrates_y:
+                raise ValueError(
+                    f"key caps overlap in XY: {left_name} and {right_name}"
+                )
         if self.release_travel_meters >= self.minimum_travel_meters:
             raise ValueError("releaseTravelMeters must be below minimumTravelMeters")
         if self.minimum_travel_meters >= self.key_travel_meters:

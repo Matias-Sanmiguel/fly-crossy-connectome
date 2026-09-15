@@ -172,3 +172,59 @@ def test_keyboard_config_rejects_invalid_or_ambiguous_physics(
 
     with pytest.raises(ValidationError, match=message):
         KeyboardConfig.model_validate(raw)
+
+
+def test_keyboard_config_rejects_distinct_centers_whose_caps_overlap() -> None:
+    raw = _config_document()
+    raw["keys"]["W"]["center"] = [0.0, 0.0, 0.0]
+    raw["keys"]["A"]["center"] = [0.0004, 0.0004, 0.0]
+
+    with pytest.raises(ValidationError, match="overlap"):
+        KeyboardConfig.model_validate(raw)
+
+
+def test_keyboard_config_allows_caps_to_touch_at_an_edge_with_float_tolerance() -> None:
+    raw = _config_document()
+    half_width = raw["keyHalfExtentsMeters"][0]
+    spacing = 2 * half_width - 5e-13
+    for index, name in enumerate(KEY_NAMES):
+        raw["keys"][name]["center"] = [index * 0.0018, 0.0, 0.0]
+    raw["keys"]["A"]["center"] = [spacing, 0.0, 0.0]
+
+    config = KeyboardConfig.model_validate(raw)
+
+    assert config.keys["A"].center[0] == pytest.approx(spacing)
+
+
+@pytest.mark.parametrize("invalid_version", (True, 1.0))
+def test_schema_version_requires_the_exact_integer_one(
+    invalid_version: object,
+) -> None:
+    raw = _config_document()
+    raw["schemaVersion"] = invalid_version
+
+    with pytest.raises(ValidationError, match="schemaVersion"):
+        KeyboardConfig.model_validate(raw)
+
+
+def test_validated_key_mapping_and_nested_centers_are_deeply_immutable() -> None:
+    raw = _config_document()
+    config = KeyboardConfig.model_validate(raw)
+    original_center = config.keys["W"].center
+
+    with pytest.raises(TypeError):
+        config.keys["W"] = config.keys["A"]
+    with pytest.raises(ValidationError, match="frozen"):
+        config.keys["W"].center = (9.0, 9.0, 9.0)
+    with pytest.raises(TypeError):
+        config.keys["W"].center[0] = 9.0
+
+    raw["keys"]["W"]["center"][0] = 9.0
+    assert config.keys["W"].center == original_center
+
+
+def test_deeply_immutable_config_still_serializes_to_the_public_json_schema() -> None:
+    raw = _config_document()
+    config = KeyboardConfig.model_validate(raw)
+
+    assert json.loads(config.model_dump_json(by_alias=True)) == raw
