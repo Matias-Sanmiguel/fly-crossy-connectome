@@ -4,3 +4,7 @@ data/calibration/keyboard-reach-v1.json text eol=lf
 
 public/data/connectome/graph.json text eol=lf
 public/data/connectome/manifest.json text eol=lf
+public/data/flybody/model.json text eol=lf
+public/data/flybody/checksums.json text eol=lf
+public/models/reduced-connectome-policy-v3.json text eol=lf
+release/eval-v1/training/connectome/policy.json text eol=lf
