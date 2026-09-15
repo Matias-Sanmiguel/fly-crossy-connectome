@@ -12,6 +12,8 @@ import numpy as np
 import pytest
 
 from fly_crossy.biomechanics.body import FlyBodyModel
+from fly_crossy.biomechanics import calibration as calibration_module
+from fly_crossy.biomechanics import motor as motor_module
 from fly_crossy.biomechanics.calibration import CalibrationArtifact, load_calibration
 from fly_crossy.biomechanics.config import KeyboardConfig
 from fly_crossy.biomechanics.contact import ContactOutcome
@@ -19,9 +21,11 @@ from fly_crossy.biomechanics.motor import (
     ACTION_TARGETS,
     BodyState,
     MotorBusy,
+    MotorCommand,
     MotorController,
     MotorIntention,
     MotorPhase,
+    MotorResetRequired,
 )
 
 
@@ -61,6 +65,7 @@ def intention(identifier: str, action: str) -> MotorIntention:
 
 def state(
     calibration: CalibrationArtifact,
+    body: FlyBodyModel,
     *,
     pose: str = "neutral",
     contact: ContactOutcome | None = None,
@@ -69,7 +74,13 @@ def state(
     values = calibration.neutral_pose if pose == "neutral" else getattr(
         calibration.trajectories["forward"], f"{pose}_pose"
     )
-    return BodyState(values, contact=contact, stable=stable)
+    data = mujoco.MjData(body.model)
+    for actuator_index in range(45):
+        joint_id = int(body.model.actuator_trnid[actuator_index, 0])
+        qpos_address = int(body.model.jnt_qposadr[joint_id])
+        data.qpos[qpos_address] = values[actuator_index]
+    mujoco.mj_forward(body.model, data)
+    return BodyState.from_mujoco(body, data, contact=contact, stable=stable)
 
 
 @pytest.mark.parametrize(
@@ -104,27 +115,29 @@ def test_motor_cannot_accept_two_intentions(motor: MotorController) -> None:
 
 
 def test_successful_lifecycle_has_no_skipped_phase(
-    motor: MotorController, calibration: CalibrationArtifact
+    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
 ) -> None:
     motor.request(intention("i-success", "forward"))
     observed = [motor.phase]
 
-    command = motor.update(state(calibration), 0.01)
+    command = motor.update(state(calibration, body), 0.01)
     observed.append(command.phase)
-    command = motor.update(state(calibration, pose="pre_key"), 0.01)
+    command = motor.update(state(calibration, body, pose="pre_key"), 0.01)
     observed.append(command.phase)
-    command = motor.update(state(calibration, pose="press"), 0.01)
+    command = motor.update(state(calibration, body, pose="press"), 0.01)
     observed.append(command.phase)
     confirmed = ContactOutcome("confirmed", "i-success", "W")
-    command = motor.update(state(calibration, pose="press", contact=confirmed), 0.01)
+    command = motor.update(
+        state(calibration, body, pose="press", contact=confirmed), 0.01
+    )
     observed.append(command.phase)
-    command = motor.update(state(calibration, pose="press"), 0.01)
+    command = motor.update(state(calibration, body, pose="press"), 0.01)
     observed.append(command.phase)
-    command = motor.update(state(calibration, pose="retract"), 0.01)
+    command = motor.update(state(calibration, body, pose="retract"), 0.01)
     observed.append(command.phase)
-    command = motor.update(state(calibration), 0.01)
+    command = motor.update(state(calibration, body), 0.01)
     observed.append(command.phase)
-    command = motor.update(state(calibration), 0.01)
+    command = motor.update(state(calibration, body), 0.01)
     observed.append(command.phase)
 
     assert observed == [
@@ -154,15 +167,18 @@ def test_terminal_contact_failure_retracts_before_settling(
     outcome: ContactOutcome,
     motor: MotorController,
     calibration: CalibrationArtifact,
+    body: FlyBodyModel,
 ) -> None:
     motor.request(intention("i-fail", "forward"))
-    motor.update(state(calibration), 0.01)
-    motor.update(state(calibration, pose="pre_key"), 0.01)
+    motor.update(state(calibration, body), 0.01)
+    motor.update(state(calibration, body, pose="pre_key"), 0.01)
 
-    failed = motor.update(state(calibration, pose="press", contact=outcome), 0.01)
-    retracting = motor.update(state(calibration, pose="press"), 0.01)
-    settling = motor.update(state(calibration, pose="retract"), 0.01)
-    neutral = motor.update(state(calibration), 0.01)
+    failed = motor.update(
+        state(calibration, body, pose="press", contact=outcome), 0.01
+    )
+    retracting = motor.update(state(calibration, body, pose="press"), 0.01)
+    settling = motor.update(state(calibration, body, pose="retract"), 0.01)
+    neutral = motor.update(state(calibration, body), 0.01)
 
     assert [failed.phase, retracting.phase, settling.phase, neutral.phase] == [
         MotorPhase.FAILED,
@@ -173,26 +189,27 @@ def test_terminal_contact_failure_retracts_before_settling(
 
 
 def test_instability_enters_failed_without_skipping_retraction(
-    motor: MotorController, calibration: CalibrationArtifact
+    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
 ) -> None:
     motor.request(intention("i-unstable", "left"))
 
-    failed = motor.update(state(calibration, stable=False), 0.01)
-    retracting = motor.update(state(calibration), 0.01)
+    failed = motor.update(state(calibration, body, stable=False), 0.01)
+    retracting = motor.update(state(calibration, body), 0.01)
 
     assert failed.phase is MotorPhase.FAILED
     assert retracting.phase is MotorPhase.RETRACTING
 
 
 def test_wrong_key_during_reaching_fails_immediately(
-    motor: MotorController, calibration: CalibrationArtifact
+    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
 ) -> None:
     motor.request(intention("i-early-contact", "forward"))
-    motor.update(state(calibration), 0.01)
+    motor.update(state(calibration, body), 0.01)
 
     failed = motor.update(
         state(
             calibration,
+            body,
             contact=ContactOutcome("wrong-key", "i-early-contact", "S"),
         ),
         0.01,
@@ -202,53 +219,63 @@ def test_wrong_key_during_reaching_fails_immediately(
 
 
 def test_instability_while_retracting_uses_the_legal_recovery_failure_edge(
-    motor: MotorController, calibration: CalibrationArtifact
+    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
 ) -> None:
     motor.request(intention("i-recovery", "forward"))
-    motor.update(state(calibration), 0.01)
-    motor.update(state(calibration, pose="pre_key"), 0.01)
+    motor.update(state(calibration, body), 0.01)
+    motor.update(state(calibration, body, pose="pre_key"), 0.01)
     motor.update(
         state(
             calibration,
+            body,
             pose="press",
             contact=ContactOutcome("confirmed", "i-recovery", "W"),
         ),
         0.01,
     )
-    assert motor.update(state(calibration, pose="press"), 0.01).phase is MotorPhase.RETRACTING
+    assert (
+        motor.update(state(calibration, body, pose="press"), 0.01).phase
+        is MotorPhase.RETRACTING
+    )
 
-    failed = motor.update(state(calibration, pose="press", stable=False), 0.01)
+    failed = motor.update(
+        state(calibration, body, pose="press", stable=False), 0.01
+    )
 
     assert failed.phase is MotorPhase.FAILED
 
 
 def test_phase_timeout_enters_failed_and_rejects_invalid_dt(
-    motor: MotorController, calibration: CalibrationArtifact, config: KeyboardConfig
+    motor: MotorController,
+    calibration: CalibrationArtifact,
+    config: KeyboardConfig,
+    body: FlyBodyModel,
 ) -> None:
     motor.request(intention("i-timeout", "right"))
     with pytest.raises(ValueError, match="finite and positive"):
-        motor.update(state(calibration), float("nan"))
+        motor.update(state(calibration, body), float("nan"))
     with pytest.raises(ValueError, match="finite and positive"):
-        motor.update(state(calibration), 0.0)
+        motor.update(state(calibration, body), 0.0)
 
     failed = motor.update(
-        state(calibration), config.decision_timeout_seconds + 0.001
+        state(calibration, body), config.decision_timeout_seconds + 0.001
     )
 
     assert failed.phase is MotorPhase.FAILED
 
 
 def test_foreign_or_impossible_contact_outcome_is_rejected_without_state_mutation(
-    motor: MotorController, calibration: CalibrationArtifact
+    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
 ) -> None:
     motor.request(intention("i-owned", "forward"))
-    motor.update(state(calibration), 0.01)
+    motor.update(state(calibration, body), 0.01)
     previous_phase = motor.phase
 
     with pytest.raises(ValueError, match="intention"):
         motor.update(
             state(
                 calibration,
+                body,
                 pose="pre_key",
                 contact=ContactOutcome("confirmed", "i-foreign", "W"),
             ),
@@ -263,7 +290,7 @@ def test_every_motor_command_is_a_copied_validated_59_vector(
 ) -> None:
     motor.request(intention("i-shape", "backward"))
     body_values = np.array(calibration.neutral_pose, copy=True)
-    command = motor.update(BodyState(body_values), 0.01)
+    command = motor.update(state(calibration, body), 0.01)
     body_values[:] = body.upper_limits
 
     assert command.values.shape == (59,)
@@ -271,6 +298,115 @@ def test_every_motor_command_is_a_copied_validated_59_vector(
     assert np.all(command.values >= body.lower_limits)
     assert np.all(command.values <= body.upper_limits)
     assert command.values[45:59].tolist() == [0] * 14
+
+
+def test_motor_command_rejects_malformed_public_vectors_without_aliasing() -> None:
+    with pytest.raises(ValueError, match="59 finite"):
+        MotorCommand(np.zeros(58), MotorPhase.NEUTRAL, None)
+    with pytest.raises(ValueError, match="59 finite"):
+        MotorCommand(np.full(59, np.nan), MotorPhase.NEUTRAL, None)
+
+    caller = np.zeros(59)
+    command = MotorCommand(caller, MotorPhase.NEUTRAL, None)
+    caller[0] = 1.0
+
+    assert command.values[0] == 0.0
+    assert command.values.flags.writeable is False
+
+
+def test_motor_rejects_a_last_command_as_proprioceptive_state() -> None:
+    with pytest.raises(ValueError, match="45 joint positions"):
+        BodyState(np.zeros(59), np.zeros(45), {})
+
+
+def test_calibration_and_motor_share_one_action_mapping_object() -> None:
+    assert motor_module.ACTION_TARGETS is calibration_module.ACTION_TARGETS
+
+
+def test_real_flybody_dynamics_reaches_pressing_before_the_deadline(
+    body: FlyBodyModel,
+    config: KeyboardConfig,
+    calibration: CalibrationArtifact,
+) -> None:
+    assert body.model.opt.timestep == pytest.approx(0.0001)
+    motor = MotorController(body, config, calibration)
+    data = mujoco.MjData(body.model)
+    data.ctrl[:] = calibration.neutral_pose
+    mujoco.mj_forward(body.model, data)
+    motor.request(intention("i-dynamic", "forward"))
+
+    native_steps_per_motor_tick = round(0.01 / body.model.opt.timestep)
+    assert native_steps_per_motor_tick == 100
+    for _ in range(round(config.decision_timeout_seconds * config.motor_hz)):
+        command = motor.update(BodyState.from_mujoco(body, data), 0.01)
+        data.ctrl[:] = command.values
+        for _ in range(native_steps_per_motor_tick):
+            mujoco.mj_step(body.model, data)
+        assert np.isfinite(data.qpos).all()
+        assert all(warning.number == 0 for warning in data.warning)
+        if command.phase is MotorPhase.PRESSING:
+            break
+
+    assert command.phase is MotorPhase.PRESSING
+    assert data.time < config.decision_timeout_seconds
+
+
+def test_confirmed_phase_releases_adhesion_before_retracting(
+    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
+) -> None:
+    motor.request(intention("i-release", "forward"))
+    motor.update(state(calibration, body), 0.01)
+    motor.update(state(calibration, body, pose="pre_key"), 0.01)
+
+    confirmed = motor.update(
+        state(
+            calibration,
+            body,
+            pose="press",
+            contact=ContactOutcome("confirmed", "i-release", "W"),
+        ),
+        0.01,
+    )
+
+    assert confirmed.phase is MotorPhase.CONFIRMED
+    assert confirmed.values[53:59].tolist() == [0.0] * 6
+
+
+def test_recovery_deadline_requires_an_explicit_reset(
+    motor: MotorController,
+    calibration: CalibrationArtifact,
+    config: KeyboardConfig,
+    body: FlyBodyModel,
+) -> None:
+    motor.request(intention("i-stuck", "forward"))
+    motor.update(state(calibration, body), 0.01)
+    motor.update(state(calibration, body, pose="pre_key"), 0.01)
+    motor.update(
+        state(
+            calibration,
+            body,
+            pose="press",
+            contact=ContactOutcome("confirmed", "i-stuck", "W"),
+        ),
+        0.01,
+    )
+    motor.update(state(calibration, body, pose="press"), 0.01)
+
+    halted = motor.update(
+        state(calibration, body, pose="press"),
+        config.decision_timeout_seconds + 0.001,
+    )
+
+    assert halted.phase is MotorPhase.FAILED
+    assert halted.values[53:59].tolist() == [0.0] * 6
+    assert motor.requires_reset is True
+    assert motor.failure_reason == "recovery-timeout"
+    with pytest.raises(MotorResetRequired, match="recovery-timeout"):
+        motor.request(intention("i-blocked", "left"))
+
+    motor.reset()
+    assert motor.phase is MotorPhase.NEUTRAL
+    assert motor.request(intention("i-after-reset", "left")).key == "A"
 
 
 def test_calibration_is_real_reachable_and_keeps_inactive_position_joints_neutral(
@@ -386,6 +522,59 @@ def test_loader_rejects_stale_malformed_or_out_of_bounds_artifacts(
         payload["neutralPose"][0] = float(body.upper_limits[0] + 1)
     path = tmp_path / "bad.json"
     path.write_text(json.dumps(payload))
+
+    with pytest.raises(ValueError, match=message):
+        load_calibration(path, body, config, MANIFEST_PATH, CONFIG_PATH)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    (
+        ("bool_schema", "schemaVersion"),
+        ("top_extra", "schema"),
+        ("trajectory_extra", "trajectory"),
+        ("neutral_not_compiled", "neutral pose"),
+        ("inactive_joint", "inactive position"),
+        ("tendon", "tendon"),
+        ("pre_adhesion", "adhesion"),
+        ("press_adhesion", "adhesion"),
+        ("bool_pose", "strict numeric"),
+        ("pre_fk", "pre-key FK"),
+        ("retract_fk", "retract FK"),
+    ),
+)
+def test_loader_recomputes_strict_physical_artifact_invariants(
+    mutation: str,
+    message: str,
+    tmp_path: Path,
+    body: FlyBodyModel,
+    config: KeyboardConfig,
+) -> None:
+    payload = json.loads(CALIBRATION_PATH.read_text())
+    if mutation == "bool_schema":
+        payload["schemaVersion"] = True
+    elif mutation == "top_extra":
+        payload["unexpected"] = "field"
+    elif mutation == "trajectory_extra":
+        payload["trajectories"]["forward"]["unexpected"] = 1
+    elif mutation == "neutral_not_compiled":
+        payload["neutralPose"][3] += 0.001
+    elif mutation == "inactive_joint":
+        payload["trajectories"]["forward"]["preKeyPose"][10] += 0.001
+    elif mutation == "tendon":
+        payload["trajectories"]["forward"]["pressPose"][45] += 0.001
+    elif mutation == "pre_adhesion":
+        payload["trajectories"]["forward"]["preKeyPose"][53] = 1.0
+    elif mutation == "press_adhesion":
+        payload["trajectories"]["forward"]["pressPose"][54] = 1.0
+    elif mutation == "bool_pose":
+        payload["neutralPose"][0] = False
+    elif mutation == "pre_fk":
+        payload["trajectories"]["forward"]["preKeyPose"][3] += 0.01
+    elif mutation == "retract_fk":
+        payload["trajectories"]["forward"]["retractPose"][3] += 0.01
+    path = tmp_path / "mutated.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
 
     with pytest.raises(ValueError, match=message):
         load_calibration(path, body, config, MANIFEST_PATH, CONFIG_PATH)

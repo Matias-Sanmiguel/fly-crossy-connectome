@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 import math
+from numbers import Real
 from pathlib import Path
 from types import MappingProxyType
 from typing import Mapping, Sequence
@@ -17,16 +18,9 @@ import numpy as np
 from .body import ACTION_SIZE, FlyBodyModel
 from .config import KeyboardConfig
 from .keyboard import meters_to_model_length
+from .mapping import ACTION_TARGETS
 
 
-ACTION_TARGETS: Mapping[str, tuple[str, str]] = MappingProxyType(
-    {
-        "forward": ("front_left", "W"),
-        "backward": ("front_right", "S"),
-        "left": ("middle_left", "A"),
-        "right": ("middle_right", "D"),
-    }
-)
 ACTIVE_POSITION_INDICES: Mapping[str, tuple[int, ...]] = MappingProxyType(
     {
         "front_left": tuple(range(3, 10)),
@@ -55,9 +49,43 @@ IK_DAMPING = 0.05
 IK_MAX_STEP_RADIANS = 0.08
 IK_MAX_ITERATIONS = 500
 IK_CONVERGENCE_MODEL_UNITS = 1e-5
+CALIBRATION_FK_TOLERANCE_METERS = IK_CONVERGENCE_MODEL_UNITS / 1_000.0
+POSITION_TOLERANCE_RADIANS = 0.05
+VELOCITY_TOLERANCE_RADIANS_PER_SECOND = 5.0
+SITE_TOLERANCE_METERS = 0.00008
+SIGNAL_SEMANTICS = MappingProxyType(
+    {
+        "position": "45 joint-angle targets in radians",
+        "tendon": "8 dimensionless compiled tendon controls; zero-rest preserved",
+        "adhesion": "6 binary controls; one-hot only while pressing",
+    }
+)
+_TOP_LEVEL_KEYS = {
+    "schemaVersion",
+    "manifestSha256",
+    "modelSha256",
+    "meshInventorySha256",
+    "configSha256",
+    "actionOrder",
+    "limits",
+    "neutralPose",
+    "signalSemantics",
+    "tolerances",
+    "trajectories",
+}
+_TRAJECTORY_KEYS = {
+    "leg",
+    "key",
+    "preKeyPose",
+    "pressPose",
+    "retractPose",
+    "targetErrorMeters",
+}
 
 
 def _immutable_pose(values: Sequence[float], field: str) -> tuple[float, ...]:
+    if any(isinstance(value, bool) or not isinstance(value, Real) for value in values):
+        raise ValueError(f"{field} must contain strict numeric values")
     pose = tuple(float(value) for value in values)
     if len(pose) != ACTION_SIZE:
         raise ValueError(f"{field} must contain exactly 59 values")
@@ -88,6 +116,9 @@ class CalibrationArtifact:
     lower_limits: tuple[float, ...]
     upper_limits: tuple[float, ...]
     neutral_pose: tuple[float, ...]
+    position_tolerance_radians: float
+    velocity_tolerance_radians_per_second: float
+    site_tolerance_meters: float
     signal_semantics: Mapping[str, str]
     trajectories: Mapping[str, CalibratedTrajectory]
 
@@ -118,7 +149,7 @@ def _neutral_pose(body: FlyBodyModel) -> np.ndarray:
         qpos_address = int(body.model.jnt_qposadr[joint_id])
         neutral[actuator_index] = data.qpos[qpos_address]
     # Tendon signals use their compiled zero-rest inputs. Adhesion is binary
-    # and remains off in neutral; the active leg alone is enabled while reaching.
+    # and remains off in neutral; the active leg alone is enabled while pressing.
     neutral[45:53] = 0.0
     neutral[53:59] = 0.0
     return body.validate_action(neutral)
@@ -241,13 +272,12 @@ def generate_calibration(
         lower_limits=tuple(float(value) for value in body.lower_limits),
         upper_limits=tuple(float(value) for value in body.upper_limits),
         neutral_pose=_immutable_pose(neutral, "neutralPose"),
-        signal_semantics=MappingProxyType(
-            {
-                "position": "45 joint-angle targets in radians",
-                "tendon": "8 dimensionless compiled tendon controls; zero-rest preserved",
-                "adhesion": "6 binary controls; only the active mapped leg is enabled",
-            }
+        position_tolerance_radians=POSITION_TOLERANCE_RADIANS,
+        velocity_tolerance_radians_per_second=(
+            VELOCITY_TOLERANCE_RADIANS_PER_SECOND
         ),
+        site_tolerance_meters=SITE_TOLERANCE_METERS,
+        signal_semantics=SIGNAL_SEMANTICS,
         trajectories=MappingProxyType(trajectories),
     )
 
@@ -265,6 +295,13 @@ def _artifact_document(artifact: CalibrationArtifact) -> dict[str, object]:
             "upper": list(artifact.upper_limits),
         },
         "neutralPose": list(artifact.neutral_pose),
+        "tolerances": {
+            "positionRadians": artifact.position_tolerance_radians,
+            "velocityRadiansPerSecond": (
+                artifact.velocity_tolerance_radians_per_second
+            ),
+            "siteMeters": artifact.site_tolerance_meters,
+        },
         "signalSemantics": dict(artifact.signal_semantics),
         "trajectories": {
             action: {
@@ -304,7 +341,13 @@ def load_calibration(
         document = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError(f"unable to read calibration artifact: {exc}") from exc
-    if not isinstance(document, dict) or document.get("schemaVersion") != SCHEMA_VERSION:
+    if not isinstance(document, dict) or set(document) != _TOP_LEVEL_KEYS:
+        raise ValueError("calibration schema contains missing or extra fields")
+    if (
+        isinstance(document.get("schemaVersion"), bool)
+        or type(document.get("schemaVersion")) is not int
+        or document["schemaVersion"] != SCHEMA_VERSION
+    ):
         raise ValueError("unsupported calibration schemaVersion")
 
     manifest = Path(manifest_path)
@@ -324,7 +367,7 @@ def load_calibration(
     if action_order != body.joint_names:
         raise ValueError("calibration action order does not match FlyBody")
     limits = document.get("limits")
-    if not isinstance(limits, dict):
+    if not isinstance(limits, dict) or set(limits) != {"lower", "upper"}:
         raise ValueError("calibration limits are missing")
     lower = _immutable_pose(limits.get("lower", ()), "lower limits")
     upper = _immutable_pose(limits.get("upper", ()), "upper limits")
@@ -334,14 +377,29 @@ def load_calibration(
         raise ValueError("calibration joint limits do not match FlyBody")
     neutral = _immutable_pose(document.get("neutralPose", ()), "neutralPose")
     body.validate_action(neutral)
+    compiled_neutral = _neutral_pose(body)
+    if not np.array_equal(neutral, compiled_neutral):
+        raise ValueError("calibration neutral pose does not match compiled FlyBody")
 
     semantics = document.get("signalSemantics")
-    if not isinstance(semantics, dict) or set(semantics) != {
-        "position",
-        "tendon",
-        "adhesion",
-    } or not all(isinstance(value, str) and value for value in semantics.values()):
+    if not isinstance(semantics, dict) or semantics != dict(SIGNAL_SEMANTICS):
         raise ValueError("calibration signal semantics are incomplete")
+    tolerances = document.get("tolerances")
+    if not isinstance(tolerances, dict) or set(tolerances) != {
+        "positionRadians",
+        "velocityRadiansPerSecond",
+        "siteMeters",
+    }:
+        raise ValueError("calibration tolerances are incomplete")
+    expected_tolerances = {
+        "positionRadians": POSITION_TOLERANCE_RADIANS,
+        "velocityRadiansPerSecond": VELOCITY_TOLERANCE_RADIANS_PER_SECOND,
+        "siteMeters": SITE_TOLERANCE_METERS,
+    }
+    for field, expected in expected_tolerances.items():
+        value = tolerances[field]
+        if isinstance(value, bool) or type(value) not in (int, float) or value != expected:
+            raise ValueError(f"calibration tolerance {field} is invalid")
 
     raw_trajectories = document.get("trajectories")
     if not isinstance(raw_trajectories, dict) or set(raw_trajectories) != set(
@@ -351,7 +409,7 @@ def load_calibration(
     trajectories: dict[str, CalibratedTrajectory] = {}
     for action, (expected_leg, expected_key) in ACTION_TARGETS.items():
         raw = raw_trajectories[action]
-        if not isinstance(raw, dict):
+        if not isinstance(raw, dict) or set(raw) != _TRAJECTORY_KEYS:
             raise ValueError(f"calibration trajectory {action} is invalid")
         if raw.get("leg") != expected_leg or raw.get("key") != expected_key:
             raise ValueError(f"calibration trajectory {action} mapping is invalid")
@@ -365,6 +423,29 @@ def load_calibration(
         }
         for pose in poses.values():
             body.validate_action(pose)
+        active_indices = set(ACTIVE_POSITION_INDICES[expected_leg])
+        inactive_indices = sorted(set(range(45)) - active_indices)
+        for pose_name, pose in poses.items():
+            if not np.array_equal(
+                np.asarray(pose)[inactive_indices],
+                np.asarray(neutral)[inactive_indices],
+            ):
+                raise ValueError(
+                    f"calibration trajectory {action} {pose_name} changed an "
+                    "inactive position joint"
+                )
+            if tuple(pose[45:53]) != tuple(neutral[45:53]):
+                raise ValueError(
+                    f"calibration trajectory {action} {pose_name} changed tendon controls"
+                )
+        expected_adhesion = [0.0] * 6
+        expected_adhesion[ADHESION_INDEX[expected_leg] - 53] = 1.0
+        if tuple(poses["pre_key_pose"][53:59]) != (0.0,) * 6:
+            raise ValueError(f"calibration trajectory {action} pre-key adhesion is invalid")
+        if list(poses["press_pose"][53:59]) != expected_adhesion:
+            raise ValueError(f"calibration trajectory {action} press adhesion is invalid")
+        if tuple(poses["retract_pose"][53:59]) != (0.0,) * 6:
+            raise ValueError(f"calibration trajectory {action} retract adhesion is invalid")
         error = raw.get("targetErrorMeters")
         if (
             isinstance(error, bool)
@@ -374,14 +455,30 @@ def load_calibration(
         ):
             raise ValueError(f"calibration trajectory {action} target error is invalid")
 
-        data = mujoco.MjData(body.model)
-        _set_position_pose(body, data, poses["press_pose"])
-        mujoco.mj_forward(body.model, data)
-        _, target = _key_targets(config, expected_key)
-        observed_error = float(
-            np.linalg.norm(target - data.site_xpos[body.leg_sites[expected_leg]])
-            / 1_000.0
-        )
+        pre_target, press_target = _key_targets(config, expected_key)
+        observed_errors: dict[str, float] = {}
+        for pose_name, target, label in (
+            ("pre_key_pose", pre_target, "pre-key FK"),
+            ("press_pose", press_target, "press FK"),
+            ("retract_pose", pre_target, "retract FK"),
+        ):
+            data = mujoco.MjData(body.model)
+            _set_position_pose(body, data, poses[pose_name])
+            mujoco.mj_forward(body.model, data)
+            observed = data.site_xpos[body.leg_sites[expected_leg]]
+            observed_errors[pose_name] = float(
+                np.linalg.norm(target - observed) / 1_000.0
+            )
+            if observed_errors[pose_name] > CALIBRATION_FK_TOLERANCE_METERS:
+                raise ValueError(f"calibration trajectory {action} {label} mismatch")
+            cap_top_z = pre_target[2] - meters_to_model_length(
+                PRE_KEY_CLEARANCE_METERS
+            )
+            if pose_name != "press_pose" and observed[2] <= cap_top_z:
+                raise ValueError(
+                    f"calibration trajectory {action} {label} is not above the cap"
+                )
+        observed_error = observed_errors["press_pose"]
         if not math.isclose(observed_error, float(error), rel_tol=0, abs_tol=1e-12):
             raise ValueError(f"calibration trajectory {action} FK target error mismatch")
         trajectories[action] = CalibratedTrajectory(
@@ -402,6 +499,11 @@ def load_calibration(
         lower_limits=lower,
         upper_limits=upper,
         neutral_pose=neutral,
+        position_tolerance_radians=float(tolerances["positionRadians"]),
+        velocity_tolerance_radians_per_second=float(
+            tolerances["velocityRadiansPerSecond"]
+        ),
+        site_tolerance_meters=float(tolerances["siteMeters"]),
         signal_semantics=MappingProxyType(dict(semantics)),
         trajectories=MappingProxyType(trajectories),
     )
