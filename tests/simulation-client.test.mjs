@@ -311,6 +311,36 @@ test('client leaves reset state untouched when reset input is invalid', () => {
   client.close();
 });
 
+test('client drops a reset invalidated by subscriber-triggered reconnect', () => {
+  const { client, sockets } = createHarness(
+    ['s-current1', 's-current2'],
+    ['e-current1', 'e-current2', 'e-current3'],
+  );
+  let reconnectOnReset = false;
+  let reconnected = false;
+  client.subscribeState((state) => {
+    if (reconnectOnReset && !reconnected && state.episodeId === 'e-current2') {
+      reconnected = true;
+      client.reconnect();
+    }
+  });
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  reconnectOnReset = true;
+  client.reset({ seed: 9, simulationTime: 2 });
+  sockets[1].open();
+
+  assert.equal(client.state.sessionId, 's-current2');
+  assert.equal(client.state.episodeId, 'e-current3');
+  assert.equal(sockets[1].sent.some(({ type }) => type === 'reset'), false);
+  sockets[1].receive(ready({ sessionId: 's-current2', episodeId: 'e-current3' }));
+  sockets[1].receive({ type: 'reset_complete', ...envelope(1, { sessionId: 's-current2', episodeId: 'e-current3' }) });
+  assert.equal(client.state.phase, 'error');
+  assert.match(client.state.error ?? '', /unsolicited/i);
+  client.close();
+});
+
 test('client creates a new session and restarts its sequence on reconnect', () => {
   const { client, sockets, scheduled } = createHarness(['s-current1', 's-current2'], ['e-current1', 'e-current2']);
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });

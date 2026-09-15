@@ -424,6 +424,7 @@ export function createSimulationClient(
     reset(resetOptions = {}) {
       if (disposed) throw Error('Simulation client is closed.');
       if (!configuration) throw Error('Simulation client must be configured before reset.');
+      const generation = connectionGeneration;
       const time = simulationTime(resetOptions.simulationTime ?? 0);
       const seed = resetOptions.seed === undefined
         ? undefined
@@ -443,6 +444,7 @@ export function createSimulationClient(
       pendingObservation = null;
       awaitingReset = true;
       setState({ episodeId });
+      if (generation !== connectionGeneration) return;
       nextOutboundSequence += 1;
       enqueue(reset);
     },
