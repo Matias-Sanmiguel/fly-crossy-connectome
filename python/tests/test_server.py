@@ -304,17 +304,6 @@ def test_socket_closes_invalid_first_frames_with_stable_codes(
             socket.receive_json()
 
     assert error.value.code == code
-    
-def test_socket_closes_invalid_first_frames_with_stable_codes(
-    client: TestClient, payload: str, code: int
-) -> None:
-    with client.websocket_connect("/api/simulation", headers=SAME_ORIGIN) as socket:
-        socket.send_text(payload)
-        with pytest.raises(WebSocketDisconnect) as error:
-            socket.receive_json()
-
-    assert error.value.code == code
-
 
 def test_socket_closes_incompatible_hello_with_a_stable_code(client: TestClient) -> None:
     with client.websocket_connect("/api/simulation", headers=SAME_ORIGIN) as socket:
