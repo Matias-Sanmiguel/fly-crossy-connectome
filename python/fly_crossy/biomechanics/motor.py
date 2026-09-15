@@ -14,7 +14,12 @@ import numpy as np
 from fly_crossy.protocol import Action, KeyName
 
 from .body import FlyBodyModel
-from .calibration import ACTIVE_POSITION_INDICES, CalibrationArtifact
+from .calibration import (
+    ACTIVE_POSITION_INDICES,
+    CalibrationArtifact,
+    solve_leg_pose,
+)
+from .keyboard import meters_to_model_length
 from .config import KeyboardConfig
 from .contact import ContactOutcome, LegName
 from .mapping import ACTION_TARGETS
@@ -26,6 +31,7 @@ class MotorPhase(StrEnum):
     REACHING = "reaching"
     PRESSING = "pressing"
     CONFIRMED = "confirmed"
+    LIFTING = "lifting"
     RETRACTING = "retracting"
     SETTLING = "settling"
     FAILED = "failed"
@@ -37,7 +43,10 @@ _LEGAL_TRANSITIONS: Mapping[MotorPhase, frozenset[MotorPhase]] = MappingProxyTyp
         MotorPhase.TARGETING: frozenset((MotorPhase.REACHING, MotorPhase.FAILED)),
         MotorPhase.REACHING: frozenset((MotorPhase.PRESSING, MotorPhase.FAILED)),
         MotorPhase.PRESSING: frozenset((MotorPhase.CONFIRMED, MotorPhase.FAILED)),
-        MotorPhase.CONFIRMED: frozenset((MotorPhase.RETRACTING,)),
+        MotorPhase.CONFIRMED: frozenset((MotorPhase.LIFTING,)),
+        MotorPhase.LIFTING: frozenset(
+            (MotorPhase.RETRACTING, MotorPhase.FAILED)
+        ),
         MotorPhase.FAILED: frozenset((MotorPhase.RETRACTING,)),
         MotorPhase.RETRACTING: frozenset((MotorPhase.SETTLING, MotorPhase.FAILED)),
         MotorPhase.SETTLING: frozenset((MotorPhase.NEUTRAL, MotorPhase.FAILED)),
@@ -45,6 +54,7 @@ _LEGAL_TRANSITIONS: Mapping[MotorPhase, frozenset[MotorPhase]] = MappingProxyTyp
 )
 
 MAX_POSITION_RATE_RADIANS_PER_SECOND = 20.0
+RECOVERY_LIFT_METERS = 0.0004
 
 
 class MotorBusy(RuntimeError):
@@ -197,6 +207,8 @@ class MotorController:
         self._requires_reset = False
         self._failure_reason: str | None = None
         self._site_targets = self._build_site_targets()
+        self._recovery_lift_pose: tuple[float, ...] | None = None
+        self._recovery_lift_site: tuple[float, float, float] | None = None
 
     @property
     def phase(self) -> MotorPhase:
@@ -221,6 +233,8 @@ class MotorController:
         self._recovery_elapsed = 0.0
         self._requires_reset = False
         self._failure_reason = None
+        self._recovery_lift_pose = None
+        self._recovery_lift_site = None
 
     def request(self, intention: MotorIntention) -> MotorTarget:
         if not isinstance(intention, MotorIntention):
@@ -240,6 +254,8 @@ class MotorController:
         self._decision_elapsed = 0.0
         self._recovery_elapsed = 0.0
         self._failure_reason = None
+        self._recovery_lift_pose = None
+        self._recovery_lift_site = None
         self._transition(MotorPhase.TARGETING)
         return target
 
@@ -273,6 +289,7 @@ class MotorController:
             self._decision_elapsed += dt
         elif self._phase in (
             MotorPhase.CONFIRMED,
+            MotorPhase.LIFTING,
             MotorPhase.FAILED,
             MotorPhase.RETRACTING,
             MotorPhase.SETTLING,
@@ -281,7 +298,11 @@ class MotorController:
         entered_failed = False
 
         if (
-            self._phase in (MotorPhase.RETRACTING, MotorPhase.SETTLING)
+            self._phase in (
+                MotorPhase.LIFTING,
+                MotorPhase.RETRACTING,
+                MotorPhase.SETTLING,
+            )
             and self._recovery_elapsed > self._config.decision_timeout_seconds
         ):
             self._halt("recovery-timeout")
@@ -335,17 +356,55 @@ class MotorController:
         elif self._phase is MotorPhase.PRESSING:
             if state.contact is not None and state.contact.kind != "pending":
                 if state.contact.kind == "confirmed":
+                    self._prepare_recovery_lift(
+                        state,
+                        active.leg,
+                        trajectory.press_pose,
+                    )
+
                     self._transition(MotorPhase.CONFIRMED)
-                    desired = self._without_adhesion(trajectory.press_pose)
+
+                    # Adhesion is released immediately, before the lift begins.
+                    desired = self._without_adhesion(
+                        trajectory.press_pose
+                    )
                 else:
                     self._transition(MotorPhase.FAILED)
                     desired = trajectory.retract_pose
             else:
                 desired = trajectory.press_pose
         elif self._phase is MotorPhase.CONFIRMED:
-            self._transition(MotorPhase.RETRACTING)
+            if (
+                self._recovery_lift_pose is None
+                or self._recovery_lift_site is None
+            ):
+                raise RuntimeError(
+                    "confirmed recovery has no vertical lift target"
+                )
+
+            self._transition(MotorPhase.LIFTING)
             self._recovery_elapsed = 0.0
-            desired = trajectory.retract_pose
+            desired = self._recovery_lift_pose
+
+        elif self._phase is MotorPhase.LIFTING:
+            if (
+                self._recovery_lift_pose is None
+                or self._recovery_lift_site is None
+            ):
+                raise RuntimeError(
+                    "lifting recovery has no vertical lift target"
+                )
+
+            if self._at_target(
+                state,
+                active.leg,
+                self._recovery_lift_pose,
+                self._recovery_lift_site,
+            ):
+                self._transition(MotorPhase.RETRACTING)
+                desired = trajectory.retract_pose
+            else:
+                desired = self._recovery_lift_pose
         elif self._phase is MotorPhase.FAILED:
             self._transition(MotorPhase.RETRACTING)
             desired = trajectory.retract_pose
@@ -371,12 +430,74 @@ class MotorController:
                 self._active = None
                 self._decision_elapsed = 0.0
                 self._recovery_elapsed = 0.0
+                self._recovery_lift_pose = None
+                self._recovery_lift_site = None
             desired = self._calibration.neutral_pose
         else:  # pragma: no cover - enum exhaustiveness
             raise RuntimeError(f"unsupported motor phase {self._phase}")
 
         return self._command(current, desired, dt)
 
+    
+    def _prepare_recovery_lift(
+        self,
+        state: BodyState,
+        leg: LegName,
+        press_pose: tuple[float, ...],
+    ) -> None:
+        """Build a vertical clearance pose from the actual confirmed contact state."""
+
+        target_site_meters = np.asarray(
+            state.site_positions[leg],
+            dtype=np.float64,
+        ).copy()
+
+        # Preserve the actual X/Y position and escape vertically.
+        target_site_meters[2] += RECOVERY_LIFT_METERS
+
+        target_model = np.asarray(
+            [
+                meters_to_model_length(value)
+                for value in target_site_meters
+            ],
+            dtype=np.float64,
+        )
+
+        seed = np.asarray(
+            press_pose,
+            dtype=np.float64,
+        ).copy()
+
+        # Seed IK from the real physical configuration reached at confirmation.
+        seed[:45] = state.joint_positions
+
+        # Recovery must never retain adhesion.
+        seed[53:59] = 0.0
+
+        lift_pose, _ = solve_leg_pose(
+            self._body,
+            seed,
+            leg,
+            target_model,
+        )
+
+        lift_pose = np.asarray(
+            lift_pose,
+            dtype=np.float64,
+        ).copy()
+
+        lift_pose[53:59] = 0.0
+
+        self._recovery_lift_pose = tuple(
+            float(value)
+            for value in lift_pose
+        )
+
+        self._recovery_lift_site = tuple(
+            float(value)
+            for value in target_site_meters
+        )
+    
     def _validate_contact(self, outcome: ContactOutcome | None) -> None:
         if outcome is None:
             return

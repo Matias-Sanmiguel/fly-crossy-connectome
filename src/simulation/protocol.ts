@@ -8,7 +8,16 @@ export type PopulationSize = 80 | 1000 | 5000 | 20000 | 124289;
 export type BackendPreference = 'auto' | 'cpu' | 'gpu' | 'gpu-strict';
 export type Action = 'forward' | 'backward' | 'left' | 'right' | 'wait';
 export type KeyName = 'W' | 'A' | 'S' | 'D' | 'SPACE_LEFT' | 'SPACE_RIGHT';
-export type MotorPhase = 'neutral' | 'targeting' | 'reaching' | 'pressing' | 'confirmed' | 'retracting' | 'settling' | 'failed';
+export type MotorPhase =
+  'neutral'
+  | 'targeting'
+  | 'reaching'
+  | 'pressing'
+  | 'confirmed'
+  | 'lifting'
+  | 'retracting'
+  | 'settling'
+  | 'failed';
 
 type Envelope = {
   version: 2;
@@ -36,7 +45,7 @@ const populations = new Set<PopulationSize>([80, 1000, 5000, 20000, 124289]);
 const resolvedBackends = new Set(['cpu', 'gpu']);
 const actions = new Set<Action>(['forward', 'backward', 'left', 'right', 'wait']);
 const keyNames = new Set<KeyName>(['W', 'A', 'S', 'D', 'SPACE_LEFT', 'SPACE_RIGHT']);
-const motorPhases = new Set<MotorPhase>(['neutral', 'targeting', 'reaching', 'pressing', 'confirmed', 'retracting', 'settling', 'failed']);
+const motorPhases = new Set<MotorPhase>(['neutral', 'targeting', 'reaching', 'pressing', 'confirmed', 'lifting', 'retracting', 'settling', 'failed']);
 const serverTypes = new Set<ServerMessage['type']>(['ready', 'reset_complete', 'intention', 'snapshot', 'neural_keyframe', 'neural_delta', 'contact', 'action_result', 'metrics', 'paused', 'error']);
 
 function fail(message: string): never { throw new TypeError(`Invalid simulation protocol message: ${message}`); }

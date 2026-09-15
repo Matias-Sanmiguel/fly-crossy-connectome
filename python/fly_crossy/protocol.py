@@ -33,7 +33,15 @@ FallbackReason: TypeAlias = Literal["cuda-unavailable"]
 Action: TypeAlias = Literal["forward", "backward", "left", "right", "wait"]
 KeyName: TypeAlias = Literal["W", "A", "S", "D", "SPACE_LEFT", "SPACE_RIGHT"]
 MotorPhase: TypeAlias = Literal[
-    "neutral", "targeting", "reaching", "pressing", "confirmed", "retracting", "settling", "failed"
+    "neutral",
+    "targeting",
+    "reaching",
+    "pressing",
+    "confirmed",
+    "lifting",
+    "retracting",
+    "settling",
+    "failed",
 ]
 
 ShortString = Annotated[str, StringConstraints(min_length=1, max_length=MAX_STRING_LENGTH)]

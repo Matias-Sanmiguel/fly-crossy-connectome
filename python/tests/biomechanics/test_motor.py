@@ -122,29 +122,110 @@ def test_motor_cannot_accept_two_intentions(motor: MotorController) -> None:
 
 
 def test_successful_lifecycle_has_no_skipped_phase(
-    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
+    motor: MotorController,
+    calibration: CalibrationArtifact,
+    body: FlyBodyModel,
 ) -> None:
-    motor.request(intention("i-success", "forward"))
+    motor.request(
+        intention(
+            "i-success",
+            "forward",
+        )
+    )
+
     observed = [motor.phase]
 
-    command = motor.update(state(calibration, body), 0.01)
-    observed.append(command.phase)
-    command = motor.update(state(calibration, body, pose="pre_key"), 0.01)
-    observed.append(command.phase)
-    command = motor.update(state(calibration, body, pose="press"), 0.01)
-    observed.append(command.phase)
-    confirmed = ContactOutcome("confirmed", "i-success", "W")
     command = motor.update(
-        state(calibration, body, pose="press", contact=confirmed), 0.01
+        state(calibration, body),
+        0.01,
     )
     observed.append(command.phase)
-    command = motor.update(state(calibration, body, pose="press"), 0.01)
+
+    command = motor.update(
+        state(
+            calibration,
+            body,
+            pose="pre_key",
+        ),
+        0.01,
+    )
     observed.append(command.phase)
-    command = motor.update(state(calibration, body, pose="retract"), 0.01)
+
+    command = motor.update(
+        state(
+            calibration,
+            body,
+            pose="press",
+        ),
+        0.01,
+    )
     observed.append(command.phase)
-    command = motor.update(state(calibration, body), 0.01)
+
+    confirmed = ContactOutcome(
+        "confirmed",
+        "i-success",
+        "W",
+    )
+
+    command = motor.update(
+        state(
+            calibration,
+            body,
+            pose="press",
+            contact=confirmed,
+        ),
+        0.01,
+    )
     observed.append(command.phase)
-    command = motor.update(state(calibration, body), 0.01)
+
+    # CONFIRMED -> LIFTING
+    command = motor.update(
+        state(
+            calibration,
+            body,
+            pose="press",
+        ),
+        0.01,
+    )
+    observed.append(command.phase)
+
+    lift_pose = motor._recovery_lift_pose
+
+    assert lift_pose is not None
+    assert motor._recovery_lift_site is not None
+
+    # LIFTING -> RETRACTING
+    command = motor.update(
+        state_from_values(
+            body,
+            lift_pose,
+        ),
+        0.01,
+    )
+    observed.append(command.phase)
+
+    # RETRACTING -> SETTLING
+    command = motor.update(
+        state(
+            calibration,
+            body,
+            pose="retract",
+        ),
+        0.01,
+    )
+    observed.append(command.phase)
+
+    # SETTLING -> NEUTRAL
+    command = motor.update(
+        state(calibration, body),
+        0.01,
+    )
+    observed.append(command.phase)
+
+    command = motor.update(
+        state(calibration, body),
+        0.01,
+    )
     observed.append(command.phase)
 
     assert observed == [
@@ -153,13 +234,14 @@ def test_successful_lifecycle_has_no_skipped_phase(
         MotorPhase.PRESSING,
         MotorPhase.PRESSING,
         MotorPhase.CONFIRMED,
+        MotorPhase.LIFTING,
         MotorPhase.RETRACTING,
         MotorPhase.SETTLING,
         MotorPhase.NEUTRAL,
         MotorPhase.NEUTRAL,
     ]
-    assert command.intention_id is None
 
+    assert command.intention_id is None
 
 @pytest.mark.parametrize(
     "outcome",
@@ -226,31 +308,84 @@ def test_wrong_key_during_reaching_fails_immediately(
 
 
 def test_instability_while_retracting_uses_the_legal_recovery_failure_edge(
-    motor: MotorController, calibration: CalibrationArtifact, body: FlyBodyModel
+    motor: MotorController,
+    calibration: CalibrationArtifact,
+    body: FlyBodyModel,
 ) -> None:
-    motor.request(intention("i-recovery", "forward"))
-    motor.update(state(calibration, body), 0.01)
-    motor.update(state(calibration, body, pose="pre_key"), 0.01)
+    motor.request(
+        intention(
+            "i-recovery",
+            "forward",
+        )
+    )
+
+    motor.update(
+        state(calibration, body),
+        0.01,
+    )
+
+    motor.update(
+        state(
+            calibration,
+            body,
+            pose="pre_key",
+        ),
+        0.01,
+    )
+
     motor.update(
         state(
             calibration,
             body,
             pose="press",
-            contact=ContactOutcome("confirmed", "i-recovery", "W"),
+            contact=ContactOutcome(
+                "confirmed",
+                "i-recovery",
+                "W",
+            ),
         ),
         0.01,
     )
+
+    lifting = motor.update(
+        state(
+            calibration,
+            body,
+            pose="press",
+        ),
+        0.01,
+    )
+
+    assert lifting.phase is MotorPhase.LIFTING
+
+    lift_pose = motor._recovery_lift_pose
+
+    assert lift_pose is not None
+
+    retracting = motor.update(
+        state_from_values(
+            body,
+            lift_pose,
+        ),
+        0.01,
+    )
+
     assert (
-        motor.update(state(calibration, body, pose="press"), 0.01).phase
+        retracting.phase
         is MotorPhase.RETRACTING
     )
 
     failed = motor.update(
-        state(calibration, body, pose="press", stable=False), 0.01
+        state(
+            calibration,
+            body,
+            pose="press",
+            stable=False,
+        ),
+        0.01,
     )
 
     assert failed.phase is MotorPhase.FAILED
-
 
 def test_phase_timeout_enters_failed_and_rejects_invalid_dt(
     motor: MotorController,
@@ -612,3 +747,43 @@ def test_correct_physical_target_contact_can_enter_pressing_before_fk_waypoint(
     )
 
     assert pressing.phase is MotorPhase.PRESSING
+    
+def state_from_values(
+    body: FlyBodyModel,
+    values: tuple[float, ...] | np.ndarray,
+    *,
+    contact: ContactOutcome | None = None,
+    stable: bool = True,
+    target_touched: bool = False,
+) -> BodyState:
+    vector = np.asarray(values, dtype=np.float64)
+
+    data = mujoco.MjData(body.model)
+
+    for actuator_index in range(45):
+        joint_id = int(
+            body.model.actuator_trnid[
+                actuator_index, 0
+            ]
+        )
+
+        qpos_address = int(
+            body.model.jnt_qposadr[joint_id]
+        )
+
+        data.qpos[qpos_address] = (
+            vector[actuator_index]
+        )
+
+    mujoco.mj_forward(
+        body.model,
+        data,
+    )
+
+    return BodyState.from_mujoco(
+        body,
+        data,
+        contact=contact,
+        target_touched=target_touched,
+        stable=stable,
+    )

@@ -228,6 +228,19 @@ def _solve_leg_pose(
     validated = body.validate_action(pose)
     return validated, error_meters
 
+def solve_leg_pose(
+    body: FlyBodyModel,
+    seed: Sequence[float],
+    leg: str,
+    target_model: np.ndarray,
+) -> tuple[np.ndarray, float]:
+    """Public deterministic IK helper for runtime recovery motions."""
+    return _solve_leg_pose(
+        body,
+        seed,
+        leg,
+        target_model,
+    )
 
 def generate_calibration(
     body: FlyBodyModel,
@@ -538,4 +551,5 @@ __all__ = [
     "load_calibration",
     "main",
     "write_calibration",
+    "solve_leg_pose",
 ]

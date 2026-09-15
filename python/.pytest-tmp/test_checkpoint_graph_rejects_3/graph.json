@@ -1,0 +1,1 @@
+{"version":"fixture-circuit-v1","nodes":[{"id":103,"sign":-1,"role":"output"},{"id":101,"sign":1,"role":"input"},{"id":102,"sign":1,"role":"interneuron"}],"edges":[[1,2,2],[2,0,4],[0,2,2]],"inputs":[[1,0]],"outputs":[0]}

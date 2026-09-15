@@ -136,3 +136,50 @@ def test_all_unified_ids_remain_resolvable_after_compilation(
         assert mujoco.mj_name2id(
             world.model, mujoco.mjtObj.mjOBJ_ACTUATOR, actuator_name
         ) >= 0
+
+@pytest.mark.parametrize(
+    ("action", "key"),
+    (
+        ("forward", "W"),
+        ("backward", "S"),
+        ("left", "A"),
+        ("right", "D"),
+    ),
+)
+def test_confirmed_press_recovers_physically_to_neutral_without_reset(
+    world: BiomechanicalWorld,
+    action: str,
+    key: str,
+) -> None:
+    world.reset()
+
+    result = world.run(
+        MotorIntention(
+            f"i-recov-{action:0<8}",
+            action,
+        ),
+        limit_seconds=1.5,
+    )
+
+    assert result.outcome == "confirmed"
+
+    for _ in range(
+        round(
+            2.0
+            * world.config.physics_hz
+        )
+    ):
+        if world.ready or world.requires_reset:
+            break
+
+        world.step()
+
+    assert world.ready
+    assert world.requires_reset is False
+    assert world.failure_reason is None
+    assert world.motor_phase is MotorPhase.NEUTRAL
+
+    assert (
+        world.snapshot().key_travel[key]
+        < world.config.release_travel_meters
+    )

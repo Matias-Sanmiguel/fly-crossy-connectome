@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "environmentVersion": 3,
+  "configuration": {
+    "controller": "connectome",
+    "seed": "tiny-connectome-test",
+    "steps": 4,
+    "envs": 1,
+    "learning_rate": 0.0003,
+    "output": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_tiny_connectome_ppo_run_e0\\tiny-connectome",
+    "device": "cpu",
+    "resolvedDevice": "cpu",
+    "trainingWorldSeeds": [
+      "tiny-connectome-test:0:0",
+      "tiny-connectome-test:0:1"
+    ],
+    "graphNodes": 80,
+    "graphEdges": 1296,
+    "graphArtifactHash": "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862"
+  },
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cpu",
+    "cudaAvailable": false
+  },
+  "checkpoint": {
+    "path": "checkpoint.pt",
+    "sha256": "eaa27b0d50afde86a25733b4228787ee76c6ced9742d6e04b7a24910b97d3bd7"
+  },
+  "policy": {
+    "path": "policy.json"
+  }
+}

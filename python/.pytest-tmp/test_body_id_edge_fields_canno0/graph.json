@@ -1,0 +1,1 @@
+{"version":"body-id-fixture-v1","nodes":[{"id":2,"sign":1,"role":"output"},{"id":3,"sign":1,"role":"interneuron"},{"id":1,"sign":1,"role":"input"}],"edges":[{"body_pre":1,"body_post":2,"weight":4}],"inputs":[[2,0]],"outputs":[0]}
