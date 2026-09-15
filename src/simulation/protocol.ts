@@ -17,7 +17,7 @@ type Envelope = {
   simulationTime: number;
 };
 
-export type Ready = Envelope & { type: 'ready'; backend: 'cpu' | 'gpu'; population: PopulationSize; graphHash: string; checkpointHash: string; acceptedVersions?: 2[]; maxFrameBytes?: number; maxNeuralUpdates?: number };
+export type Ready = Envelope & { type: 'ready'; backend: 'cpu' | 'gpu'; population: PopulationSize; graphHash: string; checkpointHash: string; acceptedVersions?: 2[]; maxFrameBytes?: number; maxNeuralUpdates?: number; fallbackReason?: 'cuda-unavailable' };
 export type ResetComplete = Envelope & { type: 'reset_complete' };
 export type Intention = Envelope & { type: 'intention'; intentionId: string; action: Action; motorPhase: MotorPhase };
 export type Snapshot = Envelope & { type: 'snapshot'; body: [number, number, number]; joints: number[]; keys: Partial<Record<KeyName, number>> };
@@ -96,13 +96,14 @@ export function parseServerMessage(value: unknown): ServerMessage {
   if (typeof message.type !== 'string' || !serverTypes.has(message.type as ServerMessage['type'])) fail('type is not a supported server message');
   switch (message.type) {
     case 'ready': {
-      envelope(message, ['type', 'version', 'sessionId', 'episodeId', 'sequence', 'simulationTime', 'backend', 'population', 'graphHash', 'checkpointHash', 'acceptedVersions', 'maxFrameBytes', 'maxNeuralUpdates']);
+      envelope(message, ['type', 'version', 'sessionId', 'episodeId', 'sequence', 'simulationTime', 'backend', 'population', 'graphHash', 'checkpointHash', 'acceptedVersions', 'maxFrameBytes', 'maxNeuralUpdates', 'fallbackReason']);
       if (!resolvedBackends.has(string(message.backend, 'backend'))) fail('backend is invalid');
       if (!populations.has(message.population as PopulationSize)) fail('population is invalid');
       string(message.graphHash, 'graphHash', /^[a-f0-9]{64}$/); string(message.checkpointHash, 'checkpointHash', /^[a-f0-9]{64}$/);
       if (message.acceptedVersions !== undefined) for (const version of array(message.acceptedVersions, 'acceptedVersions', 1, 1)) if (version !== 2) fail('acceptedVersions is invalid');
       if (message.maxFrameBytes !== undefined) integer(message.maxFrameBytes, 'maxFrameBytes', 1, MAX_FRAME_BYTES);
       if (message.maxNeuralUpdates !== undefined) integer(message.maxNeuralUpdates, 'maxNeuralUpdates', 1, MAX_NEURAL_UPDATES);
+      if (message.fallbackReason !== undefined && message.fallbackReason !== 'cuda-unavailable') fail('fallbackReason is invalid');
       break;
     }
     case 'reset_complete': envelope(message, ['type', 'version', 'sessionId', 'episodeId', 'sequence', 'simulationTime']); break;

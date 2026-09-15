@@ -82,6 +82,22 @@ def test_server_variants_are_bounded_and_reject_invalid_fixture_messages() -> No
         })
 
 
+def test_ready_exposes_only_the_bounded_cuda_fallback_reason() -> None:
+    fixture = json.loads(FIXTURE.read_text())
+
+    assert ServerMessageAdapter.validate_python(
+        {**fixture["server"], "fallbackReason": "cuda-unavailable"}
+    ).fallback_reason == "cuda-unavailable"
+    with pytest.raises(ValidationError, match="fallbackReason"):
+        ServerMessageAdapter.validate_python(
+            {**fixture["server"], "fallbackReason": "other"}
+        )
+    with pytest.raises(ValidationError, match="fallbackReason"):
+        ServerMessageAdapter.validate_python(
+            {**fixture["server"], "fallbackReason": None}
+        )
+
+
 def test_client_parser_rejects_oversized_frames_and_nonfinite_numbers() -> None:
     frame = json.dumps({
         "type": "hello", "version": 2, "sessionId": "s-01234567", "episodeId": "e-01234567",

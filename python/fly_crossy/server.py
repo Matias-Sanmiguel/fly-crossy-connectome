@@ -4,13 +4,18 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import dataclass
+from types import MappingProxyType
+from typing import Callable, Mapping
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
 
-from fly_crossy.backend import BackendUnavailable, resolve_backend
+from fly_crossy.backend import BackendStatus, BackendUnavailable, resolve_backend
 from fly_crossy.protocol import (
+    BackendPreference,
     MAX_FRAME_BYTES,
     Configure,
     Error,
@@ -35,12 +40,13 @@ CLOSE_INCOMPATIBLE_VERSION = 4401
 CLOSE_MALFORMED_MESSAGE = 4402
 CLOSE_SEQUENCE_VIOLATION = 4403
 CLOSE_BACKEND_UNAVAILABLE = 4404
+CLOSE_ORIGIN_FORBIDDEN = 4405
+CLOSE_ARTIFACT_UNAVAILABLE = 4406
 
-_PLACEHOLDER_HASH = "0" * 64
 _POPULATIONS = [80, 1000, 5000, 20_000, 124_289]
-
-app = FastAPI()
-
+_HASH_PATTERN = re.compile(r"^[a-f0-9]{64}$")
+_DEFAULT_ARTIFACT_REGISTRY: Mapping[int, "ArtifactIdentity"] = MappingProxyType({})
+_DEVELOPMENT_ORIGINS = frozenset({"http://127.0.0.1:5173", "http://localhost:5173"})
 
 class FrameFault(Exception):
     """A bounded WebSocket frame that is safe to reject publicly."""
@@ -49,6 +55,24 @@ class FrameFault(Exception):
         self.close_code = close_code
         self.public_message = public_message
         super().__init__(public_message)
+
+
+class ArtifactUnavailable(RuntimeError):
+    """Raised when a configure request has no verified controller identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactIdentity:
+    """Verified graph and checkpoint identities registered for one population."""
+
+    graph_hash: str
+    checkpoint_hash: str
+
+    def __post_init__(self) -> None:
+        if not _HASH_PATTERN.fullmatch(self.graph_hash):
+            raise ValueError("graph_hash must be a lowercase SHA-256 digest")
+        if not _HASH_PATTERN.fullmatch(self.checkpoint_hash):
+            raise ValueError("checkpoint_hash must be a lowercase SHA-256 digest")
 
 
 @dataclass(slots=True)
@@ -79,34 +103,60 @@ class SessionSender:
         )
 
 
-@app.get("/healthz")
-async def healthz() -> dict[str, object]:
-    return {"status": "ok", "protocol": 2}
+def create_app(
+    *,
+    artifact_registry: Mapping[int, ArtifactIdentity] = _DEFAULT_ARTIFACT_REGISTRY,
+    allowed_origins: frozenset[str] = _DEVELOPMENT_ORIGINS,
+    backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
+) -> FastAPI:
+    """Create a service with explicit artifacts and browser-origin boundaries."""
+    application = FastAPI()
+
+    @application.get("/healthz")
+    async def healthz() -> dict[str, object]:
+        return {"status": "ok", "protocol": 2}
+
+    @application.get("/api/capabilities")
+    async def capabilities() -> dict[str, object]:
+        return {
+            "protocol": 2,
+            "populations": _POPULATIONS,
+            "backends": ["cpu", "gpu"],
+            "maxFrameBytes": MAX_FRAME_BYTES,
+        }
+
+    @application.websocket("/api/simulation")
+    async def simulation_socket(websocket: WebSocket) -> None:
+        if not _origin_is_allowed(websocket, allowed_origins):
+            await websocket.close(code=CLOSE_ORIGIN_FORBIDDEN)
+            return
+        await websocket.accept()
+        await serve_session(
+            websocket,
+            max_bytes=MAX_FRAME_BYTES,
+            artifact_registry=artifact_registry,
+            backend_resolver=backend_resolver,
+        )
+
+    return application
 
 
-@app.get("/api/capabilities")
-async def capabilities() -> dict[str, object]:
-    return {
-        "protocol": 2,
-        "populations": _POPULATIONS,
-        "backends": ["cpu", "gpu"],
-        "maxFrameBytes": MAX_FRAME_BYTES,
-    }
+app = create_app()
 
 
-@app.websocket("/api/simulation")
-async def simulation_socket(websocket: WebSocket) -> None:
-    await websocket.accept()
-    await serve_session(websocket, max_bytes=MAX_FRAME_BYTES)
-
-
-async def serve_session(websocket: WebSocket, *, max_bytes: int) -> None:
+async def serve_session(
+    websocket: WebSocket,
+    *,
+    max_bytes: int,
+    artifact_registry: Mapping[int, ArtifactIdentity] = _DEFAULT_ARTIFACT_REGISTRY,
+    backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
+) -> None:
     """Serve one connection; state transitions remain owned by SimulationSession."""
     session_id: str | None = None
     sender: SessionSender | None = None
     try:
         first = _parse_frame(await _receive_frame(websocket, max_bytes))
-        if not isinstance(first, Hello):
+        if not isinstance(first, Hello) or first.sequence != 0:
             await websocket.close(code=CLOSE_SEQUENCE_VIOLATION)
             return
 
@@ -116,7 +166,7 @@ async def serve_session(websocket: WebSocket, *, max_bytes: int) -> None:
 
         while True:
             message = _parse_frame(await _receive_frame(websocket, max_bytes))
-            await _apply_message(message, sender)
+            await _apply_message(message, sender, artifact_registry, backend_resolver)
     except WebSocketDisconnect:
         return
     except FrameFault as fault:
@@ -135,6 +185,10 @@ async def serve_session(websocket: WebSocket, *, max_bytes: int) -> None:
         if sender is not None:
             await sender.error("BACKEND_UNAVAILABLE", str(error))
         await websocket.close(code=CLOSE_BACKEND_UNAVAILABLE)
+    except ArtifactUnavailable as error:
+        if sender is not None:
+            await sender.error("ARTIFACT_UNAVAILABLE", str(error))
+        await websocket.close(code=CLOSE_ARTIFACT_UNAVAILABLE)
     except Exception:
         logger.exception("Simulation session failed session_id=%s", session_id)
         if sender is not None:
@@ -142,31 +196,40 @@ async def serve_session(websocket: WebSocket, *, max_bytes: int) -> None:
         await websocket.close(code=1011)
 
 
-async def _apply_message(message: object, sender: SessionSender) -> None:
+async def _apply_message(
+    message: object,
+    sender: SessionSender,
+    artifact_registry: Mapping[int, ArtifactIdentity],
+    backend_resolver: Callable[[BackendPreference], BackendStatus],
+) -> None:
     session = sender.session
     if isinstance(message, Hello):
         raise SessionFault("SEQUENCE_VIOLATION", "Hello is only valid as the first message.")
     if isinstance(message, Configure):
+        artifact = artifact_registry.get(message.population)
+        if artifact is None:
+            raise ArtifactUnavailable("No verified artifact is available for this population.")
+        backend = backend_resolver(message.backend)
         session.configure(message)
-        backend = resolve_backend(message.backend)
+        ready = {
+            "type": "ready",
+            "version": 2,
+            "sessionId": session.session_id,
+            "episodeId": session.episode_id,
+            "sequence": 0,
+            "simulationTime": message.simulation_time,
+            "backend": backend.resolved,
+            "population": message.population,
+            "graphHash": artifact.graph_hash,
+            "checkpointHash": artifact.checkpoint_hash,
+            "acceptedVersions": [2],
+            "maxFrameBytes": MAX_FRAME_BYTES,
+            "maxNeuralUpdates": MAX_NEURAL_UPDATES,
+        }
+        if backend.fallback_reason is not None:
+            ready["fallbackReason"] = backend.fallback_reason
         await sender.send(
-            Ready.model_validate(
-                {
-                    "type": "ready",
-                    "version": 2,
-                    "sessionId": session.session_id,
-                    "episodeId": session.episode_id,
-                    "sequence": 0,
-                    "simulationTime": message.simulation_time,
-                    "backend": backend.resolved,
-                    "population": message.population,
-                    "graphHash": _PLACEHOLDER_HASH,
-                    "checkpointHash": _PLACEHOLDER_HASH,
-                    "acceptedVersions": [2],
-                    "maxFrameBytes": MAX_FRAME_BYTES,
-                    "maxNeuralUpdates": MAX_NEURAL_UPDATES,
-                }
-            )
+            Ready.model_validate(ready)
         )
         return
     if isinstance(message, Reset):
@@ -244,3 +307,24 @@ def _is_incompatible_version(payload: str | bytes) -> bool:
         return True
     versions = decoded.get("supportedVersions")
     return isinstance(versions, list) and all(isinstance(version, int) for version in versions) and 2 not in versions
+
+
+def _origin_is_allowed(websocket: WebSocket, allowed_origins: frozenset[str]) -> bool:
+    origin = websocket.headers.get("origin")
+    if origin is None:
+        return False
+    if origin in allowed_origins:
+        return True
+
+    parsed = urlsplit(origin)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.path not in {"", "/"}:
+        return False
+    host = websocket.headers.get("host")
+    if host != parsed.netloc:
+        return False
+    scheme = websocket.headers.get("x-forwarded-proto", websocket.url.scheme)
+    if scheme == "ws":
+        scheme = "http"
+    elif scheme == "wss":
+        scheme = "https"
+    return parsed.scheme == scheme

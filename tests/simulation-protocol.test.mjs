@@ -11,6 +11,21 @@ test('protocol v2 fixture parses', () => {
   assert.throws(() => parseServerMessage({ ...fixture.server, population: 81 }), /population/i);
 });
 
+test('protocol v2 ready validates a public CUDA fallback reason', () => {
+  assert.equal(
+    parseServerMessage({ ...fixture.server, fallbackReason: 'cuda-unavailable' }).fallbackReason,
+    'cuda-unavailable',
+  );
+  assert.throws(
+    () => parseServerMessage({ ...fixture.server, fallbackReason: 'other' }),
+    /fallbackReason/i,
+  );
+  assert.throws(
+    () => parseServerMessage({ ...fixture.server, fallbackReason: null }),
+    /fallbackReason/i,
+  );
+});
+
 test('protocol v2 server variants are discriminated and bounded', () => {
   const envelope = {
     version: 2, sessionId: 's-01234567', episodeId: 'e-01234567', sequence: 1, simulationTime: 1,

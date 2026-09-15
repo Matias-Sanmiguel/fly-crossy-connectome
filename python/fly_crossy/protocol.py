@@ -14,6 +14,7 @@ from pydantic import (
     StringConstraints,
     TypeAdapter,
     ValidationError,
+    field_validator,
 )
 
 MAX_FRAME_BYTES = 1_048_576
@@ -25,6 +26,7 @@ MAX_SIMULATION_TIME = 86_400.0
 PopulationSize: TypeAlias = Literal[80, 1000, 5000, 20000, 124289]
 BackendPreference: TypeAlias = Literal["auto", "cpu", "gpu", "gpu-strict"]
 ResolvedBackend: TypeAlias = Literal["cpu", "gpu"]
+FallbackReason: TypeAlias = Literal["cuda-unavailable"]
 Action: TypeAlias = Literal["forward", "backward", "left", "right", "wait"]
 KeyName: TypeAlias = Literal["W", "A", "S", "D", "SPACE_LEFT", "SPACE_RIGHT"]
 MotorPhase: TypeAlias = Literal[
@@ -112,6 +114,14 @@ class Ready(Envelope):
     accepted_versions: Annotated[list[Literal[2]], Field(min_length=1, max_length=1)] | None = None
     max_frame_bytes: Annotated[StrictInt, Field(ge=1, le=MAX_FRAME_BYTES)] | None = None
     max_neural_updates: Annotated[StrictInt, Field(ge=1, le=MAX_NEURAL_UPDATES)] | None = None
+    fallback_reason: FallbackReason | None = None
+
+    @field_validator("fallback_reason", mode="before")
+    @classmethod
+    def reject_explicit_null_fallback_reason(cls, value: object) -> object:
+        if value is None:
+            raise ValueError("fallbackReason must be omitted or a supported reason")
+        return value
 
 
 class ResetComplete(Envelope):
