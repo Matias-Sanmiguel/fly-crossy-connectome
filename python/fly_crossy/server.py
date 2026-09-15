@@ -490,17 +490,43 @@ async def _apply_message(
 def _recover_world(
     world: BiomechanicalWorld,
 ) -> None:
-    """Keep stepping until the fly has physically returned to neutral."""
+    """Recover physically when possible, otherwise perform the required reset."""
 
     for _ in range(1500):
         if world.ready:
             return
 
+        if world.requires_reset:
+            reason = world.failure_reason or "unknown"
+
+            logger.warning(
+                "Biomechanical recovery requires coordinated reset: %s",
+                reason,
+            )
+
+            world.reset()
+
+            if not world.ready:
+                raise RuntimeError(
+                    "Biomechanical reset failed to restore neutral state."
+                )
+
+            return
+
         world.step()
+
+    # A recovery that never reached ready is not allowed to kill the
+    # WebSocket session. Reset is the explicit fail-safe boundary.
+    logger.warning(
+        "Biomechanical recovery exceeded server deadline; "
+        "performing coordinated reset."
+    )
+
+    world.reset()
 
     if not world.ready:
         raise RuntimeError(
-            "Biomechanical world failed to recover to neutral."
+            "Biomechanical reset failed to restore neutral state."
         )
 
 

@@ -326,6 +326,15 @@ class BiomechanicalWorld:
     @property
     def motor_phase(self) -> MotorPhase:
         return self._motor.phase
+    
+    @property
+    def requires_reset(self) -> bool:
+        return self._motor.requires_reset
+
+
+    @property
+    def failure_reason(self) -> str | None:
+        return self._motor.failure_reason
 
     @property
     def native_substeps_per_tick(self) -> int:

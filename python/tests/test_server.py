@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
+from fly_crossy.server import _recover_world
 
 from fly_crossy.biomechanics.world import WorldActionResult
 from fly_crossy.backend import BackendStatus
@@ -516,6 +517,8 @@ def test_socket_direction_waits_for_biomechanical_confirmation(
             self.ready = True
             self.actions: list[str] = []
             self.recovery_steps = 0
+            self.requires_reset = False
+            self.failure_reason: str | None = None
 
         def run(
             self,
@@ -545,6 +548,8 @@ def test_socket_direction_waits_for_biomechanical_confirmation(
 
         def reset(self) -> None:
             self.ready = True
+            self.requires_reset = False
+            self.failure_reason = None
 
     world = FakeWorld()
 
@@ -580,3 +585,35 @@ def test_socket_direction_waits_for_biomechanical_confirmation(
     assert world.actions == ["forward"]
     assert world.recovery_steps == 1
     assert world.ready
+    
+def test_recovery_timeout_performs_required_coordinated_reset() -> None:
+    class StuckWorld:
+        def __init__(self) -> None:
+            self.ready = False
+            self.requires_reset = False
+            self.failure_reason: str | None = None
+            self.steps = 0
+            self.resets = 0
+
+        def step(self) -> tuple[object, ...]:
+            self.steps += 1
+
+            if self.steps == 3:
+                self.requires_reset = True
+                self.failure_reason = "recovery-timeout"
+
+            return ()
+
+        def reset(self) -> None:
+            self.resets += 1
+            self.ready = True
+            self.requires_reset = False
+            self.failure_reason = None
+
+    world = StuckWorld()
+
+    _recover_world(world)  # type: ignore[arg-type]
+
+    assert world.ready
+    assert world.steps == 3
+    assert world.resets == 1

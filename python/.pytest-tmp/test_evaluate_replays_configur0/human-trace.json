@@ -1,1 +1,0 @@
-{"version": 1, "environmentVersion": 3, "source": {"kind": "human-recorded", "name": "test participant"}, "episodes": [{"seed": "held-out-human", "actions": ["forward", "wait", "left"]}]}
