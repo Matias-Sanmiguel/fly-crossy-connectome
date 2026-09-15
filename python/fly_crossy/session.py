@@ -12,6 +12,7 @@ from fly_crossy.protocol import (
     ActionResult,
     Configure,
     Intention,
+    MotorPhase,
     Observation,
     Pause,
     RequestKeyframe,
@@ -26,6 +27,7 @@ class SessionPhase(StrEnum):
     ACTING = "acting"
     PAUSED = "paused"
     ERROR = "error"
+    RECOVERING = "recovering"
 
 
 class SessionFault(Exception):
@@ -82,7 +84,13 @@ class SimulationSession:
         self._last_game_step = None
         self.phase = SessionPhase.READY
 
-    def accept_observation(self, message: Observation) -> Intention:
+    def accept_observation(
+        self,
+        message: Observation,
+        *,
+        action: Action = "wait",
+        motor_phase: MotorPhase = "neutral",
+    ) -> Intention:
         self._validate_envelope(message)
         if self.phase is SessionPhase.CONNECTING:
             self._fault("NOT_CONFIGURED", "Session must be configured before observations are accepted.")
@@ -90,6 +98,11 @@ class SimulationSession:
             self._fault("SESSION_IN_ERROR", "Session is in an error state.")
         if self.phase is SessionPhase.PAUSED:
             self._fault("SESSION_PAUSED", "Session is paused.")
+        if self.phase is SessionPhase.RECOVERING:
+            raise SessionFault(
+                "RECOVERY_IN_PROGRESS",
+                "Physical recovery must finish before another observation is accepted.",
+            )
         if self.pending is not None:
             self._fault("INTENTION_IN_FLIGHT", "An intention is already in flight.")
         if self._last_game_step is not None and message.game_step == self._last_game_step:
@@ -99,7 +112,6 @@ class SimulationSession:
 
         self._intention_number += 1
         intention_id = f"i-{self._intention_number:08d}"
-        action: Action = "wait"
         self.pending = PendingIntention(intention_id, self.episode_id, message.game_step, action)
         self._last_game_step = message.game_step
         self.phase = SessionPhase.ACTING
@@ -112,7 +124,7 @@ class SimulationSession:
             "simulationTime": message.simulation_time,
             "intentionId": intention_id,
             "action": action,
-            "motorPhase": "neutral",
+            "motorPhase": motor_phase,
         })
 
     def finish_action(
@@ -121,7 +133,10 @@ class SimulationSession:
         result: Literal["confirmed", "waited", "failed"],
         *,
         completion_time: float,
+        recovery_pending: bool = False,
     ) -> ActionResult | None:
+        if not isinstance(recovery_pending, bool):
+            raise TypeError("recovery_pending must be boolean")
         if intention_id in self._completed_id_set:
             return None
         if self.phase is SessionPhase.ERROR:
@@ -141,9 +156,27 @@ class SimulationSession:
             "result": result,
         })
         self._complete_pending()
-        self.phase = SessionPhase.READY
+        self.phase = (
+            SessionPhase.RECOVERING
+            if recovery_pending
+            else SessionPhase.READY
+        )
         self._outbound_sequence += 1
         return terminal
+
+    def finish_recovery(self) -> None:
+        """Release the session only after the physical world returns to neutral."""
+        if self.phase is not SessionPhase.RECOVERING:
+            raise RuntimeError(
+                "physical recovery can finish only from the recovering phase"
+            )
+
+        if self.pending is not None:
+            raise RuntimeError(
+                "physical recovery cannot finish with an intention still pending"
+            )
+
+        self.phase = SessionPhase.READY
 
     def pause(self, message: Pause) -> None:
         self._validate_envelope(message)

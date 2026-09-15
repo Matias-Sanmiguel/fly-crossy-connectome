@@ -237,3 +237,59 @@ def test_pause_and_resume_preserve_the_ready_lifecycle() -> None:
     session.resume(lifecycle_message("resume", sequence=3))
 
     assert session.phase is SessionPhase.READY
+
+def test_observation_can_bind_to_a_real_requested_motor_action() -> None:
+    session = configured_session()
+
+    intention = session.accept_observation(
+        observation_message(sequence=2, step=0),
+        action="forward",
+        motor_phase="targeting",
+    )
+
+    assert intention.action == "forward"
+    assert intention.motor_phase == "targeting"
+    assert session.pending is not None
+    assert session.pending.requested_action == "forward"
+    assert session.phase is SessionPhase.ACTING
+
+
+def test_physical_recovery_blocks_the_next_observation_until_neutral() -> None:
+    session = configured_session()
+
+    intention = session.accept_observation(
+        observation_message(sequence=2, step=0),
+        action="forward",
+        motor_phase="targeting",
+    )
+
+    result = session.finish_action(
+        intention.intention_id,
+        "confirmed",
+        completion_time=2.5,
+        recovery_pending=True,
+    )
+
+    assert result is not None
+    assert session.phase is SessionPhase.RECOVERING
+
+    with pytest.raises(SessionFault, match="recovery"):
+        session.accept_observation(
+            observation_message(sequence=3, step=1),
+            action="left",
+            motor_phase="targeting",
+        )
+
+    assert session.phase is SessionPhase.RECOVERING
+
+    session.finish_recovery()
+
+    assert session.phase is SessionPhase.READY
+
+    next_intention = session.accept_observation(
+        observation_message(sequence=4, step=1),
+        action="left",
+        motor_phase="targeting",
+    )
+
+    assert next_intention.action == "left"
