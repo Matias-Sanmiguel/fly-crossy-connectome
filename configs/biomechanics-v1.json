@@ -4,21 +4,61 @@
   "motorHz": 100,
   "decisionTimeoutSeconds": 1.5,
   "debounceSeconds": 0.02,
-  "minimumTravelMeters": 0.00035,
-  "releaseTravelMeters": 0.00010,
-  "minimumForceNewtons": 0.00010,
-  "maximumForceNewtons": 0.02000,
-  "keyTravelMeters": 0.00050,
-  "keyHalfExtentsMeters": [0.00045, 0.00045, 0.00015],
-  "keyMassKilograms": 0.00001,
-  "returnStiffnessNewtonsPerMeter": 2.0,
-  "returnDampingNewtonSecondsPerMeter": 0.004,
+  "minimumTravelMeters": 0.00012,
+  "releaseTravelMeters": 2.5e-05,
+  "minimumForceNewtons": 8e-06,
+  "maximumForceNewtons": 0.0002,
+  "keyTravelMeters": 0.0003,
+  "keyHalfExtentsMeters": [
+    0.00045,
+    0.00045,
+    0.00015
+  ],
+  "keyMassKilograms": 1e-07,
+  "returnStiffnessNewtonsPerMeter": 0.1,
+  "returnDampingNewtonSecondsPerMeter": 0.0002,
   "keys": {
-    "W": {"center": [0.0, 0.0018, 0.0]},
-    "A": {"center": [-0.0018, 0.0, 0.0]},
-    "S": {"center": [0.0, -0.0018, 0.0]},
-    "D": {"center": [0.0018, 0.0, 0.0]},
-    "SPACE_LEFT": {"center": [-0.0010, -0.0028, 0.0]},
-    "SPACE_RIGHT": {"center": [0.0010, -0.0028, 0.0]}
+    "W": {
+      "center": [
+        0.0016107,
+        0.0008724,
+        0.0
+      ]
+    },
+    "A": {
+      "center": [
+        0.0003015,
+        0.0022929,
+        0.0
+      ]
+    },
+    "S": {
+      "center": [
+        0.0016096,
+        -0.000873,
+        0.0
+      ]
+    },
+    "D": {
+      "center": [
+        0.000304,
+        -0.0022891,
+        0.0
+      ]
+    },
+    "SPACE_LEFT": {
+      "center": [
+        -0.0024074,
+        0.0010569,
+        0.0
+      ]
+    },
+    "SPACE_RIGHT": {
+      "center": [
+        -0.0024065,
+        -0.0010503,
+        0.0
+      ]
+    }
   }
 }

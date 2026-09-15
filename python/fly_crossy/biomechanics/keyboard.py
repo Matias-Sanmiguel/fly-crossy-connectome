@@ -145,33 +145,71 @@ def _required_id(model: mujoco.MjModel, kind: mujoco.mjtObj, name: str) -> int:
     return object_id
 
 
-def resolve_key_ids(model: mujoco.MjModel) -> Mapping[str, KeyIds]:
-    """Resolve and validate the stable six-key MuJoCo identity contract."""
+def resolve_key_ids(
+    model: mujoco.MjModel,
+    *,
+    prefix: str = "",
+) -> Mapping[str, KeyIds]:
+    """Resolve and validate the stable six-key MuJoCo identity contract.
+
+    ``prefix`` is used when the keyboard spec is attached to another MuJoCo
+    model and its elements are deliberately namespaced.
+    """
+    if not isinstance(prefix, str):
+        raise TypeError("prefix must be a string")
+
     resolved: dict[str, KeyIds] = {}
+
     for name in KEY_NAMES:
-        stem = _stem(name)
+        stem = f"{prefix}{_stem(name)}"
+
         ids = KeyIds(
             joint_id=_required_id(
-                model, mujoco.mjtObj.mjOBJ_JOINT, f"{stem}_travel"
+                model,
+                mujoco.mjtObj.mjOBJ_JOINT,
+                f"{stem}_travel",
             ),
-            geom_id=_required_id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{stem}_cap"),
+            geom_id=_required_id(
+                model,
+                mujoco.mjtObj.mjOBJ_GEOM,
+                f"{stem}_cap",
+            ),
             force_sensor_id=_required_id(
-                model, mujoco.mjtObj.mjOBJ_SENSOR, f"{stem}_force"
+                model,
+                mujoco.mjtObj.mjOBJ_SENSOR,
+                f"{stem}_force",
             ),
             contact_sensor_id=_required_id(
-                model, mujoco.mjtObj.mjOBJ_SENSOR, f"{stem}_contact"
+                model,
+                mujoco.mjtObj.mjOBJ_SENSOR,
+                f"{stem}_contact",
             ),
         )
-        if model.sensor_type[ids.force_sensor_id] != mujoco.mjtSensor.mjSENS_FORCE:
+
+        if (
+            model.sensor_type[ids.force_sensor_id]
+            != mujoco.mjtSensor.mjSENS_FORCE
+        ):
             raise ValueError(f"{stem}_force is not a force sensor")
-        if model.sensor_type[ids.contact_sensor_id] != mujoco.mjtSensor.mjSENS_TOUCH:
+
+        if (
+            model.sensor_type[ids.contact_sensor_id]
+            != mujoco.mjtSensor.mjSENS_TOUCH
+        ):
             raise ValueError(f"{stem}_contact is not a touch sensor")
+
         resolved[name] = ids
 
-    for field in ("joint_id", "geom_id", "force_sensor_id", "contact_sensor_id"):
+    for field in (
+        "joint_id",
+        "geom_id",
+        "force_sensor_id",
+        "contact_sensor_id",
+    ):
         values = {getattr(ids, field) for ids in resolved.values()}
         if len(values) != len(KEY_NAMES):
             raise ValueError(f"keyboard {field} values must be unique")
+
     return MappingProxyType(resolved)
 
 
