@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from types import MappingProxyType
-from typing import Callable, Mapping
+from typing import Any, Callable, Mapping
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -61,18 +63,88 @@ class ArtifactUnavailable(RuntimeError):
     """Raised when a configure request has no verified controller identity."""
 
 
-@dataclass(frozen=True, slots=True)
+class ArtifactRegistryError(ValueError):
+    """Raised when a purported controller manifest cannot be verified."""
+
+
+@dataclass(frozen=True, slots=True, init=False)
 class ArtifactIdentity:
     """Verified graph and checkpoint identities registered for one population."""
 
     graph_hash: str
     checkpoint_hash: str
 
-    def __post_init__(self) -> None:
-        if not _HASH_PATTERN.fullmatch(self.graph_hash):
-            raise ValueError("graph_hash must be a lowercase SHA-256 digest")
-        if not _HASH_PATTERN.fullmatch(self.checkpoint_hash):
-            raise ValueError("checkpoint_hash must be a lowercase SHA-256 digest")
+    def __init__(self, *_: object, **__: object) -> None:
+        raise TypeError("ArtifactIdentity values must be loaded from a verified manifest.")
+
+    @classmethod
+    def _from_verified_hashes(cls, graph_hash: str, checkpoint_hash: str) -> ArtifactIdentity:
+        identity = object.__new__(cls)
+        object.__setattr__(identity, "graph_hash", graph_hash)
+        object.__setattr__(identity, "checkpoint_hash", checkpoint_hash)
+        return identity
+
+
+def load_verified_artifact_registry(manifest_path: Path) -> Mapping[int, ArtifactIdentity]:
+    """Load only manifest-declared graph/checkpoint files whose bytes hash exactly."""
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ArtifactRegistryError("Artifact manifest must be readable JSON.") from error
+    if not isinstance(manifest, dict) or set(manifest) != {"artifacts"}:
+        raise ArtifactRegistryError("Artifact manifest must contain only an artifacts list.")
+    artifacts = manifest["artifacts"]
+    if not isinstance(artifacts, list):
+        raise ArtifactRegistryError("Artifact manifest artifacts must be a list.")
+
+    root = manifest_path.parent.resolve()
+    registry: dict[int, ArtifactIdentity] = {}
+    for entry in artifacts:
+        if not isinstance(entry, dict) or set(entry) != {"population", "graph", "checkpoint"}:
+            raise ArtifactRegistryError("Each artifact entry must declare population, graph, and checkpoint.")
+        population = entry["population"]
+        if type(population) is not int or population not in _POPULATIONS:
+            raise ArtifactRegistryError("Artifact population is unsupported.")
+        if population in registry:
+            raise ArtifactRegistryError("Artifact manifest has duplicate populations.")
+        graph_hash = _verify_artifact_reference(root, entry["graph"], "graph")
+        checkpoint_hash = _verify_artifact_reference(root, entry["checkpoint"], "checkpoint")
+        registry[population] = ArtifactIdentity._from_verified_hashes(graph_hash, checkpoint_hash)
+    return MappingProxyType(registry)
+
+
+def _verify_artifact_reference(root: Path, value: Any, label: str) -> str:
+    if not isinstance(value, dict) or set(value) != {"path", "sha256"}:
+        raise ArtifactRegistryError(f"Artifact {label} must declare only path and sha256.")
+    relative_path = value["path"]
+    expected_hash = value["sha256"]
+    if not isinstance(relative_path, str) or not relative_path:
+        raise ArtifactRegistryError(f"Artifact {label} path is invalid.")
+    if not isinstance(expected_hash, str) or not _HASH_PATTERN.fullmatch(expected_hash):
+        raise ArtifactRegistryError(f"Artifact {label} sha256 is invalid.")
+    if expected_hash == "0" * 64:
+        raise ArtifactRegistryError(f"Artifact {label} sha256 must not be all zero.")
+
+    reference = Path(relative_path)
+    if reference.is_absolute():
+        raise ArtifactRegistryError(f"Artifact {label} path must be relative to the manifest.")
+    candidate = (root / reference).resolve()
+    if not candidate.is_relative_to(root):
+        raise ArtifactRegistryError(f"Artifact {label} path escapes the manifest directory.")
+    if not candidate.is_file():
+        raise ArtifactRegistryError(f"Artifact {label} file is unavailable.")
+    actual_hash = _sha256_file(candidate)
+    if actual_hash != expected_hash:
+        raise ArtifactRegistryError(f"Artifact {label} sha256 does not match its manifest.")
+    return actual_hash
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(65_536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 @dataclass(slots=True)
@@ -84,7 +156,7 @@ class SessionSender:
     async def send(self, message: BaseModel) -> None:
         sequenced = message.model_copy(update={"sequence": self.sequence})
         self.sequence += 1
-        await self.websocket.send_json(sequenced.model_dump(by_alias=True))
+        await self.websocket.send_json(sequenced.model_dump(by_alias=True, exclude_none=True))
 
     async def error(self, code: str, message: str) -> None:
         await self.send(
@@ -160,7 +232,11 @@ async def serve_session(
             await websocket.close(code=CLOSE_SEQUENCE_VIOLATION)
             return
 
-        session = SimulationSession(first.session_id, first.episode_id)
+        session = SimulationSession(
+            first.session_id,
+            first.episode_id,
+            initial_sequence=first.sequence,
+        )
         session_id = session.session_id
         sender = SessionSender(websocket, session)
 
@@ -206,11 +282,11 @@ async def _apply_message(
     if isinstance(message, Hello):
         raise SessionFault("SEQUENCE_VIOLATION", "Hello is only valid as the first message.")
     if isinstance(message, Configure):
+        session.configure(message)
         artifact = artifact_registry.get(message.population)
         if artifact is None:
             raise ArtifactUnavailable("No verified artifact is available for this population.")
         backend = backend_resolver(message.backend)
-        session.configure(message)
         ready = {
             "type": "ready",
             "version": 2,

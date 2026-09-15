@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import json
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
@@ -8,6 +12,7 @@ from fly_crossy.backend import BackendStatus
 from fly_crossy.protocol import MAX_FRAME_BYTES
 from fly_crossy.server import (
     ArtifactIdentity,
+    ArtifactRegistryError,
     CLOSE_ARTIFACT_UNAVAILABLE,
     CLOSE_INCOMPATIBLE_VERSION,
     CLOSE_MALFORMED_MESSAGE,
@@ -16,21 +21,46 @@ from fly_crossy.server import (
     CLOSE_SEQUENCE_VIOLATION,
     app,
     create_app,
+    load_verified_artifact_registry,
 )
 
 
-TEST_ARTIFACTS = {
-    80: ArtifactIdentity(
-        graph_hash="a" * 64,
-        checkpoint_hash="b" * 64,
-    )
-}
 SAME_ORIGIN = {"origin": "http://testserver"}
 
 
 @pytest.fixture
-def client() -> TestClient:
-    with TestClient(create_app(artifact_registry=TEST_ARTIFACTS)) as test_client:
+def artifact_registry(tmp_path: Path) -> dict[int, ArtifactIdentity]:
+    graph = tmp_path / "graph.bin"
+    checkpoint = tmp_path / "checkpoint.bin"
+    graph.write_bytes(b"verified graph")
+    checkpoint.write_bytes(b"verified checkpoint")
+    manifest = tmp_path / "artifacts.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "population": 80,
+                        "graph": {
+                            "path": graph.name,
+                            "sha256": hashlib.sha256(graph.read_bytes()).hexdigest(),
+                        },
+                        "checkpoint": {
+                            "path": checkpoint.name,
+                            "sha256": hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+                        },
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    return load_verified_artifact_registry(manifest)
+
+
+@pytest.fixture
+def client(artifact_registry: dict[int, ArtifactIdentity]) -> TestClient:
+    with TestClient(create_app(artifact_registry=artifact_registry)) as test_client:
         yield test_client
 
 
@@ -104,7 +134,9 @@ def test_socket_requires_hello_before_configuration(client: TestClient) -> None:
     assert error.value.code == CLOSE_SEQUENCE_VIOLATION
 
 
-def test_socket_configures_and_emits_the_safe_wait_placeholder(client: TestClient) -> None:
+def test_socket_configures_and_emits_the_safe_wait_placeholder(
+    client: TestClient, artifact_registry: dict[int, ArtifactIdentity]
+) -> None:
     with client.websocket_connect("/api/simulation", headers=SAME_ORIGIN) as socket:
         socket.send_json(hello())
         socket.send_json(configure())
@@ -115,8 +147,9 @@ def test_socket_configures_and_emits_the_safe_wait_placeholder(client: TestClien
     assert ready["type"] == "ready"
     assert ready["sequence"] == 0
     assert ready["backend"] == "cpu"
-    assert ready["graphHash"] == "a" * 64
-    assert ready["checkpointHash"] == "b" * 64
+    assert ready["graphHash"] == artifact_registry[80].graph_hash
+    assert ready["checkpointHash"] == artifact_registry[80].checkpoint_hash
+    assert "fallbackReason" not in ready
     assert intention == {
         "type": "intention",
         "version": 2,
@@ -179,12 +212,14 @@ def test_socket_rejects_configuration_without_a_verified_artifact_registry() -> 
     assert closed.value.code == CLOSE_ARTIFACT_UNAVAILABLE
 
 
-def test_socket_exposes_cuda_fallback_from_backend_status() -> None:
+def test_socket_exposes_cuda_fallback_from_backend_status(
+    artifact_registry: dict[int, ArtifactIdentity],
+) -> None:
     def cpu_fallback(_: str) -> BackendStatus:
         return BackendStatus("auto", "cpu", "cpu", "cuda-unavailable")
 
     fallback_app = create_app(
-        artifact_registry=TEST_ARTIFACTS,
+        artifact_registry=artifact_registry,
         backend_resolver=cpu_fallback,
     )
     with TestClient(fallback_app) as fallback_client:
@@ -194,6 +229,26 @@ def test_socket_exposes_cuda_fallback_from_backend_status() -> None:
             ready = socket.receive_json()
 
     assert ready["fallbackReason"] == "cuda-unavailable"
+
+
+def test_socket_omits_fallback_reason_for_a_successful_gpu_backend(
+    artifact_registry: dict[int, ArtifactIdentity],
+) -> None:
+    def gpu_backend(_: str) -> BackendStatus:
+        return BackendStatus("gpu", "gpu", "cuda:0", None)
+
+    gpu_app = create_app(
+        artifact_registry=artifact_registry,
+        backend_resolver=gpu_backend,
+    )
+    with TestClient(gpu_app) as gpu_client:
+        with gpu_client.websocket_connect("/api/simulation", headers=SAME_ORIGIN) as socket:
+            socket.send_json(hello())
+            socket.send_json(configure(backend="gpu"))
+            ready = socket.receive_json()
+
+    assert ready["backend"] == "gpu"
+    assert "fallbackReason" not in ready
 
 
 def test_socket_accepts_a_same_origin_connection(client: TestClient) -> None:
@@ -219,3 +274,93 @@ def test_socket_rejects_a_nonzero_hello_sequence_before_configuration(client: Te
             socket.receive_json()
 
     assert error.value.code == CLOSE_SEQUENCE_VIOLATION
+
+
+def test_invalid_configure_sequence_wins_over_missing_artifact() -> None:
+    with TestClient(app) as default_client:
+        with default_client.websocket_connect("/api/simulation", headers=SAME_ORIGIN) as socket:
+            socket.send_json(hello())
+            socket.send_json({**configure(), "sequence": 0})
+            error = socket.receive_json()
+            with pytest.raises(WebSocketDisconnect) as closed:
+                socket.receive_json()
+
+    assert error["code"] == "SEQUENCE_VIOLATION"
+    assert closed.value.code == CLOSE_SEQUENCE_VIOLATION
+
+
+def test_verified_registry_loader_hashes_manifest_files(tmp_path: Path) -> None:
+    graph = tmp_path / "graph.bin"
+    checkpoint = tmp_path / "checkpoint.bin"
+    graph.write_bytes(b"graph bytes")
+    checkpoint.write_bytes(b"checkpoint bytes")
+    manifest = tmp_path / "artifacts.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "population": 80,
+                        "graph": {
+                            "path": graph.name,
+                            "sha256": hashlib.sha256(graph.read_bytes()).hexdigest(),
+                        },
+                        "checkpoint": {
+                            "path": checkpoint.name,
+                            "sha256": hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+                        },
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    registry = load_verified_artifact_registry(manifest)
+
+    assert registry[80].graph_hash == hashlib.sha256(graph.read_bytes()).hexdigest()
+    assert registry[80].checkpoint_hash == hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+
+
+def test_registry_loader_rejects_unverified_or_zero_hash_identities(tmp_path: Path) -> None:
+    graph = tmp_path / "graph.bin"
+    checkpoint = tmp_path / "checkpoint.bin"
+    graph.write_bytes(b"graph bytes")
+    checkpoint.write_bytes(b"checkpoint bytes")
+    manifest = tmp_path / "artifacts.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "population": 80,
+                        "graph": {"path": graph.name, "sha256": "0" * 64},
+                        "checkpoint": {"path": checkpoint.name, "sha256": "0" * 64},
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ArtifactRegistryError, match="all zero"):
+        load_verified_artifact_registry(manifest)
+    with pytest.raises(TypeError, match="verified manifest"):
+        ArtifactIdentity("a" * 64, "b" * 64)
+
+    manifest.write_text(
+        json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "population": 80,
+                        "graph": {"path": graph.name, "sha256": "a" * 64},
+                        "checkpoint": {"path": checkpoint.name, "sha256": "b" * 64},
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ArtifactRegistryError, match="does not match"):
+        load_verified_artifact_registry(manifest)

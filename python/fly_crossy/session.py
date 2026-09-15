@@ -40,13 +40,13 @@ class SimulationSession:
 
     _COMPLETION_HISTORY = 256
 
-    def __init__(self, session_id: str, episode_id: str) -> None:
+    def __init__(self, session_id: str, episode_id: str, *, initial_sequence: int = -1) -> None:
         self.session_id = session_id
         self.episode_id = episode_id
         self.phase = SessionPhase.CONNECTING
         self.pending: PendingIntention | None = None
         self._configuration: Configure | None = None
-        self._last_sequence = -1
+        self._last_sequence = initial_sequence
         self._outbound_sequence = 0
         self._last_game_step: int | None = None
         self._intention_number = 0
