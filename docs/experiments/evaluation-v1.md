@@ -8,14 +8,14 @@ No human-recorded traces were configured for this run. No human baseline, human 
 
 ## Reproduction and budget
 
-The commands were run from `python/` on CPU. GNU `timeout` imposed a 180-second wall limit on each bounded run. Python 3.14.7 is recorded in `.python-version`. The declared Linux x86_64 build is described by `python/release-environment-linux-x86_64.json`, and its complete active dependency closure is exactly version-pinned in `python/requirements-linux-x86_64-cu130.txt`.
+The commands were run from `python/` on CPU. GNU `timeout` imposed a 180-second wall limit on each bounded run. Python 3.14.7 is recorded in `.python-version`. The declared Linux x86_64 build is described by `python/release-environment-linux-x86_64.json`, and its complete active dependency closure is exactly version-pinned in `python/requirements-release-linux-x86_64-cu130.txt`.
 
 ```sh
 python3.14 -m venv .venv
 . .venv/bin/activate
 python -m pip install --index-url https://pypi.org/simple pip==26.2.1
 python -m pip install --index-url https://pypi.org/simple \
-  -r requirements-linux-x86_64-cu130.txt
+  -r requirements-release-linux-x86_64-cu130.txt
 python -m pip install -e . --no-deps --no-build-isolation
 python -m pytest tests -q
 timeout 180s python -m fly_crossy.train \

@@ -1,0 +1,69 @@
+services:
+  simulation:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulation
+      args:
+        REQUIREMENTS_FILE: python/requirements-linux-x86_64-cpu.txt
+    environment:
+      FLY_BACKEND: cpu
+      FLY_DATA_ROOT: /data
+    volumes:
+      - fly-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz')"]
+      interval: 5s
+      timeout: 2s
+      retries: 12
+
+  simulation-gpu:
+    profiles: [gpu]
+    extends:
+      service: simulation
+    build:
+      args:
+        REQUIREMENTS_FILE: python/requirements-linux-x86_64-cu130.txt
+    environment:
+      FLY_BACKEND: gpu
+      FLY_DATA_ROOT: /data
+    gpus: all
+
+  trainer:
+    profiles: [training]
+    build:
+      context: .
+      dockerfile: Dockerfile.simulation
+      args:
+        REQUIREMENTS_FILE: python/requirements-linux-x86_64-cpu.txt
+    command: ["python", "-m", "fly_crossy.train", "--help"]
+    environment:
+      FLY_BACKEND: cpu
+      FLY_DATA_ROOT: /data
+    volumes:
+      - fly-data:/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8080:8080"
+    depends_on:
+      simulation:
+        condition: service_healthy
+
+  web-gpu:
+    profiles: [gpu]
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      SIMULATION_UPSTREAM: simulation-gpu:8000
+    ports:
+      - "8080:8080"
+    depends_on:
+      simulation-gpu:
+        condition: service_healthy
+
+volumes:
+  fly-data: {}

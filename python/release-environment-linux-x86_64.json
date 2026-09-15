@@ -13,7 +13,7 @@
   },
   "pipVersion": "26.2.1",
   "indexUrl": "https://pypi.org/simple",
-  "requirementsFile": "requirements-linux-x86_64-cu130.txt",
+  "requirementsFile": "requirements-release-linux-x86_64-cu130.txt",
   "requirementsSha256": "99a0889fb8e589a970f4ebf945c8876f52cc8d80af464a86892a23f929d35240",
   "roots": [
     "numpy",

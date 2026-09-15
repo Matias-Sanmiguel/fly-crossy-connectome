@@ -8,10 +8,10 @@
   "reconstructionEnvironment": {
     "manifest": {
       "path": "../../python/release-environment-linux-x86_64.json",
-      "sha256": "47fb7dcc51cd51afbd79ea56b5deac51c46858f612200cefd6f5c74a7048f9f1"
+      "sha256": "4a3fbb126dc2e379d882ae03155f03bffff4c7c245a568837b687ad9485b024e"
     },
     "requirements": {
-      "path": "../../python/requirements-linux-x86_64-cu130.txt",
+      "path": "../../python/requirements-release-linux-x86_64-cu130.txt",
       "sha256": "99a0889fb8e589a970f4ebf945c8876f52cc8d80af464a86892a23f929d35240"
     }
   },

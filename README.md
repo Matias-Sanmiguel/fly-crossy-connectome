@@ -17,6 +17,37 @@ Open the local address printed by Vite. Once the anatomy loads, the bundled redu
 
 Choose **Human / manual** to take over: use the arrow keys or W/A/S/D to move, Space to wait, and Escape to pause. The on-screen controls provide the same actions for touch and pointer input.
 
+## Run with Docker
+
+Docker Compose starts the CPU simulation and same-origin web proxy by default. The first build downloads the hash-locked Python and Node dependencies:
+
+```sh
+docker compose up --build --wait
+bash scripts/docker-smoke.sh
+```
+
+Open <http://127.0.0.1:8080>. Requests under `/api/` are proxied to the simulation service, including WebSocket upgrade headers. The service health endpoint is available at `/api/healthz`. The default service deliberately has no artifact manifest: health checks work, but controller configuration fails closed until verified graph and checkpoint artifacts are supplied by a later runtime integration.
+
+Stop only this Compose project when finished. The `fly-data` named volume is retained:
+
+```sh
+docker compose down
+```
+
+The optional trainer uses the CPU image and prints its command interface without beginning a training run:
+
+```sh
+docker compose --profile training run --rm trainer
+```
+
+On a host with the NVIDIA Container Toolkit and a supported GPU, start only the targeted GPU pair. Targeting these services prevents the default CPU pair from starting:
+
+```sh
+docker compose --profile gpu up --build simulation-gpu web-gpu
+```
+
+The simulation images use Python 3.12 and run as UID/GID 10001. CPU and CUDA dependencies are independently hash-locked in `python/requirements-linux-x86_64-cpu.txt` and `python/requirements-linux-x86_64-cu130.txt`, with Pydantic fixed at 2.11.7 for the protocol boundary.
+
 ## What is included
 
 - A deterministic environment-v3 crossing world with roads, rails, rivers, hazards, rewards, terminal states, and seeded replay.
@@ -58,7 +89,7 @@ python3.14 -m venv .venv
 . .venv/bin/activate
 python -m pip install --index-url https://pypi.org/simple pip==26.2.1
 python -m pip install --index-url https://pypi.org/simple \
-  -r requirements-linux-x86_64-cu130.txt
+  -r requirements-release-linux-x86_64-cu130.txt
 python -m pip install -e . --no-deps --no-build-isolation
 python -m pytest tests -q
 
@@ -88,7 +119,7 @@ sha256sum runs/reproduce-conventional/checkpoint.pt \
   runs/reproduce-connectome/checkpoint.pt
 ```
 
-Use Python 3.14.7 as recorded in [`.python-version`](.python-version). [`release-environment-linux-x86_64.json`](python/release-environment-linux-x86_64.json) declares the Linux x86_64/CPython build boundary, PyPI index, torch `2.12.1+cu130` runtime build, and CPU execution used for the release. [`requirements-linux-x86_64-cu130.txt`](python/requirements-linux-x86_64-cu130.txt) pins the complete active dependency closure for that declared platform, and an automated test compares it with installed package metadata. The installed metadata did not retain wheel hashes, so this is an exact-version environment manifest—not a hermetic wheel lock or a promise of cross-platform checkpoint byte identity. `timeout` is the GNU command used for the 180-second per-run time box. The expected checkpoint hashes are `03640098bf3ff5e8e2164c1cd43dff0791dea6d2f51e711a8d2d7217648c2620` and `abd1dc3f472de7687599d60cf73ecfbc31207ede197deeae353b8f4d4cb76e9f`; the evaluator verifies those hashes **before** loading the tracked checkpoints declared in [`configs/eval-v1.json`](configs/eval-v1.json).
+Use Python 3.14.7 as recorded in [`.python-version`](.python-version). [`release-environment-linux-x86_64.json`](python/release-environment-linux-x86_64.json) declares the Linux x86_64/CPython build boundary, PyPI index, torch `2.12.1+cu130` runtime build, and CPU execution used for the release. [`requirements-release-linux-x86_64-cu130.txt`](python/requirements-release-linux-x86_64-cu130.txt) pins the complete active dependency closure for that declared platform, and an automated test compares it with installed package metadata. This historical release closure is separate from the hash-locked Python 3.12 container requirements. The installed metadata did not retain wheel hashes, so the release file is an exact-version environment manifest—not a hermetic wheel lock or a promise of cross-platform checkpoint byte identity. `timeout` is the GNU command used for the 180-second per-run time box. The expected checkpoint hashes are `03640098bf3ff5e8e2164c1cd43dff0791dea6d2f51e711a8d2d7217648c2620` and `abd1dc3f472de7687599d60cf73ecfbc31207ede197deeae353b8f4d4cb76e9f`; the evaluator verifies those hashes **before** loading the tracked checkpoints declared in [`configs/eval-v1.json`](configs/eval-v1.json).
 
 The evaluator writes a local copy of `metrics.json`, `metrics.csv`, and `summary.md` under `python/runs/eval-v1/`. The immutable released copies and full file hashes are in [`release/eval-v1/manifest.json`](release/eval-v1/manifest.json), and `npm test` verifies the manifest from a clean checkout. See [Controller evaluation v1](docs/experiments/evaluation-v1.md) for budgets, held-out results, controls, and limitations. No human-recorded traces were available; none were fabricated.
 
