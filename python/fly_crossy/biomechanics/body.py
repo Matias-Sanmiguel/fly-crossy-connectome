@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import hashlib
 from importlib.metadata import version
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 from types import MappingProxyType
 from typing import Mapping, Sequence
@@ -14,18 +14,26 @@ from typing import Mapping, Sequence
 from flygym import assets_dir
 from flygym.compose import ActuatorType, KinematicPosePreset
 from flygym.compose.fly import FlyBody
+from flygym.compose.fly.flybody import FLYBODY_FULLSIZE_MESH_DIR
 from flygym.flybody import (
     FlyBodyActuatedDOFPreset,
     FlyBodyAxisOrder,
     FlyBodyJointPreset,
     FlyBodySkeleton,
 )
+from flygym.utils.assets_lazy_loading import lazy_load_asset_dir
 import mujoco
 import numpy as np
 
 
 ACTION_SIZE = 59
 EXPECTED_GROUP_COUNTS = {"position": 45, "tendon": 8, "adhesion": 6}
+PINNED_ASSET_PREFIX = "flybody_fullsize_meshes_20260623a"
+PINNED_ASSET_FILE_COUNT = 87
+PINNED_ASSET_TOTAL_BYTES = 140_210_791
+PINNED_ASSET_INVENTORY_SHA256 = (
+    "d67fa2c2649f7c5c755d3e0770955cd633e4b28ff203c124bd4cc193db4a3453"
+)
 IMMUTABLE_MANIFEST_FIELDS = {
     "source": "https://github.com/TuragaLab/flybody",
     "integrationSource": "https://github.com/NeLy-EPFL/flygym",
@@ -47,6 +55,14 @@ LEG_SITE_TARGETS = {
 }
 _SHA256 = re.compile(r"[0-9a-fA-F]{64}\Z")
 _COMMIT = re.compile(r"[0-9a-fA-F]{40}\Z")
+_ASSET_MANIFEST_KEYS = {
+    "prefix",
+    "fileCount",
+    "totalBytes",
+    "inventorySha256",
+    "files",
+}
+_ASSET_FILE_KEYS = {"path", "size", "sha256"}
 
 
 def _load_manifest(path: Path) -> dict[str, object]:
@@ -90,7 +106,138 @@ def _load_manifest(path: Path) -> dict[str, object]:
     expected_sites = [site for site, _ in LEG_SITE_TARGETS.values()]
     if required_sites != expected_sites:
         raise ValueError("requiredSites does not match the stable six-leg site contract")
+    _parse_asset_manifest(manifest.get("meshAssets"))
     return manifest
+
+
+def _inventory_digest(files: Sequence[Mapping[str, object]]) -> str:
+    canonical_files = sorted(files, key=lambda item: str(item["path"]))
+    encoded = json.dumps(
+        canonical_files, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _parse_asset_manifest(
+    assets: object,
+) -> tuple[str, tuple[Mapping[str, object], ...]]:
+    if not isinstance(assets, dict) or set(assets) != _ASSET_MANIFEST_KEYS:
+        raise ValueError("mesh asset manifest is incomplete or has unknown fields")
+
+    prefix = assets.get("prefix")
+    file_count = assets.get("fileCount")
+    total_bytes = assets.get("totalBytes")
+    inventory_checksum = assets.get("inventorySha256")
+    files = assets.get("files")
+    if not isinstance(prefix, str) or not prefix:
+        raise ValueError("mesh asset manifest prefix must be non-empty")
+    if not isinstance(file_count, int) or isinstance(file_count, bool) or file_count < 1:
+        raise ValueError("mesh asset manifest fileCount must be positive")
+    if not isinstance(total_bytes, int) or isinstance(total_bytes, bool) or total_bytes < 0:
+        raise ValueError("mesh asset manifest totalBytes must be non-negative")
+    if (
+        not isinstance(inventory_checksum, str)
+        or _SHA256.fullmatch(inventory_checksum) is None
+    ):
+        raise ValueError("mesh asset manifest inventorySha256 is not a checksum")
+    if not isinstance(files, list) or len(files) != file_count:
+        raise ValueError("mesh asset manifest is incomplete: fileCount does not match")
+
+    validated_files: list[Mapping[str, object]] = []
+    seen_paths: set[str] = set()
+    for item in files:
+        if not isinstance(item, dict) or set(item) != _ASSET_FILE_KEYS:
+            raise ValueError("mesh asset manifest file entry is incomplete")
+        relative_path = item.get("path")
+        size = item.get("size")
+        checksum = item.get("sha256")
+        if not isinstance(relative_path, str) or not relative_path:
+            raise ValueError("mesh asset path must be a non-empty relative POSIX path")
+        path = PurePosixPath(relative_path)
+        if (
+            path.is_absolute()
+            or "\\" in relative_path
+            or any(part in {"", ".", ".."} for part in path.parts)
+            or path.as_posix() != relative_path
+        ):
+            raise ValueError(f"mesh asset path escapes its cache root: {relative_path}")
+        if relative_path in seen_paths:
+            raise ValueError(f"mesh asset path is duplicated: {relative_path}")
+        seen_paths.add(relative_path)
+        if not isinstance(size, int) or isinstance(size, bool) or size < 0:
+            raise ValueError(f"mesh asset size is invalid for {relative_path}")
+        if not isinstance(checksum, str) or _SHA256.fullmatch(checksum) is None:
+            raise ValueError(f"mesh asset checksum is invalid for {relative_path}")
+        validated_files.append(item)
+
+    if sum(int(item["size"]) for item in validated_files) != total_bytes:
+        raise ValueError("mesh asset size metadata does not match totalBytes")
+    if _inventory_digest(validated_files) != inventory_checksum.lower():
+        raise ValueError("mesh asset inventory checksum does not match its entries")
+    return prefix, tuple(validated_files)
+
+
+def _verify_asset_inventory(
+    asset_root: Path, assets: object
+) -> None:
+    """Verify an exact, content-addressed cache inventory without remote metadata."""
+    _, files = _parse_asset_manifest(assets)
+    if asset_root.is_symlink() or not asset_root.is_dir():
+        raise ValueError("mesh asset cache root is unavailable or is a symlink")
+    resolved_root = asset_root.resolve()
+
+    actual_paths: set[str] = set()
+    for candidate in asset_root.rglob("*"):
+        if candidate.is_symlink():
+            raise ValueError(f"mesh asset cache contains a symlink: {candidate}")
+        if candidate.is_file():
+            actual_paths.add(candidate.relative_to(asset_root).as_posix())
+        elif not candidate.is_dir():
+            raise ValueError(f"mesh asset cache contains an unsupported entry: {candidate}")
+
+    expected_paths = {str(item["path"]) for item in files}
+    if actual_paths != expected_paths:
+        missing = sorted(expected_paths - actual_paths)
+        extra = sorted(actual_paths - expected_paths)
+        raise ValueError(
+            f"mesh asset inventory mismatch; missing={missing}, extra={extra}"
+        )
+
+    for item in files:
+        relative_path = str(item["path"])
+        candidate = asset_root.joinpath(*PurePosixPath(relative_path).parts)
+        resolved_candidate = candidate.resolve()
+        if not resolved_candidate.is_relative_to(resolved_root):
+            raise ValueError(f"mesh asset path escapes its cache root: {relative_path}")
+        stat = candidate.stat()
+        if stat.st_size != item["size"]:
+            raise ValueError(f"mesh asset size mismatch for {relative_path}")
+        checksum = hashlib.sha256(candidate.read_bytes()).hexdigest()
+        if checksum.lower() != str(item["sha256"]).lower():
+            raise ValueError(f"mesh asset checksum mismatch for {relative_path}")
+
+
+def _verify_mesh_assets(manifest: Mapping[str, object]) -> Path:
+    assets = manifest.get("meshAssets")
+    prefix, files = _parse_asset_manifest(assets)
+    if FLYBODY_FULLSIZE_MESH_DIR != PINNED_ASSET_PREFIX:
+        raise ValueError(
+            "installed FlyGym changed its versioned FlyBody mesh asset prefix"
+        )
+    if (
+        prefix != PINNED_ASSET_PREFIX
+        or len(files) != PINNED_ASSET_FILE_COUNT
+        or not isinstance(assets, dict)
+        or assets["totalBytes"] != PINNED_ASSET_TOTAL_BYTES
+        or assets["inventorySha256"] != PINNED_ASSET_INVENTORY_SHA256
+    ):
+        raise ValueError(
+            "mesh asset manifest does not contain the complete pinned FlyBody "
+            "asset set"
+        )
+    asset_root = lazy_load_asset_dir(prefix)
+    _verify_asset_inventory(asset_root, assets)
+    return asset_root
 
 
 def _verify_runtime_and_source(manifest: Mapping[str, object]) -> Path:
@@ -198,6 +345,7 @@ class FlyBodyModel:
     def load(cls, manifest_path: str | Path) -> "FlyBodyModel":
         manifest = _load_manifest(Path(manifest_path))
         _verify_runtime_and_source(manifest)
+        _verify_mesh_assets(manifest)
         model, actuator_names = _build_flygym_model()
 
         expected_names = tuple(manifest["actionSignals"])

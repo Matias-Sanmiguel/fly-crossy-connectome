@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 import numpy as np
 import pytest
 
+from fly_crossy.biomechanics import body as body_module
 from fly_crossy.biomechanics.body import FlyBodyModel
 import mujoco
 
@@ -78,6 +80,33 @@ EXPECTED_ACTION_NAMES = (
     "rm_tarsus5-adhesion",
     "rh_tarsus5-adhesion",
 )
+
+
+def _inventory_digest(files: list[dict[str, object]]) -> str:
+    encoded = json.dumps(files, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _synthetic_asset_manifest(asset_root: Path) -> dict[str, object]:
+    (asset_root / "README").write_bytes(b"pinned fixture\n")
+    (asset_root / "mesh.obj").write_bytes(b"v 0 0 0\n")
+    files = []
+    for path in sorted(asset_root.iterdir()):
+        content = path.read_bytes()
+        files.append(
+            {
+                "path": path.name,
+                "size": len(content),
+                "sha256": hashlib.sha256(content).hexdigest(),
+            }
+        )
+    return {
+        "prefix": "flybody_fullsize_meshes_20260623a",
+        "fileCount": len(files),
+        "totalBytes": sum(int(item["size"]) for item in files),
+        "inventorySha256": _inventory_digest(files),
+        "files": files,
+    }
 
 
 @pytest.fixture(scope="session")
@@ -190,3 +219,115 @@ def test_loader_rejects_changed_immutable_provenance(
 
     with pytest.raises(ValueError, match="immutable manifest field"):
         FlyBodyModel.load(invalid_path)
+
+
+def test_manifest_pins_the_complete_versioned_flybody_asset_inventory() -> None:
+    manifest = json.loads(MANIFEST_PATH.read_text())
+    assets = manifest["meshAssets"]
+
+    assert assets["prefix"] == "flybody_fullsize_meshes_20260623a"
+    assert assets["fileCount"] == 87
+    assert assets["totalBytes"] == 140_210_791
+    assert len(assets["files"]) == 87
+    assert assets["inventorySha256"] == (
+        "d67fa2c2649f7c5c755d3e0770955cd633e4b28ff203c124bd4cc193db4a3453"
+    )
+    assert assets["inventorySha256"] == _inventory_digest(assets["files"])
+
+
+@pytest.mark.parametrize(
+    "missing_field",
+    ("prefix", "fileCount", "totalBytes", "inventorySha256", "files"),
+)
+def test_asset_verifier_rejects_an_incomplete_manifest(
+    tmp_path: Path, missing_field: str
+) -> None:
+    assets = _synthetic_asset_manifest(tmp_path)
+    del assets[missing_field]
+
+    with pytest.raises(ValueError, match="mesh asset manifest"):
+        body_module._verify_asset_inventory(tmp_path, assets)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    (
+        ("delete_entry", "incomplete"),
+        ("escape_path", "path"),
+        ("wrong_size", "size"),
+        ("wrong_hash", "checksum"),
+    ),
+)
+def test_asset_verifier_rejects_mutated_inventory_entries(
+    tmp_path: Path, mutation: str, message: str
+) -> None:
+    assets = _synthetic_asset_manifest(tmp_path)
+    files = assets["files"]
+    assert isinstance(files, list)
+    if mutation == "delete_entry":
+        files.pop()
+    elif mutation == "escape_path":
+        files[0]["path"] = "../README"
+    elif mutation == "wrong_size":
+        files[0]["size"] += 1
+    elif mutation == "wrong_hash":
+        files[0]["sha256"] = "0" * 64
+
+    with pytest.raises(ValueError, match=message):
+        body_module._verify_asset_inventory(tmp_path, assets)
+
+
+@pytest.mark.parametrize("mutation", ("missing", "extra", "changed"))
+def test_asset_verifier_rejects_a_changed_cache_without_touching_real_assets(
+    tmp_path: Path, mutation: str
+) -> None:
+    assets = _synthetic_asset_manifest(tmp_path)
+    if mutation == "missing":
+        (tmp_path / "mesh.obj").unlink()
+    elif mutation == "extra":
+        (tmp_path / "unlisted.obj").write_bytes(b"v 1 1 1\n")
+    else:
+        path = tmp_path / "mesh.obj"
+        path.write_bytes(b"v 9 9 9\n")  # same byte count; only SHA-256 detects it
+
+    with pytest.raises(ValueError, match="mesh asset"):
+        body_module._verify_asset_inventory(tmp_path, assets)
+
+
+def test_loader_verifies_mesh_assets_before_compiling(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def reject_assets(_manifest: object) -> None:
+        raise ValueError("mesh assets rejected before compile")
+
+    def compile_must_not_run() -> object:
+        pytest.fail("FlyBody compilation ran before mesh verification")
+
+    monkeypatch.setattr(body_module, "_verify_mesh_assets", reject_assets)
+    monkeypatch.setattr(body_module, "_build_flygym_model", compile_must_not_run)
+
+    with pytest.raises(ValueError, match="rejected before compile"):
+        FlyBodyModel.load(MANIFEST_PATH)
+
+
+def test_loader_rejects_an_internally_consistent_but_incomplete_inventory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    asset_root = tmp_path / "cache"
+    asset_root.mkdir()
+    manifest = json.loads(MANIFEST_PATH.read_text())
+    manifest["meshAssets"] = _synthetic_asset_manifest(asset_root)
+    manifest_path = tmp_path / "flybody.json"
+    manifest_path.write_text(json.dumps(manifest))
+
+    monkeypatch.setattr(
+        body_module, "lazy_load_asset_dir", lambda _prefix: asset_root
+    )
+    monkeypatch.setattr(
+        body_module,
+        "_build_flygym_model",
+        lambda: pytest.fail("FlyBody compilation ran for an incomplete inventory"),
+    )
+
+    with pytest.raises(ValueError, match="complete pinned FlyBody asset set"):
+        FlyBodyModel.load(manifest_path)
