@@ -34,8 +34,8 @@ test('protocol v2 server variants are discriminated and bounded', () => {
     { type: 'reset_complete', ...envelope },
     { type: 'intention', ...envelope, intentionId: 'i-01234567', action: 'left', motorPhase: 'pressing' },
     { type: 'snapshot', ...envelope, body: [0, 0, 0], joints: [0], keys: { W: 0.1 } },
-    { type: 'neural_keyframe', ...envelope, updates: [{ neuronId: 1, value: 0.5 }] },
-    { type: 'neural_delta', ...envelope, updates: [{ neuronId: 1, value: 0.5 }] },
+    { type: 'neural_keyframe', ...envelope, revision: 4, chunkIndex: 0, chunkCount: 1, updates: [{ neuronId: 1, value: 0.5 }] },
+    { type: 'neural_delta', ...envelope, baseRevision: 4, revision: 5, chunkIndex: 0, chunkCount: 1, updates: [{ neuronId: 1, value: 0.5 }] },
     { type: 'contact', ...envelope, intentionId: 'i-01234567', requestedKey: 'W', touchedKey: 'W', travel: 0.1, force: 2, debounce: 0.02, confirmed: true },
     { type: 'action_result', ...envelope, intentionId: 'i-01234567', result: 'confirmed' },
     { type: 'metrics', ...envelope, physicsHz: 1000, motorHz: 100, neuralHz: 10, renderHz: 30, latencyMs: 10, droppedRenderFrames: 0 },
@@ -49,6 +49,23 @@ test('protocol v2 server variants are discriminated and bounded', () => {
     () => parseServerMessage({ ...variants[4], updates: Array.from({ length: 20_001 }, () => ({ neuronId: 1, value: 0 })) }),
     /updates/i,
   );
+});
+
+test('protocol v2 neural frames require reconstructible revision and chunk metadata', () => {
+  const envelope = {
+    version: 2, sessionId: 's-01234567', episodeId: 'e-01234567', sequence: 1, simulationTime: 1,
+  };
+
+  assert.throws(() => parseServerMessage({
+    type: 'neural_keyframe', ...envelope, updates: [],
+  }), /revision|chunk/i);
+  assert.throws(() => parseServerMessage({
+    type: 'neural_delta', ...envelope, revision: 2, chunkIndex: 0, chunkCount: 1, updates: [],
+  }), /baseRevision/i);
+  assert.throws(() => parseServerMessage({
+    type: 'neural_keyframe', ...envelope,
+    revision: 2, chunkIndex: 0, chunkCount: 1, updates: [{ neuronId: 1, value: 0 }],
+  }), /nonzero/i);
 });
 
 test('protocol v2 rejects committed invalid messages', async () => {

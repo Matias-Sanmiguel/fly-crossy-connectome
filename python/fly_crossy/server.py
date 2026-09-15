@@ -6,14 +6,15 @@ import hashlib
 import json
 import logging
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Literal, Mapping
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from fly_crossy.backend import BackendStatus, BackendUnavailable, resolve_backend
 from fly_crossy.protocol import (
@@ -23,6 +24,7 @@ from fly_crossy.protocol import (
     Error,
     Hello,
     MAX_NEURAL_UPDATES,
+    NeuralUpdate,
     Pause,
     Paused,
     RequestKeyframe,
@@ -30,7 +32,10 @@ from fly_crossy.protocol import (
     ResetComplete,
     Resume,
     Ready,
+    ServerMessage,
+    chunk_neural_frames,
     parse_client_message,
+    serialize_server_message,
 )
 from fly_crossy.session import SessionFault, SimulationSession
 
@@ -153,10 +158,33 @@ class SessionSender:
     session: SimulationSession
     sequence: int = 0
 
-    async def send(self, message: BaseModel) -> None:
+    async def send(self, message: ServerMessage) -> None:
         sequenced = message.model_copy(update={"sequence": self.sequence})
+        payload = serialize_server_message(sequenced)
+        await self.websocket.send_text(payload)
         self.sequence += 1
-        await self.websocket.send_json(sequenced.model_dump(by_alias=True, exclude_none=True))
+
+    async def send_neural(
+        self,
+        message_type: Literal["neural_keyframe", "neural_delta"],
+        *,
+        revision: int,
+        simulation_time: float,
+        updates: Sequence[NeuralUpdate | dict[str, Any]],
+        base_revision: int | None = None,
+    ) -> None:
+        frames = chunk_neural_frames(
+            message_type=message_type,
+            session_id=self.session.session_id,
+            episode_id=self.session.episode_id,
+            start_sequence=self.sequence,
+            simulation_time=simulation_time,
+            revision=revision,
+            base_revision=base_revision,
+            updates=updates,
+        )
+        for frame in frames:
+            await self.send(frame)
 
     async def error(self, code: str, message: str) -> None:
         await self.send(
@@ -349,7 +377,14 @@ async def _apply_message(
         session.resume(message)
         return
     if isinstance(message, RequestKeyframe):
-        raise SessionFault("UNSUPPORTED_MESSAGE", "Keyframes are not available in this runtime skeleton.")
+        session.request_keyframe(message)
+        await sender.send_neural(
+            "neural_keyframe",
+            revision=0,
+            simulation_time=message.simulation_time,
+            updates=[],
+        )
+        return
 
     intention = session.accept_observation(message)
     await sender.send(intention)

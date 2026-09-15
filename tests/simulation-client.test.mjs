@@ -180,6 +180,29 @@ test('client permits one observation until its action result arrives', () => {
   client.close();
 });
 
+test('client can observe immediately after a successful local resume', () => {
+  const { client, sockets } = createHarness();
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  sockets[0].receive({
+    type: 'paused', ...envelope(1), code: 'PAUSED', message: 'Session paused.',
+  });
+
+  client.resume(2);
+
+  assert.equal(client.state.phase, 'ready');
+  assert.equal(sockets[0].sent.at(-1).type, 'resume');
+  assert.doesNotThrow(() => client.observe({
+    gameStep: 3,
+    observation: Array(370).fill(0),
+    reward: 0,
+    simulationTime: 3,
+  }));
+  assert.equal(sockets[0].sent.at(-1).type, 'observation');
+  client.close();
+});
+
 test('client rejects malformed observations before they enter the outbound queue', () => {
   const { client, sockets } = createHarness();
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
@@ -246,7 +269,10 @@ test('client requests a keyframe after a neural delta sequence gap', () => {
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
   sockets[0].open();
   sockets[0].receive(ready());
-  sockets[0].receive({ type: 'neural_delta', ...envelope(2), updates: [] });
+  sockets[0].receive({
+    type: 'neural_delta', ...envelope(2), baseRevision: 0, revision: 1,
+    chunkIndex: 0, chunkCount: 1, updates: [],
+  });
 
   assert.deepEqual(sockets[0].sent.at(-1), {
     type: 'request_keyframe', version: 2, sessionId: 's-current1', episodeId: 'e-current1', sequence: 2, simulationTime: 2,
@@ -259,11 +285,94 @@ test('client requests one keyframe when a sequence gap is first seen on a snapsh
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
   sockets[0].open();
   sockets[0].receive(ready());
-  sockets[0].receive({ type: 'neural_delta', ...envelope(1), updates: [] });
+  sockets[0].receive({
+    type: 'neural_keyframe', ...envelope(1), revision: 0,
+    chunkIndex: 0, chunkCount: 1, updates: [],
+  });
   sockets[0].receive({ type: 'snapshot', ...envelope(3), body: [0, 0, 0], joints: [], keys: {} });
-  sockets[0].receive({ type: 'neural_delta', ...envelope(4), updates: [] });
+  sockets[0].receive({
+    type: 'neural_delta', ...envelope(4), baseRevision: 0, revision: 1,
+    chunkIndex: 0, chunkCount: 1, updates: [],
+  });
 
   assert.deepEqual(sockets[0].sent.filter(({ type }) => type === 'request_keyframe').map(({ sequence }) => sequence), [2]);
+  client.close();
+});
+
+test('client publishes a keyframe only after every chunk is assembled', () => {
+  const { client, sockets } = createHarness();
+  const activity = [];
+  client.subscribeActivity((frame) => activity.push(frame));
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+
+  sockets[0].receive({
+    type: 'neural_keyframe', ...envelope(1, { simulationTime: 4 }), revision: 7,
+    chunkIndex: 0, chunkCount: 2, updates: [{ neuronId: 8, value: 0.5 }],
+  });
+  assert.deepEqual(activity, []);
+  sockets[0].receive({
+    type: 'neural_keyframe', ...envelope(2, { simulationTime: 4 }), revision: 7,
+    chunkIndex: 1, chunkCount: 2, updates: [{ neuronId: 3, value: 0.25 }],
+  });
+
+  assert.deepEqual(activity, [{
+    revision: 7,
+    simulationTime: 4,
+    updates: [{ neuronId: 3, value: 0.25 }, { neuronId: 8, value: 0.5 }],
+  }]);
+  client.close();
+});
+
+test('client applies a chunked delta atomically against its base revision', () => {
+  const { client, sockets } = createHarness();
+  const activity = [];
+  client.subscribeActivity((frame) => activity.push(frame));
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  sockets[0].receive({
+    type: 'neural_keyframe', ...envelope(1), revision: 2,
+    chunkIndex: 0, chunkCount: 1, updates: [{ neuronId: 3, value: 0.25 }],
+  });
+  activity.length = 0;
+
+  sockets[0].receive({
+    type: 'neural_delta', ...envelope(2, { simulationTime: 5 }), baseRevision: 2, revision: 3,
+    chunkIndex: 1, chunkCount: 2, updates: [{ neuronId: 8, value: 0.5 }],
+  });
+  assert.deepEqual(activity, []);
+  sockets[0].receive({
+    type: 'neural_delta', ...envelope(3, { simulationTime: 5 }), baseRevision: 2, revision: 3,
+    chunkIndex: 0, chunkCount: 2, updates: [{ neuronId: 3, value: 0 }],
+  });
+
+  assert.deepEqual(activity, [{
+    revision: 3,
+    simulationTime: 5,
+    updates: [{ neuronId: 8, value: 0.5 }],
+  }]);
+  client.close();
+});
+
+test('client treats an empty one-chunk keyframe as clear activity', () => {
+  const { client, sockets } = createHarness();
+  const activity = [];
+  client.subscribeActivity((frame) => activity.push(frame));
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  sockets[0].receive({
+    type: 'neural_keyframe', ...envelope(1), revision: 2,
+    chunkIndex: 0, chunkCount: 1, updates: [{ neuronId: 3, value: 0.25 }],
+  });
+  sockets[0].receive({
+    type: 'neural_keyframe', ...envelope(2), revision: 3,
+    chunkIndex: 0, chunkCount: 1, updates: [],
+  });
+
+  assert.deepEqual(activity.at(-1), { revision: 3, simulationTime: 2, updates: [] });
   client.close();
 });
 
@@ -381,5 +490,39 @@ test('client suppresses stale reconnect scheduling after a close subscriber reco
   assert.equal(client.state.sessionId, 's-current2');
   assert.equal(sockets.length, 2);
   assert.equal(scheduled.length, 0);
+  client.close();
+});
+
+test('client does not publish an old action result after a state subscriber reconnects', () => {
+  const { client, sockets } = createHarness(
+    ['s-current1', 's-current2'],
+    ['e-current1', 'e-current2'],
+  );
+  const delivered = [];
+  let reconnectOnReady = false;
+  let reconnected = false;
+  client.subscribe((message) => delivered.push(message));
+  client.subscribeState((state) => {
+    if (reconnectOnReady && !reconnected && state.phase === 'ready') {
+      reconnected = true;
+      client.reconnect();
+    }
+  });
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  sockets[0].receive({
+    type: 'intention', ...envelope(1), intentionId: 'i-current1',
+    action: 'wait', motorPhase: 'neutral',
+  });
+  reconnectOnReady = true;
+
+  sockets[0].receive({
+    type: 'action_result', ...envelope(2), intentionId: 'i-current1', result: 'waited',
+  });
+
+  assert.equal(client.state.sessionId, 's-current2');
+  assert.deepEqual(delivered.filter(({ type }) => type === 'action_result'), []);
   client.close();
 });

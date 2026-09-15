@@ -1,5 +1,6 @@
 export const MAX_FRAME_BYTES = 1_048_576;
 export const MAX_NEURAL_UPDATES = 20_000;
+export const MAX_NEURAL_CHUNKS = 256;
 export const MAX_STRING_LENGTH = 256;
 export const MAX_SEQUENCE = 2 ** 53 - 1;
 
@@ -21,8 +22,8 @@ export type Ready = Envelope & { type: 'ready'; backend: 'cpu' | 'gpu'; populati
 export type ResetComplete = Envelope & { type: 'reset_complete' };
 export type Intention = Envelope & { type: 'intention'; intentionId: string; action: Action; motorPhase: MotorPhase };
 export type Snapshot = Envelope & { type: 'snapshot'; body: [number, number, number]; joints: number[]; keys: Partial<Record<KeyName, number>> };
-export type NeuralKeyframe = Envelope & { type: 'neural_keyframe'; updates: NeuralUpdate[] };
-export type NeuralDelta = Envelope & { type: 'neural_delta'; updates: NeuralUpdate[] };
+export type NeuralKeyframe = Envelope & { type: 'neural_keyframe'; revision: number; chunkIndex: number; chunkCount: number; updates: NeuralUpdate[] };
+export type NeuralDelta = Envelope & { type: 'neural_delta'; baseRevision: number; revision: number; chunkIndex: number; chunkCount: number; updates: NeuralUpdate[] };
 export type Contact = Envelope & { type: 'contact'; intentionId: string; requestedKey: KeyName; touchedKey: KeyName | null; travel: number; force: number; debounce: number; confirmed: boolean };
 export type ActionResult = Envelope & { type: 'action_result'; intentionId: string; result: 'confirmed' | 'waited' | 'failed' };
 export type Metrics = Envelope & { type: 'metrics'; physicsHz: number; motorHz: number; neuralHz: number; renderHz: number; latencyMs: number; droppedRenderFrames: number; backendUtilization?: number };
@@ -81,13 +82,25 @@ function envelope(value: Record<string, unknown>, keys: readonly string[]): void
   integer(value.sequence, 'sequence', 0, MAX_SEQUENCE);
   finiteNumber(value.simulationTime, 'simulationTime', 0, 86_400);
 }
-function validateUpdates(value: unknown): void {
+function validateUpdates(value: unknown, requireNonzero = false): void {
   for (const update of array(value, 'updates', 0, MAX_NEURAL_UPDATES)) {
     if (!isRecord(update)) fail('update must be an object');
     onlyKeys(update, ['neuronId', 'value']);
     integer(update.neuronId, 'neuronId', 0, MAX_SEQUENCE);
-    finiteNumber(update.value, 'value', -1_000_000, 1_000_000);
+    const activity = finiteNumber(update.value, 'value', -1_000_000, 1_000_000);
+    if (requireNonzero && activity === 0) fail('neural keyframe updates must be nonzero');
   }
+}
+function validateNeuralChunk(value: Record<string, unknown>, delta: boolean): void {
+  const revision = integer(value.revision, 'revision', delta ? 1 : 0, MAX_SEQUENCE);
+  if (delta) {
+    const baseRevision = integer(value.baseRevision, 'baseRevision', 0, MAX_SEQUENCE);
+    if (revision <= baseRevision) fail('revision must be greater than baseRevision');
+  }
+  const chunkIndex = integer(value.chunkIndex, 'chunkIndex', 0, MAX_NEURAL_CHUNKS - 1);
+  const chunkCount = integer(value.chunkCount, 'chunkCount', 1, MAX_NEURAL_CHUNKS);
+  if (chunkIndex >= chunkCount) fail('chunkIndex must be less than chunkCount');
+  validateUpdates(value.updates, !delta);
 }
 
 /** Parse one strict, bounded server control frame. */
@@ -118,8 +131,14 @@ export function parseServerMessage(value: unknown): ServerMessage {
       for (const [key, travel] of Object.entries(message.keys)) { if (!keyNames.has(key as KeyName)) fail('keys contains an invalid key'); finiteNumber(travel, 'keys', 0, 1); }
       break;
     }
-    case 'neural_keyframe': case 'neural_delta':
-      envelope(message, ['type', 'version', 'sessionId', 'episodeId', 'sequence', 'simulationTime', 'updates']); validateUpdates(message.updates); break;
+    case 'neural_keyframe':
+      envelope(message, ['type', 'version', 'sessionId', 'episodeId', 'sequence', 'simulationTime', 'revision', 'chunkIndex', 'chunkCount', 'updates']);
+      validateNeuralChunk(message, false);
+      break;
+    case 'neural_delta':
+      envelope(message, ['type', 'version', 'sessionId', 'episodeId', 'sequence', 'simulationTime', 'baseRevision', 'revision', 'chunkIndex', 'chunkCount', 'updates']);
+      validateNeuralChunk(message, true);
+      break;
     case 'contact':
       envelope(message, ['type', 'version', 'sessionId', 'episodeId', 'sequence', 'simulationTime', 'intentionId', 'requestedKey', 'touchedKey', 'travel', 'force', 'debounce', 'confirmed']);
       string(message.intentionId, 'intentionId', /^i-[a-z0-9]{8,64}$/); if (!keyNames.has(message.requestedKey as KeyName)) fail('requestedKey is invalid'); if (message.touchedKey !== null && !keyNames.has(message.touchedKey as KeyName)) fail('touchedKey is invalid'); finiteNumber(message.travel, 'travel', 0, 1); finiteNumber(message.force, 'force', 0, 10_000); finiteNumber(message.debounce, 'debounce', 0, 10); if (typeof message.confirmed !== 'boolean') fail('confirmed must be boolean'); break;

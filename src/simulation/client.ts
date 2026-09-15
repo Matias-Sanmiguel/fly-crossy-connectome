@@ -2,6 +2,9 @@ import {
   MAX_SEQUENCE,
   parseServerMessage,
   type BackendPreference,
+  type NeuralDelta,
+  type NeuralKeyframe,
+  type NeuralUpdate,
   type PopulationSize,
   type ServerMessage,
 } from './protocol.ts';
@@ -13,6 +16,12 @@ export type SimulationClientState = {
   episodeId: string;
   backend: 'cpu' | 'gpu' | null;
   error: string | null;
+};
+
+export type NeuralActivityState = {
+  revision: number;
+  simulationTime: number;
+  updates: NeuralUpdate[];
 };
 
 export type SimulationSocket = {
@@ -63,16 +72,27 @@ export type SimulationClient = {
   reconnect(): void;
   close(): void;
   subscribe(listener: (message: ServerMessage) => void): () => void;
+  subscribeActivity(listener: (activity: NeuralActivityState) => void): () => void;
   subscribeState(listener: (state: SimulationClientState) => void): () => void;
 };
 
 type PendingObservation = { intentionId: string | null };
+type NeuralMessage = NeuralKeyframe | NeuralDelta;
+type NeuralAssembly = {
+  type: NeuralMessage['type'];
+  baseRevision: number | null;
+  revision: number;
+  chunkCount: number;
+  simulationTime: number;
+  chunks: Map<number, NeuralUpdate[]>;
+};
 
 const OPEN = 1;
 const sessionPattern = /^s-[a-z0-9]{8,64}$/;
 const episodePattern = /^e-[a-z0-9]{8,64}$/;
 const populations = new Set<PopulationSize>([80, 1000, 5000, 20000, 124289]);
 const backends = new Set<BackendPreference>(['auto', 'cpu', 'gpu', 'gpu-strict']);
+const MAX_NEURAL_POPULATION = 124_289;
 let generatedId = 0;
 
 function browserSocket(url: string): SimulationSocket {
@@ -166,6 +186,7 @@ export function createSimulationClient(
   const episodeIdFactory = options.episodeIdFactory ?? (() => makeId('e'));
   const queue = new OutboundQueue<OutboundMessage>(options.maxQueue ?? 32);
   const messageListeners = new Set<(message: ServerMessage) => void>();
+  const activityListeners = new Set<(activity: NeuralActivityState) => void>();
   const stateListeners = new Set<(state: SimulationClientState) => void>();
   let state: SimulationClientState = {
     phase: 'connecting',
@@ -184,6 +205,9 @@ export function createSimulationClient(
   let awaitingKeyframe = false;
   let configuration: SimulationConfiguration | null = null;
   let connectionGeneration = 0;
+  let activityRevision: number | null = null;
+  let neuralActivity = new Map<number, number>();
+  let neuralAssembly: NeuralAssembly | null = null;
   const completedIntentions: string[] = [];
   const socketListeners = new Map<SimulationSocket, {
     open: () => void;
@@ -252,8 +276,87 @@ export function createSimulationClient(
   const publishMessage = (message: ServerMessage) => {
     for (const listener of messageListeners) listener(message);
   };
+  const publishActivity = (simulationTime: number) => {
+    const updates = [...neuralActivity]
+      .sort(([left], [right]) => left - right)
+      .map(([neuronId, value]) => ({ neuronId, value }));
+    const current = { revision: activityRevision!, simulationTime, updates };
+    for (const listener of activityListeners) listener(current);
+  };
+  const acceptNeural = (message: NeuralMessage) => {
+    const baseRevision = message.type === 'neural_delta' ? message.baseRevision : null;
+    const sameAssembly = neuralAssembly
+      && neuralAssembly.type === message.type
+      && neuralAssembly.baseRevision === baseRevision
+      && neuralAssembly.revision === message.revision;
+    if (!sameAssembly) {
+      if (neuralAssembly && (message.type !== 'neural_keyframe' || message.revision <= neuralAssembly.revision)) {
+        neuralAssembly = null;
+        requestKeyframe(message.simulationTime);
+        return;
+      }
+      neuralAssembly = {
+        type: message.type,
+        baseRevision,
+        revision: message.revision,
+        chunkCount: message.chunkCount,
+        simulationTime: message.simulationTime,
+        chunks: new Map(),
+      };
+    }
+    const assembly = neuralAssembly!;
+    if (
+      assembly.chunkCount !== message.chunkCount
+      || assembly.simulationTime !== message.simulationTime
+      || assembly.chunks.has(message.chunkIndex)
+    ) {
+      neuralAssembly = null;
+      fail('Simulation neural chunks contain inconsistent or duplicate metadata.');
+      return;
+    }
+    assembly.chunks.set(message.chunkIndex, message.updates);
+    if (assembly.chunks.size !== assembly.chunkCount) return;
+
+    const completed = assembly;
+    neuralAssembly = null;
+    const updates = Array.from({ length: completed.chunkCount }, (_, index) => completed.chunks.get(index)!)
+      .flat();
+    if (updates.length > MAX_NEURAL_POPULATION) {
+      fail('Simulation neural revision exceeds the supported population.');
+      return;
+    }
+    const neuronIds = new Set<number>();
+    for (const update of updates) {
+      if (neuronIds.has(update.neuronId)) {
+        fail('Simulation neural revision contains duplicate neuron IDs.');
+        return;
+      }
+      neuronIds.add(update.neuronId);
+    }
+
+    if (completed.type === 'neural_keyframe') {
+      if (activityRevision !== null && completed.revision < activityRevision) return;
+      neuralActivity = new Map(updates.map((update) => [update.neuronId, update.value]));
+      activityRevision = completed.revision;
+      awaitingKeyframe = false;
+    } else {
+      if (activityRevision !== completed.baseRevision) {
+        requestKeyframe(completed.simulationTime);
+        return;
+      }
+      const next = new Map(neuralActivity);
+      for (const update of updates) {
+        if (update.value === 0) next.delete(update.neuronId);
+        else next.set(update.neuronId, update.value);
+      }
+      neuralActivity = next;
+      activityRevision = completed.revision;
+    }
+    publishActivity(completed.simulationTime);
+  };
   const fail = (message: string) => setState({ phase: 'error', error: message });
   const receive = (raw: unknown) => {
+    const generation = connectionGeneration;
     let message: ServerMessage;
     try {
       message = parseServerMessage(raw);
@@ -269,6 +372,10 @@ export function createSimulationClient(
       }
       lastInboundSequence = 0;
       setState({ phase: 'ready', backend: message.backend, error: null });
+      if (
+        disposed || generation !== connectionGeneration
+        || message.sessionId !== state.sessionId || message.episodeId !== state.episodeId
+      ) return;
       publishMessage(message);
       return;
     }
@@ -283,7 +390,10 @@ export function createSimulationClient(
     const hasGap = message.sequence > lastInboundSequence + 1;
     lastInboundSequence = message.sequence;
     if (hasGap && !requestKeyframe(message.simulationTime)) return;
-    if (message.type === 'neural_keyframe') awaitingKeyframe = false;
+    if (message.type === 'neural_keyframe' || message.type === 'neural_delta') {
+      acceptNeural(message);
+      return;
+    }
 
     switch (message.type) {
       case 'intention':
@@ -331,6 +441,10 @@ export function createSimulationClient(
       default:
         break;
     }
+    if (
+      disposed || generation !== connectionGeneration
+      || message.sessionId !== state.sessionId || message.episodeId !== state.episodeId
+    ) return;
     publishMessage(message);
   };
   const disconnect = (current: SimulationSocket) => {
@@ -385,6 +499,9 @@ export function createSimulationClient(
     pendingObservation = null;
     awaitingReset = false;
     awaitingKeyframe = false;
+    activityRevision = null;
+    neuralActivity = new Map();
+    neuralAssembly = null;
     completedIntentions.length = 0;
     nextOutboundSequence = 0;
     lastInboundSequence = null;
@@ -465,7 +582,11 @@ export function createSimulationClient(
     },
     resume(simulationTime = 0) {
       if (disposed) throw Error('Simulation client is closed.');
+      const generation = connectionGeneration;
+      const sessionId = state.sessionId;
       enqueue(envelope('resume', finite(simulationTime, 'simulation time', 0, 86_400)));
+      if (generation !== connectionGeneration || state.sessionId !== sessionId || state.phase === 'error') return;
+      setState({ phase: pendingObservation ? 'acting' : 'ready', error: null });
     },
     reconnect() {
       if (disposed) throw Error('Simulation client is closed.');
@@ -496,11 +617,16 @@ export function createSimulationClient(
       pendingObservation = null;
       setState({ phase: 'closed', backend: null, error: null });
       messageListeners.clear();
+      activityListeners.clear();
       stateListeners.clear();
     },
     subscribe(listener) {
       messageListeners.add(listener);
       return () => messageListeners.delete(listener);
+    },
+    subscribeActivity(listener) {
+      activityListeners.add(listener);
+      return () => activityListeners.delete(listener);
     },
     subscribeState(listener) {
       stateListeners.add(listener);

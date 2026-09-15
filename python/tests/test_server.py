@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 from pathlib import Path
@@ -9,7 +10,8 @@ from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
 from fly_crossy.backend import BackendStatus
-from fly_crossy.protocol import MAX_FRAME_BYTES
+from fly_crossy.protocol import Error, MAX_FRAME_BYTES, MAX_NEURAL_UPDATES, parse_server_message
+from fly_crossy.session import SimulationSession
 from fly_crossy.server import (
     ArtifactRegistryError,
     CLOSE_ARTIFACT_UNAVAILABLE,
@@ -21,6 +23,7 @@ from fly_crossy.server import (
     app,
     create_app,
     load_verified_artifact_registry,
+    SessionSender,
 )
 
 
@@ -105,6 +108,17 @@ def observation() -> dict[str, object]:
     }
 
 
+def request_keyframe(sequence: int = 2) -> dict[str, object]:
+    return {
+        "type": "request_keyframe",
+        "version": 2,
+        "sessionId": "s-00000001",
+        "episodeId": "e-00000001",
+        "sequence": sequence,
+        "simulationTime": 1.0,
+    }
+
+
 def test_health_is_small_and_ready(client: TestClient) -> None:
     response = client.get("/healthz")
 
@@ -122,6 +136,67 @@ def test_capabilities_expose_protocol_bounds(client: TestClient) -> None:
         "backends": ["cpu", "gpu"],
         "maxFrameBytes": MAX_FRAME_BYTES,
     }
+
+
+def test_sender_fails_closed_before_writing_an_oversized_non_neural_frame() -> None:
+    class RecordingSocket:
+        def __init__(self) -> None:
+            self.payloads: list[str] = []
+
+        async def send_text(self, payload: str) -> None:
+            self.payloads.append(payload)
+
+    socket = RecordingSocket()
+    session = SimulationSession("s-00000001", "e-00000001")
+    sender = SessionSender(socket, session)  # type: ignore[arg-type]
+    oversized = Error.model_construct(
+        type="error",
+        version=2,
+        session_id="s-00000001",
+        episode_id="e-00000001",
+        sequence=0,
+        simulation_time=0.0,
+        code="OVERSIZE",
+        message="x" * MAX_FRAME_BYTES,
+    )
+
+    with pytest.raises(ValueError, match="1 MiB|256"):
+        asyncio.run(sender.send(oversized))
+
+    assert socket.payloads == []
+    assert sender.sequence == 0
+
+
+def test_sender_chunks_a_large_neural_frame_with_contiguous_bounded_sequences() -> None:
+    class RecordingSocket:
+        def __init__(self) -> None:
+            self.payloads: list[str] = []
+
+        async def send_text(self, payload: str) -> None:
+            self.payloads.append(payload)
+
+    socket = RecordingSocket()
+    session = SimulationSession("s-00000001", "e-00000001")
+    sender = SessionSender(socket, session)  # type: ignore[arg-type]
+    updates = [
+        {"neuronId": 2**53 - 1 - index, "value": 999_999.999_999_999_9}
+        for index in range(MAX_NEURAL_UPDATES)
+    ]
+
+    asyncio.run(sender.send_neural(
+        "neural_keyframe",
+        revision=9,
+        simulation_time=3.0,
+        updates=updates,
+    ))
+
+    frames = [parse_server_message(payload) for payload in socket.payloads]
+    assert len(frames) > 1
+    assert [frame.sequence for frame in frames] == list(range(len(frames)))
+    assert [frame.chunk_index for frame in frames] == list(range(len(frames)))
+    assert {frame.chunk_count for frame in frames} == {len(frames)}
+    assert all(len(payload.encode("utf-8")) <= MAX_FRAME_BYTES for payload in socket.payloads)
+    assert sender.sequence == len(frames)
 
 
 def test_socket_requires_hello_before_configuration(client: TestClient) -> None:
@@ -164,6 +239,39 @@ def test_socket_configures_and_emits_the_safe_wait_placeholder(
         "action": "wait",
         "motorPhase": "neutral",
     }
+
+
+def test_socket_answers_keyframe_request_with_an_honest_empty_keyframe(
+    client: TestClient,
+) -> None:
+    with client.websocket_connect("/api/simulation", headers=SAME_ORIGIN) as socket:
+        socket.send_json(hello())
+        socket.send_json(configure())
+        socket.receive_json()
+        socket.send_json(request_keyframe())
+        keyframe = socket.receive_json()
+        socket.send_json({
+            "type": "pause", **{
+                key: value for key, value in request_keyframe(3).items()
+                if key != "type"
+            },
+        })
+        paused = socket.receive_json()
+
+    assert keyframe == {
+        "type": "neural_keyframe",
+        "version": 2,
+        "sessionId": "s-00000001",
+        "episodeId": "e-00000001",
+        "sequence": 1,
+        "simulationTime": 1.0,
+        "revision": 0,
+        "chunkIndex": 0,
+        "chunkCount": 1,
+        "updates": [],
+    }
+    assert paused["type"] == "paused"
+    assert paused["sequence"] == 2
 
 
 @pytest.mark.parametrize(

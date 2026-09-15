@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import json
-from typing import Annotated, Any, Literal, TypeAlias
+from collections.abc import Sequence
+from typing import Annotated, Any, Literal, Self, TypeAlias
 
 from pydantic import (
     BaseModel,
@@ -15,10 +16,12 @@ from pydantic import (
     TypeAdapter,
     ValidationError,
     field_validator,
+    model_validator,
 )
 
 MAX_FRAME_BYTES = 1_048_576
 MAX_NEURAL_UPDATES = 20_000
+MAX_NEURAL_CHUNKS = 256
 MAX_STRING_LENGTH = 256
 MAX_SEQUENCE = 2**53 - 1
 MAX_SIMULATION_TIME = 86_400.0
@@ -149,12 +152,35 @@ class NeuralUpdate(ProtocolModel):
 
 class NeuralKeyframe(Envelope):
     type: Literal["neural_keyframe"]
+    revision: Annotated[StrictInt, Field(ge=0, le=MAX_SEQUENCE)]
+    chunk_index: Annotated[StrictInt, Field(ge=0, lt=MAX_NEURAL_CHUNKS)]
+    chunk_count: Annotated[StrictInt, Field(ge=1, le=MAX_NEURAL_CHUNKS)]
     updates: Annotated[list[NeuralUpdate], Field(max_length=MAX_NEURAL_UPDATES)]
+
+    @model_validator(mode="after")
+    def validate_chunk_position(self) -> Self:
+        if self.chunk_index >= self.chunk_count:
+            raise ValueError("chunkIndex must be less than chunkCount")
+        if any(update.value == 0 for update in self.updates):
+            raise ValueError("neural keyframe updates must be nonzero")
+        return self
 
 
 class NeuralDelta(Envelope):
     type: Literal["neural_delta"]
+    base_revision: Annotated[StrictInt, Field(ge=0, le=MAX_SEQUENCE)]
+    revision: Annotated[StrictInt, Field(ge=1, le=MAX_SEQUENCE)]
+    chunk_index: Annotated[StrictInt, Field(ge=0, lt=MAX_NEURAL_CHUNKS)]
+    chunk_count: Annotated[StrictInt, Field(ge=1, le=MAX_NEURAL_CHUNKS)]
     updates: Annotated[list[NeuralUpdate], Field(max_length=MAX_NEURAL_UPDATES)]
+
+    @model_validator(mode="after")
+    def validate_revision_and_chunk_position(self) -> Self:
+        if self.revision <= self.base_revision:
+            raise ValueError("revision must be greater than baseRevision")
+        if self.chunk_index >= self.chunk_count:
+            raise ValueError("chunkIndex must be less than chunkCount")
+        return self
 
 
 class Contact(Envelope):
@@ -233,3 +259,113 @@ def parse_client_message(value: Any) -> ClientMessage:
 def parse_server_message(value: Any) -> ServerMessage:
     """Validate a bounded v2 server message from decoded JSON or a JSON frame."""
     return ServerMessageAdapter.validate_python(_load_frame(value))
+
+
+def serialize_server_message(message: ServerMessage | BaseModel | dict[str, Any]) -> str:
+    """Validate and serialize exactly one server frame within the advertised byte limit."""
+    value = (
+        message.model_dump(by_alias=True, exclude_none=True)
+        if isinstance(message, BaseModel)
+        else message
+    )
+    validated = ServerMessageAdapter.validate_python(value)
+    payload = json.dumps(
+        validated.model_dump(by_alias=True, exclude_none=True),
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    if len(payload.encode("utf-8")) > MAX_FRAME_BYTES:
+        raise ValueError("Protocol JSON frame exceeds 1 MiB.")
+    return payload
+
+
+def chunk_neural_frames(
+    *,
+    message_type: Literal["neural_keyframe", "neural_delta"],
+    session_id: str,
+    episode_id: str,
+    start_sequence: int,
+    simulation_time: float,
+    revision: int,
+    updates: Sequence[NeuralUpdate | dict[str, Any]],
+    base_revision: int | None = None,
+) -> list[NeuralKeyframe | NeuralDelta]:
+    """Build deterministic count- and byte-bounded neural wire chunks."""
+    validated_updates = [
+        update if isinstance(update, NeuralUpdate) else NeuralUpdate.model_validate(update)
+        for update in updates
+    ]
+    parts = [
+        validated_updates[index:index + MAX_NEURAL_UPDATES]
+        for index in range(0, len(validated_updates), MAX_NEURAL_UPDATES)
+    ] or [[]]
+
+    while True:
+        frames = [
+            _neural_frame(
+                message_type=message_type,
+                session_id=session_id,
+                episode_id=episode_id,
+                sequence=start_sequence + chunk_index,
+                simulation_time=simulation_time,
+                base_revision=base_revision,
+                revision=revision,
+                chunk_index=chunk_index,
+                chunk_count=len(parts),
+                updates=part,
+            )
+            for chunk_index, part in enumerate(parts)
+        ]
+        oversized_index: int | None = None
+        for index, frame in enumerate(frames):
+            try:
+                serialize_server_message(frame)
+            except ValueError:
+                if len(parts[index]) <= 1:
+                    raise
+                oversized_index = index
+                break
+        if oversized_index is None:
+            return frames
+
+        oversized = parts[oversized_index]
+        midpoint = len(oversized) // 2
+        parts[oversized_index:oversized_index + 1] = [
+            oversized[:midpoint],
+            oversized[midpoint:],
+        ]
+
+
+def _neural_frame(
+    *,
+    message_type: Literal["neural_keyframe", "neural_delta"],
+    session_id: str,
+    episode_id: str,
+    sequence: int,
+    simulation_time: float,
+    revision: int,
+    chunk_index: int,
+    chunk_count: int,
+    updates: list[NeuralUpdate],
+    base_revision: int | None,
+) -> NeuralKeyframe | NeuralDelta:
+    value: dict[str, Any] = {
+        "type": message_type,
+        "version": 2,
+        "sessionId": session_id,
+        "episodeId": episode_id,
+        "sequence": sequence,
+        "simulationTime": simulation_time,
+        "revision": revision,
+        "chunkIndex": chunk_index,
+        "chunkCount": chunk_count,
+        "updates": [update.model_dump(by_alias=True) for update in updates],
+    }
+    if message_type == "neural_delta":
+        if base_revision is None:
+            raise ValueError("baseRevision is required for neural deltas")
+        value["baseRevision"] = base_revision
+        return NeuralDelta.model_validate(value)
+    if base_revision is not None:
+        raise ValueError("baseRevision is valid only for neural deltas")
+    return NeuralKeyframe.model_validate(value)

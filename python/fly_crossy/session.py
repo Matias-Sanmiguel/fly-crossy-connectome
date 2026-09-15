@@ -7,7 +7,17 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Literal
 
-from fly_crossy.protocol import Action, ActionResult, Configure, Intention, Observation, Pause, Reset, Resume
+from fly_crossy.protocol import (
+    Action,
+    ActionResult,
+    Configure,
+    Intention,
+    Observation,
+    Pause,
+    RequestKeyframe,
+    Reset,
+    Resume,
+)
 
 
 class SessionPhase(StrEnum):
@@ -120,18 +130,20 @@ class SimulationSession:
             self._fault("UNKNOWN_INTENTION", "Action result references an unknown intention.")
 
         pending = self.pending
-        self._complete_pending()
-        self.phase = SessionPhase.READY
-        return ActionResult.model_validate({
+        terminal = ActionResult.model_validate({
             "type": "action_result",
             "version": 2,
             "sessionId": self.session_id,
             "episodeId": pending.episode_id,
-            "sequence": self._next_outbound_sequence(),
+            "sequence": self._outbound_sequence,
             "simulationTime": completion_time,
             "intentionId": pending.id,
             "result": result,
         })
+        self._complete_pending()
+        self.phase = SessionPhase.READY
+        self._outbound_sequence += 1
+        return terminal
 
     def pause(self, message: Pause) -> None:
         self._validate_envelope(message)
@@ -149,7 +161,19 @@ class SimulationSession:
             self._fault("INVALID_PHASE", "Session is not paused.")
         self.phase = SessionPhase.ACTING if self.pending is not None else SessionPhase.READY
 
-    def _validate_envelope(self, message: Configure | Observation | Pause | Reset | Resume, *, permit_episode_change: bool = False) -> None:
+    def request_keyframe(self, message: RequestKeyframe) -> None:
+        self._validate_envelope(message)
+        if self.phase is SessionPhase.CONNECTING:
+            self._fault("NOT_CONFIGURED", "Session must be configured before requesting a keyframe.")
+        if self.phase is SessionPhase.ERROR:
+            self._fault("SESSION_IN_ERROR", "Session is in an error state.")
+
+    def _validate_envelope(
+        self,
+        message: Configure | Observation | Pause | RequestKeyframe | Reset | Resume,
+        *,
+        permit_episode_change: bool = False,
+    ) -> None:
         if message.session_id != self.session_id:
             self._fault("SESSION_MISMATCH", "Message session does not match this session.")
         if not permit_episode_change and message.episode_id != self.episode_id:

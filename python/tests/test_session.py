@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from fly_crossy.protocol import Configure, Observation, Pause, Reset, Resume, parse_client_message
 from fly_crossy.session import SessionFault, SessionPhase, SimulationSession
@@ -117,6 +118,29 @@ def test_terminal_result_uses_authoritative_completion_time() -> None:
 
     assert result is not None
     assert result.simulation_time == 12.75
+
+
+def test_invalid_terminal_completion_does_not_mutate_or_consume_sequence() -> None:
+    session = configured_session()
+    intention = session.accept_observation(observation_message(sequence=2, step=0))
+
+    with pytest.raises(ValidationError, match="simulationTime"):
+        session.finish_action(
+            intention.intention_id,
+            "waited",
+            completion_time=86_400.5,
+        )
+
+    assert session.pending is not None
+    assert session.pending.id == intention.intention_id
+    assert session.phase is SessionPhase.ACTING
+    result = session.finish_action(
+        intention.intention_id,
+        "waited",
+        completion_time=2.5,
+    )
+    assert result is not None
+    assert result.sequence == intention.sequence + 1
 
 
 def test_wait_intention_uses_a_neutral_motor_phase() -> None:

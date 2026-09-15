@@ -7,7 +7,14 @@ import tomllib
 import pytest
 from pydantic import ValidationError
 
-from fly_crossy.protocol import ServerMessageAdapter, parse_client_message
+import fly_crossy.protocol as protocol
+from fly_crossy.protocol import (
+    MAX_FRAME_BYTES,
+    MAX_NEURAL_UPDATES,
+    ServerMessageAdapter,
+    parse_client_message,
+    parse_server_message,
+)
 
 
 FIXTURE = Path(__file__).parents[2] / "protocol" / "v2" / "valid-session.json"
@@ -59,8 +66,16 @@ def test_server_variants_are_bounded_and_reject_invalid_fixture_messages() -> No
         {"type": "reset_complete", **envelope},
         {"type": "intention", **envelope, "intentionId": "i-01234567", "action": "forward", "motorPhase": "targeting"},
         {"type": "snapshot", **envelope, "body": [0, 0, 0], "joints": [0.0], "keys": {"W": 0.1}},
-        {"type": "neural_keyframe", **envelope, "updates": [{"neuronId": 1, "value": 0.25}]},
-        {"type": "neural_delta", **envelope, "updates": [{"neuronId": 1, "value": 0.25}]},
+        {
+            "type": "neural_keyframe", **envelope, "revision": 4,
+            "chunkIndex": 0, "chunkCount": 1,
+            "updates": [{"neuronId": 1, "value": 0.25}],
+        },
+        {
+            "type": "neural_delta", **envelope, "baseRevision": 4, "revision": 5,
+            "chunkIndex": 0, "chunkCount": 1,
+            "updates": [{"neuronId": 1, "value": 0.25}],
+        },
         {"type": "contact", **envelope, "intentionId": "i-01234567", "requestedKey": "W", "touchedKey": "W", "travel": 0.1, "force": 2, "debounce": 0.02, "confirmed": True},
         {"type": "action_result", **envelope, "intentionId": "i-01234567", "result": "confirmed"},
         {"type": "metrics", **envelope, "physicsHz": 1000, "motorHz": 100, "neuralHz": 10, "renderHz": 30, "latencyMs": 12, "droppedRenderFrames": 0},
@@ -78,7 +93,35 @@ def test_server_variants_are_bounded_and_reject_invalid_fixture_messages() -> No
     with pytest.raises(ValidationError, match="updates"):
         ServerMessageAdapter.validate_python({
             "type": "neural_delta", **envelope,
+            "baseRevision": 4, "revision": 5, "chunkIndex": 0, "chunkCount": 1,
             "updates": [{"neuronId": index, "value": 0.0} for index in range(20_001)],
+        })
+
+
+def test_neural_frames_require_reconstructible_revision_and_chunk_metadata() -> None:
+    fixture = json.loads(FIXTURE.read_text())
+    envelope = {
+        "version": 2,
+        "sessionId": fixture["server"]["sessionId"],
+        "episodeId": fixture["server"]["episodeId"],
+        "sequence": 1,
+        "simulationTime": 1.0,
+    }
+
+    with pytest.raises(ValidationError):
+        ServerMessageAdapter.validate_python({
+            "type": "neural_keyframe", **envelope, "updates": [],
+        })
+    with pytest.raises(ValidationError):
+        ServerMessageAdapter.validate_python({
+            "type": "neural_delta", **envelope,
+            "revision": 2, "chunkIndex": 0, "chunkCount": 1, "updates": [],
+        })
+    with pytest.raises(ValidationError, match="nonzero"):
+        ServerMessageAdapter.validate_python({
+            "type": "neural_keyframe", **envelope,
+            "revision": 2, "chunkIndex": 0, "chunkCount": 1,
+            "updates": [{"neuronId": 1, "value": 0.0}],
         })
 
 
@@ -130,3 +173,58 @@ def test_protocol_declares_the_pydantic_alias_configuration_floor() -> None:
     pyproject = tomllib.loads((FIXTURE.parents[2] / "python" / "pyproject.toml").read_text())
 
     assert "pydantic>=2.11" in pyproject["project"]["dependencies"]
+
+
+def test_server_parser_rejects_a_valid_neural_shape_over_the_actual_byte_limit() -> None:
+    message = {
+        "type": "neural_keyframe",
+        "version": 2,
+        "sessionId": "s-01234567",
+        "episodeId": "e-01234567",
+        "sequence": 7,
+        "simulationTime": 1.0,
+        "revision": 3,
+        "chunkIndex": 0,
+        "chunkCount": 1,
+        "updates": [
+            {"neuronId": 2**53 - 1, "value": 999_999.999_999_999_9}
+            for _ in range(MAX_NEURAL_UPDATES)
+        ],
+    }
+    payload = json.dumps(message, separators=(",", ":"), allow_nan=False)
+    assert len(payload.encode("utf-8")) > MAX_FRAME_BYTES
+
+    with pytest.raises(ValueError, match="1 MiB"):
+        parse_server_message(payload)
+
+
+def test_neural_frames_split_deterministically_by_count_and_actual_bytes() -> None:
+    updates = [
+        {"neuronId": 2**53 - 1 - index, "value": 999_999.999_999_999_9}
+        for index in range(MAX_NEURAL_UPDATES)
+    ]
+    arguments = {
+        "message_type": "neural_keyframe",
+        "session_id": "s-01234567",
+        "episode_id": "e-01234567",
+        "start_sequence": 7,
+        "simulation_time": 1.0,
+        "revision": 3,
+        "updates": updates,
+    }
+
+    first = protocol.chunk_neural_frames(**arguments)
+    second = protocol.chunk_neural_frames(**arguments)
+
+    assert [frame.model_dump() for frame in first] == [frame.model_dump() for frame in second]
+    assert len(first) > 1
+    assert [frame.chunk_index for frame in first] == list(range(len(first)))
+    assert {frame.chunk_count for frame in first} == {len(first)}
+    assert [update.neuron_id for frame in first for update in frame.updates] == [
+        2**53 - 1 - index for index in range(MAX_NEURAL_UPDATES)
+    ]
+    for frame in first:
+        payload = protocol.serialize_server_message(frame)
+        assert len(payload.encode("utf-8")) <= MAX_FRAME_BYTES
+        assert len(frame.updates) <= MAX_NEURAL_UPDATES
+        assert parse_server_message(payload) == frame
