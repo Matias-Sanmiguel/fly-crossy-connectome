@@ -47,7 +47,7 @@ CLOSE_ARTIFACT_UNAVAILABLE = 4406
 
 _POPULATIONS = [80, 1000, 5000, 20_000, 124_289]
 _HASH_PATTERN = re.compile(r"^[a-f0-9]{64}$")
-_DEFAULT_ARTIFACT_REGISTRY: Mapping[int, "ArtifactIdentity"] = MappingProxyType({})
+_DEFAULT_ARTIFACT_REGISTRY: Mapping[int, "_ArtifactIdentity"] = MappingProxyType({})
 _DEVELOPMENT_ORIGINS = frozenset({"http://127.0.0.1:5173", "http://localhost:5173"})
 
 class FrameFault(Exception):
@@ -68,24 +68,24 @@ class ArtifactRegistryError(ValueError):
 
 
 @dataclass(frozen=True, slots=True, init=False)
-class ArtifactIdentity:
+class _ArtifactIdentity:
     """Verified graph and checkpoint identities registered for one population."""
 
     graph_hash: str
     checkpoint_hash: str
 
     def __init__(self, *_: object, **__: object) -> None:
-        raise TypeError("ArtifactIdentity values must be loaded from a verified manifest.")
-
-    @classmethod
-    def _from_verified_hashes(cls, graph_hash: str, checkpoint_hash: str) -> ArtifactIdentity:
-        identity = object.__new__(cls)
-        object.__setattr__(identity, "graph_hash", graph_hash)
-        object.__setattr__(identity, "checkpoint_hash", checkpoint_hash)
-        return identity
+        raise TypeError("Artifact identities must be loaded from a verified manifest.")
 
 
-def load_verified_artifact_registry(manifest_path: Path) -> Mapping[int, ArtifactIdentity]:
+def _verified_identity(graph_hash: str, checkpoint_hash: str) -> _ArtifactIdentity:
+    identity = object.__new__(_ArtifactIdentity)
+    object.__setattr__(identity, "graph_hash", graph_hash)
+    object.__setattr__(identity, "checkpoint_hash", checkpoint_hash)
+    return identity
+
+
+def load_verified_artifact_registry(manifest_path: Path) -> Mapping[int, _ArtifactIdentity]:
     """Load only manifest-declared graph/checkpoint files whose bytes hash exactly."""
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -98,7 +98,7 @@ def load_verified_artifact_registry(manifest_path: Path) -> Mapping[int, Artifac
         raise ArtifactRegistryError("Artifact manifest artifacts must be a list.")
 
     root = manifest_path.parent.resolve()
-    registry: dict[int, ArtifactIdentity] = {}
+    registry: dict[int, _ArtifactIdentity] = {}
     for entry in artifacts:
         if not isinstance(entry, dict) or set(entry) != {"population", "graph", "checkpoint"}:
             raise ArtifactRegistryError("Each artifact entry must declare population, graph, and checkpoint.")
@@ -109,7 +109,7 @@ def load_verified_artifact_registry(manifest_path: Path) -> Mapping[int, Artifac
             raise ArtifactRegistryError("Artifact manifest has duplicate populations.")
         graph_hash = _verify_artifact_reference(root, entry["graph"], "graph")
         checkpoint_hash = _verify_artifact_reference(root, entry["checkpoint"], "checkpoint")
-        registry[population] = ArtifactIdentity._from_verified_hashes(graph_hash, checkpoint_hash)
+        registry[population] = _verified_identity(graph_hash, checkpoint_hash)
     return MappingProxyType(registry)
 
 
@@ -177,11 +177,16 @@ class SessionSender:
 
 def create_app(
     *,
-    artifact_registry: Mapping[int, ArtifactIdentity] = _DEFAULT_ARTIFACT_REGISTRY,
+    artifact_manifest: Path | None = None,
     allowed_origins: frozenset[str] = _DEVELOPMENT_ORIGINS,
     backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
 ) -> FastAPI:
     """Create a service with explicit artifacts and browser-origin boundaries."""
+    artifact_registry = (
+        _DEFAULT_ARTIFACT_REGISTRY
+        if artifact_manifest is None
+        else load_verified_artifact_registry(artifact_manifest)
+    )
     application = FastAPI()
 
     @application.get("/healthz")
@@ -220,7 +225,7 @@ async def serve_session(
     websocket: WebSocket,
     *,
     max_bytes: int,
-    artifact_registry: Mapping[int, ArtifactIdentity] = _DEFAULT_ARTIFACT_REGISTRY,
+    artifact_registry: Mapping[int, _ArtifactIdentity] = _DEFAULT_ARTIFACT_REGISTRY,
     backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
 ) -> None:
     """Serve one connection; state transitions remain owned by SimulationSession."""
@@ -275,7 +280,7 @@ async def serve_session(
 async def _apply_message(
     message: object,
     sender: SessionSender,
-    artifact_registry: Mapping[int, ArtifactIdentity],
+    artifact_registry: Mapping[int, _ArtifactIdentity],
     backend_resolver: Callable[[BackendPreference], BackendStatus],
 ) -> None:
     session = sender.session

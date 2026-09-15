@@ -11,7 +11,6 @@ from starlette.websockets import WebSocketDisconnect
 from fly_crossy.backend import BackendStatus
 from fly_crossy.protocol import MAX_FRAME_BYTES
 from fly_crossy.server import (
-    ArtifactIdentity,
     ArtifactRegistryError,
     CLOSE_ARTIFACT_UNAVAILABLE,
     CLOSE_INCOMPATIBLE_VERSION,
@@ -29,7 +28,7 @@ SAME_ORIGIN = {"origin": "http://testserver"}
 
 
 @pytest.fixture
-def artifact_registry(tmp_path: Path) -> dict[int, ArtifactIdentity]:
+def artifact_manifest(tmp_path: Path) -> Path:
     graph = tmp_path / "graph.bin"
     checkpoint = tmp_path / "checkpoint.bin"
     graph.write_bytes(b"verified graph")
@@ -55,12 +54,12 @@ def artifact_registry(tmp_path: Path) -> dict[int, ArtifactIdentity]:
         ),
         encoding="utf-8",
     )
-    return load_verified_artifact_registry(manifest)
+    return manifest
 
 
 @pytest.fixture
-def client(artifact_registry: dict[int, ArtifactIdentity]) -> TestClient:
-    with TestClient(create_app(artifact_registry=artifact_registry)) as test_client:
+def client(artifact_manifest: Path) -> TestClient:
+    with TestClient(create_app(artifact_manifest=artifact_manifest)) as test_client:
         yield test_client
 
 
@@ -135,7 +134,7 @@ def test_socket_requires_hello_before_configuration(client: TestClient) -> None:
 
 
 def test_socket_configures_and_emits_the_safe_wait_placeholder(
-    client: TestClient, artifact_registry: dict[int, ArtifactIdentity]
+    client: TestClient, artifact_manifest: Path
 ) -> None:
     with client.websocket_connect("/api/simulation", headers=SAME_ORIGIN) as socket:
         socket.send_json(hello())
@@ -147,8 +146,12 @@ def test_socket_configures_and_emits_the_safe_wait_placeholder(
     assert ready["type"] == "ready"
     assert ready["sequence"] == 0
     assert ready["backend"] == "cpu"
-    assert ready["graphHash"] == artifact_registry[80].graph_hash
-    assert ready["checkpointHash"] == artifact_registry[80].checkpoint_hash
+    assert ready["graphHash"] == hashlib.sha256(
+        artifact_manifest.with_name("graph.bin").read_bytes()
+    ).hexdigest()
+    assert ready["checkpointHash"] == hashlib.sha256(
+        artifact_manifest.with_name("checkpoint.bin").read_bytes()
+    ).hexdigest()
     assert "fallbackReason" not in ready
     assert intention == {
         "type": "intention",
@@ -213,13 +216,13 @@ def test_socket_rejects_configuration_without_a_verified_artifact_registry() -> 
 
 
 def test_socket_exposes_cuda_fallback_from_backend_status(
-    artifact_registry: dict[int, ArtifactIdentity],
+    artifact_manifest: Path,
 ) -> None:
     def cpu_fallback(_: str) -> BackendStatus:
         return BackendStatus("auto", "cpu", "cpu", "cuda-unavailable")
 
     fallback_app = create_app(
-        artifact_registry=artifact_registry,
+        artifact_manifest=artifact_manifest,
         backend_resolver=cpu_fallback,
     )
     with TestClient(fallback_app) as fallback_client:
@@ -232,13 +235,13 @@ def test_socket_exposes_cuda_fallback_from_backend_status(
 
 
 def test_socket_omits_fallback_reason_for_a_successful_gpu_backend(
-    artifact_registry: dict[int, ArtifactIdentity],
+    artifact_manifest: Path,
 ) -> None:
     def gpu_backend(_: str) -> BackendStatus:
         return BackendStatus("gpu", "gpu", "cuda:0", None)
 
     gpu_app = create_app(
-        artifact_registry=artifact_registry,
+        artifact_manifest=artifact_manifest,
         backend_resolver=gpu_backend,
     )
     with TestClient(gpu_app) as gpu_client:
@@ -345,8 +348,6 @@ def test_registry_loader_rejects_unverified_or_zero_hash_identities(tmp_path: Pa
 
     with pytest.raises(ArtifactRegistryError, match="all zero"):
         load_verified_artifact_registry(manifest)
-    with pytest.raises(TypeError, match="verified manifest"):
-        ArtifactIdentity("a" * 64, "b" * 64)
 
     manifest.write_text(
         json.dumps(
@@ -364,3 +365,12 @@ def test_registry_loader_rejects_unverified_or_zero_hash_identities(tmp_path: Pa
     )
     with pytest.raises(ArtifactRegistryError, match="does not match"):
         load_verified_artifact_registry(manifest)
+
+
+def test_app_construction_rejects_a_forged_all_zero_registry() -> None:
+    forged_registry = {
+        80: {"graph_hash": "0" * 64, "checkpoint_hash": "0" * 64},
+    }
+
+    with pytest.raises(TypeError, match="artifact_registry"):
+        create_app(artifact_registry=forged_registry)
