@@ -231,19 +231,24 @@ export function useSimulationStation({
     }
 
     const observation =
-      buildSimulationObservation(station);
-
-    lastObservedStep.current = step;
+        buildSimulationObservation(station);
 
     try {
-      client.observe(observation);
-    } catch {
-      /*
-       * The protocol client owns transport faults and publishes
-       * them through subscribeState().
-       *
-       * Do not fabricate a game result here.
-       */
+        client.observe(observation);
+
+        // Only mark the step as submitted after the protocol
+        // client actually accepted the observation.
+        lastObservedStep.current = step;
+    } catch (error) {
+        console.error(
+            '[biomechanics] observation submission failed',
+            {
+                step,
+                transport: transport.phase,
+                client: client.state.phase,
+                error,
+            },
+        );
     }
   }, [
     enabled,
