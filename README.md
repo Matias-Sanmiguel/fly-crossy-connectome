@@ -4,6 +4,14 @@ An interactive browser laboratory that pairs a deterministic, isometric fly-cros
 
 This project is a modified version of the fly connectome template. It adds a playable crossing task, fixed-step simulation and replay contracts, conventional and remote controller boundaries, neural telemetry, and a responsive laboratory interface.
 
+> **Development snapshot:** the browser game, autonomous reduced controller,
+> live simulated brain view, runtime protocol, and the first four native
+> biomechanics layers are present. The final MuJoCo world/server bridge and the
+> five independently trained neural sizes are **not finished**. Read
+> [the engineering handoff](docs/HANDOFF.md) for the exact boundary and use
+> [the continuation prompt](docs/CONTINUATION_PROMPT.md) to hand the repository
+> to another coding agent.
+
 ## Run locally
 
 Use Node.js **22.18 or newer**:
