@@ -26,10 +26,22 @@ EXPECTED_LEGS = {
     "SPACE_RIGHT": "hind_right",
 }
 
+REFERENCE_CONFIG = KeyboardConfig.load(CONFIG_PATH)
+
+VALID_TRAVEL = (
+    REFERENCE_CONFIG.minimum_travel_meters
+    + REFERENCE_CONFIG.key_travel_meters
+) / 2
+
+VALID_FORCE = (
+    REFERENCE_CONFIG.minimum_force_newtons
+    + REFERENCE_CONFIG.maximum_force_newtons
+) / 2
+
 
 @pytest.fixture
 def config() -> KeyboardConfig:
-    return KeyboardConfig.load(CONFIG_PATH)
+    return REFERENCE_CONFIG
 
 
 @pytest.fixture
@@ -61,11 +73,16 @@ def frame(
 def valid_contact(
     key: str,
     *,
-    travel: float = 0.0004,
-    force: float = 0.0002,
+    travel: float | None = None,
+    force: float | None = None,
     leg: str | None = None,
 ) -> tuple[str, float, float, tuple[str, ...]]:
-    return (key, travel, force, (leg or EXPECTED_LEGS[key],))
+    return (
+        key,
+        VALID_TRAVEL if travel is None else travel,
+        VALID_FORCE if force is None else force,
+        (leg or EXPECTED_LEGS[key],),
+    )
 
 
 def test_press_needs_continuous_force_travel_correct_leg_and_debounce(
@@ -86,11 +103,10 @@ def test_press_needs_continuous_force_travel_correct_leg_and_debounce(
 @pytest.mark.parametrize(
     "invalid",
     (
-        ("W", 0.0, 0.0002, ("front_left",)),
-        ("W", 0.0004, 0.0, ("front_left",)),
-        ("W", 0.0004, 0.0002, ("front_right",)),
+        ("W", 0.0, VALID_FORCE, ("front_left",)),
+        ("W", VALID_TRAVEL, 0.0, ("front_left",)),
+        ("W", VALID_TRAVEL, VALID_FORCE, ("front_right",)),
     ),
-    ids=("force-without-travel", "travel-without-force", "wrong-tarsus"),
 )
 def test_invalid_physical_evidence_resets_the_continuous_debounce(
     gate: ContactGate,
@@ -153,11 +169,17 @@ def test_two_touched_keys_in_one_frame_are_deterministically_ambiguous(
     ) is None
 
 
-def test_force_above_the_safe_maximum_is_terminal(gate: ContactGate) -> None:
+def test_force_above_the_safe_maximum_is_terminal(gate: ContactGate, config: KeyboardConfig,) -> None:
     gate.begin("i-5", "W")
 
     outcome = gate.sample(
-        frame(0.000, valid_contact("W", force=0.02001))
+        frame(
+    0.000,
+    valid_contact(
+        "W",
+        force=config.maximum_force_newtons + 1e-6,
+    ),
+)
     )
 
     assert outcome.kind == "unsafe-force"
@@ -361,3 +383,53 @@ def test_contact_values_must_be_finite_nonnegative_si_values(
             normal_force=force,
             touching_tarsi=("front_left",),
         )
+
+def test_valid_press_cannot_arm_debounce_until_confirmation_is_enabled(
+    gate: ContactGate,
+) -> None:
+    gate.begin("i-phase-gate", "W")
+
+    # Real, fully valid physical evidence exists during approach,
+    # but approach cannot become a game action.
+    assert gate.sample(
+        frame(0.000, valid_contact("W")),
+        confirmation_enabled=False,
+    ).kind == "pending"
+
+    assert gate.sample(
+        frame(0.050, valid_contact("W")),
+        confirmation_enabled=False,
+    ).kind == "pending"
+
+    # PRESSING begins here. Debounce must start from this instant,
+    # not from the earlier approach contact.
+    assert gate.sample(
+        frame(0.060, valid_contact("W")),
+        confirmation_enabled=True,
+    ).kind == "pending"
+
+    assert gate.sample(
+        frame(0.079, valid_contact("W")),
+        confirmation_enabled=True,
+    ).kind == "pending"
+
+    outcome = gate.sample(
+        frame(0.081, valid_contact("W")),
+        confirmation_enabled=True,
+    )
+
+    assert outcome.kind == "confirmed"
+    assert outcome.key == "W"
+    
+def test_wrong_key_remains_terminal_when_confirmation_is_disabled(
+    gate: ContactGate,
+) -> None:
+    gate.begin("i-approach-wrong", "W")
+
+    outcome = gate.sample(
+        frame(0.010, valid_contact("A")),
+        confirmation_enabled=False,
+    )
+
+    assert outcome.kind == "wrong-key"
+    assert outcome.key == "A"

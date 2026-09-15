@@ -198,10 +198,17 @@ class ContactGate:
             self._block_pressed_keys(self._last_states)
         return self._finish("cancelled", None)
 
-    def sample(self, sample: ContactSample) -> ContactOutcome | None:
+    def sample(
+    self,
+    sample: ContactSample,
+    *,
+    confirmation_enabled: bool = True,
+    ) -> ContactOutcome | None:
         """Evaluate one atomic keyboard frame and emit at most one terminal."""
         if not isinstance(sample, ContactSample):
             raise TypeError("sample must be a ContactSample")
+        if not isinstance(confirmation_enabled, bool):
+            raise TypeError("confirmation_enabled must be boolean")
         if self._last_time is not None and sample.time <= self._last_time:
             raise ValueError(
                 "contact sample timestamps must be strictly increasing "
@@ -243,7 +250,13 @@ class ContactGate:
         if touched_keys and touched_keys[0] != active.intended_key:
             self._block_pressed_keys(states)
             return self._finish("wrong-key", touched_keys[0])
-
+        # Physical contact is always observed, including during approach, so
+        # wrong-key / ambiguous / unsafe-force remain authoritative.  However,
+        # a correct press may only arm its debounce once the motor explicitly
+        # enters the PRESSING phase.
+        if not confirmation_enabled:
+            active.debounce_started_at = None
+            return self._pending()
         intended_state = states[active.intended_key]
         expected_tarsus = KEY_TO_LEG[active.intended_key]
         has_valid_evidence = (

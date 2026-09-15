@@ -394,7 +394,12 @@ class BiomechanicalWorld:
         self._outer_tick += 1
 
         if active is not None and active.action in ACTION_TARGETS:
-            outcome = self._gate.sample(self._contact_sample())
+            outcome = self._gate.sample(
+                self._contact_sample(),
+                confirmation_enabled=(
+                    self._motor.phase is MotorPhase.PRESSING
+                ),
+            )
             if outcome is not None and outcome.kind != "pending":
                 if outcome.kind == "confirmed" and self._motor.phase is not MotorPhase.PRESSING:
                     # A real press occurred outside the permitted motor phase. It stays a
