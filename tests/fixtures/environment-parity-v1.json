@@ -7,7 +7,7 @@
       "row": 3,
       "hazardIndex": 0,
       "time": 3.800000000000001,
-      "expected": 4.369
+      "expected": -4.631
     }
   ],
   "cases": [
@@ -28,9 +28,9 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "1328d2428d3b18f0263184b30b54b1ec9fc53efed3840b737ae031802c7ab322",
-        "afterObservationSha256": "1bd5af1bd1f10490718632adb16cbeb979e05911002df41bcb54619d6295d994",
-        "reward": -9.01,
+        "beforeObservationSha256": "fffcc4b3a938917ea6960595cf9a79085c7e988e596a891fbd5bc4d1a36ad831",
+        "afterObservationSha256": "6bb6ee8f71d794c324fdb91e7c0cd289f6737eda88d2a4e84fc11ab24f89a851",
+        "reward": 0.99,
         "fly": {
           "row": 3,
           "column": 4
@@ -38,7 +38,7 @@
         "step": 19,
         "time": 3.800000000000001,
         "score": 3,
-        "terminalReason": "vehicle",
+        "terminalReason": null,
         "previousAction": "forward",
         "events": [
           {
@@ -49,14 +49,6 @@
               "column": 4
             },
             "to": {
-              "row": 3,
-              "column": 4
-            }
-          },
-          {
-            "type": "terminal",
-            "reason": "vehicle",
-            "position": {
               "row": 3,
               "column": 4
             }
@@ -127,7 +119,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f3aa31723b4c3002383a0dcd795b489150caf133b82083a8287e786036ac4e2e",
-        "afterObservationSha256": "e2fddd82462c66f049b1b662fa3f98b92f81cf29f272187f5ae70b5cc3242c12",
+        "afterObservationSha256": "98a641646160d57d0081341b4dd53f29630b688ed596630058ab5b8407904dc4",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -212,7 +204,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "2f5b659fe31b269c1c9f3c2b799085744c8dd8377724a5af7324ee3ef13137ea",
-        "afterObservationSha256": "da5962667234d0ff76e38211cc920e1525a5e4b22ffd0ee4fd796c9054bf3eca",
+        "afterObservationSha256": "0ca6d821981b19700836ebb80adc99cac927406e1489a602ade6799939478bfc",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -307,7 +299,7 @@
       "action": "forward",
       "expected": {
         "beforeObservationSha256": "506a5679da18d2a03e1a4de699171d1c9d3e8adb7b927ea00c470027ecb3e321",
-        "afterObservationSha256": "18ff6e43d0de238046b31a0b606aafc8190ce5af40ee53be0f94a60a19ea6d9c",
+        "afterObservationSha256": "2980c24efe9318215385d2e81eeeb9fe7af2f785178cbe5925721327feaddf23",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -393,7 +385,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "3e6f2b123e8ff50925424859b70c3958e63d12d21ca4987cb07ce0dc7104a2c5",
-        "afterObservationSha256": "1738156cafa4397126c3afbd8ece63e28608ed468459fb7b9449ac4870d298ad",
+        "afterObservationSha256": "9152ef81ccc52b74c4e651df036a28dc10cf1b698d13f2435e7fb9972f7e5bd4",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -482,7 +474,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "cf77714f3d85169cee107e4fe363eb194bf1a66e5b9b2125f25bed285de66885",
-        "afterObservationSha256": "e5661342a80869d74407cd97d8d972dcabc54ca96eb51abefc8f25c54ee8784c",
+        "afterObservationSha256": "601bdddfc958553701befa16f2782bc0478d0584c6b9bec40e2d7d552749d3fb",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -569,7 +561,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f0ad6a3df512a2ec78f5776b7402b61c37c494d833e6213c6527ea2930fe4a1a",
-        "afterObservationSha256": "684a4dfea18c93b03ca8a7192f9b98dc3c8a5108b3c977338d89a8406c3ee36b",
+        "afterObservationSha256": "bdb2e8f4707b1d5879ac6c1f6294d373b569c90f45a6ef2ee14deaf974006a18",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 100,

@@ -1,7 +1,11 @@
 import { createRng } from './random.ts';
 import type { Direction, Hazard, HazardKind, Lane, LaneKind } from './types.ts';
 import type { Action } from './types.ts';
-import { advanceLaneTransition, decisionTimeAfterSteps } from './transition.ts';
+import {
+  advanceLaneTransition,
+  decisionTimeAfterSteps,
+  HAZARD_CIRCUIT,
+} from './transition.ts';
 
 export const WORLD_VERSION = 3;
 
@@ -70,11 +74,24 @@ function createHazards(
 ): Hazard[] {
   const count = hazardCount(kind, rng, difficulty);
   const kinds = hazardKindByLane[kind];
-  return Array.from({ length: count }, () => ({
-    kind: rng.pick(kinds),
-    position: rng.integer(-12, 12),
-    size: kind === 'rail' ? 4 : rng.integer(1, 3),
-  }));
+  const halfCircuit = Math.floor(HAZARD_CIRCUIT / 2);
+  const firstPosition = rng.integer(-halfCircuit, halfCircuit);
+  const spacing = Math.floor(HAZARD_CIRCUIT / count);
+  return Array.from({ length: count }, (_, index) => {
+    const hazardKind = rng.pick(kinds);
+    const unwrappedPosition = firstPosition + index * spacing;
+    const position = (
+      (unwrappedPosition + halfCircuit) % HAZARD_CIRCUIT + HAZARD_CIRCUIT
+    ) % HAZARD_CIRCUIT - halfCircuit;
+    const size = hazardKind === 'train'
+      ? 4
+      : hazardKind === 'car'
+        ? 2
+        : hazardKind === 'truck'
+          ? 3
+          : rng.integer(1, 3);
+    return { kind: hazardKind, position, size };
+  });
 }
 
 function grass(row: number): Lane {

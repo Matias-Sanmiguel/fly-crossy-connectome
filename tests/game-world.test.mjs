@@ -37,6 +37,12 @@ const replayWitness = (seed, rows, actions) => {
   assert.equal(state.fly.row, rows.at(-1).row, `${seed}: witness did not reach recovery grass`);
 };
 
+const circularGap = (left, right) => {
+  const centerDistance = Math.abs(left.position - right.position);
+  const wrappedDistance = Math.min(centerDistance, 25 - centerDistance);
+  return wrappedDistance - (left.size + right.size) / 2;
+};
+
 test('same seed and range produce identical lanes', () => {
   assert.deepEqual(generateRows('lab-7', -5, 40), generateRows('lab-7', -5, 40));
 });
@@ -111,6 +117,26 @@ test('documented difficulty parameters increase with forward distance', () => {
   assert.ok(middle.minimumHazards >= opening.minimumHazards);
   assert.ok(far.maximumSpeed > middle.maximumSpeed);
   assert.ok(far.maximumHazards > middle.maximumHazards);
+});
+
+test('road traffic uses canonical vehicle sizes with visible space between neighbors', () => {
+  const roadLanes = generateRows('experiment-001:auto:e323bb69', -5, 25)
+    .filter((lane) => lane.kind === 'road');
+
+  assert.ok(roadLanes.length > 0);
+  for (const lane of roadLanes) {
+    for (const hazard of lane.hazards) {
+      assert.equal(hazard.size, hazard.kind === 'car' ? 2 : 3);
+    }
+    for (let left = 0; left < lane.hazards.length; left += 1) {
+      for (let right = left + 1; right < lane.hazards.length; right += 1) {
+        assert.ok(
+          circularGap(lane.hazards[left], lane.hazards[right]) >= 0.5,
+          `row ${lane.row}: hazards ${left} and ${right} overlap`,
+        );
+      }
+    }
+  }
 });
 
 test('world generation matches the shared cross-language fixture', () => {

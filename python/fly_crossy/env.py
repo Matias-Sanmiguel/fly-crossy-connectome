@@ -185,14 +185,25 @@ def _hazard_count(kind: LaneKind, rng: _Rng, difficulty: DifficultyProfile) -> i
 def _create_hazards(
     kind: LaneKind, rng: _Rng, difficulty: DifficultyProfile
 ) -> list[Hazard]:
-    return [
-        Hazard(
-            kind=rng.pick(_HAZARD_KINDS[kind]),
-            position=rng.integer(-12, 12),
-            size=4 if kind == "rail" else rng.integer(1, 3),
-        )
-        for _ in range(_hazard_count(kind, rng, difficulty))
-    ]
+    count = _hazard_count(kind, rng, difficulty)
+    half_circuit = HAZARD_CIRCUIT // 2
+    first_position = rng.integer(-half_circuit, half_circuit)
+    spacing = HAZARD_CIRCUIT // count
+    hazards: list[Hazard] = []
+    for index in range(count):
+        hazard_kind = rng.pick(_HAZARD_KINDS[kind])
+        unwrapped_position = first_position + index * spacing
+        position = ((unwrapped_position + half_circuit) % HAZARD_CIRCUIT) - half_circuit
+        if hazard_kind == "train":
+            size = 4
+        elif hazard_kind == "car":
+            size = 2
+        elif hazard_kind == "truck":
+            size = 3
+        else:
+            size = rng.integer(1, 3)
+        hazards.append(Hazard(kind=hazard_kind, position=position, size=size))
+    return hazards
 
 
 def _grass(row: int) -> Lane:

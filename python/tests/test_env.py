@@ -116,7 +116,7 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
         {
             "row": 3,
             "kind": "rail",
-            "hazards": [{"kind": "train", "position": -8, "size": 4}],
+            "hazards": [{"kind": "train", "position": 7, "size": 4}],
             "direction": 1,
             "speed": 1,
             "phase": 0.293,
@@ -124,7 +124,7 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
         {
             "row": 4,
             "kind": "rail",
-            "hazards": [{"kind": "train", "position": -1, "size": 4}],
+            "hazards": [{"kind": "train", "position": -11, "size": 4}],
             "direction": 1,
             "speed": 1,
             "phase": 0.409,
@@ -206,6 +206,25 @@ def test_documented_difficulty_parameters_increase_with_forward_distance() -> No
     assert middle.minimum_hazards >= opening.minimum_hazards
     assert far.maximum_speed > middle.maximum_speed
     assert far.maximum_hazards > middle.maximum_hazards
+
+
+def test_road_traffic_uses_canonical_sizes_without_circular_overlap() -> None:
+    road_lanes = [
+        lane
+        for lane in generate_rows("experiment-001:auto:e323bb69", -5, 25)
+        if lane.kind == "road"
+    ]
+
+    assert road_lanes
+    for lane in road_lanes:
+        for hazard in lane.hazards:
+            assert hazard.size == (2 if hazard.kind == "car" else 3)
+        for left_index, left in enumerate(lane.hazards):
+            for right in lane.hazards[left_index + 1 :]:
+                center_distance = abs(left.position - right.position)
+                wrapped_distance = min(center_distance, 25 - center_distance)
+                gap = wrapped_distance - (left.size + right.size) / 2
+                assert gap >= 0.5, (lane.row, left, right, gap)
 
 
 def test_world_generation_matches_shared_cross_language_fixture() -> None:

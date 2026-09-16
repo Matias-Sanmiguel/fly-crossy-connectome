@@ -21,7 +21,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -7,
+              "position": -10,
               "size": 4
             }
           ]
@@ -35,7 +35,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": 11,
+              "position": -1,
               "size": 4
             }
           ]
@@ -49,7 +49,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": 5,
+              "position": -1,
               "size": 4
             }
           ]
@@ -63,7 +63,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -7,
+              "position": -4,
               "size": 4
             }
           ]
@@ -94,17 +94,17 @@
           "hazards": [
             {
               "kind": "car",
-              "position": -8,
+              "position": -1,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": 7,
               "size": 2
             },
             {
               "kind": "truck",
-              "position": -4,
-              "size": 1
-            },
-            {
-              "kind": "car",
-              "position": 1,
+              "position": -10,
               "size": 3
             }
           ]
@@ -118,12 +118,12 @@
           "hazards": [
             {
               "kind": "truck",
-              "position": 3,
+              "position": 8,
               "size": 3
             },
             {
-              "kind": "car",
-              "position": 11,
+              "kind": "truck",
+              "position": -5,
               "size": 3
             }
           ]
@@ -152,7 +152,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": 0,
+              "position": -5,
               "size": 4
             }
           ]
@@ -166,7 +166,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -12,
+              "position": -1,
               "size": 4
             }
           ]
@@ -180,7 +180,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": 2,
+              "position": 6,
               "size": 4
             }
           ]
@@ -194,7 +194,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -2,
+              "position": 7,
               "size": 4
             }
           ]
@@ -213,7 +213,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -12,
+              "position": 7,
               "size": 4
             }
           ]
@@ -227,7 +227,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": 9,
+              "position": 11,
               "size": 4
             }
           ]
@@ -253,7 +253,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": 12,
+              "position": 9,
               "size": 4
             }
           ]
@@ -267,7 +267,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -10,
+              "position": 5,
               "size": 4
             }
           ]
@@ -281,7 +281,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -2,
+              "position": 10,
               "size": 4
             }
           ]
@@ -295,7 +295,7 @@
           "hazards": [
             {
               "kind": "train",
-              "position": -8,
+              "position": -1,
               "size": 4
             }
           ]
@@ -314,22 +314,22 @@
           "hazards": [
             {
               "kind": "car",
-              "position": -10,
-              "size": 3
-            },
-            {
-              "kind": "car",
               "position": -1,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": 5,
               "size": 3
             },
             {
               "kind": "car",
-              "position": 7,
-              "size": 3
+              "position": 11,
+              "size": 2
             },
             {
               "kind": "car",
-              "position": 9,
+              "position": -8,
               "size": 2
             }
           ]
@@ -342,24 +342,24 @@
           "phase": 0.185,
           "hazards": [
             {
-              "kind": "truck",
-              "position": -5,
+              "kind": "car",
+              "position": 1,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": 7,
               "size": 2
             },
             {
               "kind": "truck",
-              "position": 6,
+              "position": -12,
               "size": 3
             },
             {
-              "kind": "car",
-              "position": 4,
-              "size": 2
-            },
-            {
-              "kind": "car",
-              "position": -1,
-              "size": 2
+              "kind": "truck",
+              "position": -6,
+              "size": 3
             }
           ]
         },
@@ -371,19 +371,19 @@
           "phase": 0.162,
           "hazards": [
             {
-              "kind": "car",
+              "kind": "truck",
+              "position": -3,
+              "size": 3
+            },
+            {
+              "kind": "truck",
               "position": 5,
               "size": 3
             },
             {
               "kind": "car",
-              "position": 3,
-              "size": 3
-            },
-            {
-              "kind": "truck",
-              "position": 4,
-              "size": 3
+              "position": -12,
+              "size": 2
             }
           ]
         },
@@ -395,24 +395,24 @@
           "phase": 0.052,
           "hazards": [
             {
+              "kind": "car",
+              "position": 12,
+              "size": 2
+            },
+            {
               "kind": "truck",
-              "position": -6,
+              "position": -7,
               "size": 3
             },
             {
               "kind": "truck",
-              "position": -11,
-              "size": 1
+              "position": -1,
+              "size": 3
             },
             {
               "kind": "car",
               "position": 5,
-              "size": 1
-            },
-            {
-              "kind": "truck",
-              "position": -12,
-              "size": 1
+              "size": 2
             }
           ]
         },
@@ -441,18 +441,18 @@
           "phase": 0.504,
           "hazards": [
             {
+              "kind": "truck",
+              "position": -8,
+              "size": 3
+            },
+            {
               "kind": "car",
-              "position": 9,
+              "position": 0,
               "size": 2
             },
             {
               "kind": "car",
-              "position": -1,
-              "size": 2
-            },
-            {
-              "kind": "car",
-              "position": -11,
+              "position": 8,
               "size": 2
             }
           ]
@@ -466,33 +466,33 @@
           "hazards": [
             {
               "kind": "truck",
-              "position": 6,
-              "size": 3
-            },
-            {
-              "kind": "car",
-              "position": -10,
+              "position": 5,
               "size": 3
             },
             {
               "kind": "truck",
-              "position": -10,
+              "position": 9,
               "size": 3
             },
             {
               "kind": "car",
+              "position": -12,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": -8,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": -4,
+              "size": 3
+            },
+            {
+              "kind": "truck",
               "position": 0,
               "size": 3
-            },
-            {
-              "kind": "truck",
-              "position": -2,
-              "size": 3
-            },
-            {
-              "kind": "truck",
-              "position": 3,
-              "size": 2
             }
           ]
         },
@@ -504,33 +504,33 @@
           "phase": 0.388,
           "hazards": [
             {
-              "kind": "truck",
+              "kind": "car",
+              "position": 4,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": 8,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": 12,
+              "size": 2
+            },
+            {
+              "kind": "car",
               "position": -9,
               "size": 2
             },
             {
               "kind": "car",
-              "position": -4,
+              "position": -5,
               "size": 2
             },
             {
               "kind": "truck",
-              "position": -10,
-              "size": 3
-            },
-            {
-              "kind": "car",
-              "position": -8,
-              "size": 2
-            },
-            {
-              "kind": "car",
-              "position": 2,
-              "size": 1
-            },
-            {
-              "kind": "car",
-              "position": -4,
+              "position": -1,
               "size": 3
             }
           ]
@@ -544,28 +544,28 @@
           "hazards": [
             {
               "kind": "car",
-              "position": -7,
+              "position": -5,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": 0,
               "size": 3
             },
             {
               "kind": "car",
-              "position": -9,
+              "position": 5,
               "size": 2
             },
             {
               "kind": "car",
-              "position": -8,
+              "position": 10,
               "size": 2
             },
             {
               "kind": "car",
-              "position": 12,
+              "position": -10,
               "size": 2
-            },
-            {
-              "kind": "car",
-              "position": 7,
-              "size": 3
             }
           ]
         },
@@ -582,34 +582,34 @@
           "phase": 0.639,
           "hazards": [
             {
-              "kind": "truck",
-              "position": -1,
-              "size": 2
-            },
-            {
               "kind": "car",
-              "position": 8,
+              "position": 7,
               "size": 2
             },
             {
               "kind": "truck",
-              "position": -5,
-              "size": 1
+              "position": 11,
+              "size": 3
             },
             {
               "kind": "car",
               "position": -10,
-              "size": 3
-            },
-            {
-              "kind": "truck",
-              "position": 8,
-              "size": 3
+              "size": 2
             },
             {
               "kind": "truck",
               "position": -6,
-              "size": 1
+              "size": 3
+            },
+            {
+              "kind": "car",
+              "position": -2,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": 2,
+              "size": 3
             }
           ]
         },
@@ -621,18 +621,18 @@
           "phase": 0.38,
           "hazards": [
             {
-              "kind": "truck",
-              "position": -10,
-              "size": 1
-            },
-            {
-              "kind": "truck",
-              "position": -12,
-              "size": 1
+              "kind": "car",
+              "position": 3,
+              "size": 2
             },
             {
               "kind": "car",
-              "position": 6,
+              "position": 11,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": -6,
               "size": 3
             }
           ]
@@ -646,18 +646,18 @@
           "hazards": [
             {
               "kind": "car",
-              "position": -2,
-              "size": 3
-            },
-            {
-              "kind": "truck",
-              "position": -11,
-              "size": 3
-            },
-            {
-              "kind": "truck",
-              "position": -11,
+              "position": -7,
               "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": 1,
+              "size": 3
+            },
+            {
+              "kind": "truck",
+              "position": 9,
+              "size": 3
             }
           ]
         },
@@ -669,24 +669,24 @@
           "phase": 0.758,
           "hazards": [
             {
-              "kind": "truck",
-              "position": -5,
-              "size": 2
-            },
-            {
-              "kind": "truck",
-              "position": -5,
+              "kind": "car",
+              "position": 1,
               "size": 2
             },
             {
               "kind": "truck",
               "position": 7,
-              "size": 1
+              "size": 3
             },
             {
               "kind": "truck",
-              "position": -1,
-              "size": 1
+              "position": -12,
+              "size": 3
+            },
+            {
+              "kind": "car",
+              "position": -6,
+              "size": 2
             }
           ]
         },
