@@ -76,3 +76,19 @@ test('loader rejects empty geometry per role without rejecting the library', asy
   assert.equal(library.failures.size, Object.keys(KENNEY_ASSETS).length);
   assert.match(library.failures.get('lane.road'), /geometry|bounds/i);
 });
+
+test('normalization preserves model proportions while fitting its visual envelope', async () => {
+  const source = new THREE.Group();
+  source.add(new THREE.Mesh(new THREE.BoxGeometry(2, 1, 4)));
+
+  const library = await loadKenneyAssets(async () => source);
+  const car = library.templates.get('hazard.car');
+  assert.ok(car);
+
+  const size = new THREE.Box3().setFromObject(car).getSize(new THREE.Vector3());
+  assert.ok(Math.abs(size.x / size.y - 4) < 1e-9);
+  assert.ok(Math.abs(size.z / size.y - 2) < 1e-9);
+  assert.ok(size.x <= 1.8 + 1e-9);
+  assert.ok(size.y <= 0.72 + 1e-9);
+  assert.ok(size.z <= 0.9 + 1e-9);
+});

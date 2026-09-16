@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import { createFlyModel } from './createFlyModel.ts';
 import { decorationsForRow } from './scenery.ts';
 import { KENNEY_ASSETS, type GameAssetRole } from './kenneyAssets.ts';
 import {
@@ -7,6 +8,7 @@ import {
   type GameAssetLibrary,
   type KenneyAssetLoader,
 } from './kenneyLoader.ts';
+import { laneDetails } from './laneVisuals.ts';
 import {
   RENDER_HAZARD_CAPACITY,
   RENDER_LANE_CAPACITY,
@@ -32,15 +34,11 @@ export type GameRendererOptions = {
 
 const HOP_MILLISECONDS = 160;
 const DECORATION_CAPACITY = RENDER_LANE_CAPACITY * 2;
+const RAIL_CAPACITY = RENDER_LANE_CAPACITY * 2;
+const SLEEPER_CAPACITY = RENDER_LANE_CAPACITY * 40;
 
 function worldPosition(position: GridPosition, target: THREE.Vector3): THREE.Vector3 {
   return target.set(position.column, 0.42, -position.row);
-}
-
-function roleForLane(kind: LaneKind): GameAssetRole | null {
-  if (kind === 'road') return 'lane.road';
-  if (kind === 'rail') return 'lane.rail';
-  return null;
 }
 
 function roleForHazard(kind: HazardKind): GameAssetRole | null {
@@ -75,13 +73,10 @@ export function createGameRenderer(
   scene.add(rimLight);
 
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const bodyGeometry = new THREE.SphereGeometry(0.28, 8, 6);
-  const eyeGeometry = new THREE.SphereGeometry(0.075, 7, 5);
-  const wingGeometry = new THREE.PlaneGeometry(0.46, 0.22);
   const laneMaterials: Record<LaneKind, THREE.MeshStandardMaterial> = {
     grass: new THREE.MeshStandardMaterial({ color: 0x4f7f43, roughness: 0.95 }),
-    road: new THREE.MeshStandardMaterial({ color: 0x35423f, roughness: 0.9 }),
-    rail: new THREE.MeshStandardMaterial({ color: 0x544b40, roughness: 0.95 }),
+    road: new THREE.MeshStandardMaterial({ color: 0x202a29, roughness: 0.94 }),
+    rail: new THREE.MeshStandardMaterial({ color: 0x403a34, roughness: 1 }),
     river: new THREE.MeshStandardMaterial({ color: 0x24718a, roughness: 0.48 }),
   };
   const hazardMaterials: Record<HazardKind, THREE.MeshStandardMaterial> = {
@@ -90,14 +85,14 @@ export function createGameRenderer(
     train: new THREE.MeshStandardMaterial({ color: 0xd9e1e6, roughness: 0.55 }),
     log: new THREE.MeshStandardMaterial({ color: 0x8a5a34, roughness: 1 }),
   };
-  const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x8f6235, roughness: 0.7 });
-  const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0xc53d32, roughness: 0.45 });
-  const wingMaterial = new THREE.MeshStandardMaterial({
-    color: 0xc7dce4,
-    transparent: true,
-    opacity: 0.58,
-    side: THREE.DoubleSide,
-    depthWrite: false,
+  const railMaterial = new THREE.MeshStandardMaterial({
+    color: 0x798681,
+    metalness: 0.42,
+    roughness: 0.52,
+  });
+  const sleeperMaterial = new THREE.MeshStandardMaterial({
+    color: 0x60432f,
+    roughness: 1,
   });
 
   const createInstances = (material: THREE.Material, maximum: number) => {
@@ -118,24 +113,11 @@ export function createGameRenderer(
     train: createInstances(hazardMaterials.train, RENDER_HAZARD_CAPACITY),
     log: createInstances(hazardMaterials.log, RENDER_HAZARD_CAPACITY),
   };
+  const railDetails = createInstances(railMaterial, RAIL_CAPACITY);
+  const sleeperDetails = createInstances(sleeperMaterial, SLEEPER_CAPACITY);
 
-  const fly = new THREE.Group();
-  const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-  body.scale.set(0.75, 0.72, 1.35);
-  fly.add(body);
-  const head = new THREE.Mesh(bodyGeometry, bodyMaterial);
-  head.scale.setScalar(0.72);
-  head.position.z = -0.3;
-  fly.add(head);
-  for (const side of [-1, 1]) {
-    const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    eye.position.set(side * 0.13, 0.055, -0.45);
-    fly.add(eye);
-    const wing = new THREE.Mesh(wingGeometry, wingMaterial);
-    wing.position.set(side * 0.29, 0.13, 0.03);
-    wing.rotation.set(-Math.PI / 2, 0, side * -0.28);
-    fly.add(wing);
-  }
+  const flyModel = createFlyModel();
+  const fly = flyModel.group;
   scene.add(fly);
 
   const matrix = new THREE.Matrix4();
@@ -220,25 +202,36 @@ export function createGameRenderer(
   const rebuildInstances = (game: GameState) => {
     const laneCounts: Record<LaneKind, number> = { grass: 0, road: 0, rail: 0, river: 0 };
     const hazardCounts: Record<HazardKind, number> = { car: 0, truck: 0, train: 0, log: 0 };
+    let railCount = 0;
+    let sleeperCount = 0;
     const renderable = selectRenderableInstances(game);
     resetPools();
 
     for (const lane of renderable.lanes) {
-      const laneRole = roleForLane(lane.kind);
-      const laneModel = laneRole ? acquire(laneRole) : null;
-      if (laneModel) {
-        laneModel.position.set(0, -0.1, -lane.row);
-      } else {
-        const laneIndex = laneCounts[lane.kind]++;
+      const laneIndex = laneCounts[lane.kind]++;
+      composeInstance(
+        laneMeshes[lane.kind],
+        laneIndex,
+        0,
+        -0.12,
+        -lane.row,
+        HAZARD_CIRCUIT,
+        0.2,
+        0.94,
+      );
+
+      for (const detail of laneDetails(lane.kind, HAZARD_CIRCUIT)) {
+        const target = detail.kind === 'rail' ? railDetails : sleeperDetails;
+        const index = detail.kind === 'rail' ? railCount++ : sleeperCount++;
         composeInstance(
-          laneMeshes[lane.kind],
-          laneIndex,
-          0,
-          -0.12,
-          -lane.row,
-          HAZARD_CIRCUIT,
-          0.2,
-          0.94,
+          target,
+          index,
+          detail.position[0],
+          detail.position[1],
+          -lane.row + detail.position[2],
+          detail.size[0],
+          detail.size[1],
+          detail.size[2],
         );
       }
 
@@ -258,7 +251,9 @@ export function createGameRenderer(
       if (hazardModel && hazardRole) {
         hazardModel.position.set(x, 0, -lane.row);
         hazardModel.rotation.y = lane.direction === -1 ? Math.PI : 0;
-        hazardModel.scale.x = hazard.size / KENNEY_ASSETS[hazardRole].logicalSize[0];
+        hazardModel.scale.setScalar(
+          hazard.size / KENNEY_ASSETS[hazardRole].logicalSize[0],
+        );
       } else {
         const hazardIndex = hazardCounts[hazard.kind]++;
         const isLog = hazard.kind === 'log';
@@ -285,6 +280,10 @@ export function createGameRenderer(
       hazardMeshes[kind].count = hazardCounts[kind];
       hazardMeshes[kind].instanceMatrix.needsUpdate = true;
     }
+    railDetails.count = railCount;
+    railDetails.instanceMatrix.needsUpdate = true;
+    sleeperDetails.count = sleeperCount;
+    sleeperDetails.instanceMatrix.needsUpdate = true;
   };
 
   void loadKenneyAssets(options.assetLoader).then((assets) => {
@@ -368,14 +367,11 @@ export function createGameRenderer(
       cancelAnimationFrame(frame);
       observer.disconnect();
       boxGeometry.dispose();
-      bodyGeometry.dispose();
-      eyeGeometry.dispose();
-      wingGeometry.dispose();
       Object.values(laneMaterials).forEach((material) => material.dispose());
       Object.values(hazardMaterials).forEach((material) => material.dispose());
-      bodyMaterial.dispose();
-      eyeMaterial.dispose();
-      wingMaterial.dispose();
+      railMaterial.dispose();
+      sleeperMaterial.dispose();
+      flyModel.dispose();
       webgl.dispose();
       webgl.domElement.remove();
       scene.clear();

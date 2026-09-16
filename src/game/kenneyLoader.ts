@@ -65,11 +65,12 @@ function normalizedTemplate(
     throw new Error('Asset geometry has empty or non-finite bounds.');
   }
 
-  content.scale.multiply(new THREE.Vector3(
+  const uniformScale = Math.min(
     definition.logicalSize[0] / measured.x,
     definition.logicalSize[1] / measured.y,
     definition.logicalSize[2] / measured.z,
-  ));
+  );
+  content.scale.multiplyScalar(uniformScale);
   content.updateMatrixWorld(true);
 
   bounds.setFromObject(content);
