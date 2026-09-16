@@ -86,19 +86,14 @@ export function createFlyModel(
   ) => {
     if (!leftWing || !rightWing) return;
 
-    const progress = THREE.MathUtils.clamp(hopProgress, 0, 1);
+    void hopProgress;
+    void moving;
 
-    // Keep the wings completely spread. During a hop they beat up/down
-    // around the forward-back axis, with opposite signs so both wings rise
-    // and fall symmetrically in world space.
-    const flightEnvelope = moving
-      ? Math.sin(progress * Math.PI)
-      : 0;
-    const flap = moving
-      ? Math.sin(nowMilliseconds * FLAP_RADIANS_PER_MILLISECOND)
-        * FLAP_AMPLITUDE
-        * flightEnvelope
-      : 0;
+    // Wings stay completely spread and flap continuously, even while idle.
+    // Only the vertical beat changes; they never fold back toward the body.
+    const flap =
+      Math.sin(nowMilliseconds * FLAP_RADIANS_PER_MILLISECOND)
+      * FLAP_AMPLITUDE;
 
     leftWing.rotation.set(0, 0, flap);
     rightWing.rotation.set(0, 0, -flap);

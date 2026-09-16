@@ -17,3 +17,5 @@ The body geometry/material groups otherwise retain the source model's
 low-poly structure.
 
 Attribution is retained here because the source model requires it.
+
+Body recolor: the original dark-blue and green body material groups were changed to neutral black. Red eyes and cyan wings were preserved.

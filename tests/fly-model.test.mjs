@@ -38,6 +38,33 @@ function fakePreparedFly() {
   return source;
 }
 
+test('body materials are black while eyes and wings keep their colors', async () => {
+  const bytes = await readFile(
+    new URL('../public/assets/fly/fly-jeremy-rigged.glb', import.meta.url),
+  );
+  const jsonLength = bytes.readUInt32LE(12);
+  const gltf = JSON.parse(
+    bytes.subarray(20, 20 + jsonLength).toString('utf8').trim(),
+  );
+  const byName = new Map(
+    gltf.materials.map((material) => [material.name, material]),
+  );
+
+  for (const name of ['455A64', '4CAF50']) {
+    const factor = byName.get(name).pbrMetallicRoughness.baseColorFactor;
+    assert.deepEqual(factor, [0.025, 0.025, 0.025, 1]);
+  }
+
+  assert.notDeepEqual(
+    byName.get('F44336').pbrMetallicRoughness.baseColorFactor,
+    [0.025, 0.025, 0.025, 1],
+  );
+  assert.notDeepEqual(
+    byName.get('80DEEA').pbrMetallicRoughness.baseColorFactor,
+    [0.025, 0.025, 0.025, 1],
+  );
+});
+
 test('prepared fly asset contains independently animatable wing pivots', async () => {
   const bytes = await readFile(
     new URL('../public/assets/fly/fly-jeremy-rigged.glb', import.meta.url),
@@ -75,23 +102,22 @@ test('fly opens during a hop and folds again at rest', async () => {
   assert.ok(left);
   assert.ok(right);
 
-  model.update(0, 0, false);
-  assert.ok(Math.abs(left.rotation.y) < 1e-9);
-  assert.ok(Math.abs(right.rotation.y) < 1e-9);
-  assert.ok(Math.abs(left.rotation.z) < 1e-9);
-  assert.ok(Math.abs(right.rotation.z) < 1e-9);
-
-  model.update(100, 0.5, true);
+  model.update(100, 0, false);
   assert.ok(Math.abs(left.rotation.y) < 1e-9);
   assert.ok(Math.abs(right.rotation.y) < 1e-9);
   assert.ok(Math.abs(left.rotation.z) > 0.1);
   assert.ok(Math.abs(right.rotation.z + left.rotation.z) < 1e-9);
 
-  model.update(200, 1, true);
-  assert.ok(Math.abs(left.rotation.y) < 1e-9);
-  assert.ok(Math.abs(right.rotation.y) < 1e-9);
-  assert.ok(Math.abs(left.rotation.z) < 1e-9);
-  assert.ok(Math.abs(right.rotation.z) < 1e-9);
+  const idleLeft = left.rotation.z;
+  const idleRight = right.rotation.z;
+
+  model.update(100, 0.5, true);
+  assert.ok(Math.abs(left.rotation.z - idleLeft) < 1e-9);
+  assert.ok(Math.abs(right.rotation.z - idleRight) < 1e-9);
+
+  model.update(130, 0, false);
+  assert.ok(Math.abs(left.rotation.z - idleLeft) > 0.05);
+  assert.ok(Math.abs(right.rotation.z + left.rotation.z) < 1e-9);
 
   model.dispose();
 });
