@@ -502,10 +502,11 @@ export function createGameRenderer(
         hazardModel.rotation.y = lane.direction === -1 ? Math.PI : 0;
         const logicalSize = KENNEY_ASSETS[hazardRole].logicalSize;
         if (hazard.kind === 'log') {
+          const isLargeNatureLog = hazardRole === 'hazard.log.large';
           hazardModel.scale.set(
             hazard.size / logicalSize[0],
-            1.7,
-            2.3,
+            isLargeNatureLog ? 1.12 : 2.35,
+            isLargeNatureLog ? 1.02 : 2.25,
           );
         } else {
           hazardModel.scale.setScalar(

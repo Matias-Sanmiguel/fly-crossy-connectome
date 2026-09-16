@@ -35,12 +35,6 @@ const PACKS = {
       'fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d',
     textureless: true,
   },
-  'survival-kit': {
-    source:
-      'https://kenney.nl/assets/survival-kit',
-    archiveSha256:
-      'c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e',
-  },
 };
 
 const ASSETS = [
@@ -162,19 +156,15 @@ const ASSETS = [
     'hazard.train',
   ],
 
-  // Survival Kit
-  [
-    'survival-kit',
-    'tree-log-small.glb',
-    'hazard.log',
-  ],
-  [
-    'survival-kit',
-    'tree-log.glb',
-    'hazard.log',
-  ],
-
   // Nature Kit (no palms selected)
+  [
+    'nature-kit', 'log.glb', 'hazard.log',
+    'Models/GLTF format/log.glb',
+  ],
+  [
+    'nature-kit', 'log-large.glb', 'hazard.log',
+    'Models/GLTF format/log_large.glb',
+  ],
   [
     'nature-kit', 'tree-default.glb', 'decoration.tree',
     'Models/GLTF format/tree_default.glb',
@@ -190,6 +180,14 @@ const ASSETS = [
   [
     'nature-kit', 'tree-fat.glb', 'decoration.tree',
     'Models/GLTF format/tree_fat.glb',
+  ],
+  [
+    'nature-kit', 'tree-simple-dark.glb', 'decoration.tree',
+    'Models/GLTF format/tree_simple_dark.glb',
+  ],
+  [
+    'nature-kit', 'tree-oak-fall.glb', 'decoration.tree',
+    'Models/GLTF format/tree_oak_fall.glb',
   ],
   [
     'nature-kit', 'rock-large-a.glb', 'decoration.rocks',

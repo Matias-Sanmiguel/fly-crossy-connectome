@@ -31,17 +31,30 @@ test('semantic asset registry pins mappings and finite transforms', () => {
     KENNEY_ASSETS['decoration.tree.oak'].path,
     'assets/kenney/nature-kit/tree-oak.glb',
   );
+  assert.equal(
+    KENNEY_ASSETS['decoration.tree.simple-dark'].path,
+    'assets/kenney/nature-kit/tree-simple-dark.glb',
+  );
+  assert.equal(
+    KENNEY_ASSETS['decoration.tree.oak-fall'].path,
+    'assets/kenney/nature-kit/tree-oak-fall.glb',
+  );
   assert.ok(
     Object.values(KENNEY_ASSETS).every((asset) => !asset.path.toLowerCase().includes('palm')),
   );
   assert.equal(NATIVE_ASSET_ROLES['hazard.log'], undefined);
   assert.equal(
     KENNEY_ASSETS['hazard.log.small'].path,
-    'assets/kenney/survival-kit/tree-log-small.glb',
+    'assets/kenney/nature-kit/log.glb',
   );
   assert.equal(
     KENNEY_ASSETS['hazard.log.large'].path,
-    'assets/kenney/survival-kit/tree-log.glb',
+    'assets/kenney/nature-kit/log-large.glb',
+  );
+  assert.ok(
+    Object.values(KENNEY_ASSETS).every(
+      (asset) => !asset.path.includes('/survival-kit/'),
+    ),
   );
 
   for (const asset of Object.values(KENNEY_ASSETS)) {

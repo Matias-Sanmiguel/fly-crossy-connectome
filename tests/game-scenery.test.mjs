@@ -31,7 +31,7 @@ test('selected Nature Kit scenery never contains palms', () => {
 test('grass boundaries are densely marked by trees outside playable columns', () => {
   for (let row = 0; row <= 30; row += 1) {
     const boundary = decorationsForRow('boundary-audit', row, 'grass')
-      .filter((item) => !item.blocking);
+      .filter((item) => !item.blocking && Math.abs(item.column) >= 6);
     assert.equal(boundary.length, 6);
     assert.ok(boundary.every((item) => item.role.startsWith('decoration.tree')));
     assert.ok(boundary.every((item) => Math.abs(item.column) >= 6));
@@ -55,4 +55,22 @@ test('interior grass obstacles are sparse, never use column zero, and match coll
     }
     assert.equal(isSceneryBlocked('obstacle-audit', row, 'grass', 0), false);
   }
+});
+
+
+test('plants are decorative and never participate in collision lookup', () => {
+  let plantsSeen = 0;
+  for (let row = -30; row <= 80; row += 1) {
+    const plants = decorationsForRow('plant-pass-through', row, 'grass')
+      .filter((item) => item.role.startsWith('decoration.plant'));
+    for (const plant of plants) {
+      plantsSeen += 1;
+      assert.equal(plant.blocking, false);
+      assert.equal(
+        isSceneryBlocked('plant-pass-through', row, 'grass', plant.column),
+        false,
+      );
+    }
+  }
+  assert.ok(plantsSeen > 0);
 });

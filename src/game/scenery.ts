@@ -25,6 +25,8 @@ const TREE_ROLES: readonly DecorationRole[] = [
   'decoration.tree.oak',
   'decoration.tree.pine-round',
   'decoration.tree.fat',
+  'decoration.tree.simple-dark',
+  'decoration.tree.oak-fall',
 ];
 
 const INTERIOR_ROLES: readonly DecorationRole[] = [
@@ -32,12 +34,19 @@ const INTERIOR_ROLES: readonly DecorationRole[] = [
   'decoration.tree.oak',
   'decoration.tree.pine-round',
   'decoration.tree.fat',
+  'decoration.tree.simple-dark',
+  'decoration.tree.oak-fall',
   'decoration.rocks',
   'decoration.rocks.small-a',
   'decoration.rocks.small-c',
+];
+
+const PLANT_ROLES: readonly DecorationRole[] = [
   'decoration.plant',
   'decoration.plant.small',
 ];
+
+const PLANT_COLUMNS = [-4, -3, -2, -1, 0, 1, 2, 3, 4] as const;
 
 function positiveModulo(value: number, divisor: number): number {
   return ((value % divisor) + divisor) % divisor;
@@ -106,6 +115,26 @@ export function decorationsForRow(
     };
   });
 
+  const plantRng = createRng(`plants:v1:${seed}:${row}`);
+  const blockedColumns = new Set(interior.map((item) => item.column));
+  const plantCandidates = PLANT_COLUMNS.filter(
+    (column) => !blockedColumns.has(column),
+  );
+  const plantCount = plantRng.integer(0, 2);
+  const plants = Array.from({ length: plantCount }, () => {
+    const candidateIndex = plantRng.integer(0, plantCandidates.length - 1);
+    const column = plantCandidates.splice(candidateIndex, 1)[0]!;
+    const role = plantRng.pick(PLANT_ROLES);
+    return {
+      role,
+      column,
+      rowOffset: (plantRng.next() - 0.5) * 0.16,
+      rotationY: plantRng.next() * Math.PI * 2,
+      scale: scaleForRole(role, plantRng),
+      blocking: false,
+    };
+  });
+
   // Crossy-style visual boundary. These trees sit just outside the playable
   // +/-5 columns. No palm asset exists in TREE_ROLES by design.
   const boundary = BOUNDARY_COLUMNS.map((column) => {
@@ -120,5 +149,5 @@ export function decorationsForRow(
     };
   });
 
-  return [...interior, ...boundary];
+  return [...interior, ...plants, ...boundary];
 }

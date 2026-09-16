@@ -80,14 +80,14 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
   }
   if (
     !Array.isArray(manifest.assets)
-    || manifest.assets.length !== 43
+    || manifest.assets.length !== 45
   ) {
     throw new Error(
-      'Kenney manifest must contain exactly 43 assets.',
+      'Kenney manifest must contain exactly 45 assets.',
     );
   }
-  if (!Array.isArray(manifest.textures) || manifest.textures.length !== 4) {
-    throw new Error('Kenney manifest must contain exactly 4 required textures.');
+  if (!Array.isArray(manifest.textures) || manifest.textures.length !== 3) {
+    throw new Error('Kenney manifest must contain exactly 3 required textures.');
   }
 
   const roles = new Set();

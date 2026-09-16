@@ -323,22 +323,22 @@
     },
     {
       "role": "hazard.log",
-      "path": "assets/kenney/survival-kit/tree-log-small.glb",
-      "bytes": 9216,
-      "sha256": "5b416addc4cb01d9d6ad30ec282606a8fefb018043d3253d5e42c1e353aab3c8",
-      "source": "https://kenney.nl/assets/survival-kit",
-      "archiveSha256": "c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e",
-      "upstreamPath": "Models/GLB format/tree-log-small.glb",
+      "path": "assets/kenney/nature-kit/log.glb",
+      "bytes": 14288,
+      "sha256": "8c8fe8f6adfc03a3c0cd6cb24961ff74be96c2da284d70322f05797d049972d6",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "archiveSha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d",
+      "upstreamPath": "Models/GLTF format/log.glb",
       "license": "CC0-1.0"
     },
     {
       "role": "hazard.log",
-      "path": "assets/kenney/survival-kit/tree-log.glb",
-      "bytes": 9180,
-      "sha256": "bd358e55e63a75bd54bea1e4b40ed362baa937ce8e503f2aa2370a5a1d9da11c",
-      "source": "https://kenney.nl/assets/survival-kit",
-      "archiveSha256": "c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e",
-      "upstreamPath": "Models/GLB format/tree-log.glb",
+      "path": "assets/kenney/nature-kit/log-large.glb",
+      "bytes": 7924,
+      "sha256": "e7a92369062d491e5a31a163d390e07db04ee573605bbfa84c00660d18896b4c",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "archiveSha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d",
+      "upstreamPath": "Models/GLTF format/log_large.glb",
       "license": "CC0-1.0"
     },
     {
@@ -379,6 +379,26 @@
       "source": "https://kenney.nl/assets/nature-kit",
       "archiveSha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d",
       "upstreamPath": "Models/GLTF format/tree_fat.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "decoration.tree",
+      "path": "assets/kenney/nature-kit/tree-simple-dark.glb",
+      "bytes": 6508,
+      "sha256": "57bee138b97a1fadd34d06772513f7c3f22fd5905375eae611141e7a49d81f9e",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "archiveSha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d",
+      "upstreamPath": "Models/GLTF format/tree_simple_dark.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "decoration.tree",
+      "path": "assets/kenney/nature-kit/tree-oak-fall.glb",
+      "bytes": 14640,
+      "sha256": "43a258d17b5428d8ef525a19e30e667caeeb330b6f3cb367a07da12093ff97a1",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "archiveSha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d",
+      "upstreamPath": "Models/GLTF format/tree_oak_fall.glb",
       "license": "CC0-1.0"
     },
     {
@@ -457,15 +477,6 @@
       "sha256": "e264660f3fc9ecbd642bdb7fb7b7dc10755a061560a66651baf48274c729af09",
       "source": "https://kenney.nl/assets/train-kit",
       "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
-      "upstreamPath": "Models/GLB format/Textures/colormap.png",
-      "license": "CC0-1.0"
-    },
-    {
-      "path": "assets/kenney/survival-kit/Textures/colormap.png",
-      "bytes": 7440,
-      "sha256": "6ca023be9f12e8c2358fcf94320c8a894b4c05a3dd0bad1f5c268312053caca1",
-      "source": "https://kenney.nl/assets/survival-kit",
-      "archiveSha256": "c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e",
       "upstreamPath": "Models/GLB format/Textures/colormap.png",
       "license": "CC0-1.0"
     }

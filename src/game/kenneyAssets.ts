@@ -8,6 +8,8 @@ export const GAME_ASSET_ROLES = [
   'decoration.tree.oak',
   'decoration.tree.pine-round',
   'decoration.tree.fat',
+  'decoration.tree.simple-dark',
+  'decoration.tree.oak-fall',
   'decoration.rocks',
   'decoration.rocks.small-a',
   'decoration.rocks.small-c',
@@ -76,11 +78,12 @@ const truckDefinition = (
 
 const logDefinition = (
   path: string,
-  length: number,
+  logicalSize: readonly [number, number, number],
+  rotationY: number,
 ): KenneyAssetDefinition => ({
   path,
-  logicalSize: [length, 0.28, 0.25],
-  rotation: [0, Math.PI / 2, 0],
+  logicalSize,
+  rotation: [0, rotationY, 0],
   verticalOffset: 0,
 });
 
@@ -155,6 +158,20 @@ export const KENNEY_ASSETS = {
   'decoration.tree.fat': {
     path: 'assets/kenney/nature-kit/tree-fat.glb',
     logicalSize: [1.1, 1.7, 1],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.tree.simple-dark': {
+    path: 'assets/kenney/nature-kit/tree-simple-dark.glb',
+    logicalSize: [0.8, 1.9, 0.8],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.tree.oak-fall': {
+    path: 'assets/kenney/nature-kit/tree-oak-fall.glb',
+    logicalSize: [1.05, 1.8, 1.05],
     rotation: [0, 0, 0],
     verticalOffset: 0,
   },
@@ -247,13 +264,15 @@ export const KENNEY_ASSETS = {
   ),
 
   'hazard.log.small': logDefinition(
-    'assets/kenney/survival-kit/tree-log-small.glb',
-    0.65,
+    'assets/kenney/nature-kit/log.glb',
+    [0.71, 0.18, 0.24],
+    Math.PI / 2,
   ),
 
   'hazard.log.large': logDefinition(
-    'assets/kenney/survival-kit/tree-log.glb',
-    1,
+    'assets/kenney/nature-kit/log-large.glb',
+    [1, 0.42, 0.55],
+    0,
   ),
 
   'hazard.train': trainLocomotiveDefinition(
