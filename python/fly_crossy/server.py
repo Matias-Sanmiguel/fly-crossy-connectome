@@ -58,7 +58,14 @@ CLOSE_ARTIFACT_UNAVAILABLE = 4406
 _POPULATIONS = [80, 1000, 5000, 20_000, 124_289]
 _HASH_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 _DEFAULT_ARTIFACT_REGISTRY: Mapping[int, "_ArtifactIdentity"] = MappingProxyType({})
-_DEVELOPMENT_ORIGINS = frozenset({"http://127.0.0.1:5173", "http://localhost:5173"})
+_DEVELOPMENT_ORIGINS = frozenset(
+    {
+        "http://127.0.0.1:4173",
+        "http://127.0.0.1:5173",
+        "http://localhost:4173",
+        "http://localhost:5173",
+    }
+)
 
 ActionSelector = Callable[[Observation], Action]
 WorldFactory = Callable[[], BiomechanicalWorld]

@@ -393,6 +393,26 @@ def test_socket_accepts_a_same_origin_connection(client: TestClient) -> None:
         pass
 
 
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://127.0.0.1:4173",
+        "http://localhost:4173",
+    ],
+)
+def test_socket_accepts_supported_local_vite_origins(
+    client: TestClient,
+    origin: str,
+) -> None:
+    with client.websocket_connect(
+        "/api/simulation",
+        headers={"origin": origin},
+    ):
+        pass
+
+
 def test_socket_rejects_a_disallowed_origin(client: TestClient) -> None:
     with pytest.raises(WebSocketDisconnect) as error:
         with client.websocket_connect(
