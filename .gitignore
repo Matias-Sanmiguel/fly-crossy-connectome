@@ -19,6 +19,7 @@ python/runs/
 !.env.example
 outputs/
 .worktrees/
+.superpowers/
 
 # Editors and operating systems
 .idea/
