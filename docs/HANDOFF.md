@@ -1,19 +1,23 @@
 # Engineering handoff
 
 This repository is an **operational development snapshot**, not the finished
-biomechanical product. The browser demo runs today; the native biomechanics
-foundation is implemented and tested in isolation; the bridge between them is
-the main unfinished milestone.
+five-controller biomechanical product. The browser demo, unified native
+FlyBody/keyboard world, and an opt-in protocol-v2 development bridge run today.
+The remaining milestone is complete native telemetry plus independently
+trained larger neural controllers.
 
 Fresh snapshot verification on 2026-09-15:
 
-- Browser tests: 102 passed.
-- Python tests: 321 passed, 1 historical release-environment test skipped.
+- Browser tests: 123 passed.
+- Python tests: 350 passed, 1 historical release-environment test skipped.
 - Anatomy/connectome asset hashes: verified.
+- Kenney GLB byte sizes and hashes: verified.
 - TypeScript and production web build: passed (with Vite's non-blocking large
   bundle advisory).
 - Default CPU Docker build, service health, HTTP/WebSocket proxy smoke, and
   clean shutdown: passed.
+- Browser QA: default and biomechanical desktop entries, 360×800 stacking, and
+  a forced GLB 404 with visible geometric fallback were exercised.
 
 ## What works now
 
@@ -24,6 +28,10 @@ Fresh snapshot verification on 2026-09-15:
 - Autonomous bundled reduced-connectome controller.
 - Always-visible MaleCNS soma visualization with real-time **simulated model
   activity**. It is explicitly not a biological recording.
+- Curated Kenney CC0 roads, track, vehicles, and scenery with a native geometry
+  fallback that does not affect simulation.
+- Shared dark laboratory shell for `/` and `/?biomechanics=1`, including
+  responsive mobile stacking and explicit runtime/asset status.
 - Human, scripted, dense-policy, and remote-controller boundaries.
 - Versioned WebSocket protocol, reconnect/resume plumbing, payload bounds, and
   CPU/GPU Docker service definitions.
@@ -35,7 +43,7 @@ npm ci
 npm run dev
 ```
 
-### Native biomechanics foundation
+### Native biomechanics and bridge
 
 The following layers are implemented and individually reviewed:
 
@@ -48,6 +56,12 @@ The following layers are implemented and individually reviewed:
   front/middle-leg targets.
 - Fail-closed recovery: invalid, wrong, ambiguous, unsafe, or timed-out contact
   cannot become a directional game action.
+- `BiomechanicalWorld` composes FlyBody and all six keys into one `MjModel`,
+  advances the fixed-rate dynamics, caps snapshots at 30 Hz, and produces one
+  terminal result per intention.
+- `dev_server.py` loads the committed 80-neuron release checkpoint plus the
+  verified runtime manifest, creates the world, and connects directional
+  decisions to the physical gate through the protocol-v2 server.
 
 Important physics invariant: MuJoCo stays at its native `0.0001 s` solver
 timestep. One 500 Hz outer tick must execute 20 native substeps; the motor is
@@ -55,48 +69,32 @@ updated at 100 Hz, every five outer ticks.
 
 ## What is not finished
 
-1. **Unified biomechanical world (highest priority).** There is no committed
-   `python/fly_crossy/biomechanics/world.py` yet. Compose FlyBody and the six
-   keys into one `MjModel`, step the real dynamics, sample one complete six-key
-   contact frame per outer tick, and emit a direction only through
-   `is_directional_confirmation`.
-2. **Server/session bridge.** Intention, physical contact, snapshots, recovery,
-   and the single terminal `action_result` still need to be wired into
-   `session.py` and `server.py`.
-3. **Five independent neural controllers.** The requested 80, 1,000, 5,000,
+1. **Four larger neural controllers.** The requested 1,000, 5,000,
    20,000, and 124,289-neuron modes, their independent checkpoints, training,
-   evaluation, manifests, and UI selector remain to be built. The browser's
-   current 80-cell reduced controller is not that full five-mode system.
-4. **Real-time native telemetry in the browser.** The current brain panel shows
-   browser-controller model values. Native controller activations, motor phase,
-   leg/key contact, travel, force, debounce, and failures still need streaming.
-5. **Release integration.** The current CPU web/API Docker smoke passes, but an
-   end-to-end smoke of the unfinished biomechanical world with FlyGym assets,
-   CPU fallback, optional NVIDIA GPU execution, accessibility/browser QA, and
-   final release evidence remain.
-
-## Known runtime issues to fix before neural streaming
-
-The latest runtime review left three browser-side hardening items:
-
-- Revalidate connection generation between every message/activity listener;
-  one listener must not be able to make later listeners process stale events.
-- Accept a revision-0 keyframe after reconnect/reset even if the previous
-  generation observed a higher revision, and publish an empty/reset activity
-  state while awaiting the new keyframe.
-- Reject `resume()` unless the session is actually paused.
-
-These do not invalidate the isolated physics components, but must be fixed
-before relying on streamed native neural state.
+   evaluation, manifests, and selectable UI state remain to be built. The
+   current 80-cell controller is verified but is not the full five-mode system.
+2. **Native telemetry emission.** The development bridge sends intentions and
+   authoritative action results, but it does not yet publish world snapshots,
+   contact frames, motor phase/force/travel, metrics, or non-empty native neural
+   keyframes/deltas. The biomechanical UI therefore labels those fields as
+   awaiting telemetry rather than deriving them.
+3. **Container integration of the physical runtime.** Default Compose
+   deliberately starts `fly_crossy.server:app` without an artifact registry or
+   world factory. It verifies health and proxy behavior but is not the full
+   physical demo. Package the verified manifests, checkpoint, calibration,
+   FlyBody model, and cached assets before switching the container entrypoint.
+4. **GPU release evidence.** CPU fallback is the default and passes. The CUDA
+   image/runtime has not been exercised on this host.
 
 ## Recommended implementation order
 
-1. Fix the three runtime issues above and add regression tests.
-2. Execute Task 5 in the biomechanical plan: unified world plus server bridge.
+1. Extend the server bridge to stream world/contact/metrics/neural data from the
+   authoritative runtime and add end-to-end browser tests.
+2. Package the development artifacts and physical world into the CPU container
+   without weakening manifest/hash validation.
 3. Complete the multiscale neural-controller plan, including real artifacts and
    independent training/evaluation for all five sizes.
-4. Complete the browser station: mode selector, native neural snapshots,
-   physical keyboard/leg telemetry, and honest status labels.
+4. Enable each controller option only after its artifacts and evidence exist.
 5. Run the full CPU Docker path, then optional GPU smoke, browser QA, license
    audit, and release checklist.
 
@@ -125,8 +123,7 @@ implementation pass.
 
 ## Definition of the next meaningful milestone
 
-For W, A, S, and D, a real mapped leg reaches a real key in MuJoCo, creates an
-actual key-geom/tarsus contact pair, crosses travel and force thresholds for at
-least 20 ms, and produces exactly one matching directional result. Disabling
-contacts must produce exactly one failed `wait`. No test may inject a successful
-contact outcome or manually move a key as a substitute for causal dynamics.
+The next meaningful milestone is visible end-to-end evidence: run the committed
+80-neuron development controller through the physical world, stream the real
+motor/contact/snapshot/neural state to `/?biomechanics=1`, and show it without
+inventing values. Then package that same path into the default CPU container.

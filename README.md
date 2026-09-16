@@ -4,10 +4,11 @@ An interactive browser laboratory that pairs a deterministic, isometric fly-cros
 
 This project is a modified version of the fly connectome template. It adds a playable crossing task, fixed-step simulation and replay contracts, conventional and remote controller boundaries, neural telemetry, and a responsive laboratory interface.
 
-> **Development snapshot:** the browser game, autonomous reduced controller,
-> live simulated brain view, runtime protocol, and the first four native
-> biomechanics layers are present. The final MuJoCo world/server bridge and the
-> five independently trained neural sizes are **not finished**. Read
+> **Development snapshot:** the browser game, autonomous 80-neuron reduced
+> controller, live simulated brain view, protocol-v2 station, unified MuJoCo
+> FlyBody/keyboard world, and its opt-in development-server bridge are present.
+> The four larger independently trained neural controllers and complete native
+> neural/contact/snapshot streaming are **not finished**. Read
 > [the engineering handoff](docs/HANDOFF.md) for the exact boundary and use
 > [the continuation prompt](docs/CONTINUATION_PROMPT.md) to hand the repository
 > to another coding agent.
@@ -24,6 +25,33 @@ npm run dev
 Open the local address printed by Vite. Once the anatomy loads, the bundled reduced-connectome controller starts playing automatically at 1× speed and updates its 80 mapped model values in the brain panel on every decision. After a terminal outcome it waits one second, changes to a new seed, and continues. These are simulated controller values over measured soma positions, not recordings from a living fly.
 
 Choose **Human / manual** to take over: use the arrow keys or W/A/S/D to move, Space to wait, and Escape to pause. The on-screen controls provide the same actions for touch and pointer input.
+
+The normal application is `/`. The opt-in biomechanical station is
+`/?biomechanics=1`; it uses the same laboratory shell and keeps the brain
+visible, while labeling unavailable native streams as **Awaiting runtime
+telemetry**. To connect it to the committed 80-neuron development runtime:
+
+```sh
+cd python
+python3.12 -m venv .venv
+. .venv/bin/activate
+python -m pip install --require-hashes \
+  -r requirements-linux-x86_64-cpu.txt
+python -m pip install -e . --no-deps --no-build-isolation
+uvicorn fly_crossy.dev_server:app --host 127.0.0.1 --port 8001
+```
+
+The browser defaults to `ws://127.0.0.1:8001/api/simulation`. Override it at
+Vite startup when the runtime lives elsewhere:
+
+```sh
+VITE_SIMULATION_URL=ws://127.0.0.1:8001/api/simulation npm run dev
+```
+
+The development server loads only committed, hash-verified graph/checkpoint
+and FlyBody/keyboard artifacts. It can physically gate directional results;
+native neural updates, contact frames, and body/key snapshots are not yet
+emitted to the browser by this bridge.
 
 ## Run with Docker
 
@@ -62,10 +90,15 @@ The simulation images use Python 3.12 and run as UID/GID 10001. CPU and CUDA dep
 - Bounded group-level route checks with deterministic retries and a safe grass fallback, plus speed and hazard-density progression over distance.
 - A human controller, a scripted controller, local dense-policy JSON loading, and a versioned remote-controller protocol.
 - A bundled reduced-connectome policy that autoplays continuously while the brain panel visualizes its simulated activity in real time.
+- A curated nine-model Kenney CC0 scene for roads, rail, vehicles, and
+  deterministic roadside scenery, with a procedural fallback if any GLB fails.
 - A fixed-size `ObservationV1` boundary shared by every non-human controller.
 - A measured MaleCNS v1.0 soma atlas whose activity values are keyed only by verified body IDs.
 - A separate Flybody anatomical surface view; it is not a motor or physics simulation.
 - A responsive layout that keeps the crossing environment and brain atlas available on desktop and mobile.
+- An opt-in physical station backed by the unified FlyBody plus six-key MuJoCo
+  world; a direction becomes authoritative only after the physical gate
+  confirms it.
 
 ## Controller and anatomy scope
 
@@ -74,6 +107,20 @@ The atlas contains **cell-body positions**, not neurite morphology, synaptic edg
 Human and scripted modes deliberately show **no neural output**. Dense policies show **model output** only when a policy explicitly maps a hidden layer to atlas-visible body IDs; the released dense policy has no such mapping. The fixed graph shows **simulated reduced-circuit activity**. None of these values are measured neural activity. Model values are accepted only for atlas-visible MaleCNS body IDs with normalized values in `[0, 1]`.
 
 The [atlas manifest](public/data/brain-atlas/manifest.json) records source filters and hashes. The [data notice](public/data/brain-atlas/NOTICE.md) documents the export and its provenance.
+
+Only the verified 80-neuron mode is operational. The 1,000, 5,000, 20,000,
+and 124,289-neuron modes remain planned and appear disabled in the
+biomechanical UI until independent checkpoints and evaluations exist.
+
+## Visual assets
+
+The crossing scene uses nine unmodified GLB models from Kenney's City Kit
+(Roads), Car Kit, Train Kit, and Mini Forest packs under CC0 1.0. Exact source
+URLs, upstream archive hashes, local hashes, byte counts, and semantic roles
+are recorded in [`public/assets/kenney/manifest.json`](public/assets/kenney/manifest.json)
+and [`public/assets/kenney/NOTICE.md`](public/assets/kenney/NOTICE.md). Rivers,
+logs, and the fly remain project-native geometry. Asset loading is visual only:
+a missing model cannot change game state and falls back to procedural geometry.
 
 ## Policy files
 
