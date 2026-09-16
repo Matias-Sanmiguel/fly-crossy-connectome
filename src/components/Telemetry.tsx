@@ -2,6 +2,7 @@ import type { Controller, ControllerDecision } from '../game/controllers.ts';
 import type { GameState } from '../game/simulation.ts';
 import type { ControllerStatus } from '../hooks/useGame.ts';
 import type { ActivityPresentation } from '../game/provenance.ts';
+import { TelemetryStrip } from './lab/TelemetryStrip.tsx';
 
 type TelemetryProps = {
   controller: Controller | null;
@@ -21,21 +22,34 @@ export function Telemetry({ controller, activity, state, decision, reward, statu
       ? 'Mapped model output keyed by measured MaleCNS body IDs; it is not measured activity.'
       : 'This controller supplied no mapped neural output; the brain view shows anatomy only.';
   return (
-    <section className="model-status" aria-label="Controller telemetry">
-      <strong>{activity.heading}</strong>
-      <p>
-        Controller: {manual ? 'human / manual input' : `${controller?.kind ?? 'unavailable'} / ${controller?.id ?? 'no controller'}`}
-      </p>
-      <p>
-        Step {state.step} · Action {decision?.action ?? '—'} · Step reward {reward.toFixed(2)} · Score {state.score}
-      </p>
-      <p>Seed: {state.seed} · Status: {status}</p>
-      <p>{sourceDescription}</p>
-      {!manual && activity.kind !== 'none' && (
-        <p>Normalization: {controller?.source?.normalization ?? 'No normalization declared.'}</p>
+    <TelemetryStrip
+      heading={activity.heading}
+      items={[
+        {
+          label: 'Controller',
+          value: manual
+            ? 'human / manual input'
+            : `${controller?.kind ?? 'unavailable'} / ${controller?.id ?? 'no controller'}`,
+        },
+        { label: 'Decision', value: decision?.action ?? '—' },
+        { label: 'Step', value: state.step },
+        { label: 'Reward', value: reward.toFixed(2) },
+        { label: 'Score', value: state.score },
+        { label: 'Runtime', value: status },
+      ]}
+      detail={(
+        <>
+          <p>{sourceDescription}</p>
+          {!manual && activity.kind !== 'none' && (
+            <p>Normalization: {controller?.source?.normalization ?? 'No normalization declared.'}</p>
+          )}
+          {!manual && controller?.source && (
+            <p>Source: {controller.source.kind} / {controller.source.name}.</p>
+          )}
+          <p>Seed: {state.seed}</p>
+        </>
       )}
-      {!manual && controller?.source && <p>Source: {controller.source.kind} / {controller.source.name}.</p>}
-      {error && <p className="error" role="alert">Controller error: {error}</p>}
-    </section>
+      error={error ? `Controller error: ${error}` : null}
+    />
   );
 }

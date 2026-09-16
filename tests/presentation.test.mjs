@@ -26,22 +26,33 @@ test('project identity and modified-template provenance are explicit', async () 
 });
 
 test('semantic tokens, desktop split, mobile stack, and accessible control sizing are declared', async () => {
-  const css = await read('src/style.css');
+  const [css, app, biomechanics] = await Promise.all([
+    read('src/style.css'),
+    read('src/App.tsx'),
+    read('src/BiomechanicsDebugApp.tsx'),
+  ]);
 
-  assert.match(css, /--color-primary:\s*#00bd7d/i);
-  assert.match(css, /--color-warning:\s*#d97706/i);
-  assert.match(css, /--color-danger:\s*#dc2626/i);
-  assert.match(css, /--color-surface:\s*#fff(?:fff)?/i);
-  assert.match(css, /--color-text:\s*#111827/i);
-  assert.match(css, /grid-template-columns:\s*minmax\(0,\s*3fr\)\s+minmax\(340px,\s*2fr\)/i);
+  assert.match(css, /--color-canvas:\s*#08110f/i);
+  assert.match(css, /--color-surface:\s*#101d1a/i);
+  assert.match(css, /--color-highlight:\s*#182824/i);
+  assert.match(css, /--color-primary:\s*#b7f34a/i);
+  assert.match(css, /--color-neural:\s*#62d9ff/i);
+  assert.match(css, /--color-warning:\s*#ffb454/i);
+  assert.match(css, /--color-danger:\s*#ff6b62/i);
+  assert.match(css, /--color-text:\s*#f4f7f2/i);
+  assert.match(css, /grid-template-columns:\s*minmax\(0,\s*7fr\)\s+minmax\(320px,\s*5fr\)/i);
+  assert.match(app, /LabShell/);
+  assert.match(biomechanics, /LabShell/);
+  assert.match(biomechanics, /BrainScene/);
   assert.match(css, /\.game-controls button[^}]*min-(?:block-size|height):\s*44px/is);
   assert.match(css, /\.game-status-bar button[^}]*min-(?:block-size|height):\s*44px/is);
   assert.match(css, /button,\s*select,\s*\.header-link\s*\{[^}]*min-width:\s*44px/is);
   assert.match(css, /a\s*\{[^}]*min-width:\s*44px/is);
   assert.match(css, /a\s*\{[^}]*min-(?:block-size|height):\s*44px/is);
   assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*?\.eyebrow\s*\{[^}]*font-size:\s*var\(--text-xs\)/i);
-  assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*grid-template-areas:\s*['"]environment['"]\s*['"]brain['"]\s*['"]telemetry['"]\s*['"]fly['"]/i);
+  assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*grid-template-areas:\s*['"]environment['"]\s*['"]brain['"]\s*['"]telemetry['"]/i);
   assert.doesNotMatch(css, /(?:environment|brain)-(?:panel|viewport)[^}]*display:\s*none/is);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/i);
 });
 
 test('terminal controls, hidden-tab scheduling, and controller disposal are wired', async () => {
@@ -62,18 +73,19 @@ test('terminal controls, hidden-tab scheduling, and controller disposal are wire
 });
 
 test('seed, repeat, reset, autonomous speed, and manual-mode controls are explicit', async () => {
-  const [app, controls, hook] = await Promise.all([
+  const [app, experimentControls, controls, hook] = await Promise.all([
     read('src/App.tsx'),
+    read('src/components/lab/ExperimentControls.tsx'),
     read('src/components/GameControls.tsx'),
     read('src/hooks/useGame.ts'),
   ]);
 
-  assert.match(app, /Seed\s*<input/);
-  assert.match(app, />Apply seed</);
-  assert.match(app, />New seed</);
-  assert.match(app, />Reset current</);
+  assert.match(experimentControls, /Seed\s*<input/);
+  assert.match(app + experimentControls, />Apply seed</);
+  assert.match(app + experimentControls, />New seed</);
+  assert.match(app + experimentControls, />Reset current</);
   assert.match(app, />Repeat current</);
-  assert.match(app, /Autonomous speed/);
+  assert.match(app + experimentControls, /Autonomous speed/);
   assert.match(app, /autonomousSpeed/);
   assert.match(hook, /autonomousDecisionDelayMs\(autonomousSpeed\)/);
   assert.match(controls, /manual:\s*boolean/);
