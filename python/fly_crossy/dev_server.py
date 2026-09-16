@@ -12,9 +12,10 @@ ROOT = Path(__file__).resolve().parents[2]
 
 CHECKPOINT_PATH = (
     ROOT
-    / "python"
-    / "runs"
-    / "connectome-80-v1"
+    / "release"
+    / "eval-v1"
+    / "training"
+    / "connectome"
     / "checkpoint.pt"
 )
 

@@ -1,9 +1,28 @@
+# JavaScript and build output
 node_modules/
 dist/
+coverage/
+*.tsbuildinfo
+
+# Python caches, environments, and generated runs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.pytest-tmp/
+.ruff_cache/
+*.egg-info/
+.venv/
+python/runs/
+
+# Local configuration and generated project output
 .env*
 !.env.example
-*.tsbuildinfo
-.DS_Store
 outputs/
 .worktrees/
-__pycache__/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

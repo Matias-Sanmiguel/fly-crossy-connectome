@@ -7,9 +7,9 @@
         "sha256": "2424c9dd2e44534e600aeda1a9058039b1f22a4bd983284a27adc10b22130719"
       },
       "checkpoint": {
-        "path": "python/runs/connectome-80-v1/checkpoint.pt",
-        "sha256": "0bc039ddfe3bc1fb1e4c27a1c8a04f93e4836deb543a8cfb530ade61c0d13c28"
-        }
+        "path": "release/eval-v1/training/connectome/checkpoint.pt",
+        "sha256": "abd1dc3f472de7687599d60cf73ecfbc31207ede197deeae353b8f4d4cb76e9f"
+      }
     }
   ]
 }
