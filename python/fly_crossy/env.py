@@ -104,6 +104,15 @@ _HAZARD_KINDS: dict[LaneKind, Sequence[HazardKind]] = {
     "river": ("log",),
     "grass": (),
 }
+_WEIGHTED_LANE_KINDS: tuple[LaneKind, ...] = (
+    "road", "road", "road", "road", "road",
+    "river", "river", "river",
+    "rail", "rail",
+)
+_WEIGHTED_NON_RAIL_LANE_KINDS: tuple[LaneKind, ...] = (
+    "road", "road", "road", "road", "road",
+    "river", "river", "river",
+)
 
 
 def _uint32(value: int) -> int:
@@ -163,6 +172,22 @@ def _seed_for_group(seed: str, group_index: int) -> str:
     return f"{WORLD_VERSION}:{seed}:{group_index}"
 
 
+def _lane_kinds_for_group(seed: str, group_index: int) -> list[LaneKind]:
+    rng = _Rng(f"{_seed_for_group(seed, group_index)}:kinds")
+    rail_streak = 0
+    kinds: list[LaneKind] = []
+    for _ in range(HAZARD_ROWS_PER_GROUP):
+        pool = (
+            _WEIGHTED_NON_RAIL_LANE_KINDS
+            if rail_streak >= 2
+            else _WEIGHTED_LANE_KINDS
+        )
+        kind = rng.pick(pool)
+        kinds.append(kind)
+        rail_streak = rail_streak + 1 if kind == "rail" else 0
+    return kinds
+
+
 def difficulty_for_row(row: int) -> DifficultyProfile:
     """Return the versioned distance-based speed and density progression."""
     forward_group = max(0, _group_index_for(row))
@@ -210,12 +235,16 @@ def _grass(row: int) -> Lane:
     return Lane(row=row, kind="grass", hazards=[])
 
 
-def _hazard_lane(seed: str, row: int, group_index: int, attempt: int) -> Lane:
+def _hazard_lane(
+    seed: str,
+    row: int,
+    group_index: int,
+    attempt: int,
+    kind: LaneKind,
+) -> Lane:
     row_offset = row - (OPENING_ROWS + group_index * GROUP_ROWS)
     base_seed = _seed_for_group(seed, group_index)
     group_seed = base_seed if attempt == 0 else f"{base_seed}:retry:{attempt}"
-    group_rng = _Rng(group_seed)
-    kind = group_rng.pick(("road", "rail", "river"))
     lane_rng = _Rng(f"{group_seed}:{row_offset}")
     difficulty = difficulty_for_row(row)
     return Lane(
@@ -231,9 +260,16 @@ def _hazard_lane(seed: str, row: int, group_index: int, attempt: int) -> Lane:
 @lru_cache(maxsize=512)
 def _generate_group_cached(seed: str, group_index: int) -> tuple[Lane, ...]:
     first = OPENING_ROWS + group_index * GROUP_ROWS
+    lane_kinds = _lane_kinds_for_group(seed, group_index)
     for attempt in range(GENERATION_ATTEMPTS):
         hazards = [
-            _hazard_lane(seed, first + offset, group_index, attempt)
+            _hazard_lane(
+                seed,
+                first + offset,
+                group_index,
+                attempt,
+                lane_kinds[offset],
+            )
             for offset in range(HAZARD_ROWS_PER_GROUP)
         ]
         if has_bounded_group_path(

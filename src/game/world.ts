@@ -18,6 +18,18 @@ const GENERATION_ATTEMPTS = 8;
 const GROUP_CACHE_LIMIT = 512;
 const groupCache = new Map<string, Lane[]>();
 
+type HazardLaneKind = Exclude<LaneKind, 'grass'>;
+
+const WEIGHTED_LANE_KINDS: readonly HazardLaneKind[] = [
+  'road', 'road', 'road', 'road', 'road',
+  'river', 'river', 'river',
+  'rail', 'rail',
+];
+const WEIGHTED_NON_RAIL_LANE_KINDS: readonly HazardLaneKind[] = [
+  'road', 'road', 'road', 'road', 'road',
+  'river', 'river', 'river',
+];
+
 export type DifficultyProfile = {
   level: number;
   minimumSpeed: number;
@@ -38,6 +50,17 @@ function groupIndexFor(row: number): number {
 
 function seedForGroup(seed: string, groupIndex: number): string {
   return `${WORLD_VERSION}:${seed}:${groupIndex}`;
+}
+
+function laneKindsForGroup(seed: string, groupIndex: number): HazardLaneKind[] {
+  const rng = createRng(`${seedForGroup(seed, groupIndex)}:kinds`);
+  let railStreak = 0;
+  return Array.from({ length: HAZARD_ROWS_PER_GROUP }, () => {
+    const pool = railStreak >= 2 ? WEIGHTED_NON_RAIL_LANE_KINDS : WEIGHTED_LANE_KINDS;
+    const kind = rng.pick(pool);
+    railStreak = kind === 'rail' ? railStreak + 1 : 0;
+    return kind;
+  });
 }
 
 /**
@@ -98,12 +121,16 @@ function grass(row: number): Lane {
   return { row, kind: 'grass', hazards: [] };
 }
 
-function hazardLane(seed: string, row: number, groupIndex: number, attempt: number): Lane {
+function hazardLane(
+  seed: string,
+  row: number,
+  groupIndex: number,
+  attempt: number,
+  kind: HazardLaneKind,
+): Lane {
   const rowOffset = row - (OPENING_ROWS + groupIndex * GROUP_ROWS);
   const baseSeed = seedForGroup(seed, groupIndex);
   const groupSeed = attempt === 0 ? baseSeed : `${baseSeed}:retry:${attempt}`;
-  const groupRng = createRng(groupSeed);
-  const kind = groupRng.pick<Exclude<LaneKind, 'grass'>>(['road', 'rail', 'river']);
   const laneRng = createRng(`${groupSeed}:${rowOffset}`);
   const direction: Direction = laneRng.pick<Direction>([-1, 1]);
   const difficulty = difficultyForRow(row);
@@ -190,11 +217,12 @@ function generateGroup(seed: string, groupIndex: number): Lane[] {
   const cached = groupCache.get(cacheKey);
   if (cached) return cached.map((lane) => ({ ...lane, hazards: [...lane.hazards] }));
   const first = OPENING_ROWS + groupIndex * GROUP_ROWS;
+  const laneKinds = laneKindsForGroup(seed, groupIndex);
   let generated: Lane[] | null = null;
   for (let attempt = 0; attempt < GENERATION_ATTEMPTS; attempt += 1) {
     const hazards = Array.from(
       { length: HAZARD_ROWS_PER_GROUP },
-      (_, offset) => hazardLane(seed, first + offset, groupIndex, attempt),
+      (_, offset) => hazardLane(seed, first + offset, groupIndex, attempt, laneKinds[offset]!),
     );
     if (hasBoundedGroupPath([grass(first - 1), ...hazards, grass(first + HAZARD_ROWS_PER_GROUP)])) {
       generated = hazards;

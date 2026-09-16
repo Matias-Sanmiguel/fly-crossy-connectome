@@ -43,6 +43,44 @@ const circularGap = (left, right) => {
   return wrappedDistance - (left.size + right.size) / 2;
 };
 
+const auditLaneDistribution = () => {
+  const counts = { road: 0, river: 0, rail: 0 };
+  let maximumRailStreak = 0;
+  let fallbackGroups = 0;
+  let groupCount = 0;
+
+  for (let seedIndex = 0; seedIndex < 30; seedIndex += 1) {
+    const rows = generateRows(`distribution-audit-${seedIndex}`, 3, 200);
+    let railStreak = 0;
+    for (const lane of rows) {
+      if (lane.kind === 'rail') {
+        railStreak += 1;
+        maximumRailStreak = Math.max(maximumRailStreak, railStreak);
+      } else {
+        railStreak = 0;
+      }
+      if (lane.kind !== 'grass') counts[lane.kind] += 1;
+    }
+    for (let offset = 0; offset < rows.length; offset += 5) {
+      const group = rows.slice(offset, offset + 5);
+      groupCount += 1;
+      assert.equal(group[4].kind, 'grass', 'every hazard group must end with recovery grass');
+      if (group.slice(0, 4).every((lane) => lane.kind === 'grass')) fallbackGroups += 1;
+    }
+  }
+
+  const hazardousRows = counts.road + counts.river + counts.rail;
+  return {
+    shares: {
+      road: counts.road / hazardousRows,
+      river: counts.river / hazardousRows,
+      rail: counts.rail / hazardousRows,
+    },
+    maximumRailStreak,
+    fallbackRate: fallbackGroups / groupCount,
+  };
+};
+
 test('same seed and range produce identical lanes', () => {
   assert.deepEqual(generateRows('lab-7', -5, 40), generateRows('lab-7', -5, 40));
 });
@@ -64,6 +102,16 @@ test('opening rows are safe and hazard groups include recovery rows', () => {
   assert.ok(rows.every((row, index) => (
     index < 6 || rows.slice(Math.max(0, index - 6), index + 1).some((candidate) => candidate.kind === 'grass')
   )));
+});
+
+test('weighted lane generation stays near 50/30/20 with bounded rail streaks', () => {
+  const audit = auditLaneDistribution();
+
+  assert.ok(audit.shares.road >= 0.47 && audit.shares.road <= 0.55, audit.shares);
+  assert.ok(audit.shares.river >= 0.25 && audit.shares.river <= 0.33, audit.shares);
+  assert.ok(audit.shares.rail >= 0.17 && audit.shares.rail <= 0.23, audit.shares);
+  assert.ok(audit.maximumRailStreak <= 2, audit);
+  assert.ok(audit.fallbackRate <= 0.03, audit);
 });
 
 test('known impassable first group is replaced by a bounded reachable group', () => {

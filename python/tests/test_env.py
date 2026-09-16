@@ -115,21 +115,65 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
     assert [asdict(lane) for lane in generate_rows("parity-seed", 3, 2)] == [
         {
             "row": 3,
-            "kind": "rail",
-            "hazards": [{"kind": "train", "position": 7, "size": 4}],
-            "direction": 1,
+            "kind": "road",
+            "hazards": [
+                {"kind": "truck", "position": 2, "size": 3},
+                {"kind": "car", "position": 10, "size": 2},
+                {"kind": "car", "position": -7, "size": 2},
+            ],
+            "direction": -1,
             "speed": 1,
-            "phase": 0.293,
+            "phase": 0.034,
         },
         {
             "row": 4,
-            "kind": "rail",
-            "hazards": [{"kind": "train", "position": -11, "size": 4}],
+            "kind": "road",
+            "hazards": [
+                {"kind": "truck", "position": 7, "size": 3},
+                {"kind": "car", "position": -6, "size": 2},
+            ],
             "direction": 1,
-            "speed": 1,
-            "phase": 0.409,
+            "speed": 2,
+            "phase": 0.823,
         },
     ]
+
+
+def test_same_seed_and_range_produce_identical_lanes() -> None:
+    assert generate_rows("lab-7", -5, 40) == generate_rows("lab-7", -5, 40)
+
+
+def test_weighted_lane_generation_stays_near_target_with_bounded_rail_streaks() -> None:
+    counts = {"road": 0, "river": 0, "rail": 0}
+    maximum_rail_streak = 0
+    fallback_groups = 0
+    group_count = 0
+
+    for seed_index in range(30):
+        rows = generate_rows(f"distribution-audit-{seed_index}", 3, 200)
+        rail_streak = 0
+        for lane in rows:
+            if lane.kind == "rail":
+                rail_streak += 1
+                maximum_rail_streak = max(maximum_rail_streak, rail_streak)
+            else:
+                rail_streak = 0
+            if lane.kind != "grass":
+                counts[lane.kind] += 1
+        for offset in range(0, len(rows), 5):
+            group = rows[offset : offset + 5]
+            group_count += 1
+            assert group[4].kind == "grass"
+            if all(lane.kind == "grass" for lane in group[:4]):
+                fallback_groups += 1
+
+    hazardous_rows = sum(counts.values())
+    shares = {kind: count / hazardous_rows for kind, count in counts.items()}
+    assert 0.47 <= shares["road"] <= 0.55, shares
+    assert 0.25 <= shares["river"] <= 0.33, shares
+    assert 0.17 <= shares["rail"] <= 0.23, shares
+    assert maximum_rail_streak <= 2
+    assert fallback_groups / group_count <= 0.03
 
 
 def test_row_generation_rejects_booleans_as_browser_non_numbers() -> None:

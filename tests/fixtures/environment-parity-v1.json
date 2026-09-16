@@ -3,11 +3,11 @@
   "observationEncoding": "float32-le-sha256",
   "positionChecks": [
     {
-      "seed": "episode-v1-safe-opening",
+      "seed": "remainder-boundary-water-4",
       "row": 3,
       "hazardIndex": 0,
       "time": 3.800000000000001,
-      "expected": -4.631
+      "expected": -11.672999999999998
     }
   ],
   "cases": [
@@ -15,7 +15,7 @@
       "name": "remainder-boundary-water",
       "state": {
         "base": "createGame",
-        "seed": "episode-v1-safe-opening",
+        "seed": "remainder-boundary-water-4",
         "overrides": {
           "step": 18,
           "time": 3.600000000000001,
@@ -28,8 +28,8 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "fffcc4b3a938917ea6960595cf9a79085c7e988e596a891fbd5bc4d1a36ad831",
-        "afterObservationSha256": "6bb6ee8f71d794c324fdb91e7c0cd289f6737eda88d2a4e84fc11ab24f89a851",
+        "beforeObservationSha256": "3a1fa174f10e74751b1acbfe73526c9dd43d6687d49b8f93d098b25cc9eeaa62",
+        "afterObservationSha256": "5856c5223fe648a87b71ebb03ad2acb65b9a5f55d76e0b90a0e69c585117bb08",
         "reward": 0.99,
         "fly": {
           "row": 3,
@@ -119,7 +119,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f3aa31723b4c3002383a0dcd795b489150caf133b82083a8287e786036ac4e2e",
-        "afterObservationSha256": "98a641646160d57d0081341b4dd53f29630b688ed596630058ab5b8407904dc4",
+        "afterObservationSha256": "8fcfeef4159a197fd79285a8b6ca5e9632610559343ac5165f8b5db84e435590",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -204,7 +204,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "2f5b659fe31b269c1c9f3c2b799085744c8dd8377724a5af7324ee3ef13137ea",
-        "afterObservationSha256": "0ca6d821981b19700836ebb80adc99cac927406e1489a602ade6799939478bfc",
+        "afterObservationSha256": "b20013821f020087e74492e04174f9b05bc8c5660571bc38dcad4c736796548d",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -299,7 +299,7 @@
       "action": "forward",
       "expected": {
         "beforeObservationSha256": "506a5679da18d2a03e1a4de699171d1c9d3e8adb7b927ea00c470027ecb3e321",
-        "afterObservationSha256": "2980c24efe9318215385d2e81eeeb9fe7af2f785178cbe5925721327feaddf23",
+        "afterObservationSha256": "2589e33ec5ee576d75a0912d508afb6c592e39608978df68b83c61ab3cfb839a",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -385,7 +385,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "3e6f2b123e8ff50925424859b70c3958e63d12d21ca4987cb07ce0dc7104a2c5",
-        "afterObservationSha256": "9152ef81ccc52b74c4e651df036a28dc10cf1b698d13f2435e7fb9972f7e5bd4",
+        "afterObservationSha256": "d81ea444e23e9ce87e2b457980a0d068b8fb74d5c35f21b40b843faf3d6b999f",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -474,7 +474,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "cf77714f3d85169cee107e4fe363eb194bf1a66e5b9b2125f25bed285de66885",
-        "afterObservationSha256": "601bdddfc958553701befa16f2782bc0478d0584c6b9bec40e2d7d552749d3fb",
+        "afterObservationSha256": "d13fa2af6e005b71d26743b344d2c88370825fc1e11dd8252d34188c0f6cd601",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -561,7 +561,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f0ad6a3df512a2ec78f5776b7402b61c37c494d833e6213c6527ea2930fe4a1a",
-        "afterObservationSha256": "bdb2e8f4707b1d5879ac6c1f6294d373b569c90f45a6ef2ee14deaf974006a18",
+        "afterObservationSha256": "dce09c44390a5ba4060ddf2bf3500cf97ffdeee26ba250d3fc1630ae5a8470ff",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 100,
