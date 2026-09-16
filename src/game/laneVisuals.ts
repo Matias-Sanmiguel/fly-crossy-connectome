@@ -7,6 +7,30 @@ export type LaneSubstrateLayout = {
   size: readonly [number, number, number];
 };
 
+export type LaneTileLayout = {
+  position: readonly [number, number, number];
+  size: number;
+};
+
+export function tiledLaneRowLayout(
+  circuitLength: number,
+  tileSize = 1,
+): readonly LaneTileLayout[] {
+  if (!Number.isFinite(circuitLength) || circuitLength <= 0
+    || !Number.isFinite(tileSize) || tileSize <= 0) {
+    throw new Error('Expected positive finite circuit and tile sizes.');
+  }
+  const tileCount = Math.round(circuitLength / tileSize);
+  if (Math.abs(tileCount * tileSize - circuitLength) > 1e-9) {
+    throw new Error('Circuit length must be exactly divisible by tile size.');
+  }
+  const firstCenter = -circuitLength / 2 + tileSize / 2;
+  return Array.from({ length: tileCount }, (_, index) => ({
+    position: [firstCenter + index * tileSize, 0, 0],
+    size: tileSize,
+  }));
+}
+
 export function laneSubstrateLayout(circuitLength: number): LaneSubstrateLayout {
   if (!Number.isFinite(circuitLength) || circuitLength <= 0) {
     throw new Error('Expected a positive finite circuit length.');

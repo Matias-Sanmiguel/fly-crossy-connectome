@@ -56,14 +56,14 @@ const truckDefinition = (
 export const KENNEY_ASSETS = {
   'lane.road': {
     path: 'assets/kenney/city-roads/road-straight.glb',
-    logicalSize: [25, 0.2, 0.94],
+    logicalSize: [1, 0.2, 1],
     rotation: [0, Math.PI / 2, 0],
     verticalOffset: -0.02,
   },
 
   'lane.rail': {
     path: 'assets/kenney/train-kit/track-detailed.glb',
-    logicalSize: [25, 0.18, 0.94],
+    logicalSize: [1, 0.18, 1],
     rotation: [0, Math.PI / 2, 0],
     verticalOffset: 0,
   },

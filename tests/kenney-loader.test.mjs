@@ -17,6 +17,8 @@ test('semantic asset registry pins mappings and finite transforms', () => {
     KENNEY_ASSETS['hazard.train'].path,
     'assets/kenney/train-kit/train-diesel-a.glb',
   );
+  assert.deepEqual(KENNEY_ASSETS['lane.road'].logicalSize, [1, 0.2, 1]);
+  assert.deepEqual(KENNEY_ASSETS['lane.rail'].logicalSize, [1, 0.18, 1]);
   assert.equal(NATIVE_ASSET_ROLES['hazard.log'], 'procedural-log');
 
   for (const asset of Object.values(KENNEY_ASSETS)) {

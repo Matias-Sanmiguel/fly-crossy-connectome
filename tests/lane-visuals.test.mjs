@@ -13,6 +13,27 @@ test('lane substrates cover one complete logical row without gaps', async () => 
   assert.throws(() => laneSubstrateLayout(0), /positive finite/i);
 });
 
+test('one-unit Kenney tiles cover the complete 25-unit lane exactly', async () => {
+  const moduleUrl = new URL('../src/game/laneVisuals.ts', import.meta.url);
+  const { tiledLaneRowLayout } = await import(moduleUrl);
+  const tiles = tiledLaneRowLayout(25);
+
+  assert.equal(tiles.length, 25);
+  assert.deepEqual(
+    tiles.map((tile) => tile.position[0]),
+    Array.from({ length: 25 }, (_, index) => index - 12),
+  );
+  assert.ok(tiles.every((tile) => tile.size === 1));
+  assert.equal(tiles[0].position[0] - tiles[0].size / 2, -12.5);
+  assert.equal(tiles.at(-1).position[0] + tiles.at(-1).size / 2, 12.5);
+  for (let index = 1; index < tiles.length; index += 1) {
+    const previousRight = tiles[index - 1].position[0] + tiles[index - 1].size / 2;
+    const nextLeft = tiles[index].position[0] - tiles[index].size / 2;
+    assert.equal(nextLeft, previousRight);
+  }
+  assert.throws(() => tiledLaneRowLayout(25, 2), /exactly divisible/i);
+});
+
 test('rail detail is built from two rails and repeated sleepers, not a stretched strip', async () => {
   const moduleUrl = new URL('../src/game/laneVisuals.ts', import.meta.url);
   const { laneDetails } = await import(moduleUrl);

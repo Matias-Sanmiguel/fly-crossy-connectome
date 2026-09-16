@@ -9,7 +9,15 @@ import {
   type GameAssetLibrary,
   type KenneyAssetLoader,
 } from './kenneyLoader.ts';
-import { laneDetails, laneSubstrateLayout } from './laneVisuals.ts';
+import {
+  laneDetails,
+  laneSubstrateLayout,
+} from './laneVisuals.ts';
+import {
+  createTiledLaneRow,
+  railSurfaceMode,
+  type TiledLaneRole,
+} from './laneSurface.ts';
 import {
   RENDER_HAZARD_CAPACITY,
   RENDER_LANE_CAPACITY,
@@ -193,6 +201,32 @@ export function createGameRenderer(
     return group;
   };
 
+  const acquireTiledLaneRow = (role: TiledLaneRole): THREE.Group | null => {
+    if (!library?.templates.has(role)) return null;
+    const used = poolUsage.get(role) ?? 0;
+    if (used >= RENDER_LANE_CAPACITY) return null;
+
+    let groups = pools.get(role);
+    if (!groups) {
+      groups = [];
+      pools.set(role, groups);
+    }
+    let group = groups[used];
+    if (!group) {
+      const created = createTiledLaneRow(role, library, HAZARD_CIRCUIT);
+      if (!created) return null;
+      group = created;
+      groups.push(group);
+      scene.add(group);
+    }
+    poolUsage.set(role, used + 1);
+    group.visible = true;
+    group.position.set(0, 0, 0);
+    group.rotation.set(0, 0, 0);
+    group.scale.set(1, 1, 1);
+    return group;
+  };
+
   const rebuildInstances = (game: GameState) => {
     const laneCounts: Record<LaneKind, number> = { grass: 0, road: 0, rail: 0, river: 0 };
     const hazardCounts: Record<HazardKind, number> = { car: 0, truck: 0, train: 0, log: 0 };
@@ -215,19 +249,31 @@ export function createGameRenderer(
         substrate.size[2],
       );
 
-      for (const detail of laneDetails(lane.kind, HAZARD_CIRCUIT)) {
-        const target = detail.kind === 'rail' ? railDetails : sleeperDetails;
-        const index = detail.kind === 'rail' ? railCount++ : sleeperCount++;
-        composeInstance(
-          target,
-          index,
-          detail.position[0],
-          detail.position[1],
-          -lane.row + detail.position[2],
-          detail.size[0],
-          detail.size[1],
-          detail.size[2],
-        );
+      const tiledRole = lane.kind === 'road'
+        ? 'lane.road'
+        : lane.kind === 'rail'
+          ? 'lane.rail'
+          : null;
+      const tiledRow = tiledRole ? acquireTiledLaneRow(tiledRole) : null;
+      if (tiledRow) tiledRow.position.set(0, 0, -lane.row);
+
+      const useProceduralRail = lane.kind === 'rail'
+        && railSurfaceMode(tiledRow !== null) === 'procedural';
+      if (useProceduralRail) {
+        for (const detail of laneDetails(lane.kind, HAZARD_CIRCUIT)) {
+          const target = detail.kind === 'rail' ? railDetails : sleeperDetails;
+          const index = detail.kind === 'rail' ? railCount++ : sleeperCount++;
+          composeInstance(
+            target,
+            index,
+            detail.position[0],
+            detail.position[1],
+            -lane.row + detail.position[2],
+            detail.size[0],
+            detail.size[1],
+            detail.size[2],
+          );
+        }
       }
 
       for (const decoration of decorationsForRow(game.seed, lane.row, lane.kind)) {

@@ -43,13 +43,13 @@ test('long forward-then-backtrack states stay within renderer instance capacity'
     score: 220,
     lanes: retainedLanes,
   };
-  const retainedLogCount = retainedLanes
-    .flatMap((lane) => lane.hazards)
-    .filter((hazard) => hazard.kind === 'log')
-    .length;
+  const retainedHazardCounts = Object.groupBy(
+    retainedLanes.flatMap((lane) => lane.hazards),
+    (hazard) => hazard.kind,
+  );
 
   assert.ok(retainedLanes.length > 32);
-  assert.ok(retainedLogCount > 128);
+  assert.ok(Object.values(retainedHazardCounts).some((hazards) => hazards.length > 128));
 
   const rendered = selectRenderableInstances(backtracked);
   const hazardCounts = Object.groupBy(rendered.hazards, ({ hazard }) => hazard.kind);

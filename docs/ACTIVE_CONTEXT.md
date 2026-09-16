@@ -152,6 +152,72 @@ After gameplay is finalized, we intend to:
 
 ---
 
+## Game-polish stages 1–5 completed
+
+The first five approved game-polish stages are implemented, but the environment
+is NOT frozen yet.
+
+### Section-based world generation
+
+World generation now uses deterministic seven-row groups:
+
+- six content rows selected from approved road, rail, or river section templates
+- one mandatory recovery grass row
+- road sections are dominant
+- rail sections are occasional and one row long
+- river sections are rare and exactly two rows long
+- river rows use exactly five moving logs with logical sizes 2–4
+- direct transitions between unlike challenge lane kinds are eliminated
+
+The selected bounded solver strategy uses a deterministic global
+progress-prioritized frontier. It expands states by:
+
+1. greatest reached row
+2. shallowest action depth
+3. insertion order
+
+Action priority is forward, left, right, wait, backward. No action is pruned,
+the authoritative transition remains unchanged, and the existing limits remain
+80 steps, 1,024 checked transitions, and eight generation attempts.
+
+On the fixed 30-seed x 210-row audit corpus:
+
+- overall all-grass fallback: 0 / 900 groups
+- river-template fallback: 0 / 123 groups
+- section frequencies: 70.17% road, 23.00% rail, 6.83% river
+- row frequencies: 36.71% grass, 52.81% road, 6.57% rail, 3.90% river
+- maximum river run: 2
+- direct unlike challenge transitions: 0
+
+TypeScript and Python generation remain exactly matched. The world and
+environment parity fixtures were regenerated and the named
+`remainder-boundary-water` case was retargeted to a seed that still exercises
+river behavior at the negative circuit boundary.
+
+### Lane scenery and surfaces
+
+- Generic per-row traffic lights were removed from road and rail scenery.
+  The asset remains registered but is not placed by the generic scenery system.
+- Procedural substrates now cover the full 1.0 row depth, eliminating the
+  previous 0.06 empty gap between adjacent lane rows.
+- `road-straight.glb` is normalized as a one-row tile and instantiated as 25
+  pooled tiles at X positions -12 through 12 for each visible road row.
+- A seamless dark road substrate remains underneath for loading, failure, and
+  crack prevention.
+- `track-detailed.glb` uses the same pooled 25-tile row architecture for rail.
+- The seamless rail substrate remains underneath.
+- Procedural rails and sleepers render only while the Kenney track asset is
+  unavailable; they are disabled when the detailed track is active.
+
+Logical road, rail, hazard, and collision geometry did not change in these
+visual stages.
+
+Manual visual QA is still required for tile orientation, marking continuity,
+track height, material seams, and loading/failure transitions before gameplay
+freeze.
+
+---
+
 ## Kenney visual work completed
 
 A curated Kenney asset library is now integrated.
@@ -208,37 +274,11 @@ Vehicle variety has been visually reviewed and is broadly approved.
 
 Recent manual visual QA identified the following remaining issues.
 
-### 1. Too many consecutive railway rows
+### 1. Section generation completed
 
-This is a gameplay/world-generation issue, not only a rendering issue.
-
-In `src/game/world.ts`, multiple hazard rows in a group currently derive lane
-kind from effectively the same group-level RNG sequence.
-
-This can produce clusters such as:
-
-rail
-rail
-rail
-rail
-grass
-
-Desired direction:
-
-- road should be most common
-- river second
-- rail less common
-
-Approximate conceptual weighting:
-
-- road: ~50%
-- river: ~30%
-- rail: ~20%
-
-Avoid excessive consecutive rail rows.
-
-Any TypeScript world-generation change must be reflected in the Python
-authoritative environment and parity fixtures.
+The excessive-rail issue has been replaced by the deterministic section grammar
+documented above. Rail sections are one row long, river sections are two rows
+long, and the shared TypeScript/Python fixtures reflect the new architecture.
 
 ---
 
