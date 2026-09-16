@@ -1,7 +1,7 @@
 # Kenney UI and Repository Cleanup Design
 
 **Date:** 2026-09-15  
-**Status:** Proposed for implementation  
+**Status:** Approved for implementation
 **Scope:** Curated Kenney visual refresh, shared laboratory UI, renderer cleanup,
 reproducible local runtime, and repository hygiene.
 
