@@ -617,3 +617,51 @@ def test_recovery_timeout_performs_required_coordinated_reset() -> None:
     assert world.ready
     assert world.steps == 3
     assert world.resets == 1
+    
+def test_wait_action_bypasses_biomechanical_world(
+    artifact_manifest: Path,
+) -> None:
+    class FakeWorld:
+        def __init__(self) -> None:
+            self.run_calls = 0
+
+        def run(
+            self,
+            intention: object,
+            limit_seconds: float = 1.5,
+        ) -> WorldActionResult:
+            self.run_calls += 1
+            raise AssertionError(
+                "wait must not enter the biomechanical world"
+            )
+
+    world = FakeWorld()
+
+    bridge_app = create_app(
+        artifact_manifest=artifact_manifest,
+        action_selector=lambda _: "wait",
+        world_factory=lambda: world,  # type: ignore[arg-type]
+    )
+
+    with TestClient(bridge_app) as bridge_client:
+        with bridge_client.websocket_connect(
+            "/api/simulation",
+            headers=SAME_ORIGIN,
+        ) as socket:
+            socket.send_json(hello())
+            socket.send_json(configure())
+            socket.receive_json()
+
+            socket.send_json(observation())
+
+            intention = socket.receive_json()
+            result = socket.receive_json()
+
+    assert intention["type"] == "intention"
+    assert intention["action"] == "wait"
+    assert intention["motorPhase"] == "neutral"
+
+    assert result["type"] == "action_result"
+    assert result["result"] == "waited"
+
+    assert world.run_calls == 0

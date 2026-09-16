@@ -440,14 +440,8 @@ async def _apply_message(
 
     await sender.send(intention)
 
-    # The safe placeholder can complete without instantiating MuJoCo.
-    if world is None:
-        if action != "wait":
-            raise SessionFault(
-                "BIOMECHANICS_UNAVAILABLE",
-                "Directional action requires the biomechanical runtime.",
-            )
-
+    # WAIT is a genuine game decision but requires no physical key press.
+    if action == "wait":
         terminal = session.finish_action(
             intention.intention_id,
             "waited",
@@ -458,6 +452,13 @@ async def _apply_message(
             await sender.send(terminal)
 
         return
+
+    # Directional actions require the biomechanical runtime.
+    if world is None:
+        raise SessionFault(
+            "BIOMECHANICS_UNAVAILABLE",
+            "Directional action requires the biomechanical runtime.",
+        )
 
     physical_result = await asyncio.to_thread(
         world.run,

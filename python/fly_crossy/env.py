@@ -29,6 +29,7 @@ TRAIN_WARNING_SECONDS = 2
 PROGRESS_REWARD = 1
 TERMINAL_PENALTY = -10
 STEP_COST = -0.01
+STAGNATION_COST = -0.05
 
 LaneKind = Literal["grass", "road", "rail", "river"]
 HazardKind = Literal["car", "truck", "train", "log"]
@@ -532,10 +533,39 @@ def create_game(seed: str) -> GameState:
     )
 
 
-def _reward(previous: GameState, next_state: GameState) -> float:
-    progress = max(0, next_state.score - previous.score) * PROGRESS_REWARD
-    terminal = TERMINAL_PENALTY if previous.terminal is None and next_state.terminal is not None else 0
-    return progress + terminal + STEP_COST
+def _reward(
+    previous: GameState,
+    next_state: GameState,
+) -> float:
+    progress = (
+        max(
+            0,
+            next_state.score - previous.score,
+        )
+        * PROGRESS_REWARD
+    )
+
+    terminal = (
+        TERMINAL_PENALTY
+        if (
+            previous.terminal is None
+            and next_state.terminal is not None
+        )
+        else 0
+    )
+
+    stagnation = (
+        STAGNATION_COST
+        if next_state.score <= previous.score
+        else 0
+    )
+
+    return (
+        progress
+        + terminal
+        + STEP_COST
+        + stagnation
+    )
 
 
 def step_game(state: GameState, action: Action) -> StepResult:

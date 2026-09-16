@@ -42,6 +42,7 @@ export type UseSimulationStationOptions = {
   population?: PopulationSize;
   backendPreference?: BackendPreference;
   speed?: number;
+  autoResetDelayMs?: number;
 };
 
 
@@ -102,6 +103,7 @@ export function useSimulationStation({
   population = 80,
   backendPreference = 'cpu',
   speed = 1,
+    autoResetDelayMs,
 }: UseSimulationStationOptions) {
   const [station, setStation] = useState<StationState>(
     () => createStation(seed),
@@ -124,6 +126,12 @@ export function useSimulationStation({
   const lastObservedStep =
     useRef<number | null>(null);
 
+  const episodeIndex =
+    useRef(0);
+
+  const pendingResetSeed =
+    useRef<string | null>(null);
+
 
   /*
    * Own exactly one protocol client for one station configuration.
@@ -137,6 +145,8 @@ export function useSimulationStation({
     setActivity(null);
     setSnapshot(null);
     lastObservedStep.current = null;
+    episodeIndex.current = 0;
+    pendingResetSeed.current = null;
 
     if (!enabled) {
       clientRef.current = null;
@@ -165,14 +175,26 @@ export function useSimulationStation({
         }
 
         if (isStationMessage(message)) {
-          setStation((current) =>
-            reduceStation(
-              current,
-              message as Parameters<
+        setStation((current) => {
+            if (
+            message.type === 'reset_complete'
+            && pendingResetSeed.current !== null
+            ) {
+            const nextSeed =
+                pendingResetSeed.current;
+
+            pendingResetSeed.current = null;
+
+            return createStation(nextSeed);
+            }
+
+            return reduceStation(
+            current,
+            message as Parameters<
                 typeof reduceStation
-              >[1],
-            ),
-          );
+            >[1],
+            );
+        });
         }
       });
 
@@ -255,6 +277,81 @@ export function useSimulationStation({
     station,
     transport.phase,
   ]);
+    /*
+   * Automatically start a fresh episode after a terminal outcome.
+   *
+   * The protocol session stays alive; only the episode, game world,
+   * recurrent controller state, and biomechanical world are reset.
+   */
+  useEffect(() => {
+    if (!enabled) return;
+
+    if (autoResetDelayMs === undefined) {
+      return;
+    }
+
+    if (station.game.terminal === null) {
+      return;
+    }
+
+    if (station.phase !== 'paused') {
+      return;
+    }
+
+    if (transport.phase !== 'ready') {
+      return;
+    }
+
+    const client = clientRef.current;
+
+    if (!client) {
+      return;
+    }
+
+    const timer = globalThis.setTimeout(() => {
+      if (clientRef.current !== client) {
+        return;
+      }
+
+      const nextIndex =
+        episodeIndex.current + 1;
+
+      episodeIndex.current = nextIndex;
+
+      const nextSeed =
+        `${seed}:episode:${nextIndex}`;
+
+      pendingResetSeed.current =
+        nextSeed;
+
+      lastObservedStep.current = null;
+
+      try {
+        client.reset({
+          seed: seedToUint32(nextSeed),
+          simulationTime: 0,
+        });
+      } catch (error) {
+        pendingResetSeed.current = null;
+
+        console.error(
+          '[biomechanics] automatic episode reset failed',
+          error,
+        );
+      }
+    }, autoResetDelayMs);
+
+    return () => {
+      globalThis.clearTimeout(timer);
+    };
+  }, [
+    autoResetDelayMs,
+    enabled,
+    seed,
+    station.game.terminal,
+    station.phase,
+    transport.phase,
+  ]);
 
 
   return {
@@ -273,3 +370,4 @@ export function useSimulationStation({
       ?? transport.error,
   };
 }
+

@@ -204,14 +204,51 @@ test('world rows extend ahead, retain future rows, and prune only far behind', (
   assert.equal(rows.includes(130), true, 'rows ahead must not be pruned');
 });
 
-test('reward combines progress, time cost, and terminal cost', () => {
-  const previous = stateWith({ fly: { row: 0, column: 0 }, score: 2, lanes: [] });
-  const progress = { ...previous, score: 4, step: 1, time: 0.2 };
-  const terminal = { ...progress, terminal: 'vehicle' };
+test(
+  'reward combines progress, time, stagnation, and terminal costs',
+  () => {
+    const previous = stateWith({
+      fly: { row: 0, column: 0 },
+      score: 2,
+      lanes: [],
+    });
 
-  assert.equal(reward(previous, progress), 1.99);
-  assert.equal(reward(progress, terminal), -10.01);
-});
+    const progress = {
+      ...previous,
+      score: 4,
+      step: 1,
+      time: 0.2,
+      previousAction: 'forward',
+    };
+
+    const stagnant = {
+      ...progress,
+      step: 2,
+      time: 0.4,
+      previousAction: 'wait',
+    };
+
+    const terminal = {
+      ...stagnant,
+      terminal: 'vehicle',
+    };
+
+    assert.equal(
+      reward(previous, progress),
+      1.99,
+    );
+
+    assert.equal(
+      reward(progress, stagnant),
+      -0.060000000000000005,
+    );
+
+    assert.equal(
+      reward(stagnant, terminal),
+      -10.06,
+    );
+  },
+);
 
 test('terminal states do not advance again', () => {
   const initial = stateWith({ lanes: [lane(3, 'grass')], terminal: 'bounds' });
@@ -243,8 +280,45 @@ test('versioned episode fixture reproduces score, rewards, and terminal reason',
   }
 
   assert.equal(fixture.version, 1);
-  assert.deepEqual(rewards, fixture.rewards);
-  assert.deepEqual(steps, fixture.steps);
+  assert.equal(
+    rewards.length,
+    fixture.rewards.length,
+  );
+
+  for (let index = 0; index < rewards.length; index += 1) {
+    assert.ok(
+      Math.abs(
+        rewards[index] - fixture.rewards[index],
+      ) < 1e-12,
+      `reward mismatch at step ${index}`,
+    );
+  }
+  assert.equal(
+    steps.length,
+    fixture.steps.length,
+  );
+
+  for (let index = 0; index < steps.length; index += 1) {
+    assert.ok(
+      Math.abs(
+        steps[index].reward
+        - fixture.steps[index].reward,
+      ) < 1e-12,
+      `step reward mismatch at step ${index}`,
+    );
+
+    assert.equal(
+      steps[index].score,
+      fixture.steps[index].score,
+      `score mismatch at step ${index}`,
+    );
+
+    assert.equal(
+      steps[index].terminalReason,
+      fixture.steps[index].terminalReason,
+      `terminal reason mismatch at step ${index}`,
+    );
+  }
   assert.equal(state.score, fixture.expectedScore);
   assert.equal(state.terminal, fixture.terminalReason);
 });

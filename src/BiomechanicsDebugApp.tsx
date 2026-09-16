@@ -15,6 +15,7 @@ export function BiomechanicsDebugApp() {
     population: 80,
     backendPreference: 'cpu',
     speed: 1,
+    autoResetDelayMs: 1000,
   });
 
   const pending = station.pending;

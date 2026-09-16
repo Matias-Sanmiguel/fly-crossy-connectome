@@ -128,7 +128,7 @@
       "expected": {
         "beforeObservationSha256": "f3aa31723b4c3002383a0dcd795b489150caf133b82083a8287e786036ac4e2e",
         "afterObservationSha256": "e2fddd82462c66f049b1b662fa3f98b92f81cf29f272187f5ae70b5cc3242c12",
-        "reward": -0.01,
+        "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
           "column": 0
@@ -213,7 +213,7 @@
       "expected": {
         "beforeObservationSha256": "2f5b659fe31b269c1c9f3c2b799085744c8dd8377724a5af7324ee3ef13137ea",
         "afterObservationSha256": "da5962667234d0ff76e38211cc920e1525a5e4b22ffd0ee4fd796c9054bf3eca",
-        "reward": -0.01,
+        "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
           "column": 0.2
@@ -308,7 +308,7 @@
       "expected": {
         "beforeObservationSha256": "506a5679da18d2a03e1a4de699171d1c9d3e8adb7b927ea00c470027ecb3e321",
         "afterObservationSha256": "18ff6e43d0de238046b31a0b606aafc8190ce5af40ee53be0f94a60a19ea6d9c",
-        "reward": -10.01,
+        "reward": -10.06,
         "fly": {
           "row": 3,
           "column": 0
@@ -394,7 +394,7 @@
       "expected": {
         "beforeObservationSha256": "3e6f2b123e8ff50925424859b70c3958e63d12d21ca4987cb07ce0dc7104a2c5",
         "afterObservationSha256": "1738156cafa4397126c3afbd8ece63e28608ed468459fb7b9449ac4870d298ad",
-        "reward": -0.01,
+        "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
           "column": 0
@@ -483,7 +483,7 @@
       "expected": {
         "beforeObservationSha256": "cf77714f3d85169cee107e4fe363eb194bf1a66e5b9b2125f25bed285de66885",
         "afterObservationSha256": "e5661342a80869d74407cd97d8d972dcabc54ca96eb51abefc8f25c54ee8784c",
-        "reward": -10.01,
+        "reward": -10.06,
         "fly": {
           "row": 3,
           "column": 0
@@ -570,7 +570,7 @@
       "expected": {
         "beforeObservationSha256": "f0ad6a3df512a2ec78f5776b7402b61c37c494d833e6213c6527ea2930fe4a1a",
         "afterObservationSha256": "684a4dfea18c93b03ca8a7192f9b98dc3c8a5108b3c977338d89a8406c3ee36b",
-        "reward": -0.01,
+        "reward": -0.060000000000000005,
         "fly": {
           "row": 100,
           "column": 0

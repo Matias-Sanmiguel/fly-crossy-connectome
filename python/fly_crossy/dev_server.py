@@ -4,23 +4,45 @@ from pathlib import Path
 
 from fly_crossy.biomechanics.world import BiomechanicalWorld
 from fly_crossy.protocol import Action, Observation
+from fly_crossy.runtime_controller import ConnectomeActionSelector
 from fly_crossy.server import create_app
 
 
 ROOT = Path(__file__).resolve().parents[2]
 
-DEMO_ACTIONS: tuple[Action, ...] = (
-    "forward",
-    "left",
-    "right",
-    "backward",
+CHECKPOINT_PATH = (
+    ROOT
+    / "python"
+    / "runs"
+    / "connectome-80-v1"
+    / "checkpoint.pt"
 )
 
 
-def select_demo_action(observation: Observation) -> Action:
-    return DEMO_ACTIONS[
-        observation.game_step % len(DEMO_ACTIONS)
-    ]
+controller = ConnectomeActionSelector(
+    CHECKPOINT_PATH,
+)
+
+
+def select_connectome_action(
+    observation: Observation,
+) -> Action:
+    action = controller(observation)
+
+    logits = ", ".join(
+        f"{value:+.2f}"
+        for value in controller.logits
+    )
+
+    print(
+        f"[80n] "
+        f"step={observation.game_step:04d} "
+        f"action={action:8s} "
+        f"logits=[{logits}]",
+        flush=True,
+    )
+
+    return action
 
 
 def build_world() -> BiomechanicalWorld:
@@ -32,7 +54,10 @@ def build_world() -> BiomechanicalWorld:
 
 
 app = create_app(
-    artifact_manifest=ROOT / "public/runtime-artifacts-dev.json",
-    action_selector=select_demo_action,
+    artifact_manifest=(
+        ROOT
+        / "runtime-artifacts-biomechanics.json"
+    ),
+    action_selector=select_connectome_action,
     world_factory=build_world,
 )
