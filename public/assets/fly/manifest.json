@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "asset": "fly-jeremy-rigged.glb",
+  "sha256": "ebeafb68261abf80180f047e9df945f67ae4504a68ffda2f7cb6b9f7497d2abc",
+  "source": "https://poly.pizza/m/f8kM9xA_5sV",
+  "author": "jeremy",
+  "license": "CC-BY",
+  "modification": "Separated cyan wing geometry into left/right meshes with independent pivot nodes."
+}

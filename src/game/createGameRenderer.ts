@@ -83,6 +83,9 @@ const HOP_MILLISECONDS = 160;
 const DECORATION_CAPACITY = RENDER_LANE_CAPACITY * 4;
 const RAIL_CAPACITY = RENDER_LANE_CAPACITY * 2;
 const SLEEPER_CAPACITY = RENDER_LANE_CAPACITY * 40;
+const ROAD_MARKING_CAPACITY = RENDER_LANE_CAPACITY * 18;
+const ROAD_DASH_SPACING = 1.55;
+const ROAD_DASH_LENGTH = 0.68;
 
 function worldPosition(position: GridPosition, target: THREE.Vector3): THREE.Vector3 {
   return target.set(position.column, 0.42, -position.row);
@@ -101,25 +104,27 @@ export function createGameRenderer(
   webgl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   webgl.outputColorSpace = THREE.SRGBColorSpace;
   webgl.toneMapping = THREE.ACESFilmicToneMapping;
-  webgl.toneMappingExposure = 1.08;
+  webgl.toneMappingExposure = 1.12;
   element.appendChild(webgl.domElement);
 
-  scene.add(new THREE.HemisphereLight(0xc9ebff, 0x182824, 2.5));
-  const keyLight = new THREE.DirectionalLight(0xffefcc, 3.2);
-  keyLight.position.set(-4, 10, 6);
+  // Bright, simple daylight closer to Crossy Road: strong diffuse fill,
+  // a warm key, and only a subtle neutral secondary light.
+  scene.add(new THREE.HemisphereLight(0xe6f5ff, 0x52634b, 2.9));
+  const keyLight = new THREE.DirectionalLight(0xfff1d6, 2.55);
+  keyLight.position.set(-5, 11, 5);
   scene.add(keyLight);
-  const rimLight = new THREE.DirectionalLight(0x62d9ff, 1.1);
-  rimLight.position.set(7, 5, -8);
-  scene.add(rimLight);
+  const fillLight = new THREE.DirectionalLight(0xcfe8ff, 0.48);
+  fillLight.position.set(6, 7, -7);
+  scene.add(fillLight);
 
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
   const logGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 8, 1, false);
   logGeometry.rotateZ(Math.PI / 2);
   const laneMaterials: Record<LaneKind, THREE.MeshStandardMaterial> = {
-    grass: new THREE.MeshStandardMaterial({ color: 0x4f7f43, roughness: 0.95 }),
+    grass: new THREE.MeshStandardMaterial({ color: 0x58a44a, roughness: 0.95 }),
     road: new THREE.MeshStandardMaterial({ color: 0x202a29, roughness: 0.94 }),
     rail: new THREE.MeshStandardMaterial({ color: 0x403a34, roughness: 1 }),
-    river: new THREE.MeshStandardMaterial({ color: 0x24718a, roughness: 0.48 }),
+    river: new THREE.MeshStandardMaterial({ color: 0x2498bd, roughness: 0.44 }),
   };
   const hazardMaterials: Record<HazardKind, THREE.MeshStandardMaterial> = {
     car: new THREE.MeshStandardMaterial({ color: 0xeb6b42, roughness: 0.62 }),
@@ -138,6 +143,10 @@ export function createGameRenderer(
   });
   const sleeperMaterial = new THREE.MeshStandardMaterial({
     color: 0x60432f,
+    roughness: 1,
+  });
+  const roadMarkingMaterial = new THREE.MeshStandardMaterial({
+    color: 0xaeb6aa,
     roughness: 1,
   });
 
@@ -178,6 +187,10 @@ export function createGameRenderer(
   };
   const railDetails = createInstances(railMaterial, RAIL_CAPACITY);
   const sleeperDetails = createInstances(sleeperMaterial, SLEEPER_CAPACITY);
+  const roadMarkings = createInstances(
+    roadMarkingMaterial,
+    ROAD_MARKING_CAPACITY,
+  );
 
   const flyModel = createFlyModel();
   const fly = flyModel.group;
@@ -207,6 +220,7 @@ export function createGameRenderer(
   let renderedStep = -1;
   let renderedSeed = '';
   let cameraRow = 0;
+  let flyMoving = false;
   let hopStarted = performance.now() - HOP_MILLISECONDS;
   let hazardClockStarted = performance.now();
   const hopFrom = new THREE.Vector3();
@@ -369,7 +383,13 @@ export function createGameRenderer(
     const hazardCounts: Record<HazardKind, number> = { car: 0, truck: 0, train: 0, log: 0 };
     let railCount = 0;
     let sleeperCount = 0;
+    let roadMarkingCount = 0;
     const renderable = selectRenderableInstances(game);
+    const roadRows = new Set(
+      renderable.lanes
+        .filter((lane) => lane.kind === 'road')
+        .map((lane) => lane.row),
+    );
     resetPools();
     for (const container of trainContainers) scene.remove(container);
     trainContainers.length = 0;
@@ -395,6 +415,30 @@ export function createGameRenderer(
         : null;
       const tiledRow = tiledRole ? acquireTiledLaneRow(tiledRole) : null;
       if (tiledRow) tiledRow.position.set(0, 0, -lane.row);
+
+      // Subtle dashed separator only at the boundary between two adjacent
+      // road rows. The stripe is visual-only and sits just above the asphalt.
+      if (lane.kind === 'road' && roadRows.has(lane.row + 1)) {
+        const halfCircuit = HAZARD_CIRCUIT / 2;
+        for (
+          let x = -halfCircuit + ROAD_DASH_SPACING / 2;
+          x < halfCircuit;
+          x += ROAD_DASH_SPACING
+        ) {
+          if (roadMarkingCount >= ROAD_MARKING_CAPACITY) break;
+          composeInstance(
+            roadMarkings,
+            roadMarkingCount,
+            x,
+            -0.006,
+            -lane.row - 0.5,
+            ROAD_DASH_LENGTH,
+            0.012,
+            0.055,
+          );
+          roadMarkingCount += 1;
+        }
+      }
 
       if (lane.kind === 'rail') {
         const train = lane.hazards.find((hazard) => hazard.kind === 'train');
@@ -559,6 +603,8 @@ export function createGameRenderer(
     railDetails.instanceMatrix.needsUpdate = true;
     sleeperDetails.count = sleeperCount;
     sleeperDetails.instanceMatrix.needsUpdate = true;
+    roadMarkings.count = roadMarkingCount;
+    roadMarkings.instanceMatrix.needsUpdate = true;
   };
 
   void loadKenneyAssets(options.assetLoader).then((assets) => {
@@ -576,7 +622,7 @@ export function createGameRenderer(
     const safeHeight = Math.max(1, height);
     webgl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     webgl.setSize(safeWidth, safeHeight, false);
-    const halfHeight = 5.5;
+    const halfHeight = 4.85;
     const aspect = safeWidth / safeHeight;
     camera.top = halfHeight;
     camera.bottom = -halfHeight;
@@ -597,13 +643,16 @@ export function createGameRenderer(
       const eased = elapsed * elapsed * (3 - 2 * elapsed);
       fly.position.lerpVectors(hopFrom, hopTo, eased);
       fly.position.y += Math.sin(elapsed * Math.PI) * 0.38;
+      flyModel.update(now, elapsed, flyMoving);
 
       const deltaSeconds = Math.min(0.05, Math.max(0, (now - previous) / 1000));
       const cameraEase = 1 - Math.exp(-5 * deltaSeconds);
       cameraRow += (game.fly.row - cameraRow) * cameraEase;
       const focusZ = -cameraRow;
-      camera.position.set(9, 10, focusZ + 9);
-      camera.lookAt(0, 0, focusZ - 0.75);
+      // More centered and more top-down than the previous view while
+      // preserving the orthographic Crossy-style readability.
+      camera.position.set(6.2, 12.2, focusZ + 8.2);
+      camera.lookAt(0, 0, focusZ - 0.65);
 
       const elapsedHazardSeconds = Math.max(
         0,
@@ -628,6 +677,7 @@ export function createGameRenderer(
       if (state.step === renderedStep && state.seed === renderedSeed) return;
 
       const movement = events.find((event) => event.type === 'moved');
+      flyMoving = movement !== undefined;
       if (renderedStep < 0 || state.step === 0) {
         worldPosition(state.fly, hopFrom);
         hopTo.copy(hopFrom);
@@ -661,6 +711,7 @@ export function createGameRenderer(
       logEndMaterial.dispose();
       railMaterial.dispose();
       sleeperMaterial.dispose();
+      roadMarkingMaterial.dispose();
       railSignalLampMaterial.dispose();
       flyModel.dispose();
       webgl.dispose();
