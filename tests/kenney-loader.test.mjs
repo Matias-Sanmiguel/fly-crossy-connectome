@@ -1,0 +1,69 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import * as THREE from 'three';
+
+import {
+  KENNEY_ASSETS,
+  NATIVE_ASSET_ROLES,
+} from '../src/game/kenneyAssets.ts';
+import { loadKenneyAssets } from '../src/game/kenneyLoader.ts';
+
+test('semantic asset registry pins mappings and finite transforms', () => {
+  assert.equal(
+    KENNEY_ASSETS['hazard.car'].path,
+    'assets/kenney/car-kit/sedan.glb',
+  );
+  assert.equal(
+    KENNEY_ASSETS['hazard.train'].path,
+    'assets/kenney/train-kit/train-diesel-a.glb',
+  );
+  assert.equal(NATIVE_ASSET_ROLES['hazard.log'], 'procedural-log');
+
+  for (const asset of Object.values(KENNEY_ASSETS)) {
+    assert.equal(asset.logicalSize.length, 3);
+    assert.ok(asset.logicalSize.every((value) => Number.isFinite(value) && value > 0));
+    assert.equal(asset.rotation.length, 3);
+    assert.ok(asset.rotation.every(Number.isFinite));
+    assert.ok(Number.isFinite(asset.verticalOffset));
+  }
+});
+
+test('loader caches each URL, clones templates, and contains partial failure', async () => {
+  const calls = new Map();
+  const fakeLoader = async (url) => {
+    calls.set(url, (calls.get(url) ?? 0) + 1);
+    if (url.includes('train-diesel-a')) throw new Error('offline');
+
+    const group = new THREE.Group();
+    group.add(new THREE.Mesh(new THREE.BoxGeometry(2, 1, 4)));
+    return group;
+  };
+
+  const firstLibrary = await loadKenneyAssets(fakeLoader);
+  const secondLibrary = await loadKenneyAssets(fakeLoader);
+
+  assert.equal(firstLibrary.failures.get('hazard.train'), 'offline');
+  assert.equal(firstLibrary.templates.has('hazard.car'), true);
+  assert.equal(secondLibrary.templates.has('hazard.car'), true);
+  assert.equal(calls.size, Object.keys(KENNEY_ASSETS).length);
+  assert.ok([...calls.values()].every((count) => count === 1));
+
+  const firstCar = firstLibrary.clone('hazard.car');
+  const secondCar = firstLibrary.clone('hazard.car');
+  assert.ok(firstCar);
+  assert.ok(secondCar);
+  assert.notEqual(firstCar, secondCar);
+  assert.notEqual(firstCar.children[0], secondCar.children[0]);
+  const secondCarX = secondCar.position.x;
+  firstCar.position.x = 12;
+  assert.equal(secondCar.position.x, secondCarX);
+  assert.equal(firstLibrary.clone('hazard.train'), null);
+});
+
+test('loader rejects empty geometry per role without rejecting the library', async () => {
+  const library = await loadKenneyAssets(async () => new THREE.Group());
+
+  assert.equal(library.templates.size, 0);
+  assert.equal(library.failures.size, Object.keys(KENNEY_ASSETS).length);
+  assert.match(library.failures.get('lane.road'), /geometry|bounds/i);
+});
