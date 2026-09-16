@@ -112,7 +112,7 @@ test('rail lanes warn before a train and terminate on swept impact', () => {
       direction: 1,
       speed: 2,
       phase: 0,
-      hazards: [{ kind: 'train', position: -6, size: 4 }],
+      hazards: [{ kind: 'train', position: -4, size: 4 }],
     })],
   });
   const impact = stateWith({
@@ -162,13 +162,18 @@ test('unsupported water is terminal', () => {
   assert.equal(stepGame(initial, 'wait').state.terminal, 'water');
 });
 
-test('leaving the horizontal playfield is terminal', () => {
+test('manual movement beyond the horizontal playfield is blocked', () => {
   const initial = stateWith({
     fly: { row: 3, column: 5 },
     lanes: [lane(3, 'grass')],
   });
 
-  assert.equal(stepGame(initial, 'right').state.terminal, 'bounds');
+  const result = stepGame(initial, 'right');
+  assert.equal(result.state.terminal, null);
+  assert.deepEqual(result.state.fly, initial.fly);
+  assert.ok(result.events.some((event) => (
+    event.type === 'blocked' && event.reason === 'bounds'
+  )));
 });
 
 test('waiting advances the clock without moving the fly', () => {

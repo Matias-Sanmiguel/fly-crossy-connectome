@@ -38,23 +38,28 @@ test('grass boundaries are densely marked by trees outside playable columns', ()
   }
 });
 
-test('interior grass obstacles are sparse, never use column zero, and match collision lookup', () => {
-  for (let row = -30; row <= 80; row += 1) {
-    const columns = obstacleColumnsForRow('obstacle-audit', row, 'grass');
-    const recovery = ((row - 3) % 7 + 7) % 7 === 6;
-    const opening = row >= 0 && row < 3;
-    if (recovery || opening) {
-      assert.deepEqual(columns, []);
-      continue;
+test('interior grass obstacles are sparse, can block center, and match collision lookup', () => {
+  let sawCenterBlocker = false;
+  for (let seedIndex = 0; seedIndex < 12; seedIndex += 1) {
+    const seed = `obstacle-audit-${seedIndex}`;
+    for (let row = -30; row <= 80; row += 1) {
+      const columns = obstacleColumnsForRow(seed, row, 'grass');
+      const recovery = ((row - 3) % 7 + 7) % 7 === 6;
+      const opening = row >= 0 && row < 3;
+      if (recovery || opening) {
+        assert.deepEqual(columns, []);
+        continue;
+      }
+      assert.ok(columns.length >= 1 && columns.length <= 3);
+      assert.equal(new Set(columns).size, columns.length);
+      assert.ok(columns.every((column) => Math.abs(column) <= 4));
+      for (const column of columns) {
+        assert.equal(isSceneryBlocked(seed, row, 'grass', column), true);
+      }
+      if (columns.includes(0)) sawCenterBlocker = true;
     }
-    assert.ok(columns.length >= 1 && columns.length <= 3);
-    assert.equal(new Set(columns).size, columns.length);
-    assert.ok(columns.every((column) => column !== 0 && Math.abs(column) <= 4));
-    for (const column of columns) {
-      assert.equal(isSceneryBlocked('obstacle-audit', row, 'grass', column), true);
-    }
-    assert.equal(isSceneryBlocked('obstacle-audit', row, 'grass', 0), false);
   }
+  assert.equal(sawCenterBlocker, true);
 });
 
 

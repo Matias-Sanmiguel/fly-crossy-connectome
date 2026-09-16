@@ -17,7 +17,7 @@ const OPENING_ROWS = 3;
 const GROUP_ROWS = 7;
 const RECOVERY_OFFSET = 6;
 const OBSTACLE_CLEARANCE = 0.45;
-const INTERIOR_COLUMNS = [-4, -3, -2, -1, 1, 2, 3, 4] as const;
+const INTERIOR_COLUMNS = [-4, -3, -2, -1, 0, 1, 2, 3, 4] as const;
 const BOUNDARY_COLUMNS = [-8, -7, -6, 6, 7, 8] as const;
 
 const TREE_ROLES: readonly DecorationRole[] = [
@@ -64,7 +64,7 @@ export function obstacleColumnsForRow(
 ): number[] {
   if (laneKind !== 'grass' || !receivesInteriorObstacles(row)) return [];
 
-  const rng = createRng(`obstacles:v1:${seed}:${row}`);
+  const rng = createRng(`obstacles:v2:${seed}:${row}`);
   const candidates = [...INTERIOR_COLUMNS];
   const count = rng.integer(1, 3);
   const columns: number[] = [];

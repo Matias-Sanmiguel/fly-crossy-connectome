@@ -19,13 +19,13 @@ LEGACY_CHECKPOINT_PATH = (
     / "checkpoint.pt"
 )
 
-# Environment v4 has been frozen, but its final 80-neuron checkpoint has not
-# been trained/released yet. Keep the historical v3 artifact untouched and
-# reserve the runtime path for the forthcoming v4 checkpoint.
+# Environment v5 is the current final-training candidate. Keep the historical
+# v3 artifact and the diagnostic v4 training run untouched; reserve this path
+# for the forthcoming released v5 checkpoint.
 CHECKPOINT_PATH = (
     ROOT
     / "release"
-    / "eval-v4"
+    / "eval-v5"
     / "training"
     / "connectome"
     / "checkpoint.pt"
@@ -43,8 +43,8 @@ def _get_controller() -> ConnectomeActionSelector:
 
     if not CHECKPOINT_PATH.is_file():
         raise RuntimeError(
-            "Environment v4 controller is not available yet. "
-            "Train and release the final 80-neuron v4 checkpoint first."
+            "Environment v5 controller is not available yet. "
+            "Train and release the final 80-neuron v5 checkpoint first."
         )
 
     controller = ConnectomeActionSelector(CHECKPOINT_PATH)

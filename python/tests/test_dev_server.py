@@ -16,8 +16,8 @@ from fly_crossy.env import WORLD_VERSION
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_dev_server_does_not_activate_historical_v3_checkpoint_for_v4() -> None:
-    assert WORLD_VERSION == 4
+def test_dev_server_does_not_activate_historical_v3_checkpoint_for_v5() -> None:
+    assert WORLD_VERSION == 5
 
     assert LEGACY_CHECKPOINT_PATH == (
         ROOT / "release/eval-v1/training/connectome/checkpoint.pt"
@@ -32,11 +32,11 @@ def test_dev_server_does_not_activate_historical_v3_checkpoint_for_v4() -> None:
     assert historical["environment_version"] == 3
 
     assert CHECKPOINT_PATH == (
-        ROOT / "release/eval-v4/training/connectome/checkpoint.pt"
+        ROOT / "release/eval-v5/training/connectome/checkpoint.pt"
     )
 
     # Loading stays lazy. During the freeze->training transition there is no
-    # valid v4 runtime checkpoint to instantiate yet.
+    # valid v5 runtime checkpoint to instantiate yet.
     assert controller is None
 
     manifest = json.loads(

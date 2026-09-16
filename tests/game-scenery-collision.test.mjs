@@ -17,14 +17,37 @@ const stateAt = (seed, row, column) => ({
   previousAction: 'wait',
 });
 
-test('hitting a grass obstacle blocks the move without killing or passing through it', () => {
-  const seed = 'obstacle-test';
-  const row = 12;
-  assert.equal(generateRows(seed, row, 1)[0].kind, 'grass');
-  assert.deepEqual(obstacleColumnsForRow(seed, row, 'grass'), [-1]);
+const findBlockingScenario = () => {
+  for (let seedIndex = 0; seedIndex < 30; seedIndex += 1) {
+    const seed = `collision-audit-${seedIndex}`;
+    for (let row = 3; row <= 80; row += 1) {
+      const lane = generateRows(seed, row, 1)[0];
+      if (lane.kind !== 'grass') continue;
+      const columns = obstacleColumnsForRow(seed, row, 'grass');
+      if (columns.length === 0) continue;
+      const target = columns[0];
+      return {
+        seed,
+        row,
+        target,
+        from: target - 1,
+        action: 'right',
+      };
+    }
+  }
+  throw new Error('expected a deterministic blocking scenery scenario');
+};
 
-  const result = stepGame(stateAt(seed, row, 0), 'left');
-  assert.deepEqual(result.state.fly, { row, column: 0 });
+test('hitting a grass obstacle blocks the move without killing or passing through it', () => {
+  const scenario = findBlockingScenario();
+  const result = stepGame(
+    stateAt(scenario.seed, scenario.row, scenario.from),
+    scenario.action,
+  );
+  assert.deepEqual(result.state.fly, {
+    row: scenario.row,
+    column: scenario.from,
+  });
   assert.equal(result.state.terminal, null);
   assert.ok(result.events.some((event) => (
     event.type === 'blocked' && event.reason === 'scenery'
