@@ -34,6 +34,12 @@ const PACKS = {
     archiveSha256:
       '8691614018075a66458e35915b8c358c2e6178648aedadafcdf313b924aa6581',
   },
+  'survival-kit': {
+    source:
+      'https://kenney.nl/assets/survival-kit',
+    archiveSha256:
+      'c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e',
+  },
 };
 
 const ASSETS = [
@@ -43,6 +49,11 @@ const ASSETS = [
     'city-roads',
     'traffic-light.glb',
     'decoration.traffic-light',
+  ],
+  [
+    'city-roads',
+    'construction-light.glb',
+    'decoration.rail-warning-light',
   ],
   [
     'city-roads',
@@ -148,6 +159,18 @@ const ASSETS = [
     'train-kit',
     'train-carriage-wood.glb',
     'hazard.train',
+  ],
+
+  // Survival Kit
+  [
+    'survival-kit',
+    'tree-log-small.glb',
+    'hazard.log',
+  ],
+  [
+    'survival-kit',
+    'tree-log.glb',
+    'hazard.log',
   ],
 
   // Mini Forest

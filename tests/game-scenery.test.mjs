@@ -7,7 +7,7 @@ const rolesByLane = {
   grass: new Set(['decoration.tree', 'decoration.rocks', 'decoration.plant']),
   road: new Set(),
   rail: new Set(),
-  river: new Set(['decoration.rocks', 'decoration.plant']),
+  river: new Set(),
 };
 
 test('scenery is deterministic and leaves the center five columns clear', () => {

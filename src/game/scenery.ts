@@ -15,7 +15,7 @@ const rolesByLane: Record<LaneKind, readonly DecorationRole[]> = {
   grass: ['decoration.tree', 'decoration.rocks', 'decoration.plant'],
   road: [],
   rail: [],
-  river: ['decoration.rocks', 'decoration.plant'],
+  river: [],
 };
 
 export function decorationsForRow(

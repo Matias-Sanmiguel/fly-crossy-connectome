@@ -12,6 +12,7 @@ const KENNEY_ROLES = new Set([
   'lane.rail',
 
   'decoration.traffic-light',
+  'decoration.rail-warning-light',
   'decoration.road-sign',
   'decoration.street-light',
   'decoration.barrier',
@@ -23,6 +24,7 @@ const KENNEY_ROLES = new Set([
   'hazard.car',
   'hazard.truck',
   'hazard.train',
+  'hazard.log',
 ]);
 const MANIFEST_KEYS = new Set(['version', 'assets', 'textures']);
 const ASSET_KEYS = new Set([
@@ -77,14 +79,14 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
   }
   if (
     !Array.isArray(manifest.assets)
-    || manifest.assets.length !== 34
+    || manifest.assets.length !== 37
   ) {
     throw new Error(
-      'Kenney manifest must contain exactly 34 assets.',
+      'Kenney manifest must contain exactly 37 assets.',
     );
   }
-  if (!Array.isArray(manifest.textures) || manifest.textures.length !== 4) {
-    throw new Error('Kenney manifest must contain exactly 4 required textures.');
+  if (!Array.isArray(manifest.textures) || manifest.textures.length !== 5) {
+    throw new Error('Kenney manifest must contain exactly 5 required textures.');
   }
 
   const roles = new Set();

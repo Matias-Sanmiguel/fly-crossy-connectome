@@ -66,7 +66,7 @@ test(
       'hazard.train',
     );
 
-    assert.equal(
+    assert.match(
       visualRoleForHazard(
         'visual-test',
         11,
@@ -76,7 +76,7 @@ test(
           size: 2,
         },
       ),
-      null,
+      /^hazard\.log\.(small|large)$/,
     );
   },
 );
@@ -109,6 +109,30 @@ test(
       `expected visual variety, got ${
         [...appearances].join(', ')
       }`,
+    );
+  },
+);
+
+test(
+  'log visuals use both Survival Kit variants deterministically',
+  () => {
+    const roles = new Set();
+
+    for (let position = -30; position <= 30; position += 1) {
+      const hazard = {
+        kind: 'log',
+        position,
+        size: 2 + Math.abs(position % 3),
+      };
+      const first = visualRoleForHazard('log-variety', 12, hazard);
+      const second = visualRoleForHazard('log-variety', 12, hazard);
+      assert.equal(first, second);
+      roles.add(first);
+    }
+
+    assert.deepEqual(
+      [...roles].sort(),
+      ['hazard.log.large', 'hazard.log.small'],
     );
   },
 );

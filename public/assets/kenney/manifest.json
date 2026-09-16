@@ -22,6 +22,16 @@
       "license": "CC0-1.0"
     },
     {
+      "role": "decoration.rail-warning-light",
+      "path": "assets/kenney/city-roads/construction-light.glb",
+      "bytes": 15320,
+      "sha256": "80dd781d6ad1bcb6e07670cc1ce03027031381768aca62b9c7b6e7df99c33650",
+      "source": "https://kenney.nl/assets/city-kit-roads",
+      "archiveSha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
+      "upstreamPath": "Models/GLB format/construction-light.glb",
+      "license": "CC0-1.0"
+    },
+    {
       "role": "decoration.road-sign",
       "path": "assets/kenney/city-roads/road-sign-warning.glb",
       "bytes": 11496,
@@ -312,6 +322,26 @@
       "license": "CC0-1.0"
     },
     {
+      "role": "hazard.log",
+      "path": "assets/kenney/survival-kit/tree-log-small.glb",
+      "bytes": 9216,
+      "sha256": "5b416addc4cb01d9d6ad30ec282606a8fefb018043d3253d5e42c1e353aab3c8",
+      "source": "https://kenney.nl/assets/survival-kit",
+      "archiveSha256": "c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e",
+      "upstreamPath": "Models/GLB format/tree-log-small.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.log",
+      "path": "assets/kenney/survival-kit/tree-log.glb",
+      "bytes": 9180,
+      "sha256": "bd358e55e63a75bd54bea1e4b40ed362baa937ce8e503f2aa2370a5a1d9da11c",
+      "source": "https://kenney.nl/assets/survival-kit",
+      "archiveSha256": "c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e",
+      "upstreamPath": "Models/GLB format/tree-log.glb",
+      "license": "CC0-1.0"
+    },
+    {
       "role": "decoration.tree",
       "path": "assets/kenney/mini-forest/tree.glb",
       "bytes": 23476,
@@ -376,6 +406,15 @@
       "sha256": "319f1087d8ed50a8794f9a8179f64671d5595f2365fdf3e47ec2d4eb74dba20f",
       "source": "https://kenney.nl/assets/mini-forest",
       "archiveSha256": "8691614018075a66458e35915b8c358c2e6178648aedadafcdf313b924aa6581",
+      "upstreamPath": "Models/GLB format/Textures/colormap.png",
+      "license": "CC0-1.0"
+    },
+    {
+      "path": "assets/kenney/survival-kit/Textures/colormap.png",
+      "bytes": 7440,
+      "sha256": "6ca023be9f12e8c2358fcf94320c8a894b4c05a3dd0bad1f5c268312053caca1",
+      "source": "https://kenney.nl/assets/survival-kit",
+      "archiveSha256": "c3586341b5932c87eb43d75d915434f47daed168b17ed36a03e8ca9977c7443e",
       "upstreamPath": "Models/GLB format/Textures/colormap.png",
       "license": "CC0-1.0"
     }

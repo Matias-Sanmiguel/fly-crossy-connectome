@@ -3,6 +3,7 @@ export const GAME_ASSET_ROLES = [
   'lane.rail',
 
   'decoration.traffic-light',
+  'decoration.rail-warning-light',
   'decoration.tree',
   'decoration.rocks',
   'decoration.plant',
@@ -21,6 +22,9 @@ export const GAME_ASSET_ROLES = [
   'hazard.truck.garbage-truck',
   'hazard.truck.ambulance',
   'hazard.truck.firetruck',
+
+  'hazard.log.small',
+  'hazard.log.large',
 
   'hazard.train',
   'hazard.train.locomotive.diesel-b',
@@ -64,6 +68,16 @@ const truckDefinition = (
   verticalOffset: 0,
 });
 
+const logDefinition = (
+  path: string,
+  length: number,
+): KenneyAssetDefinition => ({
+  path,
+  logicalSize: [length, 0.28, 0.25],
+  rotation: [0, Math.PI / 2, 0],
+  verticalOffset: 0,
+});
+
 const trainLocomotiveDefinition = (
   path: string,
 ): KenneyAssetDefinition => ({
@@ -100,6 +114,13 @@ export const KENNEY_ASSETS = {
   'decoration.traffic-light': {
     path: 'assets/kenney/city-roads/traffic-light.glb',
     logicalSize: [0.65, 1.7, 0.65],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.rail-warning-light': {
+    path: 'assets/kenney/city-roads/construction-light.glb',
+    logicalSize: [0.38, 1.15, 0.38],
     rotation: [0, 0, 0],
     verticalOffset: 0,
   },
@@ -177,6 +198,16 @@ export const KENNEY_ASSETS = {
     'assets/kenney/car-kit/firetruck.glb',
   ),
 
+  'hazard.log.small': logDefinition(
+    'assets/kenney/survival-kit/tree-log-small.glb',
+    0.65,
+  ),
+
+  'hazard.log.large': logDefinition(
+    'assets/kenney/survival-kit/tree-log.glb',
+    1,
+  ),
+
   'hazard.train': trainLocomotiveDefinition(
     'assets/kenney/train-kit/train-diesel-a.glb',
   ),
@@ -232,6 +263,5 @@ export const KENNEY_ASSETS = {
 export const NATIVE_ASSET_ROLES = {
   'lane.grass': 'procedural-grass',
   'lane.river': 'procedural-water',
-  'hazard.log': 'procedural-log',
   fly: 'procedural-fly',
 } as const;

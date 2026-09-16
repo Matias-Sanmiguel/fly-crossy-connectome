@@ -54,7 +54,12 @@ export type GameRendererOptions = {
 type RailWarningLightBinding = {
   lane: Lane;
   hazard: Hazard;
-  models: THREE.Group[];
+  lamps: THREE.Mesh[];
+};
+
+type RailWarningSignal = {
+  root: THREE.Group;
+  lamp: THREE.Mesh;
 };
 
 type HazardVisualBinding =
@@ -108,6 +113,8 @@ export function createGameRenderer(
   scene.add(rimLight);
 
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+  const logGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 8, 1, false);
+  logGeometry.rotateZ(Math.PI / 2);
   const laneMaterials: Record<LaneKind, THREE.MeshStandardMaterial> = {
     grass: new THREE.MeshStandardMaterial({ color: 0x4f7f43, roughness: 0.95 }),
     road: new THREE.MeshStandardMaterial({ color: 0x202a29, roughness: 0.94 }),
@@ -118,8 +125,12 @@ export function createGameRenderer(
     car: new THREE.MeshStandardMaterial({ color: 0xeb6b42, roughness: 0.62 }),
     truck: new THREE.MeshStandardMaterial({ color: 0xe3b341, roughness: 0.68 }),
     train: new THREE.MeshStandardMaterial({ color: 0xd9e1e6, roughness: 0.55 }),
-    log: new THREE.MeshStandardMaterial({ color: 0x8a5a34, roughness: 1 }),
+    log: new THREE.MeshStandardMaterial({ color: 0x754829, roughness: 1 }),
   };
+  const logEndMaterial = new THREE.MeshStandardMaterial({
+    color: 0xb47b45,
+    roughness: 1,
+  });
   const railMaterial = new THREE.MeshStandardMaterial({
     color: 0x798681,
     metalness: 0.42,
@@ -130,8 +141,21 @@ export function createGameRenderer(
     roughness: 1,
   });
 
-  const createInstances = (material: THREE.Material, maximum: number) => {
-    const mesh = new THREE.InstancedMesh(boxGeometry, material, maximum);
+  const railSignalLampGeometry = new THREE.SphereGeometry(0.085, 12, 8);
+
+  const railSignalLampMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff342e,
+    emissive: 0xff1208,
+    emissiveIntensity: 2.8,
+    roughness: 0.32,
+  });
+
+  const createInstances = (
+    material: THREE.Material | THREE.Material[],
+    maximum: number,
+    geometry: THREE.BufferGeometry = boxGeometry,
+  ) => {
+    const mesh = new THREE.InstancedMesh(geometry, material, maximum);
     mesh.count = 0;
     scene.add(mesh);
     return mesh;
@@ -146,7 +170,11 @@ export function createGameRenderer(
     car: createInstances(hazardMaterials.car, RENDER_HAZARD_CAPACITY),
     truck: createInstances(hazardMaterials.truck, RENDER_HAZARD_CAPACITY),
     train: createInstances(hazardMaterials.train, RENDER_HAZARD_CAPACITY),
-    log: createInstances(hazardMaterials.log, RENDER_HAZARD_CAPACITY),
+    log: createInstances(
+      [hazardMaterials.log, logEndMaterial, logEndMaterial],
+      RENDER_HAZARD_CAPACITY,
+      logGeometry,
+    ),
   };
   const railDetails = createInstances(railMaterial, RAIL_CAPACITY);
   const sleeperDetails = createInstances(sleeperMaterial, SLEEPER_CAPACITY);
@@ -264,6 +292,29 @@ export function createGameRenderer(
     return group;
   };
 
+  const acquireRailWarningSignal = (): RailWarningSignal | null => {
+    const root = acquire('decoration.rail-warning-light');
+    if (!root) return null;
+
+    const existing = root.getObjectByName('rail-warning-red-lamp');
+    let lamp: THREE.Mesh;
+
+    if (existing instanceof THREE.Mesh) {
+      lamp = existing;
+    } else {
+      lamp = new THREE.Mesh(
+        railSignalLampGeometry,
+        railSignalLampMaterial,
+      );
+      lamp.name = 'rail-warning-red-lamp';
+      lamp.position.set(0, 1.12, 0);
+      root.add(lamp);
+    }
+
+    lamp.visible = false;
+    return { root, lamp };
+  };
+
   const updateRailWarningLights = (time: number) => {
     const blinkOn = Math.floor(time * 8) % 2 === 0;
 
@@ -276,8 +327,8 @@ export function createGameRenderer(
         time + TRAIN_WARNING_SECONDS,
       );
 
-      for (const model of warning.models) {
-        model.visible = active && blinkOn;
+      for (const lamp of warning.lamps) {
+        lamp.visible = active && blinkOn;
       }
     }
   };
@@ -347,25 +398,33 @@ export function createGameRenderer(
 
       if (lane.kind === 'rail') {
         const train = lane.hazards.find((hazard) => hazard.kind === 'train');
+
         if (train) {
-          const models: THREE.Group[] = [];
+          const lamps: THREE.Mesh[] = [];
+
           for (const side of [-1, 1] as const) {
-            const signal = acquire('decoration.traffic-light');
+            const signal = acquireRailWarningSignal();
             if (!signal) continue;
-            signal.position.set(
-              side * (WORLD_HALF_WIDTH + 0.75),
+
+            // The rail occupies z = -row +/- 0.5.
+            // Put the signal slightly before the track, on the safe-side grass.
+            signal.root.position.set(
+              side * (WORLD_HALF_WIDTH + 0.55),
               0,
-              -lane.row,
+              -lane.row + 0.7,
             );
-            signal.rotation.y = side === -1 ? Math.PI / 2 : -Math.PI / 2;
-            signal.scale.setScalar(0.55);
-            models.push(signal);
+
+            signal.root.rotation.y =
+              side === -1 ? Math.PI / 2 : -Math.PI / 2;
+
+            lamps.push(signal.lamp);
           }
-          if (models.length > 0) {
+
+          if (lamps.length > 0) {
             railWarningLights.push({
               lane,
               hazard: train,
-              models,
+              lamps,
             });
           }
         }
@@ -441,9 +500,18 @@ export function createGameRenderer(
       if (hazardModel && hazardRole) {
         hazardModel.position.set(x, 0, -lane.row);
         hazardModel.rotation.y = lane.direction === -1 ? Math.PI : 0;
-        hazardModel.scale.setScalar(
-          hazard.size / KENNEY_ASSETS[hazardRole].logicalSize[0],
-        );
+        const logicalSize = KENNEY_ASSETS[hazardRole].logicalSize;
+        if (hazard.kind === 'log') {
+          hazardModel.scale.set(
+            hazard.size / logicalSize[0],
+            1.7,
+            2.3,
+          );
+        } else {
+          hazardModel.scale.setScalar(
+            hazard.size / logicalSize[0],
+          );
+        }
         hazardBindings.push({
           kind: 'group',
           lane,
@@ -453,8 +521,8 @@ export function createGameRenderer(
       } else {
         const hazardIndex = hazardCounts[hazard.kind]++;
         const isLog = hazard.kind === 'log';
-        const height = hazard.kind === 'train' ? 0.72 : isLog ? 0.25 : 0.48;
-        const depth = hazard.kind === 'train' ? 0.72 : isLog ? 0.48 : 0.58;
+        const height = hazard.kind === 'train' ? 0.72 : isLog ? 0.34 : 0.48;
+        const depth = hazard.kind === 'train' ? 0.72 : isLog ? 0.5 : 0.58;
         const mesh = hazardMeshes[hazard.kind];
         composeInstance(
           mesh,
@@ -584,10 +652,15 @@ export function createGameRenderer(
       cancelAnimationFrame(frame);
       observer.disconnect();
       boxGeometry.dispose();
+      logGeometry.dispose();
+      railSignalLampGeometry.dispose();
+
       Object.values(laneMaterials).forEach((material) => material.dispose());
       Object.values(hazardMaterials).forEach((material) => material.dispose());
+      logEndMaterial.dispose();
       railMaterial.dispose();
       sleeperMaterial.dispose();
+      railSignalLampMaterial.dispose();
       flyModel.dispose();
       webgl.dispose();
       webgl.domElement.remove();

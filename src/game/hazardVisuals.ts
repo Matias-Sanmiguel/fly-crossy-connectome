@@ -8,6 +8,9 @@ type CarAssetRole =
 type TruckAssetRole =
   Extract<GameAssetRole, `hazard.truck.${string}`>;
 
+type LogAssetRole =
+  Extract<GameAssetRole, `hazard.log.${string}`>;
+
 const CAR_VISUAL_POOL: readonly CarAssetRole[] = [
   'hazard.car.sedan',
   'hazard.car.sedan',
@@ -53,15 +56,16 @@ const TRUCK_VISUAL_POOL: readonly TruckAssetRole[] = [
   'hazard.truck.firetruck',
 ];
 
+const LOG_VISUAL_POOL: readonly LogAssetRole[] = [
+  'hazard.log.small',
+  'hazard.log.large',
+];
+
 export function visualRoleForHazard(
   seed: string,
   row: number,
   hazard: Hazard,
 ): GameAssetRole | null {
-  if (hazard.kind === 'log') {
-    return null;
-  }
-
   if (hazard.kind === 'train') {
     return 'hazard.train';
   }
@@ -76,6 +80,10 @@ export function visualRoleForHazard(
       hazard.size,
     ].join(':'),
   );
+
+  if (hazard.kind === 'log') {
+    return rng.pick(LOG_VISUAL_POOL);
+  }
 
   if (hazard.kind === 'car') {
     return rng.pick(CAR_VISUAL_POOL);

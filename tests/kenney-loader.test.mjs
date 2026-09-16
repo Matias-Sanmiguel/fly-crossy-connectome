@@ -17,9 +17,21 @@ test('semantic asset registry pins mappings and finite transforms', () => {
     KENNEY_ASSETS['hazard.train'].path,
     'assets/kenney/train-kit/train-diesel-a.glb',
   );
+  assert.equal(
+    KENNEY_ASSETS['decoration.rail-warning-light'].path,
+    'assets/kenney/city-roads/construction-light.glb',
+  );
   assert.deepEqual(KENNEY_ASSETS['lane.road'].logicalSize, [1, 0.2, 1]);
   assert.deepEqual(KENNEY_ASSETS['lane.rail'].logicalSize, [1, 0.18, 1]);
-  assert.equal(NATIVE_ASSET_ROLES['hazard.log'], 'procedural-log');
+  assert.equal(NATIVE_ASSET_ROLES['hazard.log'], undefined);
+  assert.equal(
+    KENNEY_ASSETS['hazard.log.small'].path,
+    'assets/kenney/survival-kit/tree-log-small.glb',
+  );
+  assert.equal(
+    KENNEY_ASSETS['hazard.log.large'].path,
+    'assets/kenney/survival-kit/tree-log.glb',
+  );
 
   for (const asset of Object.values(KENNEY_ASSETS)) {
     assert.equal(asset.logicalSize.length, 3);
