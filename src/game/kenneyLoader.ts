@@ -50,11 +50,11 @@ function normalizedTemplate(
   source: THREE.Group,
   definition: KenneyAssetDefinition,
 ): THREE.Group {
-  const template = source.clone(true);
-  template.rotation.set(...definition.rotation);
-  template.updateMatrixWorld(true);
+  const content = source.clone(true);
+  content.rotation.set(...definition.rotation);
+  content.updateMatrixWorld(true);
 
-  const bounds = new THREE.Box3().setFromObject(template);
+  const bounds = new THREE.Box3().setFromObject(content);
   const measured = bounds.getSize(new THREE.Vector3());
   if (
     bounds.isEmpty()
@@ -65,20 +65,24 @@ function normalizedTemplate(
     throw new Error('Asset geometry has empty or non-finite bounds.');
   }
 
-  template.scale.multiply(new THREE.Vector3(
+  content.scale.multiply(new THREE.Vector3(
     definition.logicalSize[0] / measured.x,
     definition.logicalSize[1] / measured.y,
     definition.logicalSize[2] / measured.z,
   ));
-  template.updateMatrixWorld(true);
+  content.updateMatrixWorld(true);
 
-  bounds.setFromObject(template);
+  bounds.setFromObject(content);
   const center = bounds.getCenter(new THREE.Vector3());
-  template.position.set(
+  content.position.set(
     -center.x,
     definition.verticalOffset - bounds.min.y,
     -center.z,
   );
+  content.updateMatrixWorld(true);
+
+  const template = new THREE.Group();
+  template.add(content);
   template.updateMatrixWorld(true);
   template.name = `kenney:${definition.path}`;
   return template;

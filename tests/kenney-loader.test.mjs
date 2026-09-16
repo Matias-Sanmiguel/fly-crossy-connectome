@@ -48,6 +48,15 @@ test('loader caches each URL, clones templates, and contains partial failure', a
   assert.equal(calls.size, Object.keys(KENNEY_ASSETS).length);
   assert.ok([...calls.values()].every((count) => count === 1));
 
+  const carTemplate = firstLibrary.templates.get('hazard.car');
+  assert.ok(carTemplate);
+  assert.deepEqual(carTemplate.position.toArray(), [0, 0, 0]);
+  const carBounds = new THREE.Box3().setFromObject(carTemplate);
+  const carCenter = carBounds.getCenter(new THREE.Vector3());
+  assert.ok(Math.abs(carCenter.x) < 1e-9);
+  assert.ok(Math.abs(carCenter.z) < 1e-9);
+  assert.ok(Math.abs(carBounds.min.y) < 1e-9);
+
   const firstCar = firstLibrary.clone('hazard.car');
   const secondCar = firstLibrary.clone('hazard.car');
   assert.ok(firstCar);
