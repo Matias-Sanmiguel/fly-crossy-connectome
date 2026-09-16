@@ -38,11 +38,14 @@ test('grass boundaries are densely marked by trees outside playable columns', ()
   }
 });
 
-test('interior grass obstacles are sparse, can block center, and match collision lookup', () => {
+test('interior grass obstacles are sparse and cover the full playable width', () => {
+  let sawLeftEdgeBlocker = false;
   let sawCenterBlocker = false;
-  for (let seedIndex = 0; seedIndex < 12; seedIndex += 1) {
+  let sawRightEdgeBlocker = false;
+
+  for (let seedIndex = 0; seedIndex < 16; seedIndex += 1) {
     const seed = `obstacle-audit-${seedIndex}`;
-    for (let row = -30; row <= 80; row += 1) {
+    for (let row = -30; row <= 100; row += 1) {
       const columns = obstacleColumnsForRow(seed, row, 'grass');
       const recovery = ((row - 3) % 7 + 7) % 7 === 6;
       const opening = row >= 0 && row < 3;
@@ -50,16 +53,24 @@ test('interior grass obstacles are sparse, can block center, and match collision
         assert.deepEqual(columns, []);
         continue;
       }
+
       assert.ok(columns.length >= 1 && columns.length <= 3);
       assert.equal(new Set(columns).size, columns.length);
-      assert.ok(columns.every((column) => Math.abs(column) <= 4));
+      assert.ok(columns.every((column) => Math.abs(column) <= 5));
+
       for (const column of columns) {
         assert.equal(isSceneryBlocked(seed, row, 'grass', column), true);
       }
+
+      if (columns.includes(-5)) sawLeftEdgeBlocker = true;
       if (columns.includes(0)) sawCenterBlocker = true;
+      if (columns.includes(5)) sawRightEdgeBlocker = true;
     }
   }
+
+  assert.equal(sawLeftEdgeBlocker, true);
   assert.equal(sawCenterBlocker, true);
+  assert.equal(sawRightEdgeBlocker, true);
 });
 
 

@@ -11,7 +11,7 @@ const {
   hasBoundedGroupPath,
 } = await import('../src/game/world.ts');
 const parity = JSON.parse(await readFile(
-  new URL('./fixtures/world-generation-v5.json', import.meta.url),
+  new URL('./fixtures/world-generation-v6.json', import.meta.url),
   'utf8',
 ));
 

@@ -40,11 +40,14 @@ def _blocking_scenario() -> tuple[str, int, int]:
     raise AssertionError("expected a deterministic blocking scenery scenario")
 
 
-def test_obstacle_layout_is_deterministic_sparse_and_can_block_center() -> None:
+def test_obstacle_layout_is_deterministic_sparse_and_covers_full_width() -> None:
+    saw_left_edge = False
     saw_center = False
-    for seed_index in range(12):
+    saw_right_edge = False
+
+    for seed_index in range(16):
         seed = f"obstacle-audit-{seed_index}"
-        for row in range(-30, 81):
+        for row in range(-30, 101):
             first = _scenery_obstacle_columns(seed, row, "grass")
             second = _scenery_obstacle_columns(seed, row, "grass")
             assert first == second
@@ -57,14 +60,19 @@ def test_obstacle_layout_is_deterministic_sparse_and_can_block_center() -> None:
 
             assert 1 <= len(first) <= 3
             assert len(first) == len(set(first))
-            assert all(abs(column) <= 4 for column in first)
+            assert all(abs(column) <= 5 for column in first)
             assert all(
                 _scenery_blocked(seed, row, "grass", column)
                 for column in first
             )
-            saw_center = saw_center or 0 in first
 
+            saw_left_edge = saw_left_edge or -5 in first
+            saw_center = saw_center or 0 in first
+            saw_right_edge = saw_right_edge or 5 in first
+
+    assert saw_left_edge
     assert saw_center
+    assert saw_right_edge
 
 
 def test_scenery_collision_blocks_without_terminal() -> None:

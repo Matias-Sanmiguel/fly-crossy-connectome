@@ -137,10 +137,10 @@ Do not make biological superiority claims.
 
 ## Current environment state
 
-Current `WORLD_VERSION` is 5.
+Current `WORLD_VERSION` is 6.
 
-Environment v5 is the current final-training candidate. It differs from v4
-only in the static grass-obstacle distribution: column 0 may now be blocked.
+Environment v6 is the current final-training candidate. It extends static
+grass blockers across every playable column from -5 through +5.
 
 The freeze boundary includes:
 

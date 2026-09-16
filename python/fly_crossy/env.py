@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 5
+WORLD_VERSION = 6
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
 HAZARD_CIRCUIT = 25
@@ -180,7 +180,7 @@ class _Rng:
         return values[math.floor(self.next() * len(values))]
 
 
-_INTERIOR_OBSTACLE_COLUMNS = (-4, -3, -2, -1, 0, 1, 2, 3, 4)
+_INTERIOR_OBSTACLE_COLUMNS = (-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5)
 _OBSTACLE_CLEARANCE = 0.45
 
 
@@ -192,7 +192,7 @@ def _scenery_obstacle_columns(seed: str, row: int, lane_kind: LaneKind) -> list[
     if (row - OPENING_ROWS) % GROUP_ROWS == CONTENT_ROWS_PER_GROUP:
         return []
 
-    rng = _Rng(f"obstacles:v2:{seed}:{row}")
+    rng = _Rng(f"obstacles:v3:{seed}:{row}")
     candidates = list(_INTERIOR_OBSTACLE_COLUMNS)
     count = rng.integer(1, 3)
     columns: list[int] = []
