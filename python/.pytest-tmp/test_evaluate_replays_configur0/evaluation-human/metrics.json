@@ -1,0 +1,555 @@
+{
+  "version": 1,
+  "environmentVersion": 3,
+  "config": {
+    "path": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_evaluate_replays_configur0\\eval-human.json",
+    "sha256": "784953803a641b5ccb12b0054dbb029a46100fd590ebc600f4d20bf4541d0bf8",
+    "trainingSeeds": [
+      "train-fixture"
+    ],
+    "evaluationSeeds": [
+      "held-out-human"
+    ],
+    "maxStepsPerEpisode": 3,
+    "concreteTrainingWorldSeeds": [
+      "train-fixture:0:0"
+    ]
+  },
+  "humanRecordedTraces": {
+    "status": "evaluated",
+    "files": [
+      {
+        "path": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_evaluate_replays_configur0\\human-trace.json",
+        "sha256": "00124883bf54bae40d8dbb9b8c9d71edf149e9e2a9e075bfb20f07414b501ec6"
+      }
+    ],
+    "episodeCount": 1,
+    "episodes": [
+      {
+        "seed": "held-out-human",
+        "score": 1.0,
+        "return": 0.8699999999999999,
+        "survivalSteps": 3,
+        "terminalReason": "step-limit",
+        "actions": [
+          "forward",
+          "wait",
+          "left"
+        ]
+      }
+    ],
+    "summary": {
+      "episodeCount": 1,
+      "score": {
+        "mean": 1.0,
+        "median": 1.0,
+        "max": 1.0
+      },
+      "survivalSteps": {
+        "mean": 3.0,
+        "median": 3.0,
+        "max": 3.0
+      },
+      "terminalReasons": {
+        "step-limit": 1
+      },
+      "actionCounts": {
+        "forward": 1,
+        "backward": 0,
+        "left": 1,
+        "right": 0,
+        "wait": 1
+      },
+      "actionDistribution": {
+        "forward": 0.3333333333333333,
+        "backward": 0.0,
+        "left": 0.3333333333333333,
+        "right": 0.0,
+        "wait": 0.3333333333333333
+      },
+      "waitFrequency": 0.3333333333333333,
+      "inferencePerformance": {
+        "calls": 0,
+        "wallSeconds": 0.0,
+        "meanMilliseconds": 0.0,
+        "stepsPerSecond": 0.0
+      }
+    }
+  },
+  "controllers": [
+    {
+      "id": "human-recorded",
+      "label": "Human-recorded traces",
+      "control": "Recorded action trace replay",
+      "evidence": {
+        "checkpointPath": null,
+        "checkpointSha256": null,
+        "checkpointController": "human-recorded",
+        "trainingSeed": null,
+        "trainingEnvironmentSteps": 0,
+        "checkpointEnvironmentVersion": null,
+        "checkpointEnvironmentVersionStatus": "not-applicable",
+        "modelParameters": 0,
+        "trainableParameters": 0,
+        "graphArtifactSha256": null,
+        "controlGraphArtifactSha256": null,
+        "silencedBodyIds": [],
+        "traceFileSha256": [
+          "00124883bf54bae40d8dbb9b8c9d71edf149e9e2a9e075bfb20f07414b501ec6"
+        ]
+      },
+      "episodes": [
+        {
+          "seed": "held-out-human",
+          "score": 1.0,
+          "return": 0.8699999999999999,
+          "survivalSteps": 3,
+          "terminalReason": "step-limit",
+          "actions": [
+            "forward",
+            "wait",
+            "left"
+          ]
+        }
+      ],
+      "summary": {
+        "episodeCount": 1,
+        "score": {
+          "mean": 1.0,
+          "median": 1.0,
+          "max": 1.0
+        },
+        "survivalSteps": {
+          "mean": 3.0,
+          "median": 3.0,
+          "max": 3.0
+        },
+        "terminalReasons": {
+          "step-limit": 1
+        },
+        "actionCounts": {
+          "forward": 1,
+          "backward": 0,
+          "left": 1,
+          "right": 0,
+          "wait": 1
+        },
+        "actionDistribution": {
+          "forward": 0.3333333333333333,
+          "backward": 0.0,
+          "left": 0.3333333333333333,
+          "right": 0.0,
+          "wait": 0.3333333333333333
+        },
+        "waitFrequency": 0.3333333333333333,
+        "inferencePerformance": {
+          "calls": 0,
+          "wallSeconds": 0.0,
+          "meanMilliseconds": 0.0,
+          "stepsPerSecond": 0.0
+        }
+      }
+    },
+    {
+      "id": "conventional",
+      "label": "Conventional PPO",
+      "control": "none",
+      "evidence": {
+        "checkpointPath": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_evaluate_replays_configur0\\conventional.pt",
+        "checkpointSha256": "ce8327ee0f71ee0336d4f1a72c4cab2190a5b52b9c231bb52af7a9c08b1556e7",
+        "checkpointController": "conventional",
+        "trainingSeed": "train-fixture",
+        "trainingEnvironmentSteps": 8,
+        "trainingWorldSeeds": [
+          "train-fixture:0:0"
+        ],
+        "checkpointEnvironmentVersion": 3,
+        "checkpointEnvironmentVersionStatus": "recorded-match",
+        "modelParameters": 1534,
+        "trainableParameters": 1534,
+        "graphArtifactSha256": null,
+        "controlGraphArtifactSha256": null,
+        "silencedBodyIds": []
+      },
+      "episodes": [
+        {
+          "seed": "held-out-human",
+          "score": 0.0,
+          "return": -10.06,
+          "survivalSteps": 1,
+          "terminalReason": "train",
+          "actions": [
+            "backward"
+          ],
+          "inferenceWallSeconds": 0.00011670000094454736
+        }
+      ],
+      "summary": {
+        "episodeCount": 1,
+        "score": {
+          "mean": 0.0,
+          "median": 0.0,
+          "max": 0.0
+        },
+        "survivalSteps": {
+          "mean": 1.0,
+          "median": 1.0,
+          "max": 1.0
+        },
+        "terminalReasons": {
+          "train": 1
+        },
+        "actionCounts": {
+          "forward": 0,
+          "backward": 1,
+          "left": 0,
+          "right": 0,
+          "wait": 0
+        },
+        "actionDistribution": {
+          "forward": 0.0,
+          "backward": 1.0,
+          "left": 0.0,
+          "right": 0.0,
+          "wait": 0.0
+        },
+        "waitFrequency": 0.0,
+        "inferencePerformance": {
+          "calls": 1,
+          "wallSeconds": 0.00011670000094454736,
+          "meanMilliseconds": 0.11670000094454736,
+          "stepsPerSecond": 8568.980221989652
+        }
+      }
+    },
+    {
+      "id": "reduced-connectome",
+      "label": "Reduced-connectome PPO",
+      "control": "none",
+      "evidence": {
+        "checkpointPath": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_evaluate_replays_configur0\\connectome.pt",
+        "checkpointSha256": "18f23991da157b1cc3715ce8e4586469fcdd282912f7f57341c5a411dd37951a",
+        "checkpointController": "connectome",
+        "trainingSeed": "train-fixture",
+        "trainingEnvironmentSteps": 8,
+        "trainingWorldSeeds": [
+          "train-fixture:0:0"
+        ],
+        "checkpointEnvironmentVersion": 3,
+        "checkpointEnvironmentVersionStatus": "recorded-match",
+        "modelParameters": 30088,
+        "trainableParameters": 30088,
+        "graphArtifactSha256": "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862",
+        "controlGraphArtifactSha256": null,
+        "silencedBodyIds": []
+      },
+      "episodes": [
+        {
+          "seed": "held-out-human",
+          "score": 0.0,
+          "return": -0.18000000000000002,
+          "survivalSteps": 3,
+          "terminalReason": "step-limit",
+          "actions": [
+            "left",
+            "wait",
+            "wait"
+          ],
+          "inferenceWallSeconds": 0.0003453999961493537
+        }
+      ],
+      "summary": {
+        "episodeCount": 1,
+        "score": {
+          "mean": 0.0,
+          "median": 0.0,
+          "max": 0.0
+        },
+        "survivalSteps": {
+          "mean": 3.0,
+          "median": 3.0,
+          "max": 3.0
+        },
+        "terminalReasons": {
+          "step-limit": 1
+        },
+        "actionCounts": {
+          "forward": 0,
+          "backward": 0,
+          "left": 1,
+          "right": 0,
+          "wait": 2
+        },
+        "actionDistribution": {
+          "forward": 0.0,
+          "backward": 0.0,
+          "left": 0.3333333333333333,
+          "right": 0.0,
+          "wait": 0.6666666666666666
+        },
+        "waitFrequency": 0.6666666666666666,
+        "inferencePerformance": {
+          "calls": 3,
+          "wallSeconds": 0.0003453999961493537,
+          "meanMilliseconds": 0.11513333204978456,
+          "stepsPerSecond": 8685.582030819642
+        }
+      }
+    },
+    {
+      "id": "degree-preserving-rewired",
+      "label": "Degree/normalization-matched rewired control",
+      "control": "2 directed double-edge swaps; seed rewire-fixture; preserve directed degree and per-target absolute incoming normalization",
+      "evidence": {
+        "checkpointPath": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_evaluate_replays_configur0\\connectome.pt",
+        "checkpointSha256": "18f23991da157b1cc3715ce8e4586469fcdd282912f7f57341c5a411dd37951a",
+        "checkpointController": "connectome",
+        "trainingSeed": "train-fixture",
+        "trainingEnvironmentSteps": 8,
+        "trainingWorldSeeds": [
+          "train-fixture:0:0"
+        ],
+        "checkpointEnvironmentVersion": 3,
+        "checkpointEnvironmentVersionStatus": "recorded-match",
+        "modelParameters": 30088,
+        "trainableParameters": 30088,
+        "graphArtifactSha256": "751c8c0713a45657adbb68dc48869a8fa98edbc2738f29db20a6ce02da1aa9b4",
+        "controlGraphArtifactSha256": "751c8c0713a45657adbb68dc48869a8fa98edbc2738f29db20a6ce02da1aa9b4",
+        "silencedBodyIds": []
+      },
+      "episodes": [
+        {
+          "seed": "held-out-human",
+          "score": 0.0,
+          "return": -0.18000000000000002,
+          "survivalSteps": 3,
+          "terminalReason": "step-limit",
+          "actions": [
+            "left",
+            "wait",
+            "wait"
+          ],
+          "inferenceWallSeconds": 0.00028419999580364674
+        }
+      ],
+      "summary": {
+        "episodeCount": 1,
+        "score": {
+          "mean": 0.0,
+          "median": 0.0,
+          "max": 0.0
+        },
+        "survivalSteps": {
+          "mean": 3.0,
+          "median": 3.0,
+          "max": 3.0
+        },
+        "terminalReasons": {
+          "step-limit": 1
+        },
+        "actionCounts": {
+          "forward": 0,
+          "backward": 0,
+          "left": 1,
+          "right": 0,
+          "wait": 2
+        },
+        "actionDistribution": {
+          "forward": 0.0,
+          "backward": 0.0,
+          "left": 0.3333333333333333,
+          "right": 0.0,
+          "wait": 0.6666666666666666
+        },
+        "waitFrequency": 0.6666666666666666,
+        "inferencePerformance": {
+          "calls": 3,
+          "wallSeconds": 0.00028419999580364674,
+          "meanMilliseconds": 0.09473333193454891,
+          "stepsPerSecond": 10555.946672401411
+        }
+      }
+    },
+    {
+      "id": "sensory-silenced",
+      "label": "Sensory-population silencing control",
+      "control": "Zero 32 selected sensory cells",
+      "evidence": {
+        "checkpointPath": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_evaluate_replays_configur0\\connectome.pt",
+        "checkpointSha256": "18f23991da157b1cc3715ce8e4586469fcdd282912f7f57341c5a411dd37951a",
+        "checkpointController": "connectome",
+        "trainingSeed": "train-fixture",
+        "trainingEnvironmentSteps": 8,
+        "trainingWorldSeeds": [
+          "train-fixture:0:0"
+        ],
+        "checkpointEnvironmentVersion": 3,
+        "checkpointEnvironmentVersionStatus": "recorded-match",
+        "modelParameters": 30088,
+        "trainableParameters": 30088,
+        "graphArtifactSha256": "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862",
+        "controlGraphArtifactSha256": null,
+        "silencedBodyIds": [
+          17478,
+          17653,
+          18870,
+          20176,
+          21570,
+          22253,
+          23781,
+          23919,
+          24187,
+          24268,
+          25525,
+          25772,
+          25873,
+          26207,
+          26617,
+          26899,
+          27624,
+          29017,
+          30663,
+          32299,
+          33480,
+          33574,
+          40131,
+          40751,
+          47016,
+          47141,
+          48070,
+          57503,
+          63084,
+          515900,
+          518246,
+          523984
+        ]
+      },
+      "episodes": [
+        {
+          "seed": "held-out-human",
+          "score": 0.0,
+          "return": -0.18000000000000002,
+          "survivalSteps": 3,
+          "terminalReason": "step-limit",
+          "actions": [
+            "wait",
+            "wait",
+            "wait"
+          ],
+          "inferenceWallSeconds": 0.00040099999750964344
+        }
+      ],
+      "summary": {
+        "episodeCount": 1,
+        "score": {
+          "mean": 0.0,
+          "median": 0.0,
+          "max": 0.0
+        },
+        "survivalSteps": {
+          "mean": 3.0,
+          "median": 3.0,
+          "max": 3.0
+        },
+        "terminalReasons": {
+          "step-limit": 1
+        },
+        "actionCounts": {
+          "forward": 0,
+          "backward": 0,
+          "left": 0,
+          "right": 0,
+          "wait": 3
+        },
+        "actionDistribution": {
+          "forward": 0.0,
+          "backward": 0.0,
+          "left": 0.0,
+          "right": 0.0,
+          "wait": 1.0
+        },
+        "waitFrequency": 1.0,
+        "inferencePerformance": {
+          "calls": 3,
+          "wallSeconds": 0.00040099999750964344,
+          "meanMilliseconds": 0.13366666583654782,
+          "stepsPerSecond": 7481.296804566326
+        }
+      }
+    },
+    {
+      "id": "untrained-readout",
+      "label": "Untrained-readout control",
+      "control": "Seeded fresh actor readout; seed 71",
+      "evidence": {
+        "checkpointPath": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest-tmp\\test_evaluate_replays_configur0\\connectome.pt",
+        "checkpointSha256": "18f23991da157b1cc3715ce8e4586469fcdd282912f7f57341c5a411dd37951a",
+        "checkpointController": "connectome",
+        "trainingSeed": "train-fixture",
+        "trainingEnvironmentSteps": 8,
+        "trainingWorldSeeds": [
+          "train-fixture:0:0"
+        ],
+        "checkpointEnvironmentVersion": 3,
+        "checkpointEnvironmentVersionStatus": "recorded-match",
+        "modelParameters": 30088,
+        "trainableParameters": 30088,
+        "graphArtifactSha256": "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862",
+        "controlGraphArtifactSha256": null,
+        "silencedBodyIds": []
+      },
+      "episodes": [
+        {
+          "seed": "held-out-human",
+          "score": 0.0,
+          "return": -0.18000000000000002,
+          "survivalSteps": 3,
+          "terminalReason": "step-limit",
+          "actions": [
+            "wait",
+            "wait",
+            "backward"
+          ],
+          "inferenceWallSeconds": 0.0002884999994421378
+        }
+      ],
+      "summary": {
+        "episodeCount": 1,
+        "score": {
+          "mean": 0.0,
+          "median": 0.0,
+          "max": 0.0
+        },
+        "survivalSteps": {
+          "mean": 3.0,
+          "median": 3.0,
+          "max": 3.0
+        },
+        "terminalReasons": {
+          "step-limit": 1
+        },
+        "actionCounts": {
+          "forward": 0,
+          "backward": 1,
+          "left": 0,
+          "right": 0,
+          "wait": 2
+        },
+        "actionDistribution": {
+          "forward": 0.0,
+          "backward": 0.3333333333333333,
+          "left": 0.0,
+          "right": 0.0,
+          "wait": 0.6666666666666666
+        },
+        "waitFrequency": 0.6666666666666666,
+        "inferencePerformance": {
+          "calls": 3,
+          "wallSeconds": 0.0002884999994421378,
+          "meanMilliseconds": 0.09616666648071259,
+          "stepsPerSecond": 10398.613538305004
+        }
+      }
+    }
+  ]
+}

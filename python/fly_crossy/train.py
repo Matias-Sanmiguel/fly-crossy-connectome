@@ -15,7 +15,15 @@ from torch import Tensor
 from torch.distributions import Categorical
 
 from .connectome import load_default_reduced_graph
-from .env import FlyCrossyEnv, WORLD_VERSION, hash_seed
+from .env import (
+    FlyCrossyEnv,
+    PROGRESS_REWARD,
+    STAGNATION_COST,
+    STEP_COST,
+    TERMINAL_PENALTY,
+    WORLD_VERSION,
+    hash_seed,
+)
 from .export import export_policy
 from .models import DensePolicy, FixedGraphPolicy
 from .schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE
@@ -325,7 +333,9 @@ def train(config: TrainingConfig) -> dict[str, Any]:
 
     config.output.mkdir(parents=True, exist_ok=True)
     checkpoint_path = config.output / "checkpoint.pt"
+
     model_metadata: dict[str, Any]
+
     if isinstance(model, FixedGraphPolicy):
         model_metadata = {
             "observation_size": OBSERVATION_INPUT_SIZE,
@@ -338,6 +348,15 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             "hidden_size": HIDDEN_SIZE,
             "actions": len(ACTION_ORDER),
         }
+
+    reward_metadata = {
+        "version": 2,
+        "progress": PROGRESS_REWARD,
+        "terminal": TERMINAL_PENALTY,
+        "step": STEP_COST,
+        "stagnation": STAGNATION_COST,
+    }
+
     torch.save(
         {
             "format_version": 1,
@@ -351,6 +370,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                 "envs": config.envs,
                 "learning_rate": config.learning_rate,
                 "world_seeds": training_world_seeds,
+                "reward": reward_metadata,
             },
         },
         checkpoint_path,
@@ -367,6 +387,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             "output": str(config.output),
             "resolvedDevice": str(device),
             "trainingWorldSeeds": training_world_seeds,
+            "reward": reward_metadata,
             **(
                 {
                     "graphNodes": model.graph.node_count,
