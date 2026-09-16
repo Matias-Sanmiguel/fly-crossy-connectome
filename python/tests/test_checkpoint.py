@@ -18,6 +18,8 @@ CHECKPOINTS = {
     "conventional": RELEASE_ROOT / "conventional" / "checkpoint.pt",
     "connectome": RELEASE_ROOT / "connectome" / "checkpoint.pt",
 }
+RELEASE_ENVIRONMENT_VERSION = 3
+
 STATE_KEYS = {
     "conventional": (
         "hidden_1.weight",
@@ -41,11 +43,19 @@ STATE_KEYS = {
 }
 
 
-def _payload(controller: str) -> dict[str, object]:
+def _payload(
+    controller: str,
+    *,
+    environment_version: int = WORLD_VERSION,
+) -> dict[str, object]:
     payload = torch.load(CHECKPOINTS[controller], map_location="cpu", weights_only=True)
     payload["model"] = dict(payload["model"])
     payload["training"] = dict(payload["training"])
     payload["model_state_dict"] = dict(payload["model_state_dict"])
+    # eval-v1 is historical Environment v3 evidence. Most tests below mutate
+    # a temporary copy to exercise the CURRENT schema, so give those copies
+    # the current environment version to avoid masking the intended failure.
+    payload["environment_version"] = environment_version
     return payload
 
 
@@ -63,8 +73,16 @@ def _wrong_shape(tensor: Tensor) -> Tensor:
 def test_valid_released_checkpoint_has_an_exact_preconstruction_schema(
     controller: str,
 ) -> None:
-    validated = validate_checkpoint(_payload(controller), expected_controller=controller)
+    validated = validate_checkpoint(
+        _payload(
+            controller,
+            environment_version=RELEASE_ENVIRONMENT_VERSION,
+        ),
+        expected_controller=controller,
+        expected_environment_version=RELEASE_ENVIRONMENT_VERSION,
+    )
 
+    assert validated.environment_version == RELEASE_ENVIRONMENT_VERSION
     assert set(validated.state_dict) == set(STATE_KEYS[controller])
 
 

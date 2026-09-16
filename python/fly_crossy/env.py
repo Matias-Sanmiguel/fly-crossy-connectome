@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 3
+WORLD_VERSION = 4
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
 HAZARD_CIRCUIT = 25

@@ -8,3 +8,4 @@ public/data/flybody/model.json text eol=lf
 public/data/flybody/checksums.json text eol=lf
 public/models/reduced-connectome-policy-v3.json text eol=lf
 release/eval-v1/training/connectome/policy.json text eol=lf
+tests/fixtures/*.json text eol=lf

@@ -9,7 +9,7 @@ import {
   TRAIN_CIRCUIT,
 } from './transition.ts';
 
-export const WORLD_VERSION = 3;
+export const WORLD_VERSION = 4;
 
 const OPENING_ROWS = 3;
 const CONTENT_ROWS_PER_GROUP = 6;

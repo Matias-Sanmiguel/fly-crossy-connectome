@@ -62,9 +62,10 @@ def test_summary_uses_distributions_and_terminal_breakdown() -> None:
 
 
 def test_eval_seeds_do_not_overlap_training_seeds() -> None:
-    config = load_eval_config(CONFIG)
+    payload = json.loads(CONFIG.read_text(encoding="utf-8"))
 
-    assert set(config.training_seeds).isdisjoint(config.evaluation_seeds)
+    assert payload["environmentVersion"] == 3
+    assert set(payload["trainingSeeds"]).isdisjoint(payload["evaluationSeeds"])
 
 
 @pytest.mark.parametrize(

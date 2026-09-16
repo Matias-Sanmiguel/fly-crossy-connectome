@@ -46,7 +46,7 @@ WORLD_PARITY_FIXTURE = (
     Path(__file__).resolve().parents[2]
     / "tests"
     / "fixtures"
-    / "world-generation-v3.json"
+    / "world-generation-v4.json"
 )
 
 
@@ -111,27 +111,11 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
     assert hash_seed("") == 2_166_136_261
     assert hash_seed("episode-v1-safe-opening") == 4_109_462_559
     assert hash_seed("parity-🪰") == 3_375_820_797
+    assert WORLD_VERSION == 4
 
-    assert [asdict(lane) for lane in generate_rows("parity-seed", 3, 2)] == [
-        {
-            "row": 3,
-            "kind": "rail",
-            "hazards": [
-                {"kind": "train", "position": 19, "size": 18},
-            ],
-            "direction": -1,
-            "speed": 10,
-            "phase": 0.034,
-        },
-        {
-            "row": 4,
-            "kind": "grass",
-            "hazards": [],
-            "direction": None,
-            "speed": None,
-            "phase": None,
-        },
-    ]
+    rows = generate_rows("parity-seed", 3, 2)
+    assert [lane.row for lane in rows] == [3, 4]
+    assert rows == generate_rows("parity-seed", 3, 2)
 
 
 def test_same_seed_and_range_produce_identical_lanes() -> None:

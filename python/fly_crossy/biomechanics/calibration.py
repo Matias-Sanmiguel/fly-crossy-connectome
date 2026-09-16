@@ -340,7 +340,11 @@ def write_calibration(path: str | Path, artifact: CalibrationArtifact) -> None:
         sort_keys=True,
         separators=(",", ":"),
     )
-    output.write_text(payload + "\n", encoding="utf-8")
+    output.write_text(
+        payload + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
 
 def load_calibration(

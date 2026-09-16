@@ -6,6 +6,7 @@ from typing import cast
 import torch
 
 from fly_crossy.checkpoint import validate_checkpoint
+from fly_crossy.env import WORLD_VERSION
 from fly_crossy.models import FixedGraphPolicy
 from fly_crossy.protocol import Action, Observation
 from fly_crossy.schema import (
@@ -22,6 +23,7 @@ class ConnectomeActionSelector:
         checkpoint_path: str | Path,
         *,
         device: str = "cpu",
+        expected_environment_version: int = WORLD_VERSION,
     ) -> None:
         self._device = torch.device(device)
 
@@ -46,6 +48,7 @@ class ConnectomeActionSelector:
         checkpoint = validate_checkpoint(
             saved,
             expected_controller="connectome",
+            expected_environment_version=expected_environment_version,
             expected_observation_size=OBSERVATION_INPUT_SIZE,
         )
 

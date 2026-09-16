@@ -7,7 +7,7 @@
       "row": 3,
       "hazardIndex": 0,
       "time": 3.800000000000001,
-      "expected": -12.041999999999998
+      "expected": 10.119
     }
   ],
   "cases": [
@@ -28,9 +28,9 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "5cfa70fe31cecaa44c5e1c0d1039d6647924601b0501269430a06fb2cc32eb37",
-        "afterObservationSha256": "d40be82a8debb2c6b739d4b22e627b672437699c16d425ceb40d9a55e46e26ee",
-        "reward": -9.01,
+        "beforeObservationSha256": "9d4bafa94bf94e0eb0804972b9f8102995d8ef6a4b2b2a05d37b6b59e2415d78",
+        "afterObservationSha256": "06a5d6b46b70616b6ed8b1f009addf5ecfd147ec004ed5f22fde50c16d80ca4f",
+        "reward": 0.99,
         "fly": {
           "row": 3,
           "column": 4
@@ -38,7 +38,7 @@
         "step": 19,
         "time": 3.800000000000001,
         "score": 3,
-        "terminalReason": "water",
+        "terminalReason": null,
         "previousAction": "forward",
         "events": [
           {
@@ -49,14 +49,6 @@
               "column": 4
             },
             "to": {
-              "row": 3,
-              "column": 4
-            }
-          },
-          {
-            "type": "terminal",
-            "reason": "water",
-            "position": {
               "row": 3,
               "column": 4
             }
@@ -127,7 +119,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f3aa31723b4c3002383a0dcd795b489150caf133b82083a8287e786036ac4e2e",
-        "afterObservationSha256": "b00d61116f089ccc81842a08d0377722d7e71bbe010ee95d40f15286aeb0a721",
+        "afterObservationSha256": "01483474b2c1c9cf51f404bb65b38d7ecbf8144fb54198c03929eaa489810c8c",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -212,7 +204,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "2f5b659fe31b269c1c9f3c2b799085744c8dd8377724a5af7324ee3ef13137ea",
-        "afterObservationSha256": "5af10693ebad6329926e9c8dfcd5605c4c526a3d30d8b0124ae75df157308041",
+        "afterObservationSha256": "45bc6ce3dbc094e1dc47c643f074b546a2718e351fce1794d54f1a5917446f93",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -307,7 +299,7 @@
       "action": "forward",
       "expected": {
         "beforeObservationSha256": "061ac7cb77db9c9bc60805181c7adc9da7fe553e0fb684109f6049356e6a1b57",
-        "afterObservationSha256": "935fde876230e79ae2ac0348bea7eabb4d4f0474a3b40578047d1ba67a95bd28",
+        "afterObservationSha256": "0cf1182fe70b1855470ff4c02467ecd020a957d7d188688f900a4782f7b88a35",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -393,7 +385,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "3e6f2b123e8ff50925424859b70c3958e63d12d21ca4987cb07ce0dc7104a2c5",
-        "afterObservationSha256": "5b917a65cb66ef1b9e7a98ddb4eaf562bafa41ae27d4c7f9e0d6516e04e367b7",
+        "afterObservationSha256": "c47fcb3f27f75a3da978ac1d1fbe0d7c8f911d9164265d6453920cb1a92c8699",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -478,7 +470,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "cf77714f3d85169cee107e4fe363eb194bf1a66e5b9b2125f25bed285de66885",
-        "afterObservationSha256": "acdd92dfc1a22fd22d73c496bb1c2d0370e400f97a2df37935cbec83fa8c43f3",
+        "afterObservationSha256": "988f9e8a59d174a46f48f3e2130145090a291eb8038f2c204f926ceb6c61eda6",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -565,7 +557,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f0ad6a3df512a2ec78f5776b7402b61c37c494d833e6213c6527ea2930fe4a1a",
-        "afterObservationSha256": "9787443c3d78ca78756e8cdad6909f58e2d4c4bb0f4cd0387fe5775c342e87f1",
+        "afterObservationSha256": "0343bf31387596e9c5905619315b449f3ac8639d3e1119593ae5efc084aa7d29",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 100,
@@ -615,5 +607,5 @@
       }
     }
   ],
-  "environmentVersion": 3
+  "environmentVersion": 4
 }

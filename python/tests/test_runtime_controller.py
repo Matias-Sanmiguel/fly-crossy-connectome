@@ -44,6 +44,7 @@ def observation(
 def test_real_80_neuron_checkpoint_runs_deterministically() -> None:
     controller = ConnectomeActionSelector(
         CHECKPOINT_PATH,
+        expected_environment_version=3,
     )
 
     assert controller.node_count == 80

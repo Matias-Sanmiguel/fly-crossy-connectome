@@ -10,7 +10,7 @@ from fly_crossy.server import create_app
 
 ROOT = Path(__file__).resolve().parents[2]
 
-CHECKPOINT_PATH = (
+LEGACY_CHECKPOINT_PATH = (
     ROOT
     / "release"
     / "eval-v1"
@@ -19,20 +19,47 @@ CHECKPOINT_PATH = (
     / "checkpoint.pt"
 )
 
-
-controller = ConnectomeActionSelector(
-    CHECKPOINT_PATH,
+# Environment v4 has been frozen, but its final 80-neuron checkpoint has not
+# been trained/released yet. Keep the historical v3 artifact untouched and
+# reserve the runtime path for the forthcoming v4 checkpoint.
+CHECKPOINT_PATH = (
+    ROOT
+    / "release"
+    / "eval-v4"
+    / "training"
+    / "connectome"
+    / "checkpoint.pt"
 )
+
+
+controller: ConnectomeActionSelector | None = None
+
+
+def _get_controller() -> ConnectomeActionSelector:
+    global controller
+
+    if controller is not None:
+        return controller
+
+    if not CHECKPOINT_PATH.is_file():
+        raise RuntimeError(
+            "Environment v4 controller is not available yet. "
+            "Train and release the final 80-neuron v4 checkpoint first."
+        )
+
+    controller = ConnectomeActionSelector(CHECKPOINT_PATH)
+    return controller
 
 
 def select_connectome_action(
     observation: Observation,
 ) -> Action:
-    action = controller(observation)
+    active_controller = _get_controller()
+    action = active_controller(observation)
 
     logits = ", ".join(
         f"{value:+.2f}"
-        for value in controller.logits
+        for value in active_controller.logits
     )
 
     print(

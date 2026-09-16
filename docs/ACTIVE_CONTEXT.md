@@ -137,17 +137,37 @@ Do not make biological superiority claims.
 
 ## Current environment state
 
-Current `WORLD_VERSION` is still 3.
+Current `WORLD_VERSION` is 4.
 
-Do not treat Environment v3 as the final frozen experimental environment.
+Environment v4 is the frozen experimental gameplay environment for final
+controller training.
 
-After gameplay is finalized, we intend to:
+The freeze boundary includes:
 
-1. bump environment version
-2. regenerate parity fixtures
-3. run complete QA
-4. freeze gameplay, observations, and reward
-5. retrain the final 80n model
+- deterministic section/group generation
+- static grass blockers and their collision semantics
+- manual side-limit blocking
+- moving hazard dynamics
+- observation schema and normalization
+- action semantics and decision interval
+- reward v2
+
+From this point until the final controller/evaluation series is complete, do
+not change gameplay rules, observations, rewards, collision semantics, hazard
+speeds/densities, or world generation without creating a new environment
+version and retraining.
+
+Renderer-only changes remain allowed when they cannot affect game state,
+observations, actions, timing, or controller inputs. Examples include camera,
+lighting, colors, decorative meshes, and purely visual animation.
+
+Required sequence from this freeze:
+
+1. regenerate v4 parity fixtures
+2. run complete TypeScript/Python QA
+3. commit/tag the frozen environment boundary
+4. smoke-train the final 80n controller
+5. run the full final 80n training/evaluation
 6. only then expand populations
 
 ---
