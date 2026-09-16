@@ -22,6 +22,36 @@
       "license": "CC0-1.0"
     },
     {
+      "role": "decoration.road-sign",
+      "path": "assets/kenney/city-roads/road-sign-warning.glb",
+      "bytes": 11496,
+      "sha256": "db8049a51eb60c77e40253e8b5a9d41359a49d2a9083223dce361cfb0605c3a9",
+      "source": "https://kenney.nl/assets/city-kit-roads",
+      "archiveSha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
+      "upstreamPath": "Models/GLB format/road-sign-warning.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "decoration.street-light",
+      "path": "assets/kenney/city-roads/light-curved.glb",
+      "bytes": 9492,
+      "sha256": "154dcce9d58ec2cd165e26c91a89c97bdd2838cf06d255099b3570df84f82ec6",
+      "source": "https://kenney.nl/assets/city-kit-roads",
+      "archiveSha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
+      "upstreamPath": "Models/GLB format/light-curved.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "decoration.barrier",
+      "path": "assets/kenney/city-roads/construction-barrier.glb",
+      "bytes": 7052,
+      "sha256": "906f73a6d62d8de58a4c5a19e76ff95b460c42b37e5fa37478b8612f06793f26",
+      "source": "https://kenney.nl/assets/city-kit-roads",
+      "archiveSha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
+      "upstreamPath": "Models/GLB format/construction-barrier.glb",
+      "license": "CC0-1.0"
+    },
+    {
       "role": "hazard.car",
       "path": "assets/kenney/car-kit/sedan.glb",
       "bytes": 172216,
@@ -29,6 +59,66 @@
       "source": "https://kenney.nl/assets/car-kit",
       "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
       "upstreamPath": "Models/GLB format/sedan.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.car",
+      "path": "assets/kenney/car-kit/sedan-sports.glb",
+      "bytes": 177676,
+      "sha256": "2889c428ca1dd9c975c3ff760eb8757883490410555ab60b818f712f583826d6",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/sedan-sports.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.car",
+      "path": "assets/kenney/car-kit/hatchback-sports.glb",
+      "bytes": 197804,
+      "sha256": "bd5c9d4c3b4bdd254a66b8426563a68b1487ae7a5076df3a2488e6ffed7be64f",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/hatchback-sports.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.car",
+      "path": "assets/kenney/car-kit/suv.glb",
+      "bytes": 207572,
+      "sha256": "9df31f6e89e927a8176fc792aa125f0b19dc1ba29d2025bfef7c4f4d6ab1778a",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/suv.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.car",
+      "path": "assets/kenney/car-kit/suv-luxury.glb",
+      "bytes": 175908,
+      "sha256": "9e2a79dc050189d4555a88d2e9da0f30ff946ba74f1d43b5b3bda3c193d1f7d7",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/suv-luxury.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.car",
+      "path": "assets/kenney/car-kit/taxi.glb",
+      "bytes": 175608,
+      "sha256": "3803539718ffd3b84b515dbce8ed6b489f1ff5be58edb1903d2c5db5c584bdc7",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/taxi.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.car",
+      "path": "assets/kenney/car-kit/police.glb",
+      "bytes": 195336,
+      "sha256": "a617b880594f56239b7ac4cf6fd4d74ebdae3ba6c5d842e77c76a5906eff352a",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/police.glb",
       "license": "CC0-1.0"
     },
     {
@@ -42,13 +132,53 @@
       "license": "CC0-1.0"
     },
     {
-      "role": "hazard.train",
-      "path": "assets/kenney/train-kit/train-diesel-a.glb",
-      "bytes": 156432,
-      "sha256": "20c6c7c23c005e8cda1c1e922473c0fc9c93fc7c1d1bc5a637d640424f811cc3",
-      "source": "https://kenney.nl/assets/train-kit",
-      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
-      "upstreamPath": "Models/GLB format/train-diesel-a.glb",
+      "role": "hazard.truck",
+      "path": "assets/kenney/car-kit/van.glb",
+      "bytes": 175664,
+      "sha256": "ed4ed56e8e5ed98db050af09ed2062b3b6bb7b93eab1e563cb6774b387b233a1",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/van.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.truck",
+      "path": "assets/kenney/car-kit/delivery.glb",
+      "bytes": 240264,
+      "sha256": "426a3e3a2c242c05c889b1445ba02ef95b2c8b7cd6f597e1275ef736a826014b",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/delivery.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.truck",
+      "path": "assets/kenney/car-kit/garbage-truck.glb",
+      "bytes": 268224,
+      "sha256": "6f2943e0ba4c6d86eb69a9243224259d6e0f169f474228439cda0579d49d3509",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/garbage-truck.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.truck",
+      "path": "assets/kenney/car-kit/ambulance.glb",
+      "bytes": 233612,
+      "sha256": "9e429e2b6202c0d78d0c38b2adbaae6b77716bb2a0f6fbb2811556e1fb31edba",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/ambulance.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.truck",
+      "path": "assets/kenney/car-kit/firetruck.glb",
+      "bytes": 232448,
+      "sha256": "c0c0a22809316536468da7e9c7f57b8ec1a8e387ec3a1cde032976c6d8a6c7a4",
+      "source": "https://kenney.nl/assets/car-kit",
+      "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/firetruck.glb",
       "license": "CC0-1.0"
     },
     {
@@ -59,6 +189,126 @@
       "source": "https://kenney.nl/assets/train-kit",
       "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
       "upstreamPath": "Models/GLB format/track-detailed.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-diesel-a.glb",
+      "bytes": 156432,
+      "sha256": "20c6c7c23c005e8cda1c1e922473c0fc9c93fc7c1d1bc5a637d640424f811cc3",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-diesel-a.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-diesel-b.glb",
+      "bytes": 114744,
+      "sha256": "d2cec12f8a237b22ebf52d8c7131587d5c1199a43714e01c0d33fb881d9ea8e8",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-diesel-b.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-diesel-c.glb",
+      "bytes": 116200,
+      "sha256": "dd33696ee0cc61e621259a706e52a3f7689f08e367966189b187233c02affdb2",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-diesel-c.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-locomotive-a.glb",
+      "bytes": 154620,
+      "sha256": "8dfe9d20667c1534652286149fb0e1639ff48975a4187d3ad2fd956add0bba2a",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-locomotive-a.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-box.glb",
+      "bytes": 98768,
+      "sha256": "6b594f3f7ef779879043219e2ee79eb37523427e2100855296a0c9662b36689c",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-box.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-coal.glb",
+      "bytes": 110244,
+      "sha256": "95c6282a6b13317640ac48bd75d7aeec10faa9bfc035ba21977bb0296df7199a",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-coal.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-container-blue.glb",
+      "bytes": 116192,
+      "sha256": "3e76c5367080f8b82efc4ab8ecf50af15c01e5b41e96576515ede0a76a6257e2",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-container-blue.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-dirt.glb",
+      "bytes": 110244,
+      "sha256": "cced086b987896d9f57b92aaccb4c6495e22f9f83596b5f9c122311af021f535",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-dirt.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-flatbed-wood.glb",
+      "bytes": 103004,
+      "sha256": "a8e0e3d5c8c86414aa8531b0c728e0481f04df4e820edd554f3ac82292f4c18b",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-flatbed-wood.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-lumber.glb",
+      "bytes": 110308,
+      "sha256": "c205eff406b60d1c3df668c688ec5841a476568aaccc970a195287aa863b9bf6",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-lumber.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-tank-large.glb",
+      "bytes": 106772,
+      "sha256": "12ef83eea173dcceb180b4fa1909276d094477ea06235e27c4bcfd9257fa45fe",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-tank-large.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "role": "hazard.train",
+      "path": "assets/kenney/train-kit/train-carriage-wood.glb",
+      "bytes": 105368,
+      "sha256": "14dc6c4bb62143d1213d60f503a005165c3cdf864cbe2a14e41e9f41b43facf7",
+      "source": "https://kenney.nl/assets/train-kit",
+      "archiveSha256": "cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475",
+      "upstreamPath": "Models/GLB format/train-carriage-wood.glb",
       "license": "CC0-1.0"
     },
     {
@@ -94,20 +344,20 @@
   ],
   "textures": [
     {
-      "path": "assets/kenney/city-roads/Textures/colormap.png",
-      "bytes": 11428,
-      "sha256": "a48e2962661ae44368ffddf3054f80ed8491d082b757dcc3011184cd9a98b185",
-      "source": "https://kenney.nl/assets/city-kit-roads",
-      "archiveSha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
-      "upstreamPath": "Models/GLB format/Textures/colormap.png",
-      "license": "CC0-1.0"
-    },
-    {
       "path": "assets/kenney/car-kit/Textures/colormap.png",
       "bytes": 12371,
       "sha256": "f3622a03a20c6696065cae9cbe391351be873508af190c2ebd1d420c055787a5",
       "source": "https://kenney.nl/assets/car-kit",
       "archiveSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "upstreamPath": "Models/GLB format/Textures/colormap.png",
+      "license": "CC0-1.0"
+    },
+    {
+      "path": "assets/kenney/city-roads/Textures/colormap.png",
+      "bytes": 11428,
+      "sha256": "a48e2962661ae44368ffddf3054f80ed8491d082b757dcc3011184cd9a98b185",
+      "source": "https://kenney.nl/assets/city-kit-roads",
+      "archiveSha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
       "upstreamPath": "Models/GLB format/Textures/colormap.png",
       "license": "CC0-1.0"
     },

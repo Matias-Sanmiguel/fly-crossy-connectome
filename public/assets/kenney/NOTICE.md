@@ -1,6 +1,6 @@
 # Kenney 3D assets
 
-The nine GLB files and their four required colormap textures in this directory
+The 34 GLB files and their four required colormap textures in this directory
 are unmodified selections from Kenney's City Kit (Roads), Car Kit, Train Kit,
 and Mini Forest packs. Kenney releases these assets under Creative Commons CC0
 1.0 Universal.

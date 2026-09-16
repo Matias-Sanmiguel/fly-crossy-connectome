@@ -1,0 +1,278 @@
+import { createHash } from 'node:crypto';
+import {
+  readFile,
+  writeFile,
+} from 'node:fs/promises';
+
+const publicRoot =
+  new URL('../public/', import.meta.url);
+
+const PACKS = {
+  'car-kit': {
+    source: 'https://kenney.nl/assets/car-kit',
+    archiveSha256:
+      'fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4',
+  },
+
+  'city-roads': {
+    source:
+      'https://kenney.nl/assets/city-kit-roads',
+    archiveSha256:
+      '22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e',
+  },
+
+  'train-kit': {
+    source:
+      'https://kenney.nl/assets/train-kit',
+    archiveSha256:
+      'cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475',
+  },
+
+  'mini-forest': {
+    source:
+      'https://kenney.nl/assets/mini-forest',
+    archiveSha256:
+      '8691614018075a66458e35915b8c358c2e6178648aedadafcdf313b924aa6581',
+  },
+};
+
+const ASSETS = [
+  // City Kit Roads
+  ['city-roads', 'road-straight.glb', 'lane.road'],
+  [
+    'city-roads',
+    'traffic-light.glb',
+    'decoration.traffic-light',
+  ],
+  [
+    'city-roads',
+    'road-sign-warning.glb',
+    'decoration.road-sign',
+  ],
+  [
+    'city-roads',
+    'light-curved.glb',
+    'decoration.street-light',
+  ],
+  [
+    'city-roads',
+    'construction-barrier.glb',
+    'decoration.barrier',
+  ],
+
+  // Car Kit — cars
+  ['car-kit', 'sedan.glb', 'hazard.car'],
+  ['car-kit', 'sedan-sports.glb', 'hazard.car'],
+  [
+    'car-kit',
+    'hatchback-sports.glb',
+    'hazard.car',
+  ],
+  ['car-kit', 'suv.glb', 'hazard.car'],
+  ['car-kit', 'suv-luxury.glb', 'hazard.car'],
+  ['car-kit', 'taxi.glb', 'hazard.car'],
+  ['car-kit', 'police.glb', 'hazard.car'],
+
+  // Car Kit — larger vehicles
+  ['car-kit', 'truck.glb', 'hazard.truck'],
+  ['car-kit', 'van.glb', 'hazard.truck'],
+  ['car-kit', 'delivery.glb', 'hazard.truck'],
+  [
+    'car-kit',
+    'garbage-truck.glb',
+    'hazard.truck',
+  ],
+  ['car-kit', 'ambulance.glb', 'hazard.truck'],
+  ['car-kit', 'firetruck.glb', 'hazard.truck'],
+
+  // Train Kit
+  ['train-kit', 'track-detailed.glb', 'lane.rail'],
+
+  [
+    'train-kit',
+    'train-diesel-a.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-diesel-b.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-diesel-c.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-locomotive-a.glb',
+    'hazard.train',
+  ],
+
+  [
+    'train-kit',
+    'train-carriage-box.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-carriage-coal.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-carriage-container-blue.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-carriage-dirt.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-carriage-flatbed-wood.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-carriage-lumber.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-carriage-tank-large.glb',
+    'hazard.train',
+  ],
+  [
+    'train-kit',
+    'train-carriage-wood.glb',
+    'hazard.train',
+  ],
+
+  // Mini Forest
+  [
+    'mini-forest',
+    'tree.glb',
+    'decoration.tree',
+  ],
+  [
+    'mini-forest',
+    'rocks-low.glb',
+    'decoration.rocks',
+  ],
+  [
+    'mini-forest',
+    'plant.glb',
+    'decoration.plant',
+  ],
+];
+
+function sha256(bytes) {
+  return createHash('sha256')
+    .update(bytes)
+    .digest('hex');
+}
+
+async function assetEntry(
+  pack,
+  filename,
+  role,
+) {
+  const metadata = PACKS[pack];
+
+  const path =
+    `assets/kenney/${pack}/${filename}`;
+
+  const bytes =
+    await readFile(
+      new URL(path, publicRoot),
+    );
+
+  return {
+    role,
+    path,
+    bytes: bytes.byteLength,
+    sha256: sha256(bytes),
+    source: metadata.source,
+    archiveSha256:
+      metadata.archiveSha256,
+    upstreamPath:
+      `Models/GLB format/${filename}`,
+    license: 'CC0-1.0',
+  };
+}
+
+async function textureEntry(pack) {
+  const metadata = PACKS[pack];
+
+  const path =
+    `assets/kenney/${pack}`
+    + '/Textures/colormap.png';
+
+  const bytes =
+    await readFile(
+      new URL(path, publicRoot),
+    );
+
+  return {
+    path,
+    bytes: bytes.byteLength,
+    sha256: sha256(bytes),
+    source: metadata.source,
+    archiveSha256:
+      metadata.archiveSha256,
+    upstreamPath:
+      'Models/GLB format/Textures/colormap.png',
+    license: 'CC0-1.0',
+  };
+}
+
+const assets = [];
+
+for (const [
+  pack,
+  filename,
+  role,
+] of ASSETS) {
+  assets.push(
+    await assetEntry(
+      pack,
+      filename,
+      role,
+    ),
+  );
+}
+
+const textures = [];
+
+for (const pack of Object.keys(PACKS)) {
+  textures.push(
+    await textureEntry(pack),
+  );
+}
+
+const manifest = {
+  version: 1,
+  assets,
+  textures,
+};
+
+await writeFile(
+  new URL(
+    'assets/kenney/manifest.json',
+    publicRoot,
+  ),
+  `${JSON.stringify(
+    manifest,
+    null,
+    2,
+  )}\n`,
+  'utf8',
+);
+
+console.log(
+  `Kenney manifest generated: `
+  + `${assets.length} GLB, `
+  + `${textures.length} textures.`,
+);

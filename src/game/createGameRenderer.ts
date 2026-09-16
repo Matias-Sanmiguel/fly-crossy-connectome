@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import { visualRoleForHazard } from './hazardVisuals.ts';
 import { createFlyModel } from './createFlyModel.ts';
 import { decorationsForRow } from './scenery.ts';
 import { KENNEY_ASSETS, type GameAssetRole } from './kenneyAssets.ts';
@@ -39,13 +40,6 @@ const SLEEPER_CAPACITY = RENDER_LANE_CAPACITY * 40;
 
 function worldPosition(position: GridPosition, target: THREE.Vector3): THREE.Vector3 {
   return target.set(position.column, 0.42, -position.row);
-}
-
-function roleForHazard(kind: HazardKind): GameAssetRole | null {
-  if (kind === 'car') return 'hazard.car';
-  if (kind === 'truck') return 'hazard.truck';
-  if (kind === 'train') return 'hazard.train';
-  return null;
 }
 
 export function createGameRenderer(
@@ -246,7 +240,12 @@ export function createGameRenderer(
 
     for (const { lane, hazard } of renderable.hazards) {
       const x = hazardPositionAt(lane, hazard, game.time);
-      const hazardRole = roleForHazard(hazard.kind);
+      const hazardRole =
+        visualRoleForHazard(
+          game.seed,
+          lane.row,
+          hazard,
+        );
       const hazardModel = hazardRole ? acquire(hazardRole) : null;
       if (hazardModel && hazardRole) {
         hazardModel.position.set(x, 0, -lane.row);

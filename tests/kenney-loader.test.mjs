@@ -10,7 +10,7 @@ import { loadKenneyAssets } from '../src/game/kenneyLoader.ts';
 
 test('semantic asset registry pins mappings and finite transforms', () => {
   assert.equal(
-    KENNEY_ASSETS['hazard.car'].path,
+    KENNEY_ASSETS['hazard.car.sedan'].path,
     'assets/kenney/car-kit/sedan.glb',
   );
   assert.equal(
@@ -43,12 +43,12 @@ test('loader caches each URL, clones templates, and contains partial failure', a
   const secondLibrary = await loadKenneyAssets(fakeLoader);
 
   assert.equal(firstLibrary.failures.get('hazard.train'), 'offline');
-  assert.equal(firstLibrary.templates.has('hazard.car'), true);
-  assert.equal(secondLibrary.templates.has('hazard.car'), true);
+  assert.equal(firstLibrary.templates.has('hazard.car.sedan'), true);
+  assert.equal(secondLibrary.templates.has('hazard.car.sedan'), true);
   assert.equal(calls.size, Object.keys(KENNEY_ASSETS).length);
   assert.ok([...calls.values()].every((count) => count === 1));
 
-  const carTemplate = firstLibrary.templates.get('hazard.car');
+  const carTemplate = firstLibrary.templates.get('hazard.car.sedan');
   assert.ok(carTemplate);
   assert.deepEqual(carTemplate.position.toArray(), [0, 0, 0]);
   const carBounds = new THREE.Box3().setFromObject(carTemplate);
@@ -57,8 +57,8 @@ test('loader caches each URL, clones templates, and contains partial failure', a
   assert.ok(Math.abs(carCenter.z) < 1e-9);
   assert.ok(Math.abs(carBounds.min.y) < 1e-9);
 
-  const firstCar = firstLibrary.clone('hazard.car');
-  const secondCar = firstLibrary.clone('hazard.car');
+  const firstCar = firstLibrary.clone('hazard.car.sedan');
+  const secondCar = firstLibrary.clone('hazard.car.sedan');
   assert.ok(firstCar);
   assert.ok(secondCar);
   assert.notEqual(firstCar, secondCar);
@@ -82,7 +82,7 @@ test('normalization preserves model proportions while fitting its visual envelop
   source.add(new THREE.Mesh(new THREE.BoxGeometry(2, 1, 4)));
 
   const library = await loadKenneyAssets(async () => source);
-  const car = library.templates.get('hazard.car');
+  const car = library.templates.get('hazard.car.sedan');
   assert.ok(car);
 
   const size = new THREE.Box3().setFromObject(car).getSize(new THREE.Vector3());

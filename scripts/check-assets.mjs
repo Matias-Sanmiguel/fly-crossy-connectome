@@ -10,10 +10,16 @@ const KENNEY_SOURCE_PATTERN = /^https:\/\/kenney\.nl\/assets\/[a-z0-9-]+$/;
 const KENNEY_ROLES = new Set([
   'lane.road',
   'lane.rail',
+
   'decoration.traffic-light',
+  'decoration.road-sign',
+  'decoration.street-light',
+  'decoration.barrier',
+
   'decoration.tree',
   'decoration.rocks',
   'decoration.plant',
+
   'hazard.car',
   'hazard.truck',
   'hazard.train',
@@ -69,8 +75,13 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
   if (manifest.version !== 1) {
     throw new Error('Kenney manifest version must be 1.');
   }
-  if (!Array.isArray(manifest.assets) || manifest.assets.length !== 9) {
-    throw new Error('Kenney manifest must contain exactly 9 assets.');
+  if (
+    !Array.isArray(manifest.assets)
+    || manifest.assets.length !== 34
+  ) {
+    throw new Error(
+      'Kenney manifest must contain exactly 34 assets.',
+    );
   }
   if (!Array.isArray(manifest.textures) || manifest.textures.length !== 4) {
     throw new Error('Kenney manifest must contain exactly 4 required textures.');
@@ -87,9 +98,7 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
     if (!KENNEY_ROLES.has(asset.role)) {
       throw new Error(`${label} has unknown role: ${asset.role}`);
     }
-    if (roles.has(asset.role)) {
-      throw new Error(`Kenney manifest has duplicate role: ${asset.role}`);
-    }
+  
     roles.add(asset.role);
 
     if (typeof asset.path !== 'string' || !KENNEY_PATH_PATTERN.test(asset.path)) {
@@ -138,8 +147,12 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
     }
   }
 
-  if (roles.size !== KENNEY_ROLES.size) {
-    throw new Error('Kenney manifest role inventory is incomplete.');
+  for (const role of KENNEY_ROLES) {
+    if (!roles.has(role)) {
+      throw new Error(
+        `Kenney manifest is missing role: ${role}`,
+      );
+    }
   }
 
   const texturePaths = new Set();

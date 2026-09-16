@@ -16,8 +16,11 @@ import { validateKenneyManifest } from '../scripts/check-assets.mjs';
 
 const root = new URL('../', import.meta.url);
 const expectedRoles = [
+  'decoration.barrier',
   'decoration.plant',
+  'decoration.road-sign',
   'decoration.rocks',
+  'decoration.street-light',
   'decoration.traffic-light',
   'decoration.tree',
   'hazard.car',
@@ -33,13 +36,17 @@ test('Kenney manifest pins exactly the approved CC0 inventory', async () => {
   );
 
   assert.equal(manifest.version, 1);
-  assert.equal(manifest.assets.length, 9);
+  assert.equal(manifest.assets.length, 34);
   assert.equal(manifest.textures.length, 4);
   assert.deepEqual(
-    manifest.assets.map((item) => item.role).sort(),
+    [...new Set(
+      manifest.assets.map(
+        (item) => item.role,
+      ),
+    )].sort(),
     expectedRoles,
   );
-  assert.equal(new Set(manifest.assets.map((item) => item.path)).size, 9);
+  assert.equal(new Set(manifest.assets.map((item) => item.path)).size, 34);
 
   for (const item of manifest.assets) {
     assert.match(item.path, /^assets\/kenney\/.+\.glb$/);
@@ -80,11 +87,17 @@ test('Kenney validator rejects schema and inventory mutations', async () => {
     /path/i,
   );
 
-  const duplicateRole = clone();
-  duplicateRole.assets[1].role = duplicateRole.assets[0].role;
+  const unknownRole = clone();
+
+  unknownRole.assets[0].role =
+    'hazard.unknown';
+
   await assert.rejects(
-    validateKenneyManifest(duplicateRole, publicRoot),
-    /duplicate role/i,
+    validateKenneyManifest(
+      unknownRole,
+      publicRoot,
+    ),
+    /unknown role/i,
   );
 
   const duplicatePath = clone();
@@ -98,7 +111,7 @@ test('Kenney validator rejects schema and inventory mutations', async () => {
   shortInventory.assets.pop();
   await assert.rejects(
     validateKenneyManifest(shortInventory, publicRoot),
-    /exactly 9/i,
+    /exactly 34/i,
   );
 
   const wrongBytes = clone();
