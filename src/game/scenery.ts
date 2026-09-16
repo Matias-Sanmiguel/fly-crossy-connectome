@@ -13,8 +13,8 @@ export type SceneryDecoration = {
 
 const rolesByLane: Record<LaneKind, readonly DecorationRole[]> = {
   grass: ['decoration.tree', 'decoration.rocks', 'decoration.plant'],
-  road: ['decoration.traffic-light'],
-  rail: ['decoration.traffic-light'],
+  road: [],
+  rail: [],
   river: ['decoration.rocks', 'decoration.plant'],
 };
 
@@ -27,6 +27,7 @@ export function decorationsForRow(
   const maximum = laneKind === 'grass' ? 2 : 1;
   const count = rng.integer(0, maximum);
   const roles = rolesByLane[laneKind];
+  if (roles.length === 0) return [];
 
   return Array.from({ length: count }, (_, index) => {
     const side = index === 0

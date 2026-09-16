@@ -5,8 +5,8 @@ import { decorationsForRow } from '../src/game/scenery.ts';
 
 const rolesByLane = {
   grass: new Set(['decoration.tree', 'decoration.rocks', 'decoration.plant']),
-  road: new Set(['decoration.traffic-light']),
-  rail: new Set(['decoration.traffic-light']),
+  road: new Set(),
+  rail: new Set(),
   river: new Set(['decoration.rocks', 'decoration.plant']),
 };
 
@@ -42,4 +42,12 @@ test('different rows do not collapse to one decoration layout', () => {
   );
 
   assert.ok(layouts.size > 4);
+});
+
+test('road and rail rows never receive generic traffic-light scenery', () => {
+  for (const laneKind of ['road', 'rail']) {
+    for (let row = -100; row <= 100; row += 1) {
+      assert.deepEqual(decorationsForRow('traffic-light-audit', row, laneKind), []);
+    }
+  }
 });

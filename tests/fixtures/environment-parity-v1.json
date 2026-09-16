@@ -3,11 +3,11 @@
   "observationEncoding": "float32-le-sha256",
   "positionChecks": [
     {
-      "seed": "remainder-boundary-water-4",
+      "seed": "remainder-boundary-water-160",
       "row": 3,
       "hazardIndex": 0,
       "time": 3.800000000000001,
-      "expected": -11.672999999999998
+      "expected": -12.041999999999998
     }
   ],
   "cases": [
@@ -15,7 +15,7 @@
       "name": "remainder-boundary-water",
       "state": {
         "base": "createGame",
-        "seed": "remainder-boundary-water-4",
+        "seed": "remainder-boundary-water-160",
         "overrides": {
           "step": 18,
           "time": 3.600000000000001,
@@ -28,9 +28,9 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "3a1fa174f10e74751b1acbfe73526c9dd43d6687d49b8f93d098b25cc9eeaa62",
-        "afterObservationSha256": "5856c5223fe648a87b71ebb03ad2acb65b9a5f55d76e0b90a0e69c585117bb08",
-        "reward": 0.99,
+        "beforeObservationSha256": "e9aee50db04fb9de4d336fd42aa67c218811b64474344842256a7685885eee66",
+        "afterObservationSha256": "a00818860f7ed59161976b6e4f9473003d3e51e2f3c07d1b7ca06c6ea6c47257",
+        "reward": -9.01,
         "fly": {
           "row": 3,
           "column": 4
@@ -38,7 +38,7 @@
         "step": 19,
         "time": 3.800000000000001,
         "score": 3,
-        "terminalReason": null,
+        "terminalReason": "water",
         "previousAction": "forward",
         "events": [
           {
@@ -49,6 +49,14 @@
               "column": 4
             },
             "to": {
+              "row": 3,
+              "column": 4
+            }
+          },
+          {
+            "type": "terminal",
+            "reason": "water",
+            "position": {
               "row": 3,
               "column": 4
             }
@@ -119,7 +127,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f3aa31723b4c3002383a0dcd795b489150caf133b82083a8287e786036ac4e2e",
-        "afterObservationSha256": "8fcfeef4159a197fd79285a8b6ca5e9632610559343ac5165f8b5db84e435590",
+        "afterObservationSha256": "cff39647c36c7ade3d6b0c1de7d1d4db4eca55c571cbf3c98bc58e21ebdc7784",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -204,7 +212,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "2f5b659fe31b269c1c9f3c2b799085744c8dd8377724a5af7324ee3ef13137ea",
-        "afterObservationSha256": "b20013821f020087e74492e04174f9b05bc8c5660571bc38dcad4c736796548d",
+        "afterObservationSha256": "1b936853d318dfa6009c69279ed6c04d0902a615836e02f57eae5763c7bf13f6",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -299,7 +307,7 @@
       "action": "forward",
       "expected": {
         "beforeObservationSha256": "506a5679da18d2a03e1a4de699171d1c9d3e8adb7b927ea00c470027ecb3e321",
-        "afterObservationSha256": "2589e33ec5ee576d75a0912d508afb6c592e39608978df68b83c61ab3cfb839a",
+        "afterObservationSha256": "8f3eb45684764285d671c72bb7ca45abee437da3da60517b3c9414540696dc4a",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -385,7 +393,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "3e6f2b123e8ff50925424859b70c3958e63d12d21ca4987cb07ce0dc7104a2c5",
-        "afterObservationSha256": "d81ea444e23e9ce87e2b457980a0d068b8fb74d5c35f21b40b843faf3d6b999f",
+        "afterObservationSha256": "63c9f222d4487e3e12b0050ed2a1dfa5d42bec1053a0cac1e2d00a19620b62be",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 3,
@@ -474,7 +482,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "cf77714f3d85169cee107e4fe363eb194bf1a66e5b9b2125f25bed285de66885",
-        "afterObservationSha256": "d13fa2af6e005b71d26743b344d2c88370825fc1e11dd8252d34188c0f6cd601",
+        "afterObservationSha256": "9af9436f59fe77adf8e27490ed17a1d394347405d4f67a64a66a9542da529058",
         "reward": -10.06,
         "fly": {
           "row": 3,
@@ -561,7 +569,7 @@
       "action": "wait",
       "expected": {
         "beforeObservationSha256": "f0ad6a3df512a2ec78f5776b7402b61c37c494d833e6213c6527ea2930fe4a1a",
-        "afterObservationSha256": "dce09c44390a5ba4060ddf2bf3500cf97ffdeee26ba250d3fc1630ae5a8470ff",
+        "afterObservationSha256": "e83c9187a1bd3b28d530218f808ec3e7e0ef46664f8927bd18cdb2e25abbaf03",
         "reward": -0.060000000000000005,
         "fly": {
           "row": 100,

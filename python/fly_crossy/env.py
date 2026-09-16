@@ -17,8 +17,8 @@ WORLD_HALF_WIDTH = 5
 HAZARD_CIRCUIT = 25
 
 OPENING_ROWS = 3
-HAZARD_ROWS_PER_GROUP = 4
-GROUP_ROWS = HAZARD_ROWS_PER_GROUP + 1
+CONTENT_ROWS_PER_GROUP = 6
+GROUP_ROWS = CONTENT_ROWS_PER_GROUP + 1
 SOLVABILITY_STEP_LIMIT = 80
 SOLVABILITY_TRANSITION_LIMIT = 1_024
 GENERATION_ATTEMPTS = 8
@@ -32,6 +32,7 @@ STEP_COST = -0.01
 STAGNATION_COST = -0.05
 
 LaneKind = Literal["grass", "road", "rail", "river"]
+SectionFamily = Literal["road", "rail", "river"]
 HazardKind = Literal["car", "truck", "train", "log"]
 TerminalReason = Literal["vehicle", "train", "water", "bounds"]
 
@@ -104,15 +105,29 @@ _HAZARD_KINDS: dict[LaneKind, Sequence[HazardKind]] = {
     "river": ("log",),
     "grass": (),
 }
-_WEIGHTED_LANE_KINDS: tuple[LaneKind, ...] = (
+_SECTION_FAMILY_POOL: tuple[SectionFamily, ...] = (
     "road", "road", "road", "road", "road",
-    "river", "river", "river",
-    "rail", "rail",
-)
-_WEIGHTED_NON_RAIL_LANE_KINDS: tuple[LaneKind, ...] = (
     "road", "road", "road", "road", "road",
+    "rail", "rail", "rail", "rail", "rail", "rail",
+    "rail", "rail", "rail", "rail", "rail", "rail",
     "river", "river", "river",
 )
+_SECTION_TEMPLATES: dict[
+    SectionFamily, tuple[tuple[LaneKind, ...], tuple[LaneKind, ...]]
+] = {
+    "road": (
+        ("road", "road", "road", "grass", "road", "road"),
+        ("road", "road", "grass", "grass", "road", "road"),
+    ),
+    "rail": (
+        ("rail", "grass", "road", "road", "road", "road"),
+        ("rail", "grass", "grass", "road", "road", "road"),
+    ),
+    "river": (
+        ("river", "river", "grass", "road", "road", "grass"),
+        ("river", "river", "grass", "road", "road", "grass"),
+    ),
+}
 
 
 def _uint32(value: int) -> int:
@@ -172,26 +187,16 @@ def _seed_for_group(seed: str, group_index: int) -> str:
     return f"{WORLD_VERSION}:{seed}:{group_index}"
 
 
-def _lane_kinds_for_group(seed: str, group_index: int) -> list[LaneKind]:
-    rng = _Rng(f"{_seed_for_group(seed, group_index)}:kinds")
-    rail_streak = 0
-    kinds: list[LaneKind] = []
-    for _ in range(HAZARD_ROWS_PER_GROUP):
-        pool = (
-            _WEIGHTED_NON_RAIL_LANE_KINDS
-            if rail_streak >= 2
-            else _WEIGHTED_LANE_KINDS
-        )
-        kind = rng.pick(pool)
-        kinds.append(kind)
-        rail_streak = rail_streak + 1 if kind == "rail" else 0
-    return kinds
+def _lane_template_for_group(seed: str, group_index: int) -> tuple[LaneKind, ...]:
+    rng = _Rng(f"{_seed_for_group(seed, group_index)}:template")
+    family = rng.pick(_SECTION_FAMILY_POOL)
+    return _SECTION_TEMPLATES[family][rng.integer(0, 1)]
 
 
 def difficulty_for_row(row: int) -> DifficultyProfile:
-    """Return the versioned distance-based speed and density progression."""
-    forward_group = max(0, _group_index_for(row))
-    level = min(3, forward_group // 10)
+    """Return the versioned progression in fixed 50-row distance bands."""
+    forward_distance = max(0, row - OPENING_ROWS)
+    level = min(3, forward_distance // 50)
     return DifficultyProfile(
         level=level,
         minimum_speed=min(3, 1 + level // 2),
@@ -204,6 +209,8 @@ def difficulty_for_row(row: int) -> DifficultyProfile:
 def _hazard_count(kind: LaneKind, rng: _Rng, difficulty: DifficultyProfile) -> int:
     if kind == "rail":
         return 1
+    if kind == "river":
+        return 5
     return rng.integer(difficulty.minimum_hazards, difficulty.maximum_hazards)
 
 
@@ -226,7 +233,7 @@ def _create_hazards(
         elif hazard_kind == "truck":
             size = 3
         else:
-            size = rng.integer(1, 3)
+            size = rng.integer(2, 4)
         hazards.append(Hazard(kind=hazard_kind, position=position, size=size))
     return hazards
 
@@ -260,23 +267,27 @@ def _hazard_lane(
 @lru_cache(maxsize=512)
 def _generate_group_cached(seed: str, group_index: int) -> tuple[Lane, ...]:
     first = OPENING_ROWS + group_index * GROUP_ROWS
-    lane_kinds = _lane_kinds_for_group(seed, group_index)
+    lane_template = _lane_template_for_group(seed, group_index)
     for attempt in range(GENERATION_ATTEMPTS):
-        hazards = [
-            _hazard_lane(
-                seed,
-                first + offset,
-                group_index,
-                attempt,
-                lane_kinds[offset],
+        content = [
+            (
+                _grass(first + offset)
+                if lane_template[offset] == "grass"
+                else _hazard_lane(
+                    seed,
+                    first + offset,
+                    group_index,
+                    attempt,
+                    lane_template[offset],
+                )
             )
-            for offset in range(HAZARD_ROWS_PER_GROUP)
+            for offset in range(CONTENT_ROWS_PER_GROUP)
         ]
         if has_bounded_group_path(
-            [_grass(first - 1), *hazards, _grass(first + HAZARD_ROWS_PER_GROUP)]
+            [_grass(first - 1), *content, _grass(first + CONTENT_ROWS_PER_GROUP)]
         ):
-            return tuple(hazards)
-    return tuple(_grass(first + offset) for offset in range(HAZARD_ROWS_PER_GROUP))
+            return tuple(content)
+    return tuple(_grass(first + offset) for offset in range(CONTENT_ROWS_PER_GROUP))
 
 
 def _generate_group(seed: str, group_index: int) -> list[Lane]:
@@ -305,7 +316,7 @@ def generate_rows(seed: str, start: int, count: int) -> list[Lane]:
             rows.append(_grass(row))
             continue
         group_offset = row - (OPENING_ROWS + _group_index_for(row) * GROUP_ROWS)
-        if group_offset == HAZARD_ROWS_PER_GROUP:
+        if group_offset == CONTENT_ROWS_PER_GROUP:
             rows.append(_grass(row))
             continue
         group_index = _group_index_for(row)
@@ -479,7 +490,7 @@ def _decision_time_after_steps(steps: int) -> float:
 
 def find_bounded_group_witness(rows: Sequence[Lane]) -> list[Action] | None:
     """Find an action witness using the same float transition as ``step_game``."""
-    if len(rows) != HAZARD_ROWS_PER_GROUP + 2:
+    if len(rows) != CONTENT_ROWS_PER_GROUP + 2:
         return None
     ordered = sorted(rows, key=lambda lane: lane.row)
     if (
@@ -495,59 +506,63 @@ def find_bounded_group_witness(rows: Sequence[Lane]) -> list[Action] | None:
     lanes = {lane.row: lane for lane in ordered}
     start_row = ordered[0].row
     goal_row = ordered[-1].row
-    frontier: list[tuple[GridPosition, float, list[Action]]] = [
+    frontier: list[tuple[GridPosition, float, list[Action], int]] = [
         (
             GridPosition(row=start_row, column=0),
             _decision_time_after_steps(max(0, start_row)),
             [],
+            0,
         )
     ]
     visited: set[tuple[int, int, float]] = set()
     actions = (
         Action.FORWARD,
-        Action.BACKWARD,
         Action.LEFT,
         Action.RIGHT,
         Action.WAIT,
+        Action.BACKWARD,
     )
     transitions_checked = 0
+    next_order = 1
 
-    for depth in range(SOLVABILITY_STEP_LIMIT):
-        if not frontier:
-            break
-        next_frontier: list[tuple[GridPosition, float, list[Action]]] = []
-        for position, time, witness in frontier:
-            for action in actions:
-                if transitions_checked >= SOLVABILITY_TRANSITION_LIMIT:
-                    return None
-                transitions_checked += 1
-                attempted_row = position.row + (
-                    1
-                    if action == Action.FORWARD
-                    else -1
-                    if action == Action.BACKWARD
-                    else 0
-                )
-                if attempted_row < start_row or attempted_row > goal_row:
-                    continue
-                transition = _advance_lane_transition(
-                    position, time, action, lambda row: lanes[row]
-                )
-                if transition.terminal is not None:
-                    continue
-                candidate_witness = [*witness, action]
-                if transition.fly.row == goal_row:
-                    return candidate_witness
-                candidate = (
-                    transition.fly,
-                    transition.time,
-                    candidate_witness,
-                )
-                key = (depth + 1, transition.fly.row, transition.fly.column)
-                if key not in visited:
-                    visited.add(key)
-                    next_frontier.append(candidate)
-        frontier = next_frontier
+    while frontier:
+        frontier.sort(key=lambda state: (-state[0].row, len(state[2]), state[3]))
+        position, time, witness, _ = frontier.pop(0)
+        depth = len(witness)
+        if depth >= SOLVABILITY_STEP_LIMIT:
+            continue
+        for action in actions:
+            if transitions_checked >= SOLVABILITY_TRANSITION_LIMIT:
+                return None
+            transitions_checked += 1
+            attempted_row = position.row + (
+                1
+                if action == Action.FORWARD
+                else -1
+                if action == Action.BACKWARD
+                else 0
+            )
+            if attempted_row < start_row or attempted_row > goal_row:
+                continue
+            transition = _advance_lane_transition(
+                position, time, action, lambda row: lanes[row]
+            )
+            if transition.terminal is not None:
+                continue
+            candidate_witness = [*witness, action]
+            if transition.fly.row == goal_row:
+                return candidate_witness
+            candidate = (
+                transition.fly,
+                transition.time,
+                candidate_witness,
+                next_order,
+            )
+            next_order += 1
+            key = (depth + 1, transition.fly.row, transition.fly.column)
+            if key not in visited:
+                visited.add(key)
+                frontier.append(candidate)
     return None
 
 

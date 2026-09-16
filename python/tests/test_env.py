@@ -115,11 +115,9 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
     assert [asdict(lane) for lane in generate_rows("parity-seed", 3, 2)] == [
         {
             "row": 3,
-            "kind": "road",
+            "kind": "rail",
             "hazards": [
-                {"kind": "truck", "position": 2, "size": 3},
-                {"kind": "car", "position": 10, "size": 2},
-                {"kind": "car", "position": -7, "size": 2},
+                {"kind": "train", "position": 6, "size": 4},
             ],
             "direction": -1,
             "speed": 1,
@@ -127,14 +125,11 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
         },
         {
             "row": 4,
-            "kind": "road",
-            "hazards": [
-                {"kind": "truck", "position": 7, "size": 3},
-                {"kind": "car", "position": -6, "size": 2},
-            ],
-            "direction": 1,
-            "speed": 2,
-            "phase": 0.823,
+            "kind": "grass",
+            "hazards": [],
+            "direction": None,
+            "speed": None,
+            "phase": None,
         },
     ]
 
@@ -143,36 +138,81 @@ def test_same_seed_and_range_produce_identical_lanes() -> None:
     assert generate_rows("lab-7", -5, 40) == generate_rows("lab-7", -5, 40)
 
 
-def test_weighted_lane_generation_stays_near_target_with_bounded_rail_streaks() -> None:
-    counts = {"road": 0, "river": 0, "rail": 0}
-    maximum_rail_streak = 0
+def test_chunk_boundaries_do_not_change_generation() -> None:
+    assert generate_rows("lab-7", 0, 42) == [
+        *generate_rows("lab-7", 0, 17),
+        *generate_rows("lab-7", 17, 25),
+    ]
+
+
+def test_section_templates_enforce_grammar_lengths_frequencies_and_recovery() -> None:
+    approved_templates = {
+        ("road", "road", "road", "grass", "road", "road"),
+        ("road", "road", "grass", "grass", "road", "road"),
+        ("rail", "grass", "road", "road", "road", "road"),
+        ("rail", "grass", "grass", "road", "road", "road"),
+        ("river", "river", "grass", "road", "road", "grass"),
+    }
+    row_counts = {"grass": 0, "road": 0, "rail": 0, "river": 0}
+    section_counts = {"road": 0, "rail": 0, "river": 0}
+    section_lengths: dict[str, list[int]] = {"road": [], "rail": [], "river": []}
+    direct_unlike_transitions = 0
     fallback_groups = 0
     group_count = 0
 
     for seed_index in range(30):
-        rows = generate_rows(f"distribution-audit-{seed_index}", 3, 200)
-        rail_streak = 0
+        rows = generate_rows(f"section-audit-{seed_index}", 3, 210)
+        section_kind: str | None = None
+        section_length = 0
         for lane in rows:
-            if lane.kind == "rail":
-                rail_streak += 1
-                maximum_rail_streak = max(maximum_rail_streak, rail_streak)
+            row_counts[lane.kind] += 1
+            if lane.kind == "grass":
+                if section_kind is not None:
+                    section_lengths[section_kind].append(section_length)
+                section_kind = None
+                section_length = 0
+            elif lane.kind == section_kind:
+                section_length += 1
             else:
-                rail_streak = 0
-            if lane.kind != "grass":
-                counts[lane.kind] += 1
-        for offset in range(0, len(rows), 5):
-            group = rows[offset : offset + 5]
-            group_count += 1
-            assert group[4].kind == "grass"
-            if all(lane.kind == "grass" for lane in group[:4]):
-                fallback_groups += 1
+                if section_kind is not None:
+                    direct_unlike_transitions += 1
+                    section_lengths[section_kind].append(section_length)
+                section_kind = lane.kind
+                section_length = 1
+                section_counts[lane.kind] += 1
+        if section_kind is not None:
+            section_lengths[section_kind].append(section_length)
 
-    hazardous_rows = sum(counts.values())
-    shares = {kind: count / hazardous_rows for kind, count in counts.items()}
-    assert 0.47 <= shares["road"] <= 0.55, shares
-    assert 0.25 <= shares["river"] <= 0.33, shares
-    assert 0.17 <= shares["rail"] <= 0.23, shares
-    assert maximum_rail_streak <= 2
+        for offset in range(0, len(rows), 7):
+            group = rows[offset : offset + 7]
+            group_count += 1
+            assert len(group) == 7
+            assert group[6].kind == "grass"
+            content_kinds = tuple(lane.kind for lane in group[:6])
+            if all(kind == "grass" for kind in content_kinds):
+                fallback_groups += 1
+            else:
+                assert content_kinds in approved_templates
+
+    total_sections = sum(section_counts.values())
+    total_rows = sum(row_counts.values())
+    section_shares = {
+        kind: count / total_sections for kind, count in section_counts.items()
+    }
+    row_shares = {kind: count / total_rows for kind, count in row_counts.items()}
+    assert direct_unlike_transitions == 0
+    assert all(2 <= length <= 4 for length in section_lengths["road"])
+    assert all(length == 1 for length in section_lengths["rail"])
+    assert all(length == 2 for length in section_lengths["river"])
+    assert 0.65 <= section_shares["road"] <= 0.75, section_shares
+    assert 0.19 <= section_shares["rail"] <= 0.29, section_shares
+    assert 0.03 <= section_shares["river"] <= 0.09, section_shares
+    assert section_shares["river"] < section_shares["rail"]
+    assert 0.48 <= row_shares["road"] <= 0.58, row_shares
+    assert 0.31 <= row_shares["grass"] <= 0.41, row_shares
+    assert 0.04 <= row_shares["rail"] <= 0.09, row_shares
+    assert 0.025 <= row_shares["river"] <= 0.065, row_shares
+    assert row_shares["river"] < row_shares["rail"]
     assert fallback_groups / group_count <= 0.03
 
 
@@ -184,7 +224,7 @@ def test_row_generation_rejects_booleans_as_browser_non_numbers() -> None:
 
 
 def test_known_impassable_first_group_is_replaced_by_a_bounded_reachable_group() -> None:
-    group = generate_rows("solvability-probe-87", 2, 6)
+    group = generate_rows("solvability-probe-87", 2, 8)
 
     assert has_bounded_group_path(group) is True
     assert [group[0].kind, group[-1].kind] == ["grass", "grass"]
@@ -213,7 +253,7 @@ def _replay_group_witness(seed: str, rows: list[Lane], actions: list[Action]) ->
 
 
 def test_audit_replay_21_solver_witness_survives_authoritative_float_replay() -> None:
-    group = generate_rows("audit-replay-21", 2, 6)
+    group = generate_rows("audit-replay-21", 2, 8)
     witness = find_bounded_group_witness(group)
 
     assert witness is not None
@@ -224,8 +264,8 @@ def test_solver_witnesses_replay_through_authoritative_transition_sample() -> No
     for seed_index in range(24):
         for group_index in (0, 1, 8, 24):
             seed = f"audit-replay-{seed_index}"
-            start = 2 + group_index * 5
-            group = generate_rows(seed, start, 6)
+            start = 2 + group_index * 7
+            group = generate_rows(seed, start, 8)
             witness = find_bounded_group_witness(group)
             assert witness is not None, (seed, group_index)
             _replay_group_witness(seed, group, witness)
@@ -234,9 +274,9 @@ def test_solver_witnesses_replay_through_authoritative_transition_sample() -> No
 def test_generated_groups_have_a_bounded_route_over_a_deterministic_seed_sample() -> None:
     for seed_index in range(24):
         for group_index in (0, 1, 8, 24):
-            start = 2 + group_index * 5
+            start = 2 + group_index * 7
             assert has_bounded_group_path(
-                generate_rows(f"solvability-property-{seed_index}", start, 6)
+                generate_rows(f"solvability-property-{seed_index}", start, 8)
             ), (seed_index, group_index)
 
 
@@ -250,6 +290,12 @@ def test_documented_difficulty_parameters_increase_with_forward_distance() -> No
     assert middle.minimum_hazards >= opening.minimum_hazards
     assert far.maximum_speed > middle.maximum_speed
     assert far.maximum_hazards > middle.maximum_hazards
+    assert difficulty_for_row(52).level == 0
+    assert difficulty_for_row(53).level == 1
+    assert difficulty_for_row(102).level == 1
+    assert difficulty_for_row(103).level == 2
+    assert difficulty_for_row(152).level == 2
+    assert difficulty_for_row(153).level == 3
 
 
 def test_road_traffic_uses_canonical_sizes_without_circular_overlap() -> None:
@@ -269,6 +315,25 @@ def test_road_traffic_uses_canonical_sizes_without_circular_overlap() -> None:
                 wrapped_distance = min(center_distance, 25 - center_distance)
                 gap = wrapped_distance - (left.size + right.size) / 2
                 assert gap >= 0.5, (lane.row, left, right, gap)
+
+
+def test_river_sections_use_the_approved_candidate_b_log_profile() -> None:
+    river_lanes = [
+        lane
+        for seed_index in range(30)
+        for lane in generate_rows(f"section-audit-{seed_index}", 3, 210)
+        if lane.kind == "river"
+    ]
+
+    assert river_lanes
+    for lane in river_lanes:
+        assert len(lane.hazards) == 5
+        assert all(
+            hazard.kind == "log"
+            and type(hazard.size) is int
+            and 2 <= hazard.size <= 4
+            for hazard in lane.hazards
+        )
 
 
 def test_world_generation_matches_shared_cross_language_fixture() -> None:

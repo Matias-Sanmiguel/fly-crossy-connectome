@@ -9,7 +9,7 @@ import {
   type GameAssetLibrary,
   type KenneyAssetLoader,
 } from './kenneyLoader.ts';
-import { laneDetails } from './laneVisuals.ts';
+import { laneDetails, laneSubstrateLayout } from './laneVisuals.ts';
 import {
   RENDER_HAZARD_CAPACITY,
   RENDER_LANE_CAPACITY,
@@ -203,15 +203,16 @@ export function createGameRenderer(
 
     for (const lane of renderable.lanes) {
       const laneIndex = laneCounts[lane.kind]++;
+      const substrate = laneSubstrateLayout(HAZARD_CIRCUIT);
       composeInstance(
         laneMeshes[lane.kind],
         laneIndex,
-        0,
-        -0.12,
-        -lane.row,
-        HAZARD_CIRCUIT,
-        0.2,
-        0.94,
+        substrate.position[0],
+        substrate.position[1],
+        -lane.row + substrate.position[2],
+        substrate.size[0],
+        substrate.size[1],
+        substrate.size[2],
       );
 
       for (const detail of laneDetails(lane.kind, HAZARD_CIRCUIT)) {

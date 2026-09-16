@@ -43,40 +43,83 @@ const circularGap = (left, right) => {
   return wrappedDistance - (left.size + right.size) / 2;
 };
 
-const auditLaneDistribution = () => {
-  const counts = { road: 0, river: 0, rail: 0 };
-  let maximumRailStreak = 0;
+const APPROVED_CONTENT_TEMPLATES = new Set([
+  'road,road,road,grass,road,road',
+  'road,road,grass,grass,road,road',
+  'rail,grass,road,road,road,road',
+  'rail,grass,grass,road,road,road',
+  'river,river,grass,road,road,grass',
+]);
+
+const auditSectionGeneration = () => {
+  const rowCounts = { grass: 0, road: 0, rail: 0, river: 0 };
+  const sectionCounts = { road: 0, rail: 0, river: 0 };
+  const sectionLengths = { road: [], rail: [], river: [] };
+  let directUnlikeTransitions = 0;
   let fallbackGroups = 0;
   let groupCount = 0;
 
   for (let seedIndex = 0; seedIndex < 30; seedIndex += 1) {
-    const rows = generateRows(`distribution-audit-${seedIndex}`, 3, 200);
-    let railStreak = 0;
+    const rows = generateRows(`section-audit-${seedIndex}`, 3, 210);
+    let sectionKind = null;
+    let sectionLength = 0;
+    const finishSection = () => {
+      if (sectionKind === null) return;
+      sectionLengths[sectionKind].push(sectionLength);
+      sectionKind = null;
+      sectionLength = 0;
+    };
+
     for (const lane of rows) {
-      if (lane.kind === 'rail') {
-        railStreak += 1;
-        maximumRailStreak = Math.max(maximumRailStreak, railStreak);
+      rowCounts[lane.kind] += 1;
+      if (lane.kind === 'grass') {
+        finishSection();
+      } else if (lane.kind === sectionKind) {
+        sectionLength += 1;
       } else {
-        railStreak = 0;
+        if (sectionKind !== null) {
+          directUnlikeTransitions += 1;
+          finishSection();
+        }
+        sectionKind = lane.kind;
+        sectionLength = 1;
+        sectionCounts[lane.kind] += 1;
       }
-      if (lane.kind !== 'grass') counts[lane.kind] += 1;
     }
-    for (let offset = 0; offset < rows.length; offset += 5) {
-      const group = rows.slice(offset, offset + 5);
+    finishSection();
+
+    for (let offset = 0; offset < rows.length; offset += 7) {
+      const group = rows.slice(offset, offset + 7);
       groupCount += 1;
-      assert.equal(group[4].kind, 'grass', 'every hazard group must end with recovery grass');
-      if (group.slice(0, 4).every((lane) => lane.kind === 'grass')) fallbackGroups += 1;
+      assert.equal(group.length, 7);
+      assert.equal(group[6].kind, 'grass', 'every section group must end with recovery grass');
+      const contentKinds = group.slice(0, 6).map((lane) => lane.kind);
+      if (contentKinds.every((kind) => kind === 'grass')) {
+        fallbackGroups += 1;
+      } else {
+        assert.ok(
+          APPROVED_CONTENT_TEMPLATES.has(contentKinds.join(',')),
+          `unexpected section template: ${contentKinds.join(',')}`,
+        );
+      }
     }
   }
 
-  const hazardousRows = counts.road + counts.river + counts.rail;
+  const totalSections = Object.values(sectionCounts).reduce((sum, count) => sum + count, 0);
+  const totalRows = Object.values(rowCounts).reduce((sum, count) => sum + count, 0);
   return {
-    shares: {
-      road: counts.road / hazardousRows,
-      river: counts.river / hazardousRows,
-      rail: counts.rail / hazardousRows,
-    },
-    maximumRailStreak,
+    rowCounts,
+    sectionCounts,
+    sectionLengths,
+    sectionShares: Object.fromEntries(
+      Object.entries(sectionCounts).map(([kind, count]) => [kind, count / totalSections]),
+    ),
+    rowShares: Object.fromEntries(
+      Object.entries(rowCounts).map(([kind, count]) => [kind, count / totalRows]),
+    ),
+    directUnlikeTransitions,
+    fallbackGroups,
+    groupCount,
     fallbackRate: fallbackGroups / groupCount,
   };
 };
@@ -104,25 +147,34 @@ test('opening rows are safe and hazard groups include recovery rows', () => {
   )));
 });
 
-test('weighted lane generation stays near 50/30/20 with bounded rail streaks', () => {
-  const audit = auditLaneDistribution();
+test('section templates enforce grammar, lengths, frequencies, and recovery grass', () => {
+  const audit = auditSectionGeneration();
 
-  assert.ok(audit.shares.road >= 0.47 && audit.shares.road <= 0.55, audit.shares);
-  assert.ok(audit.shares.river >= 0.25 && audit.shares.river <= 0.33, audit.shares);
-  assert.ok(audit.shares.rail >= 0.17 && audit.shares.rail <= 0.23, audit.shares);
-  assert.ok(audit.maximumRailStreak <= 2, audit);
+  assert.equal(audit.directUnlikeTransitions, 0, audit);
+  assert.ok(audit.sectionLengths.road.every((length) => length >= 2 && length <= 4));
+  assert.ok(audit.sectionLengths.rail.every((length) => length === 1));
+  assert.ok(audit.sectionLengths.river.every((length) => length === 2));
+  assert.ok(audit.sectionShares.road >= 0.65 && audit.sectionShares.road <= 0.75, audit);
+  assert.ok(audit.sectionShares.rail >= 0.19 && audit.sectionShares.rail <= 0.29, audit);
+  assert.ok(audit.sectionShares.river >= 0.03 && audit.sectionShares.river <= 0.09, audit);
+  assert.ok(audit.sectionShares.river < audit.sectionShares.rail, audit);
+  assert.ok(audit.rowShares.road >= 0.48 && audit.rowShares.road <= 0.58, audit);
+  assert.ok(audit.rowShares.grass >= 0.31 && audit.rowShares.grass <= 0.41, audit);
+  assert.ok(audit.rowShares.rail >= 0.04 && audit.rowShares.rail <= 0.09, audit);
+  assert.ok(audit.rowShares.river >= 0.025 && audit.rowShares.river <= 0.065, audit);
+  assert.ok(audit.rowShares.river < audit.rowShares.rail, audit);
   assert.ok(audit.fallbackRate <= 0.03, audit);
 });
 
 test('known impassable first group is replaced by a bounded reachable group', () => {
-  const group = generateRows('solvability-probe-87', 2, 6);
+  const group = generateRows('solvability-probe-87', 2, 8);
 
   assert.equal(hasBoundedGroupPath(group), true);
   assert.deepEqual([group[0].kind, group.at(-1).kind], ['grass', 'grass']);
 });
 
 test('audit-replay-21 solver witness survives authoritative floating-point replay', () => {
-  const group = generateRows('audit-replay-21', 2, 6);
+  const group = generateRows('audit-replay-21', 2, 8);
   const witness = findBoundedGroupWitness(group);
 
   assert.ok(witness);
@@ -133,8 +185,8 @@ test('solver witnesses replay through the authoritative transition over a bounde
   for (let seedIndex = 0; seedIndex < 24; seedIndex += 1) {
     for (const groupIndex of [0, 1, 8, 24]) {
       const seed = `audit-replay-${seedIndex}`;
-      const start = 2 + groupIndex * 5;
-      const group = generateRows(seed, start, 6);
+      const start = 2 + groupIndex * 7;
+      const group = generateRows(seed, start, 8);
       const witness = findBoundedGroupWitness(group);
       assert.ok(witness, `${seed}, group ${groupIndex}`);
       replayWitness(seed, group, witness);
@@ -145,9 +197,9 @@ test('solver witnesses replay through the authoritative transition over a bounde
 test('generated groups have a bounded route over a deterministic seed sample', () => {
   for (let seedIndex = 0; seedIndex < 24; seedIndex += 1) {
     for (const groupIndex of [0, 1, 8, 24]) {
-      const start = 2 + groupIndex * 5;
+      const start = 2 + groupIndex * 7;
       assert.equal(
-        hasBoundedGroupPath(generateRows(`solvability-property-${seedIndex}`, start, 6)),
+        hasBoundedGroupPath(generateRows(`solvability-property-${seedIndex}`, start, 8)),
         true,
         `seed ${seedIndex}, group ${groupIndex}`,
       );
@@ -165,6 +217,12 @@ test('documented difficulty parameters increase with forward distance', () => {
   assert.ok(middle.minimumHazards >= opening.minimumHazards);
   assert.ok(far.maximumSpeed > middle.maximumSpeed);
   assert.ok(far.maximumHazards > middle.maximumHazards);
+  assert.equal(difficultyForRow(52).level, 0);
+  assert.equal(difficultyForRow(53).level, 1);
+  assert.equal(difficultyForRow(102).level, 1);
+  assert.equal(difficultyForRow(103).level, 2);
+  assert.equal(difficultyForRow(152).level, 2);
+  assert.equal(difficultyForRow(153).level, 3);
 });
 
 test('road traffic uses canonical vehicle sizes with visible space between neighbors', () => {
@@ -184,6 +242,23 @@ test('road traffic uses canonical vehicle sizes with visible space between neigh
         );
       }
     }
+  }
+});
+
+test('river sections use the approved Candidate B log profile', () => {
+  const riverLanes = Array.from({ length: 30 }, (_, seedIndex) => (
+    generateRows(`section-audit-${seedIndex}`, 3, 210)
+  )).flat().filter((lane) => lane.kind === 'river');
+
+  assert.ok(riverLanes.length > 0);
+  for (const lane of riverLanes) {
+    assert.equal(lane.hazards.length, 5);
+    assert.ok(lane.hazards.every((hazard) => (
+      hazard.kind === 'log'
+      && Number.isInteger(hazard.size)
+      && hazard.size >= 2
+      && hazard.size <= 4
+    )));
   }
 });
 

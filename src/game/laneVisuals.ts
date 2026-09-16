@@ -1,5 +1,22 @@
 import type { LaneKind } from './types.ts';
 
+export const LANE_ROW_DEPTH = 1;
+
+export type LaneSubstrateLayout = {
+  position: readonly [number, number, number];
+  size: readonly [number, number, number];
+};
+
+export function laneSubstrateLayout(circuitLength: number): LaneSubstrateLayout {
+  if (!Number.isFinite(circuitLength) || circuitLength <= 0) {
+    throw new Error('Expected a positive finite circuit length.');
+  }
+  return {
+    position: [0, -0.12, 0],
+    size: [circuitLength, 0.2, LANE_ROW_DEPTH],
+  };
+}
+
 export type LaneDetail = {
   kind: 'rail' | 'sleeper';
   position: readonly [number, number, number];

@@ -10,8 +10,8 @@ import {
 export const WORLD_VERSION = 3;
 
 const OPENING_ROWS = 3;
-const HAZARD_ROWS_PER_GROUP = 4;
-const GROUP_ROWS = HAZARD_ROWS_PER_GROUP + 1;
+const CONTENT_ROWS_PER_GROUP = 6;
+const GROUP_ROWS = CONTENT_ROWS_PER_GROUP + 1;
 const SOLVABILITY_STEP_LIMIT = 80;
 const SOLVABILITY_TRANSITION_LIMIT = 1_024;
 const GENERATION_ATTEMPTS = 8;
@@ -19,16 +19,32 @@ const GROUP_CACHE_LIMIT = 512;
 const groupCache = new Map<string, Lane[]>();
 
 type HazardLaneKind = Exclude<LaneKind, 'grass'>;
+type SectionFamily = HazardLaneKind;
 
-const WEIGHTED_LANE_KINDS: readonly HazardLaneKind[] = [
+const SECTION_FAMILY_POOL: readonly SectionFamily[] = [
   'road', 'road', 'road', 'road', 'road',
-  'river', 'river', 'river',
-  'rail', 'rail',
-];
-const WEIGHTED_NON_RAIL_LANE_KINDS: readonly HazardLaneKind[] = [
   'road', 'road', 'road', 'road', 'road',
+  'rail', 'rail', 'rail', 'rail', 'rail', 'rail',
+  'rail', 'rail', 'rail', 'rail', 'rail', 'rail',
   'river', 'river', 'river',
 ];
+const SECTION_TEMPLATES: Record<
+  SectionFamily,
+  readonly [readonly LaneKind[], readonly LaneKind[]]
+> = {
+  road: [
+    ['road', 'road', 'road', 'grass', 'road', 'road'],
+    ['road', 'road', 'grass', 'grass', 'road', 'road'],
+  ],
+  rail: [
+    ['rail', 'grass', 'road', 'road', 'road', 'road'],
+    ['rail', 'grass', 'grass', 'road', 'road', 'road'],
+  ],
+  river: [
+    ['river', 'river', 'grass', 'road', 'road', 'grass'],
+    ['river', 'river', 'grass', 'road', 'road', 'grass'],
+  ],
+};
 
 export type DifficultyProfile = {
   level: number;
@@ -52,26 +68,21 @@ function seedForGroup(seed: string, groupIndex: number): string {
   return `${WORLD_VERSION}:${seed}:${groupIndex}`;
 }
 
-function laneKindsForGroup(seed: string, groupIndex: number): HazardLaneKind[] {
-  const rng = createRng(`${seedForGroup(seed, groupIndex)}:kinds`);
-  let railStreak = 0;
-  return Array.from({ length: HAZARD_ROWS_PER_GROUP }, () => {
-    const pool = railStreak >= 2 ? WEIGHTED_NON_RAIL_LANE_KINDS : WEIGHTED_LANE_KINDS;
-    const kind = rng.pick(pool);
-    railStreak = kind === 'rail' ? railStreak + 1 : 0;
-    return kind;
-  });
+function laneTemplateForGroup(seed: string, groupIndex: number): readonly LaneKind[] {
+  const rng = createRng(`${seedForGroup(seed, groupIndex)}:template`);
+  const family = rng.pick(SECTION_FAMILY_POOL);
+  return SECTION_TEMPLATES[family][rng.integer(0, 1)]!;
 }
 
 /**
- * Versioned distance progression. Every ten groups raises speed first; after
- * thirty groups it also raises obstacle density. Solvability is checked after
- * applying these parameters, so increasing difficulty never removes the
- * bounded safe-route guarantee.
+ * Versioned distance progression. Every 50 forward rows raises speed first;
+ * after 150 rows it also raises obstacle density. Row distance preserves the
+ * previous five-row-group thresholds after groups expand to seven rows.
+ * Solvability is checked after applying these parameters.
  */
 export function difficultyForRow(row: number): DifficultyProfile {
-  const forwardGroup = Math.max(0, groupIndexFor(row));
-  const level = Math.min(3, Math.floor(forwardGroup / 10));
+  const forwardDistance = Math.max(0, row - OPENING_ROWS);
+  const level = Math.min(3, Math.floor(forwardDistance / 50));
   return {
     level,
     minimumSpeed: Math.min(3, 1 + Math.floor(level / 2)),
@@ -87,6 +98,7 @@ function hazardCount(
   difficulty: DifficultyProfile,
 ): number {
   if (kind === 'rail') return 1;
+  if (kind === 'river') return 5;
   return rng.integer(difficulty.minimumHazards, difficulty.maximumHazards);
 }
 
@@ -112,7 +124,7 @@ function createHazards(
         ? 2
         : hazardKind === 'truck'
           ? 3
-          : rng.integer(1, 3);
+          : rng.integer(2, 4);
     return { kind: hazardKind, position, size };
   });
 }
@@ -145,7 +157,13 @@ function hazardLane(
   };
 }
 
-type ReachableState = { row: number; column: number; time: number; actions: Action[] };
+type ReachableState = {
+  row: number;
+  column: number;
+  time: number;
+  actions: Action[];
+  order: number;
+};
 
 /**
  * Check for a route from the safe row immediately before one generated group
@@ -155,7 +173,7 @@ type ReachableState = { row: number; column: number; time: number; actions: Acti
  * row also permits waiting and lateral setup within the bound.
  */
 export function findBoundedGroupWitness(rows: readonly Lane[]): Action[] | null {
-  if (rows.length !== HAZARD_ROWS_PER_GROUP + 2) return null;
+  if (rows.length !== CONTENT_ROWS_PER_GROUP + 2) return null;
   const ordered = [...rows].sort((left, right) => left.row - right.row);
   if (ordered.some((lane, index) => index > 0 && lane.row !== ordered[index - 1]!.row + 1)
     || ordered[0]!.kind !== 'grass' || ordered.at(-1)!.kind !== 'grass') return null;
@@ -167,43 +185,51 @@ export function findBoundedGroupWitness(rows: readonly Lane[]): Action[] | null 
     column: 0,
     time: decisionTimeAfterSteps(Math.max(0, startRow)),
     actions: [],
+    order: 0,
   }];
   const visited = new Set<string>();
-  const actions: readonly Action[] = ['forward', 'backward', 'left', 'right', 'wait'];
+  const actions: readonly Action[] = ['forward', 'left', 'right', 'wait', 'backward'];
   let transitionsChecked = 0;
+  let nextOrder = 1;
 
-  for (let depth = 0; depth < SOLVABILITY_STEP_LIMIT && frontier.length > 0; depth += 1) {
-    const next: ReachableState[] = [];
-    for (const state of frontier) {
-      for (const action of actions) {
-        if (transitionsChecked >= SOLVABILITY_TRANSITION_LIMIT) return null;
-        transitionsChecked += 1;
-        const attemptedRow = state.row
-          + (action === 'forward' ? 1 : action === 'backward' ? -1 : 0);
-        if (attemptedRow < startRow || attemptedRow > goalRow) continue;
-        const transition = advanceLaneTransition(
-          { row: state.row, column: state.column },
-          state.time,
-          action,
-          (row) => lanes.get(row)!,
-        );
-        if (transition.terminal !== null) continue;
-        const witness = [...state.actions, action];
-        if (transition.fly.row === goalRow) return witness;
-        const candidate = {
-          row: transition.fly.row,
-          column: transition.fly.column,
-          time: transition.time,
-          actions: witness,
-        };
-        const key = `${depth + 1}:${candidate.row}:${candidate.column}`;
-        if (!visited.has(key)) {
-          visited.add(key);
-          next.push(candidate);
-        }
+  while (frontier.length > 0) {
+    frontier.sort((left, right) => (
+      right.row - left.row
+      || left.actions.length - right.actions.length
+      || left.order - right.order
+    ));
+    const state = frontier.shift()!;
+    const depth = state.actions.length;
+    if (depth >= SOLVABILITY_STEP_LIMIT) continue;
+    for (const action of actions) {
+      if (transitionsChecked >= SOLVABILITY_TRANSITION_LIMIT) return null;
+      transitionsChecked += 1;
+      const attemptedRow = state.row
+        + (action === 'forward' ? 1 : action === 'backward' ? -1 : 0);
+      if (attemptedRow < startRow || attemptedRow > goalRow) continue;
+      const transition = advanceLaneTransition(
+        { row: state.row, column: state.column },
+        state.time,
+        action,
+        (row) => lanes.get(row)!,
+      );
+      if (transition.terminal !== null) continue;
+      const witness = [...state.actions, action];
+      if (transition.fly.row === goalRow) return witness;
+      const candidate = {
+        row: transition.fly.row,
+        column: transition.fly.column,
+        time: transition.time,
+        actions: witness,
+        order: nextOrder,
+      };
+      nextOrder += 1;
+      const key = `${depth + 1}:${candidate.row}:${candidate.column}`;
+      if (!visited.has(key)) {
+        visited.add(key);
+        frontier.push(candidate);
       }
     }
-    frontier = next;
   }
   return null;
 }
@@ -217,15 +243,23 @@ function generateGroup(seed: string, groupIndex: number): Lane[] {
   const cached = groupCache.get(cacheKey);
   if (cached) return cached.map((lane) => ({ ...lane, hazards: [...lane.hazards] }));
   const first = OPENING_ROWS + groupIndex * GROUP_ROWS;
-  const laneKinds = laneKindsForGroup(seed, groupIndex);
+  const laneTemplate = laneTemplateForGroup(seed, groupIndex);
   let generated: Lane[] | null = null;
   for (let attempt = 0; attempt < GENERATION_ATTEMPTS; attempt += 1) {
-    const hazards = Array.from(
-      { length: HAZARD_ROWS_PER_GROUP },
-      (_, offset) => hazardLane(seed, first + offset, groupIndex, attempt, laneKinds[offset]!),
+    const content = Array.from(
+      { length: CONTENT_ROWS_PER_GROUP },
+      (_, offset) => laneTemplate[offset] === 'grass'
+        ? grass(first + offset)
+        : hazardLane(
+          seed,
+          first + offset,
+          groupIndex,
+          attempt,
+          laneTemplate[offset] as HazardLaneKind,
+        ),
     );
-    if (hasBoundedGroupPath([grass(first - 1), ...hazards, grass(first + HAZARD_ROWS_PER_GROUP)])) {
-      generated = hazards;
+    if (hasBoundedGroupPath([grass(first - 1), ...content, grass(first + CONTENT_ROWS_PER_GROUP)])) {
+      generated = content;
       break;
     }
   }
@@ -233,7 +267,7 @@ function generateGroup(seed: string, groupIndex: number): Lane[] {
   // is intentionally conservative and guarantees recovery instead of emitting
   // a knowingly impassable layout after the bounded retry budget.
   generated ??= Array.from(
-    { length: HAZARD_ROWS_PER_GROUP },
+    { length: CONTENT_ROWS_PER_GROUP },
     (_, offset) => grass(first + offset),
   );
   groupCache.set(cacheKey, generated);
@@ -242,9 +276,9 @@ function generateGroup(seed: string, groupIndex: number): Lane[] {
 }
 
 /**
- * Generate lanes independently by coordinate. Every group has four hazardous
- * rows followed by a grass recovery row, so ranges can be requested in any
- * order without changing their contents.
+ * Generate lanes independently by coordinate. Every group has six
+ * section-template rows followed by recovery grass, so ranges can be requested
+ * in any order without changing their contents.
  */
 export function generateRows(seed: string, from: number, count: number): Lane[] {
   if (!Number.isInteger(from) || !Number.isInteger(count) || count < 0) {
@@ -256,7 +290,7 @@ export function generateRows(seed: string, from: number, count: number): Lane[] 
     const row = from + offset;
     if (row >= 0 && row < OPENING_ROWS) return grass(row);
     const groupOffset = row - (OPENING_ROWS + groupIndexFor(row) * GROUP_ROWS);
-    if (groupOffset === HAZARD_ROWS_PER_GROUP) return grass(row);
+    if (groupOffset === CONTENT_ROWS_PER_GROUP) return grass(row);
     const groupIndex = groupIndexFor(row);
     if (!groups.has(groupIndex)) groups.set(groupIndex, generateGroup(seed, groupIndex));
     return groups.get(groupIndex)![groupOffset]!;

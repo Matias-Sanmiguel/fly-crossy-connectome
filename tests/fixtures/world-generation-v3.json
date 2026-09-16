@@ -52,41 +52,37 @@
         },
         {
           "row": 5,
-          "kind": "rail",
-          "direction": 1,
-          "speed": 2,
-          "phase": 0.13,
-          "hazards": [
-            {
-              "kind": "train",
-              "position": -1,
-              "size": 4
-            }
-          ]
+          "kind": "grass",
+          "hazards": []
         },
         {
           "row": 6,
-          "kind": "river",
-          "direction": -1,
-          "speed": 2,
-          "phase": 0.472,
-          "hazards": [
-            {
-              "kind": "log",
-              "position": -7,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": 5,
-              "size": 2
-            }
-          ]
+          "kind": "grass",
+          "hazards": []
         },
         {
           "row": 7,
-          "kind": "grass",
-          "hazards": []
+          "kind": "road",
+          "direction": 1,
+          "speed": 1,
+          "phase": 0.762,
+          "hazards": [
+            {
+              "kind": "car",
+              "position": 7,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": -10,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": -2,
+              "size": 2
+            }
+          ]
         }
       ]
     },
@@ -97,35 +93,6 @@
       "rows": [
         {
           "row": -3,
-          "kind": "grass",
-          "hazards": []
-        },
-        {
-          "row": -2,
-          "kind": "road",
-          "direction": -1,
-          "speed": 2,
-          "phase": 0.221,
-          "hazards": [
-            {
-              "kind": "car",
-              "position": -1,
-              "size": 2
-            },
-            {
-              "kind": "car",
-              "position": 7,
-              "size": 2
-            },
-            {
-              "kind": "truck",
-              "position": -10,
-              "size": 3
-            }
-          ]
-        },
-        {
-          "row": -1,
           "kind": "road",
           "direction": 1,
           "speed": 1,
@@ -142,6 +109,30 @@
               "size": 3
             }
           ]
+        },
+        {
+          "row": -2,
+          "kind": "road",
+          "direction": -1,
+          "speed": 1,
+          "phase": 0.72,
+          "hazards": [
+            {
+              "kind": "truck",
+              "position": -7,
+              "size": 3
+            },
+            {
+              "kind": "car",
+              "position": 5,
+              "size": 2
+            }
+          ]
+        },
+        {
+          "row": -1,
+          "kind": "grass",
+          "hazards": []
         },
         {
           "row": 0,
@@ -227,65 +218,51 @@
         },
         {
           "row": 6,
+          "kind": "grass",
+          "hazards": []
+        },
+        {
+          "row": 7,
           "kind": "road",
           "direction": -1,
           "speed": 1,
-          "phase": 0.574,
+          "phase": 0.119,
           "hazards": [
             {
-              "kind": "car",
-              "position": -8,
-              "size": 2
+              "kind": "truck",
+              "position": 2,
+              "size": 3
             },
             {
               "kind": "truck",
-              "position": 4,
+              "position": -11,
               "size": 3
             }
           ]
         },
         {
-          "row": 7,
-          "kind": "grass",
-          "hazards": []
-        },
-        {
           "row": 8,
-          "kind": "river",
-          "direction": 1,
-          "speed": 2,
-          "phase": 0.559,
+          "kind": "road",
+          "direction": -1,
+          "speed": 1,
+          "phase": 0.851,
           "hazards": [
             {
-              "kind": "log",
-              "position": 3,
-              "size": 1
+              "kind": "truck",
+              "position": 1,
+              "size": 3
             },
             {
-              "kind": "log",
-              "position": -10,
-              "size": 1
+              "kind": "truck",
+              "position": -12,
+              "size": 3
             }
           ]
         },
         {
           "row": 9,
-          "kind": "river",
-          "direction": 1,
-          "speed": 1,
-          "phase": 0.075,
-          "hazards": [
-            {
-              "kind": "log",
-              "position": 5,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": -8,
-              "size": 3
-            }
-          ]
+          "kind": "grass",
+          "hazards": []
         }
       ]
     },
@@ -296,208 +273,179 @@
       "rows": [
         {
           "row": 52,
-          "kind": "grass",
-          "hazards": []
-        },
-        {
-          "row": 53,
-          "kind": "river",
-          "direction": 1,
-          "speed": 3,
-          "phase": 0.478,
-          "hazards": [
-            {
-              "kind": "log",
-              "position": 5,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": -8,
-              "size": 2
-            }
-          ]
-        },
-        {
-          "row": 54,
-          "kind": "river",
-          "direction": 1,
-          "speed": 2,
-          "phase": 0.878,
-          "hazards": [
-            {
-              "kind": "log",
-              "position": 2,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": 8,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": -11,
-              "size": 1
-            },
-            {
-              "kind": "log",
-              "position": -5,
-              "size": 1
-            }
-          ]
-        },
-        {
-          "row": 55,
           "kind": "rail",
           "direction": 1,
-          "speed": 3,
-          "phase": 0.352,
+          "speed": 2,
+          "phase": 0.21,
           "hazards": [
             {
               "kind": "train",
-              "position": -4,
+              "position": -11,
               "size": 4
             }
           ]
         },
         {
-          "row": 56,
-          "kind": "river",
-          "direction": 1,
-          "speed": 2,
-          "phase": 0.854,
-          "hazards": [
-            {
-              "kind": "log",
-              "position": 1,
-              "size": 1
-            },
-            {
-              "kind": "log",
-              "position": 9,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": -8,
-              "size": 1
-            }
-          ]
-        },
-        {
-          "row": 57,
+          "row": 53,
           "kind": "grass",
           "hazards": []
         },
         {
-          "row": 58,
+          "row": 54,
+          "kind": "grass",
+          "hazards": []
+        },
+        {
+          "row": 55,
           "kind": "road",
           "direction": 1,
           "speed": 2,
-          "phase": 0.323,
+          "phase": 0.746,
           "hazards": [
-            {
-              "kind": "car",
-              "position": -1,
-              "size": 2
-            },
-            {
-              "kind": "truck",
-              "position": 5,
-              "size": 3
-            },
             {
               "kind": "car",
               "position": 11,
               "size": 2
             },
             {
+              "kind": "truck",
+              "position": -6,
+              "size": 3
+            },
+            {
+              "kind": "truck",
+              "position": 2,
+              "size": 3
+            }
+          ]
+        },
+        {
+          "row": 56,
+          "kind": "road",
+          "direction": -1,
+          "speed": 3,
+          "phase": 0.111,
+          "hazards": [
+            {
               "kind": "car",
-              "position": -8,
+              "position": -3,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": 3,
+              "size": 3
+            },
+            {
+              "kind": "car",
+              "position": 9,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": -10,
               "size": 2
             }
           ]
         },
         {
-          "row": 59,
-          "kind": "river",
-          "direction": -1,
-          "speed": 1,
-          "phase": 0.185,
+          "row": 57,
+          "kind": "road",
+          "direction": 1,
+          "speed": 2,
+          "phase": 0.492,
           "hazards": [
             {
-              "kind": "log",
-              "position": 1,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": 7,
+              "kind": "truck",
+              "position": 5,
               "size": 3
             },
             {
-              "kind": "log",
-              "position": -12,
-              "size": 2
+              "kind": "truck",
+              "position": -8,
+              "size": 3
+            }
+          ]
+        },
+        {
+          "row": 58,
+          "kind": "grass",
+          "hazards": []
+        },
+        {
+          "row": 59,
+          "kind": "road",
+          "direction": 1,
+          "speed": 2,
+          "phase": 0.706,
+          "hazards": [
+            {
+              "kind": "truck",
+              "position": -2,
+              "size": 3
             },
             {
-              "kind": "log",
-              "position": -6,
-              "size": 2
+              "kind": "truck",
+              "position": 6,
+              "size": 3
+            },
+            {
+              "kind": "truck",
+              "position": -11,
+              "size": 3
             }
           ]
         },
         {
           "row": 60,
-          "kind": "river",
+          "kind": "road",
           "direction": 1,
-          "speed": 1,
-          "phase": 0.162,
+          "speed": 2,
+          "phase": 0.487,
           "hazards": [
             {
-              "kind": "log",
-              "position": -3,
+              "kind": "truck",
+              "position": -7,
               "size": 3
             },
             {
-              "kind": "log",
-              "position": 5,
+              "kind": "car",
+              "position": 1,
               "size": 2
             },
             {
-              "kind": "log",
-              "position": -12,
-              "size": 3
+              "kind": "car",
+              "position": 9,
+              "size": 2
             }
           ]
         },
         {
           "row": 61,
-          "kind": "river",
+          "kind": "road",
           "direction": 1,
-          "speed": 3,
-          "phase": 0.052,
+          "speed": 1,
+          "phase": 0.519,
           "hazards": [
             {
-              "kind": "log",
-              "position": 12,
+              "kind": "car",
+              "position": -4,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": 2,
               "size": 3
             },
             {
-              "kind": "log",
-              "position": -7,
-              "size": 1
+              "kind": "car",
+              "position": 8,
+              "size": 2
             },
             {
-              "kind": "log",
-              "position": -1,
-              "size": 1
-            },
-            {
-              "kind": "log",
-              "position": 5,
-              "size": 1
+              "kind": "truck",
+              "position": -11,
+              "size": 3
             }
           ]
         },
@@ -515,48 +463,19 @@
       "rows": [
         {
           "row": 152,
-          "kind": "grass",
-          "hazards": []
-        },
-        {
-          "row": 153,
           "kind": "road",
           "direction": 1,
           "speed": 2,
-          "phase": 0.504,
+          "phase": 0.465,
           "hazards": [
             {
-              "kind": "truck",
-              "position": -8,
-              "size": 3
-            },
-            {
               "kind": "car",
-              "position": 0,
+              "position": 1,
               "size": 2
             },
             {
-              "kind": "car",
-              "position": 8,
-              "size": 2
-            }
-          ]
-        },
-        {
-          "row": 154,
-          "kind": "road",
-          "direction": 1,
-          "speed": 4,
-          "phase": 0.374,
-          "hazards": [
-            {
               "kind": "truck",
-              "position": 5,
-              "size": 3
-            },
-            {
-              "kind": "truck",
-              "position": 9,
+              "position": 7,
               "size": 3
             },
             {
@@ -565,18 +484,71 @@
               "size": 2
             },
             {
+              "kind": "truck",
+              "position": -6,
+              "size": 3
+            }
+          ]
+        },
+        {
+          "row": 153,
+          "kind": "road",
+          "direction": 1,
+          "speed": 5,
+          "phase": 0.551,
+          "hazards": [
+            {
               "kind": "car",
-              "position": -8,
+              "position": 9,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": -11,
               "size": 2
             },
             {
               "kind": "truck",
-              "position": -4,
+              "position": -6,
+              "size": 3
+            },
+            {
+              "kind": "car",
+              "position": -1,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": 4,
+              "size": 2
+            }
+          ]
+        },
+        {
+          "row": 154,
+          "kind": "road",
+          "direction": -1,
+          "speed": 5,
+          "phase": 0.436,
+          "hazards": [
+            {
+              "kind": "car",
+              "position": 8,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": -11,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": -5,
               "size": 3
             },
             {
               "kind": "truck",
-              "position": 0,
+              "position": 1,
               "size": 3
             }
           ]
@@ -584,19 +556,14 @@
         {
           "row": 155,
           "kind": "road",
-          "direction": -1,
-          "speed": 2,
-          "phase": 0.388,
+          "direction": 1,
+          "speed": 5,
+          "phase": 0.475,
           "hazards": [
             {
-              "kind": "car",
+              "kind": "truck",
               "position": 4,
-              "size": 2
-            },
-            {
-              "kind": "car",
-              "position": 8,
-              "size": 2
+              "size": 3
             },
             {
               "kind": "car",
@@ -605,76 +572,95 @@
             },
             {
               "kind": "car",
-              "position": -9,
-              "size": 2
-            },
-            {
-              "kind": "car",
               "position": -5,
               "size": 2
-            },
-            {
-              "kind": "truck",
-              "position": -1,
-              "size": 3
             }
           ]
         },
         {
           "row": 156,
-          "kind": "road",
+          "kind": "grass",
+          "hazards": []
+        },
+        {
+          "row": 157,
+          "kind": "rail",
           "direction": -1,
           "speed": 4,
-          "phase": 0.321,
+          "phase": 0.08,
+          "hazards": [
+            {
+              "kind": "train",
+              "position": 12,
+              "size": 4
+            }
+          ]
+        },
+        {
+          "row": 158,
+          "kind": "grass",
+          "hazards": []
+        },
+        {
+          "row": 159,
+          "kind": "grass",
+          "hazards": []
+        },
+        {
+          "row": 160,
+          "kind": "road",
+          "direction": 1,
+          "speed": 4,
+          "phase": 0.11,
           "hazards": [
             {
               "kind": "car",
-              "position": -5,
-              "size": 2
-            },
-            {
-              "kind": "truck",
-              "position": 0,
-              "size": 3
-            },
-            {
-              "kind": "car",
-              "position": 5,
-              "size": 2
-            },
-            {
-              "kind": "car",
-              "position": 10,
+              "position": 11,
               "size": 2
             },
             {
               "kind": "car",
               "position": -10,
               "size": 2
-            }
-          ]
-        },
-        {
-          "row": 157,
-          "kind": "grass",
-          "hazards": []
-        },
-        {
-          "row": 158,
-          "kind": "road",
-          "direction": 1,
-          "speed": 5,
-          "phase": 0.42,
-          "hazards": [
+            },
             {
               "kind": "truck",
-              "position": 5,
+              "position": -6,
+              "size": 3
+            },
+            {
+              "kind": "car",
+              "position": -2,
+              "size": 2
+            },
+            {
+              "kind": "truck",
+              "position": 2,
               "size": 3
             },
             {
               "kind": "truck",
-              "position": 11,
+              "position": 6,
               "size": 3
+            }
+          ]
+        },
+        {
+          "row": 161,
+          "kind": "road",
+          "direction": -1,
+          "speed": 2,
+          "phase": 0.745,
+          "hazards": [
+            {
+              "kind": "car",
+              "position": 7,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": 12,
+              "size": 2
             },
             {
               "kind": "truck",
@@ -683,77 +669,39 @@
             },
             {
               "kind": "truck",
-              "position": -2,
-              "size": 3
-            }
-          ]
-        },
-        {
-          "row": 159,
-          "kind": "rail",
-          "direction": -1,
-          "speed": 5,
-          "phase": 0.182,
-          "hazards": [
-            {
-              "kind": "train",
-              "position": -5,
-              "size": 4
-            }
-          ]
-        },
-        {
-          "row": 160,
-          "kind": "river",
-          "direction": -1,
-          "speed": 2,
-          "phase": 0.446,
-          "hazards": [
-            {
-              "kind": "log",
-              "position": -10,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": -2,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": 6,
-              "size": 1
-            }
-          ]
-        },
-        {
-          "row": 161,
-          "kind": "river",
-          "direction": -1,
-          "speed": 4,
-          "phase": 0.819,
-          "hazards": [
-            {
-              "kind": "log",
-              "position": 7,
-              "size": 2
-            },
-            {
-              "kind": "log",
-              "position": -10,
+              "position": -3,
               "size": 3
             },
             {
-              "kind": "log",
-              "position": -2,
+              "kind": "truck",
+              "position": 2,
               "size": 3
             }
           ]
         },
         {
           "row": 162,
-          "kind": "grass",
-          "hazards": []
+          "kind": "road",
+          "direction": -1,
+          "speed": 2,
+          "phase": 0.896,
+          "hazards": [
+            {
+              "kind": "car",
+              "position": -3,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": 5,
+              "size": 2
+            },
+            {
+              "kind": "car",
+              "position": -12,
+              "size": 2
+            }
+          ]
         }
       ]
     }
