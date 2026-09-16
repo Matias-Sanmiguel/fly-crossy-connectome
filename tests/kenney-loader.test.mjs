@@ -23,6 +23,17 @@ test('semantic asset registry pins mappings and finite transforms', () => {
   );
   assert.deepEqual(KENNEY_ASSETS['lane.road'].logicalSize, [1, 0.2, 1]);
   assert.deepEqual(KENNEY_ASSETS['lane.rail'].logicalSize, [1, 0.18, 1]);
+  assert.equal(
+    KENNEY_ASSETS['decoration.tree'].path,
+    'assets/kenney/nature-kit/tree-default.glb',
+  );
+  assert.equal(
+    KENNEY_ASSETS['decoration.tree.oak'].path,
+    'assets/kenney/nature-kit/tree-oak.glb',
+  );
+  assert.ok(
+    Object.values(KENNEY_ASSETS).every((asset) => !asset.path.toLowerCase().includes('palm')),
+  );
   assert.equal(NATIVE_ASSET_ROLES['hazard.log'], undefined);
   assert.equal(
     KENNEY_ASSETS['hazard.log.small'].path,

@@ -2,6 +2,7 @@ import { reward as calculateReward } from './reward.ts';
 import type { Action, Lane } from './types.ts';
 import { generateRows, WORLD_VERSION } from './world.ts';
 import { advanceLaneTransition } from './transition.ts';
+import { isSceneryBlocked } from './scenery.ts';
 import type { GridPosition, TerminalReason, TransitionEvent } from './transition.ts';
 
 export {
@@ -76,6 +77,10 @@ export function stepGame(state: GameState, action: Action): StepResult {
     state.time,
     action,
     (row) => laneFor(state, row),
+    (row, column) => {
+      const lane = laneFor(state, row);
+      return isSceneryBlocked(state.seed, row, lane.kind, column);
+    },
   );
 
   const next: GameState = {

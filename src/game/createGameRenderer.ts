@@ -80,7 +80,7 @@ type HazardVisualBinding =
   };
 
 const HOP_MILLISECONDS = 160;
-const DECORATION_CAPACITY = RENDER_LANE_CAPACITY * 2;
+const DECORATION_CAPACITY = RENDER_LANE_CAPACITY * 4;
 const RAIL_CAPACITY = RENDER_LANE_CAPACITY * 2;
 const SLEEPER_CAPACITY = RENDER_LANE_CAPACITY * 40;
 
@@ -452,7 +452,7 @@ export function createGameRenderer(
       for (const decoration of decorationsForRow(game.seed, lane.row, lane.kind)) {
         const model = acquire(decoration.role);
         if (!model) continue;
-        model.position.set(decoration.column, 0, -lane.row);
+        model.position.set(decoration.column, 0, -lane.row + decoration.rowOffset);
         model.rotation.y = decoration.rotationY;
         model.scale.setScalar(decoration.scale);
       }

@@ -1,5 +1,6 @@
 import { WORLD_HALF_WIDTH, hazardContains } from './simulation.ts';
 import type { GameState } from './simulation.ts';
+import { isSceneryBlocked } from './scenery.ts';
 import type { Action, Hazard, Lane, LaneKind } from './types.ts';
 
 export type ObservationV1 = {
@@ -75,6 +76,11 @@ export function observe(state: GameState): ObservationV1 {
       const column = anchorColumn + columnOffset;
       if (Math.abs(column) > WORLD_HALF_WIDTH) continue;
       const observationColumn = columnOffset + OBSERVATION_RADIUS;
+      if (isSceneryBlocked(state.seed, lane.row, lane.kind, column)) {
+        cells[observationRow]![observationColumn] = CELL_ENCODING.unknown;
+        motion[observationRow]![observationColumn] = [0, 0];
+        continue;
+      }
       const hazard = occupyingHazard(lane, column, state.time);
       cells[observationRow]![observationColumn] = hazard
         ? occupiedEncoding(hazard)

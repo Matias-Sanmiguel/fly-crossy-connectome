@@ -26,6 +26,7 @@ const KENNEY_ROLES = new Set([
   'hazard.train',
   'hazard.log',
 ]);
+const TEXTURELESS_PACKS = new Set(['nature-kit']);
 const MANIFEST_KEYS = new Set(['version', 'assets', 'textures']);
 const ASSET_KEYS = new Set([
   'role',
@@ -79,14 +80,14 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
   }
   if (
     !Array.isArray(manifest.assets)
-    || manifest.assets.length !== 37
+    || manifest.assets.length !== 43
   ) {
     throw new Error(
-      'Kenney manifest must contain exactly 37 assets.',
+      'Kenney manifest must contain exactly 43 assets.',
     );
   }
-  if (!Array.isArray(manifest.textures) || manifest.textures.length !== 5) {
-    throw new Error('Kenney manifest must contain exactly 5 required textures.');
+  if (!Array.isArray(manifest.textures) || manifest.textures.length !== 4) {
+    throw new Error('Kenney manifest must contain exactly 4 required textures.');
   }
 
   const roles = new Set();
@@ -128,7 +129,7 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
     }
     if (
       typeof asset.upstreamPath !== 'string'
-      || !/^Models\/GLB format\/[a-z0-9-]+\.glb$/.test(asset.upstreamPath)
+      || !/^Models\/(?:GLB|GLTF) format\/[A-Za-z0-9_-]+\.glb$/.test(asset.upstreamPath)
     ) {
       throw new Error(`${label} has an invalid upstream path.`);
     }
@@ -213,6 +214,8 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
   }
 
   for (const asset of manifest.assets) {
+    const pack = asset.path.split('/')[2];
+    if (TEXTURELESS_PACKS.has(pack)) continue;
     const directory = asset.path.slice(0, asset.path.lastIndexOf('/'));
     const requiredTexture = `${directory}/Textures/colormap.png`;
     if (!texturePaths.has(requiredTexture)) {

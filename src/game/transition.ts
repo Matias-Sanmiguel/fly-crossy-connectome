@@ -9,12 +9,20 @@ export type GridPosition = {
 
 export type TransitionEvent =
   | { type: 'moved'; action: Exclude<Action, 'wait'>; from: GridPosition; to: GridPosition }
+  | {
+    type: 'blocked';
+    action: Exclude<Action, 'wait'>;
+    from: GridPosition;
+    attempted: GridPosition;
+    reason: 'bounds' | 'scenery';
+  }
   | { type: 'waited'; position: GridPosition }
   | { type: 'carried'; row: number; displacement: number }
   | { type: 'train-warning'; row: number }
   | { type: 'terminal'; reason: TerminalReason; position: GridPosition };
 
 export type LaneResolver = (row: number) => Lane;
+export type BlockedResolver = (row: number, column: number) => boolean;
 
 export type LaneTransition = {
   fly: GridPosition;
@@ -92,6 +100,7 @@ export function advanceLaneTransition(
   time: number,
   action: Action,
   laneFor: LaneResolver,
+  blockedAt: BlockedResolver = () => false,
 ): LaneTransition {
   const from = { ...position };
   const toTime = time + DECISION_SECONDS;
@@ -107,9 +116,30 @@ export function advanceLaneTransition(
   }
 
   if (terminal === null) {
-    fly = movedPosition(position, action);
-    if (action === 'wait') events.push({ type: 'waited', position: { ...fly } });
-    else events.push({ type: 'moved', action, from, to: { ...fly } });
+    const attempted = movedPosition(position, action);
+    if (action === 'wait') {
+      fly = attempted;
+      events.push({ type: 'waited', position: { ...fly } });
+    } else {
+      const blockedReason = Math.abs(attempted.column) > WORLD_HALF_WIDTH
+        ? 'bounds'
+        : blockedAt(attempted.row, attempted.column)
+          ? 'scenery'
+          : null;
+      if (blockedReason) {
+        fly = { ...position };
+        events.push({
+          type: 'blocked',
+          action,
+          from,
+          attempted,
+          reason: blockedReason,
+        });
+      } else {
+        fly = attempted;
+        events.push({ type: 'moved', action, from, to: { ...fly } });
+      }
+    }
 
     const destinationLane = laneFor(fly.row);
     if (destinationLane.kind === 'river' && action === 'wait') {

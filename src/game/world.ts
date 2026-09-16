@@ -1,4 +1,5 @@
 import { createRng } from './random.ts';
+import { isSceneryBlocked } from './scenery.ts';
 import type { Direction, Hazard, HazardKind, Lane, LaneKind } from './types.ts';
 import type { Action } from './types.ts';
 import {
@@ -176,7 +177,10 @@ type ReachableState = {
  * by the game. A canonical earliest-arrival phase is used for each group; the safe
  * row also permits waiting and lateral setup within the bound.
  */
-export function findBoundedGroupWitness(rows: readonly Lane[]): Action[] | null {
+export function findBoundedGroupWitness(
+  rows: readonly Lane[],
+  seed?: string,
+): Action[] | null {
   if (rows.length !== CONTENT_ROWS_PER_GROUP + 2) return null;
   const ordered = [...rows].sort((left, right) => left.row - right.row);
   if (ordered.some((lane, index) => index > 0 && lane.row !== ordered[index - 1]!.row + 1)
@@ -216,6 +220,12 @@ export function findBoundedGroupWitness(rows: readonly Lane[]): Action[] | null 
         state.time,
         action,
         (row) => lanes.get(row)!,
+        seed === undefined
+          ? undefined
+          : (row, column) => {
+            const lane = lanes.get(row)!;
+            return isSceneryBlocked(seed, row, lane.kind, column);
+          },
       );
       if (transition.terminal !== null) continue;
       const witness = [...state.actions, action];
@@ -238,8 +248,11 @@ export function findBoundedGroupWitness(rows: readonly Lane[]): Action[] | null 
   return null;
 }
 
-export function hasBoundedGroupPath(rows: readonly Lane[]): boolean {
-  return findBoundedGroupWitness(rows) !== null;
+export function hasBoundedGroupPath(
+  rows: readonly Lane[],
+  seed?: string,
+): boolean {
+  return findBoundedGroupWitness(rows, seed) !== null;
 }
 
 function generateGroup(seed: string, groupIndex: number): Lane[] {
@@ -262,7 +275,10 @@ function generateGroup(seed: string, groupIndex: number): Lane[] {
           laneTemplate[offset] as HazardLaneKind,
         ),
     );
-    if (hasBoundedGroupPath([grass(first - 1), ...content, grass(first + CONTENT_ROWS_PER_GROUP)])) {
+    if (hasBoundedGroupPath(
+      [grass(first - 1), ...content, grass(first + CONTENT_ROWS_PER_GROUP)],
+      seed,
+    )) {
       generated = content;
       break;
     }

@@ -180,6 +180,35 @@ class _Rng:
         return values[math.floor(self.next() * len(values))]
 
 
+_INTERIOR_OBSTACLE_COLUMNS = (-4, -3, -2, -1, 1, 2, 3, 4)
+_OBSTACLE_CLEARANCE = 0.45
+
+
+def _scenery_obstacle_columns(seed: str, row: int, lane_kind: LaneKind) -> list[int]:
+    if lane_kind != "grass":
+        return []
+    if 0 <= row < OPENING_ROWS:
+        return []
+    if (row - OPENING_ROWS) % GROUP_ROWS == CONTENT_ROWS_PER_GROUP:
+        return []
+
+    rng = _Rng(f"obstacles:v1:{seed}:{row}")
+    candidates = list(_INTERIOR_OBSTACLE_COLUMNS)
+    count = rng.integer(1, 3)
+    columns: list[int] = []
+    for _ in range(count):
+        index = rng.integer(0, len(candidates) - 1)
+        columns.append(candidates.pop(index))
+    return sorted(columns)
+
+
+def _scenery_blocked(seed: str, row: int, lane_kind: LaneKind, column: float) -> bool:
+    return any(
+        abs(obstacle_column - column) < _OBSTACLE_CLEARANCE
+        for obstacle_column in _scenery_obstacle_columns(seed, row, lane_kind)
+    )
+
+
 def _group_index_for(row: int) -> int:
     return math.floor((row - OPENING_ROWS) / GROUP_ROWS)
 
@@ -290,7 +319,8 @@ def _generate_group_cached(seed: str, group_index: int) -> tuple[Lane, ...]:
             for offset in range(CONTENT_ROWS_PER_GROUP)
         ]
         if has_bounded_group_path(
-            [_grass(first - 1), *content, _grass(first + CONTENT_ROWS_PER_GROUP)]
+            [_grass(first - 1), *content, _grass(first + CONTENT_ROWS_PER_GROUP)],
+            seed,
         ):
             return tuple(content)
     return tuple(_grass(first + offset) for offset in range(CONTENT_ROWS_PER_GROUP))
@@ -394,6 +424,7 @@ def _advance_lane_transition(
     time: float,
     action: Action,
     lane_for: Callable[[int], Lane],
+    blocked_at: Callable[[int, float], bool] | None = None,
 ) -> _LaneTransition:
     """Advance one action with the authoritative collision, carry, and bounds rules."""
     start_position = position
@@ -418,13 +449,33 @@ def _advance_lane_transition(
             terminal = _collision_reason(starting_lane, collision)
 
     if terminal is None:
-        fly = _moved_position(position, action)
+        attempted = _moved_position(position, action)
         if action == Action.WAIT:
+            fly = attempted
             events.append({"type": "waited", "position": fly})
         else:
-            events.append(
-                {"type": "moved", "action": action, "from": start_position, "to": fly}
-            )
+            blocked_reason: str | None = None
+            if abs(attempted.column) > WORLD_HALF_WIDTH:
+                blocked_reason = "bounds"
+            elif blocked_at is not None and blocked_at(attempted.row, attempted.column):
+                blocked_reason = "scenery"
+
+            if blocked_reason is not None:
+                fly = position
+                events.append(
+                    {
+                        "type": "blocked",
+                        "action": action,
+                        "from": start_position,
+                        "attempted": attempted,
+                        "reason": blocked_reason,
+                    }
+                )
+            else:
+                fly = attempted
+                events.append(
+                    {"type": "moved", "action": action, "from": start_position, "to": fly}
+                )
 
         destination_lane = lane_for(fly.row)
         if destination_lane.kind == "river" and action == Action.WAIT:
@@ -496,7 +547,7 @@ def _decision_time_after_steps(steps: int) -> float:
     return time
 
 
-def find_bounded_group_witness(rows: Sequence[Lane]) -> list[Action] | None:
+def find_bounded_group_witness(rows: Sequence[Lane], seed: str | None = None) -> list[Action] | None:
     """Find an action witness using the same float transition as ``step_game``."""
     if len(rows) != CONTENT_ROWS_PER_GROUP + 2:
         return None
@@ -553,7 +604,15 @@ def find_bounded_group_witness(rows: Sequence[Lane]) -> list[Action] | None:
             if attempted_row < start_row or attempted_row > goal_row:
                 continue
             transition = _advance_lane_transition(
-                position, time, action, lambda row: lanes[row]
+                position,
+                time,
+                action,
+                lambda row: lanes[row],
+                None
+                if seed is None
+                else lambda row, column: _scenery_blocked(
+                    seed, row, lanes[row].kind, column
+                ),
             )
             if transition.terminal is not None:
                 continue
@@ -574,9 +633,9 @@ def find_bounded_group_witness(rows: Sequence[Lane]) -> list[Action] | None:
     return None
 
 
-def has_bounded_group_path(rows: Sequence[Lane]) -> bool:
+def has_bounded_group_path(rows: Sequence[Lane], seed: str | None = None) -> bool:
     """Return whether the authoritative transition yields a bounded witness."""
-    return find_bounded_group_witness(rows) is not None
+    return find_bounded_group_witness(rows, seed) is not None
 
 
 def _extend_world(state: GameState, fly_row: int) -> list[Lane]:
@@ -642,7 +701,13 @@ def step_game(state: GameState, action: Action) -> StepResult:
     if state.terminal is not None:
         return StepResult(state=state, reward=0, events=[])
     transition = _advance_lane_transition(
-        state.fly, state.time, action, lambda row: _lane_for(state, row)
+        state.fly,
+        state.time,
+        action,
+        lambda row: _lane_for(state, row),
+        lambda row, column: _scenery_blocked(
+            state.seed, row, _lane_for(state, row).kind, column
+        ),
     )
 
     next_state = GameState(
@@ -718,6 +783,10 @@ def observe(state: GameState) -> ObservationV1:
             if abs(column) > WORLD_HALF_WIDTH:
                 continue
             observation_column = column_offset + OBSERVATION_RADIUS
+            if _scenery_blocked(state.seed, lane.row, lane.kind, column):
+                cells[observation_row][observation_column] = 0
+                motion[observation_row][observation_column] = [0, 0]
+                continue
             hazard = _occupying_hazard(lane, column, state.time)
             cells[observation_row][observation_column] = (
                 _occupied_encoding(hazard) if hazard is not None else lane_encoding[lane.kind]

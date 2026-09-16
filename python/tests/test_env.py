@@ -226,7 +226,7 @@ def test_row_generation_rejects_booleans_as_browser_non_numbers() -> None:
 def test_known_impassable_first_group_is_replaced_by_a_bounded_reachable_group() -> None:
     group = generate_rows("solvability-probe-87", 2, 8)
 
-    assert has_bounded_group_path(group) is True
+    assert has_bounded_group_path(group, "solvability-probe-87") is True
     assert [group[0].kind, group[-1].kind] == ["grass", "grass"]
 
 
@@ -254,7 +254,7 @@ def _replay_group_witness(seed: str, rows: list[Lane], actions: list[Action]) ->
 
 def test_audit_replay_21_solver_witness_survives_authoritative_float_replay() -> None:
     group = generate_rows("audit-replay-21", 2, 8)
-    witness = find_bounded_group_witness(group)
+    witness = find_bounded_group_witness(group, "audit-replay-21")
 
     assert witness is not None
     _replay_group_witness("audit-replay-21", group, witness)
@@ -266,7 +266,7 @@ def test_solver_witnesses_replay_through_authoritative_transition_sample() -> No
             seed = f"audit-replay-{seed_index}"
             start = 2 + group_index * 7
             group = generate_rows(seed, start, 8)
-            witness = find_bounded_group_witness(group)
+            witness = find_bounded_group_witness(group, seed)
             assert witness is not None, (seed, group_index)
             _replay_group_witness(seed, group, witness)
 

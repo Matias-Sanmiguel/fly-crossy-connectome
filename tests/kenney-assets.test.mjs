@@ -38,8 +38,8 @@ test('Kenney manifest pins exactly the approved CC0 inventory', async () => {
   );
 
   assert.equal(manifest.version, 1);
-  assert.equal(manifest.assets.length, 37);
-  assert.equal(manifest.textures.length, 5);
+  assert.equal(manifest.assets.length, 43);
+  assert.equal(manifest.textures.length, 4);
   assert.deepEqual(
     [...new Set(
       manifest.assets.map(
@@ -48,7 +48,7 @@ test('Kenney manifest pins exactly the approved CC0 inventory', async () => {
     )].sort(),
     expectedRoles,
   );
-  assert.equal(new Set(manifest.assets.map((item) => item.path)).size, 37);
+  assert.equal(new Set(manifest.assets.map((item) => item.path)).size, 43);
 
   for (const item of manifest.assets) {
     assert.match(item.path, /^assets\/kenney\/.+\.glb$/);
@@ -59,7 +59,7 @@ test('Kenney manifest pins exactly the approved CC0 inventory', async () => {
     assert.equal(item.license, 'CC0-1.0');
   }
 
-  assert.equal(new Set(manifest.textures.map((item) => item.path)).size, 5);
+  assert.equal(new Set(manifest.textures.map((item) => item.path)).size, 4);
   for (const item of manifest.textures) {
     assert.match(item.path, /^assets\/kenney\/.+\/Textures\/colormap\.png$/);
     assert.match(item.sha256, /^[a-f0-9]{64}$/);
@@ -113,7 +113,7 @@ test('Kenney validator rejects schema and inventory mutations', async () => {
   shortInventory.assets.pop();
   await assert.rejects(
     validateKenneyManifest(shortInventory, publicRoot),
-    /exactly 37/i,
+    /exactly 43/i,
   );
 
   const wrongBytes = clone();

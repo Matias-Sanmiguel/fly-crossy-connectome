@@ -28,11 +28,12 @@ const PACKS = {
       'cf50d77e8cbacbf38dd50826d4bce5392db8e4f67373d3c4e583b0ed0e474475',
   },
 
-  'mini-forest': {
+  'nature-kit': {
     source:
-      'https://kenney.nl/assets/mini-forest',
+      'https://kenney.nl/assets/nature-kit',
     archiveSha256:
-      '8691614018075a66458e35915b8c358c2e6178648aedadafcdf313b924aa6581',
+      'fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d',
+    textureless: true,
   },
   'survival-kit': {
     source:
@@ -173,21 +174,42 @@ const ASSETS = [
     'hazard.log',
   ],
 
-  // Mini Forest
+  // Nature Kit (no palms selected)
   [
-    'mini-forest',
-    'tree.glb',
-    'decoration.tree',
+    'nature-kit', 'tree-default.glb', 'decoration.tree',
+    'Models/GLTF format/tree_default.glb',
   ],
   [
-    'mini-forest',
-    'rocks-low.glb',
-    'decoration.rocks',
+    'nature-kit', 'tree-oak.glb', 'decoration.tree',
+    'Models/GLTF format/tree_oak.glb',
   ],
   [
-    'mini-forest',
-    'plant.glb',
-    'decoration.plant',
+    'nature-kit', 'tree-pine-round-a.glb', 'decoration.tree',
+    'Models/GLTF format/tree_pineRoundA.glb',
+  ],
+  [
+    'nature-kit', 'tree-fat.glb', 'decoration.tree',
+    'Models/GLTF format/tree_fat.glb',
+  ],
+  [
+    'nature-kit', 'rock-large-a.glb', 'decoration.rocks',
+    'Models/GLTF format/rock_largeA.glb',
+  ],
+  [
+    'nature-kit', 'rock-small-a.glb', 'decoration.rocks',
+    'Models/GLTF format/rock_smallA.glb',
+  ],
+  [
+    'nature-kit', 'rock-small-c.glb', 'decoration.rocks',
+    'Models/GLTF format/rock_smallC.glb',
+  ],
+  [
+    'nature-kit', 'plant-bush.glb', 'decoration.plant',
+    'Models/GLTF format/plant_bush.glb',
+  ],
+  [
+    'nature-kit', 'plant-bush-small.glb', 'decoration.plant',
+    'Models/GLTF format/plant_bushSmall.glb',
   ],
 ];
 
@@ -201,6 +223,7 @@ async function assetEntry(
   pack,
   filename,
   role,
+  upstreamPath = `Models/GLB format/${filename}`,
 ) {
   const metadata = PACKS[pack];
 
@@ -220,8 +243,7 @@ async function assetEntry(
     source: metadata.source,
     archiveSha256:
       metadata.archiveSha256,
-    upstreamPath:
-      `Models/GLB format/${filename}`,
+    upstreamPath,
     license: 'CC0-1.0',
   };
 }
@@ -257,19 +279,22 @@ for (const [
   pack,
   filename,
   role,
+  upstreamPath,
 ] of ASSETS) {
   assets.push(
     await assetEntry(
       pack,
       filename,
       role,
+      upstreamPath,
     ),
   );
 }
 
 const textures = [];
 
-for (const pack of Object.keys(PACKS)) {
+for (const [pack, metadata] of Object.entries(PACKS)) {
+  if (metadata.textureless === true) continue;
   textures.push(
     await textureEntry(pack),
   );

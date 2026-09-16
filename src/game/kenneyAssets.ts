@@ -5,8 +5,14 @@ export const GAME_ASSET_ROLES = [
   'decoration.traffic-light',
   'decoration.rail-warning-light',
   'decoration.tree',
+  'decoration.tree.oak',
+  'decoration.tree.pine-round',
+  'decoration.tree.fat',
   'decoration.rocks',
+  'decoration.rocks.small-a',
+  'decoration.rocks.small-c',
   'decoration.plant',
+  'decoration.plant.small',
 
   'hazard.car.sedan',
   'hazard.car.sedan-sports',
@@ -126,22 +132,64 @@ export const KENNEY_ASSETS = {
   },
 
   'decoration.tree': {
-    path: 'assets/kenney/mini-forest/tree.glb',
-    logicalSize: [1.25, 2.6, 1.25],
+    path: 'assets/kenney/nature-kit/tree-default.glb',
+    logicalSize: [1, 2.2, 1],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.tree.oak': {
+    path: 'assets/kenney/nature-kit/tree-oak.glb',
+    logicalSize: [1.05, 1.8, 1.05],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.tree.pine-round': {
+    path: 'assets/kenney/nature-kit/tree-pine-round-a.glb',
+    logicalSize: [1, 2, 1],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.tree.fat': {
+    path: 'assets/kenney/nature-kit/tree-fat.glb',
+    logicalSize: [1.1, 1.7, 1],
     rotation: [0, 0, 0],
     verticalOffset: 0,
   },
 
   'decoration.rocks': {
-    path: 'assets/kenney/mini-forest/rocks-low.glb',
-    logicalSize: [1.1, 0.45, 0.85],
+    path: 'assets/kenney/nature-kit/rock-large-a.glb',
+    logicalSize: [0.95, 0.45, 0.85],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.rocks.small-a': {
+    path: 'assets/kenney/nature-kit/rock-small-a.glb',
+    logicalSize: [0.55, 0.3, 0.55],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.rocks.small-c': {
+    path: 'assets/kenney/nature-kit/rock-small-c.glb',
+    logicalSize: [0.55, 0.24, 0.55],
     rotation: [0, 0, 0],
     verticalOffset: 0,
   },
 
   'decoration.plant': {
-    path: 'assets/kenney/mini-forest/plant.glb',
-    logicalSize: [0.6, 0.55, 0.6],
+    path: 'assets/kenney/nature-kit/plant-bush.glb',
+    logicalSize: [0.72, 0.5, 0.72],
+    rotation: [0, 0, 0],
+    verticalOffset: 0,
+  },
+
+  'decoration.plant.small': {
+    path: 'assets/kenney/nature-kit/plant-bush-small.glb',
+    logicalSize: [0.58, 0.42, 0.58],
     rotation: [0, 0, 0],
     verticalOffset: 0,
   },

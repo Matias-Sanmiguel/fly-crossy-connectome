@@ -169,13 +169,13 @@ test('section templates enforce grammar, lengths, frequencies, and recovery gras
 test('known impassable first group is replaced by a bounded reachable group', () => {
   const group = generateRows('solvability-probe-87', 2, 8);
 
-  assert.equal(hasBoundedGroupPath(group), true);
+  assert.equal(hasBoundedGroupPath(group, 'solvability-probe-87'), true);
   assert.deepEqual([group[0].kind, group.at(-1).kind], ['grass', 'grass']);
 });
 
 test('audit-replay-21 solver witness survives authoritative floating-point replay', () => {
   const group = generateRows('audit-replay-21', 2, 8);
-  const witness = findBoundedGroupWitness(group);
+  const witness = findBoundedGroupWitness(group, 'audit-replay-21');
 
   assert.ok(witness);
   replayWitness('audit-replay-21', group, witness);
@@ -187,7 +187,7 @@ test('solver witnesses replay through the authoritative transition over a bounde
       const seed = `audit-replay-${seedIndex}`;
       const start = 2 + groupIndex * 7;
       const group = generateRows(seed, start, 8);
-      const witness = findBoundedGroupWitness(group);
+      const witness = findBoundedGroupWitness(group, seed);
       assert.ok(witness, `${seed}, group ${groupIndex}`);
       replayWitness(seed, group, witness);
     }
@@ -199,7 +199,10 @@ test('generated groups have a bounded route over a deterministic seed sample', (
     for (const groupIndex of [0, 1, 8, 24]) {
       const start = 2 + groupIndex * 7;
       assert.equal(
-        hasBoundedGroupPath(generateRows(`solvability-property-${seedIndex}`, start, 8)),
+        hasBoundedGroupPath(
+          generateRows(`solvability-property-${seedIndex}`, start, 8),
+          `solvability-property-${seedIndex}`,
+        ),
         true,
         `seed ${seedIndex}, group ${groupIndex}`,
       );
