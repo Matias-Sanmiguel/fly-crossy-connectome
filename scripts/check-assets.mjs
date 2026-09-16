@@ -1,25 +1,197 @@
-import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-const root = new URL('../public/', import.meta.url);
-for (const [directory,manifestFile,field] of [['brain-atlas','manifest.json','exportSha256'],['flybody','checksums.json','sha256']]) {
-  const manifest=JSON.parse(await readFile(new URL(`data/${directory}/${manifestFile}`,root),'utf8'));
-  for(const [name,digest] of Object.entries(manifest[field])) {
-    const bytes=await readFile(new URL(`data/${directory}/${name}`,root));
-    if(createHash('sha256').update(bytes).digest('hex')!==digest) throw Error(`Asset checksum mismatch: ${directory}/${name}`);
+import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+
+const publicRoot = new URL('../public/', import.meta.url);
+const SHA256_PATTERN = /^[a-f0-9]{64}$/;
+const KENNEY_PATH_PATTERN = /^assets\/kenney\/[a-z0-9-]+\/[a-z0-9-]+\.glb$/;
+const KENNEY_SOURCE_PATTERN = /^https:\/\/kenney\.nl\/assets\/[a-z0-9-]+$/;
+const KENNEY_ROLES = new Set([
+  'lane.road',
+  'lane.rail',
+  'decoration.traffic-light',
+  'decoration.tree',
+  'decoration.rocks',
+  'decoration.plant',
+  'hazard.car',
+  'hazard.truck',
+  'hazard.train',
+]);
+const MANIFEST_KEYS = new Set(['version', 'assets']);
+const ASSET_KEYS = new Set([
+  'role',
+  'path',
+  'bytes',
+  'sha256',
+  'source',
+  'archiveSha256',
+  'upstreamPath',
+  'license',
+]);
+
+function digest(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+function requirePlainObject(value, label) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${label} must be an object.`);
   }
 }
-const connectomeManifest=JSON.parse(await readFile(new URL('data/connectome/manifest.json',root),'utf8'));
-const connectomeBytes=await readFile(new URL('data/connectome/graph.json',root));
-if(createHash('sha256').update(connectomeBytes).digest('hex')!==connectomeManifest.graphSha256) throw Error('Asset checksum mismatch: connectome/graph.json');
-const connectomeNotice=await readFile(new URL('data/connectome/NOTICE.md',root),'utf8');
-const protocolPath='docs/experiments/reduced-connectome-v1.md';
-if(!connectomeNotice.includes(protocolPath)) throw Error(`Connectome notice must link to ${protocolPath}`);
-await readFile(new URL(`../${protocolPath}`,root));
-const upstreamBuilder='https://github.com/cobanov/flyjump/blob/c08c86bc18efd8125964b1d2ca4fc1df59700f30/scripts/build-connectome.py';
-if(!connectomeNotice.includes(upstreamBuilder)) throw Error('Connectome notice must pin its upstream derivation script.');
-const bundledPolicy=await readFile(new URL('models/reduced-connectome-policy-v3.json',root));
-const releasedPolicy=await readFile(new URL('../release/eval-v1/training/connectome/policy.json',root));
-const bundledPolicyHash=createHash('sha256').update(bundledPolicy).digest('hex');
-const releasedPolicyHash=createHash('sha256').update(releasedPolicy).digest('hex');
-if(bundledPolicyHash!==releasedPolicyHash) throw Error('Bundled autoplay policy must match the released connectome policy.');
-console.log('Anatomical and connectome asset hashes verified.');
+
+function rejectUnexpectedKeys(value, expected, label) {
+  for (const key of Object.keys(value)) {
+    if (!expected.has(key)) {
+      throw new Error(`${label} has unexpected key: ${key}`);
+    }
+  }
+  for (const key of expected) {
+    if (!(key in value)) {
+      throw new Error(`${label} is missing key: ${key}`);
+    }
+  }
+}
+
+export async function validateKenneyManifest(manifest, root = publicRoot) {
+  requirePlainObject(manifest, 'Kenney manifest');
+  rejectUnexpectedKeys(manifest, MANIFEST_KEYS, 'Kenney manifest');
+
+  if (manifest.version !== 1) {
+    throw new Error('Kenney manifest version must be 1.');
+  }
+  if (!Array.isArray(manifest.assets) || manifest.assets.length !== 9) {
+    throw new Error('Kenney manifest must contain exactly 9 assets.');
+  }
+
+  const roles = new Set();
+  const paths = new Set();
+
+  for (const [index, asset] of manifest.assets.entries()) {
+    const label = `Kenney asset ${index}`;
+    requirePlainObject(asset, label);
+    rejectUnexpectedKeys(asset, ASSET_KEYS, label);
+
+    if (!KENNEY_ROLES.has(asset.role)) {
+      throw new Error(`${label} has unknown role: ${asset.role}`);
+    }
+    if (roles.has(asset.role)) {
+      throw new Error(`Kenney manifest has duplicate role: ${asset.role}`);
+    }
+    roles.add(asset.role);
+
+    if (typeof asset.path !== 'string' || !KENNEY_PATH_PATTERN.test(asset.path)) {
+      throw new Error(`${label} has an invalid local path.`);
+    }
+    if (paths.has(asset.path)) {
+      throw new Error(`Kenney manifest has duplicate path: ${asset.path}`);
+    }
+    paths.add(asset.path);
+
+    if (!Number.isInteger(asset.bytes) || asset.bytes <= 0) {
+      throw new Error(`${label} has an invalid byte count.`);
+    }
+    if (typeof asset.sha256 !== 'string' || !SHA256_PATTERN.test(asset.sha256)) {
+      throw new Error(`${label} has an invalid checksum.`);
+    }
+    if (
+      typeof asset.archiveSha256 !== 'string'
+      || !SHA256_PATTERN.test(asset.archiveSha256)
+    ) {
+      throw new Error(`${label} has an invalid archive checksum.`);
+    }
+    if (typeof asset.source !== 'string' || !KENNEY_SOURCE_PATTERN.test(asset.source)) {
+      throw new Error(`${label} must use an official Kenney source URL.`);
+    }
+    if (
+      typeof asset.upstreamPath !== 'string'
+      || !/^Models\/GLB format\/[a-z0-9-]+\.glb$/.test(asset.upstreamPath)
+    ) {
+      throw new Error(`${label} has an invalid upstream path.`);
+    }
+    if (asset.license !== 'CC0-1.0') {
+      throw new Error(`${label} must declare CC0-1.0.`);
+    }
+
+    const assetUrl = new URL(asset.path, root);
+    if (!assetUrl.href.startsWith(root.href)) {
+      throw new Error(`${label} path escapes the public asset root.`);
+    }
+    const bytes = await readFile(assetUrl);
+    if (bytes.byteLength !== asset.bytes) {
+      throw new Error(`${label} byte count does not match the manifest.`);
+    }
+    if (digest(bytes) !== asset.sha256) {
+      throw new Error(`${label} checksum does not match the manifest.`);
+    }
+  }
+
+  if (roles.size !== KENNEY_ROLES.size) {
+    throw new Error('Kenney manifest role inventory is incomplete.');
+  }
+}
+
+async function verifyAnatomicalAssets() {
+  for (const [directory, manifestFile, field] of [
+    ['brain-atlas', 'manifest.json', 'exportSha256'],
+    ['flybody', 'checksums.json', 'sha256'],
+  ]) {
+    const manifest = JSON.parse(
+      await readFile(new URL(`data/${directory}/${manifestFile}`, publicRoot), 'utf8'),
+    );
+    for (const [name, expectedDigest] of Object.entries(manifest[field])) {
+      const bytes = await readFile(new URL(`data/${directory}/${name}`, publicRoot));
+      if (digest(bytes) !== expectedDigest) {
+        throw new Error(`Asset checksum mismatch: ${directory}/${name}`);
+      }
+    }
+  }
+}
+
+async function verifyConnectomeAssets() {
+  const manifest = JSON.parse(
+    await readFile(new URL('data/connectome/manifest.json', publicRoot), 'utf8'),
+  );
+  const bytes = await readFile(new URL('data/connectome/graph.json', publicRoot));
+  if (digest(bytes) !== manifest.graphSha256) {
+    throw new Error('Asset checksum mismatch: connectome/graph.json');
+  }
+
+  const notice = await readFile(new URL('data/connectome/NOTICE.md', publicRoot), 'utf8');
+  const protocolPath = 'docs/experiments/reduced-connectome-v1.md';
+  if (!notice.includes(protocolPath)) {
+    throw new Error(`Connectome notice must link to ${protocolPath}`);
+  }
+  await readFile(new URL(`../${protocolPath}`, publicRoot));
+
+  const upstreamBuilder = 'https://github.com/cobanov/flyjump/blob/c08c86bc18efd8125964b1d2ca4fc1df59700f30/scripts/build-connectome.py';
+  if (!notice.includes(upstreamBuilder)) {
+    throw new Error('Connectome notice must pin its upstream derivation script.');
+  }
+
+  const bundledPolicy = await readFile(
+    new URL('models/reduced-connectome-policy-v3.json', publicRoot),
+  );
+  const releasedPolicy = await readFile(
+    new URL('../release/eval-v1/training/connectome/policy.json', publicRoot),
+  );
+  if (digest(bundledPolicy) !== digest(releasedPolicy)) {
+    throw new Error('Bundled autoplay policy must match the released connectome policy.');
+  }
+}
+
+export async function checkAssets() {
+  await verifyAnatomicalAssets();
+  await verifyConnectomeAssets();
+  const kenneyManifest = JSON.parse(
+    await readFile(new URL('assets/kenney/manifest.json', publicRoot), 'utf8'),
+  );
+  await validateKenneyManifest(kenneyManifest, publicRoot);
+}
+
+const isMain = process.argv[1]
+  && pathToFileURL(process.argv[1]).href === import.meta.url;
+
+if (isMain) {
+  await checkAssets();
+  console.log('Anatomical, connectome, and Kenney asset hashes verified.');
+}
