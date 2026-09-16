@@ -244,6 +244,7 @@ export function useGame({
   const previousSeed = useRef(seed);
   const pending = useRef<{ requestId: number; abort: AbortController } | null>(null);
   const nextRequestId = useRef(1);
+  const queuedHumanAction = useRef<Action | null>(null);
   const [documentVisible, setDocumentVisible] = useState(() => !document.hidden);
 
   const abortPending = useCallback(() => {
@@ -254,12 +255,14 @@ export function useGame({
   useEffect(() => {
     if (previousSeed.current === seed) return;
     previousSeed.current = seed;
+    queuedHumanAction.current = null;
     abortPending();
     controller?.reset(seed);
     dispatch({ type: 'reset', seed, status: mode === 'human' ? 'manual' : 'ready' });
   }, [abortPending, controller, mode, seed]);
 
   useEffect(() => {
+    queuedHumanAction.current = null;
     abortPending();
     controller?.reset(run.game.seed);
     dispatch({ type: 'controller-clear', status: mode === 'human' ? 'manual' : 'ready' });
@@ -275,6 +278,7 @@ export function useGame({
       const visible = !document.hidden;
       setDocumentVisible(visible);
       if (!visible) {
+        queuedHumanAction.current = null;
         abortPending();
         dispatch({ type: 'controller-cancel' });
       }
@@ -322,16 +326,18 @@ export function useGame({
   }, [autonomousSpeed, controller, documentVisible, mode, run.game, run.paused, visibleIds]);
 
   const onAction = useCallback((action: Action) => {
-    if (mode !== 'human') return;
-    dispatch({ type: 'action', action });
-  }, [mode]);
+    if (mode !== 'human' || run.paused || run.game.terminal !== null) return;
+    queuedHumanAction.current = action;
+  }, [mode, run.game.terminal, run.paused]);
 
   const onTogglePause = useCallback(() => {
+    queuedHumanAction.current = null;
     abortPending();
     dispatch({ type: 'toggle-pause' });
   }, [abortPending]);
 
   const reset = useCallback((nextSeed?: string) => {
+    queuedHumanAction.current = null;
     abortPending();
     controller?.reset(nextSeed ?? run.game.seed);
     dispatch({
@@ -340,6 +346,21 @@ export function useGame({
       status: mode === 'human' ? 'manual' : 'ready',
     });
   }, [abortPending, controller, mode, run.game.seed]);
+
+  useEffect(() => {
+    if (mode !== 'human' || !documentVisible
+      || run.paused || run.game.terminal !== null) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      const action = queuedHumanAction.current ?? 'wait';
+      queuedHumanAction.current = null;
+      dispatch({ type: 'action', action });
+    }, DECISION_SECONDS * 1_000);
+
+    return () => window.clearInterval(timer);
+  }, [documentVisible, mode, run.game.terminal, run.paused]);
 
   useEffect(() => {
     if (mode !== 'human') return;

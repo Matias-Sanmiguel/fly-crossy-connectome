@@ -23,9 +23,13 @@ import {
   RENDER_LANE_CAPACITY,
   selectRenderableInstances,
 } from './rendering.ts';
-import { hazardPositionAt, HAZARD_CIRCUIT } from './simulation.ts';
+import {
+  DECISION_SECONDS,
+  hazardPositionAt,
+  HAZARD_CIRCUIT,
+} from './simulation.ts';
 import type { GameEvent, GameState, GridPosition } from './simulation.ts';
-import type { HazardKind, LaneKind } from './types.ts';
+import type { Hazard, HazardKind, Lane, LaneKind } from './types.ts';
 
 export type GameAssetStatus = 'loading' | 'ready' | 'fallback';
 
@@ -40,6 +44,23 @@ export type GameRendererOptions = {
   assetLoader?: KenneyAssetLoader;
   onAssetStatus?: (status: GameAssetStatus) => void;
 };
+
+type HazardVisualBinding =
+  | {
+    kind: 'group';
+    lane: Lane;
+    hazard: Hazard;
+    model: THREE.Group;
+  }
+  | {
+    kind: 'instance';
+    lane: Lane;
+    hazard: Hazard;
+    mesh: THREE.InstancedMesh;
+    index: number;
+    height: number;
+    depth: number;
+  };
 
 const HOP_MILLISECONDS = 160;
 const DECORATION_CAPACITY = RENDER_LANE_CAPACITY * 2;
@@ -147,6 +168,7 @@ export function createGameRenderer(
   let renderedSeed = '';
   let cameraRow = 0;
   let hopStarted = performance.now() - HOP_MILLISECONDS;
+  let hazardClockStarted = performance.now();
   const hopFrom = new THREE.Vector3();
   const hopTo = new THREE.Vector3();
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -155,6 +177,7 @@ export function createGameRenderer(
   let disposed = false;
   const pools = new Map<GameAssetRole, THREE.Group[]>();
   const poolUsage = new Map<GameAssetRole, number>();
+  const hazardBindings: HazardVisualBinding[] = [];
 
   const publishStatus = (next: GameAssetStatus) => {
     if (status === next) return;
@@ -227,6 +250,37 @@ export function createGameRenderer(
     return group;
   };
 
+  const updateHazardPositions = (time: number) => {
+    let touchedFallbackMesh = false;
+
+    for (const binding of hazardBindings) {
+      const x = hazardPositionAt(binding.lane, binding.hazard, time);
+
+      if (binding.kind === 'group') {
+        binding.model.position.x = x;
+        continue;
+      }
+
+      composeInstance(
+        binding.mesh,
+        binding.index,
+        x,
+        binding.height / 2,
+        -binding.lane.row,
+        binding.hazard.size,
+        binding.height,
+        binding.depth,
+      );
+      touchedFallbackMesh = true;
+    }
+
+    if (touchedFallbackMesh) {
+      for (const mesh of Object.values(hazardMeshes)) {
+        mesh.instanceMatrix.needsUpdate = true;
+      }
+    }
+  };
+
   const rebuildInstances = (game: GameState) => {
     const laneCounts: Record<LaneKind, number> = { grass: 0, road: 0, rail: 0, river: 0 };
     const hazardCounts: Record<HazardKind, number> = { car: 0, truck: 0, train: 0, log: 0 };
@@ -234,6 +288,7 @@ export function createGameRenderer(
     let sleeperCount = 0;
     const renderable = selectRenderableInstances(game);
     resetPools();
+    hazardBindings.length = 0;
 
     for (const lane of renderable.lanes) {
       const laneIndex = laneCounts[lane.kind]++;
@@ -249,11 +304,9 @@ export function createGameRenderer(
         substrate.size[2],
       );
 
-      const tiledRole = lane.kind === 'road'
-        ? 'lane.road'
-        : lane.kind === 'rail'
-          ? 'lane.rail'
-          : null;
+      const tiledRole = lane.kind === 'rail'
+        ? 'lane.rail'
+        : null;
       const tiledRow = tiledRole ? acquireTiledLaneRow(tiledRole) : null;
       if (tiledRow) tiledRow.position.set(0, 0, -lane.row);
 
@@ -300,13 +353,20 @@ export function createGameRenderer(
         hazardModel.scale.setScalar(
           hazard.size / KENNEY_ASSETS[hazardRole].logicalSize[0],
         );
+        hazardBindings.push({
+          kind: 'group',
+          lane,
+          hazard,
+          model: hazardModel,
+        });
       } else {
         const hazardIndex = hazardCounts[hazard.kind]++;
         const isLog = hazard.kind === 'log';
         const height = hazard.kind === 'train' ? 0.72 : isLog ? 0.25 : 0.48;
         const depth = hazard.kind === 'train' ? 0.72 : isLog ? 0.48 : 0.58;
+        const mesh = hazardMeshes[hazard.kind];
         composeInstance(
-          hazardMeshes[hazard.kind],
+          mesh,
           hazardIndex,
           x,
           height / 2,
@@ -315,6 +375,15 @@ export function createGameRenderer(
           height,
           depth,
         );
+        hazardBindings.push({
+          kind: 'instance',
+          lane,
+          hazard,
+          mesh,
+          index: hazardIndex,
+          height,
+          depth,
+        });
       }
     }
 
@@ -376,6 +445,15 @@ export function createGameRenderer(
       camera.position.set(9, 10, focusZ + 9);
       camera.lookAt(0, 0, focusZ - 0.75);
 
+      const elapsedHazardSeconds = Math.max(
+        0,
+        (now - hazardClockStarted) / 1_000,
+      );
+      const visualTime = game.terminal === null
+        ? game.time + Math.min(DECISION_SECONDS, elapsedHazardSeconds)
+        : game.time;
+      updateHazardPositions(visualTime);
+
       if (!document.hidden) webgl.render(scene, camera);
     }
     previous = now;
@@ -404,6 +482,7 @@ export function createGameRenderer(
         : performance.now();
       renderedStep = state.step;
       renderedSeed = state.seed;
+      hazardClockStarted = performance.now();
       rebuildInstances(state);
     },
     resize,
@@ -427,3 +506,4 @@ export function createGameRenderer(
     },
   };
 }
+
