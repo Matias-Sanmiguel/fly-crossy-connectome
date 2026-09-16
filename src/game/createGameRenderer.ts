@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import { visualRoleForHazard } from './hazardVisuals.ts';
+import { trainConsistParts } from './trainVisuals.ts';
 import { createFlyModel } from './createFlyModel.ts';
 import { decorationsForRow } from './scenery.ts';
 import { KENNEY_ASSETS, type GameAssetRole } from './kenneyAssets.ts';
@@ -27,7 +28,12 @@ import {
   DECISION_SECONDS,
   hazardPositionAt,
   HAZARD_CIRCUIT,
+  WORLD_HALF_WIDTH,
 } from './simulation.ts';
+import {
+  hazardSweepsColumn,
+  TRAIN_WARNING_SECONDS,
+} from './transition.ts';
 import type { GameEvent, GameState, GridPosition } from './simulation.ts';
 import type { Hazard, HazardKind, Lane, LaneKind } from './types.ts';
 
@@ -43,6 +49,12 @@ export type GameRenderer = {
 export type GameRendererOptions = {
   assetLoader?: KenneyAssetLoader;
   onAssetStatus?: (status: GameAssetStatus) => void;
+};
+
+type RailWarningLightBinding = {
+  lane: Lane;
+  hazard: Hazard;
+  models: THREE.Group[];
 };
 
 type HazardVisualBinding =
@@ -178,6 +190,8 @@ export function createGameRenderer(
   const pools = new Map<GameAssetRole, THREE.Group[]>();
   const poolUsage = new Map<GameAssetRole, number>();
   const hazardBindings: HazardVisualBinding[] = [];
+  const railWarningLights: RailWarningLightBinding[] = [];
+  const trainContainers: THREE.Group[] = [];
 
   const publishStatus = (next: GameAssetStatus) => {
     if (status === next) return;
@@ -250,6 +264,24 @@ export function createGameRenderer(
     return group;
   };
 
+  const updateRailWarningLights = (time: number) => {
+    const blinkOn = Math.floor(time * 8) % 2 === 0;
+
+    for (const warning of railWarningLights) {
+      const active = hazardSweepsColumn(
+        warning.lane,
+        warning.hazard,
+        0,
+        time,
+        time + TRAIN_WARNING_SECONDS,
+      );
+
+      for (const model of warning.models) {
+        model.visible = active && blinkOn;
+      }
+    }
+  };
+
   const updateHazardPositions = (time: number) => {
     let touchedFallbackMesh = false;
 
@@ -288,7 +320,10 @@ export function createGameRenderer(
     let sleeperCount = 0;
     const renderable = selectRenderableInstances(game);
     resetPools();
+    for (const container of trainContainers) scene.remove(container);
+    trainContainers.length = 0;
     hazardBindings.length = 0;
+    railWarningLights.length = 0;
 
     for (const lane of renderable.lanes) {
       const laneIndex = laneCounts[lane.kind]++;
@@ -309,6 +344,32 @@ export function createGameRenderer(
         : null;
       const tiledRow = tiledRole ? acquireTiledLaneRow(tiledRole) : null;
       if (tiledRow) tiledRow.position.set(0, 0, -lane.row);
+
+      if (lane.kind === 'rail') {
+        const train = lane.hazards.find((hazard) => hazard.kind === 'train');
+        if (train) {
+          const models: THREE.Group[] = [];
+          for (const side of [-1, 1] as const) {
+            const signal = acquire('decoration.traffic-light');
+            if (!signal) continue;
+            signal.position.set(
+              side * (WORLD_HALF_WIDTH + 0.75),
+              0,
+              -lane.row,
+            );
+            signal.rotation.y = side === -1 ? Math.PI / 2 : -Math.PI / 2;
+            signal.scale.setScalar(0.55);
+            models.push(signal);
+          }
+          if (models.length > 0) {
+            railWarningLights.push({
+              lane,
+              hazard: train,
+              models,
+            });
+          }
+        }
+      }
 
       const useProceduralRail = lane.kind === 'rail'
         && railSurfaceMode(tiledRow !== null) === 'procedural';
@@ -340,6 +401,36 @@ export function createGameRenderer(
 
     for (const { lane, hazard } of renderable.hazards) {
       const x = hazardPositionAt(lane, hazard, game.time);
+
+      if (hazard.kind === 'train' && library) {
+        const container = new THREE.Group();
+        let complete = true;
+
+        for (const part of trainConsistParts(game.seed, lane.row, hazard)) {
+          const model = acquire(part.role);
+          if (!model) {
+            complete = false;
+            break;
+          }
+          model.position.set(part.offset, 0, 0);
+          container.add(model);
+        }
+
+        if (complete) {
+          container.position.set(x, 0, -lane.row);
+          container.rotation.y = lane.direction === -1 ? Math.PI : 0;
+          scene.add(container);
+          trainContainers.push(container);
+          hazardBindings.push({
+            kind: 'group',
+            lane,
+            hazard,
+            model: container,
+          });
+          continue;
+        }
+      }
+
       const hazardRole =
         visualRoleForHazard(
           game.seed,
@@ -453,6 +544,7 @@ export function createGameRenderer(
         ? game.time + Math.min(DECISION_SECONDS, elapsedHazardSeconds)
         : game.time;
       updateHazardPositions(visualTime);
+      updateRailWarningLights(visualTime);
 
       if (!document.hidden) webgl.render(scene, camera);
     }

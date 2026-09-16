@@ -117,10 +117,10 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
             "row": 3,
             "kind": "rail",
             "hazards": [
-                {"kind": "train", "position": 6, "size": 4},
+                {"kind": "train", "position": 19, "size": 18},
             ],
             "direction": -1,
-            "speed": 1,
+            "speed": 10,
             "phase": 0.034,
         },
         {

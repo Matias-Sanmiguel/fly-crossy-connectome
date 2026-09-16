@@ -23,6 +23,17 @@ export const GAME_ASSET_ROLES = [
   'hazard.truck.firetruck',
 
   'hazard.train',
+  'hazard.train.locomotive.diesel-b',
+  'hazard.train.locomotive.diesel-c',
+  'hazard.train.locomotive.a',
+  'hazard.train.carriage.box',
+  'hazard.train.carriage.coal',
+  'hazard.train.carriage.container-blue',
+  'hazard.train.carriage.dirt',
+  'hazard.train.carriage.flatbed-wood',
+  'hazard.train.carriage.lumber',
+  'hazard.train.carriage.tank-large',
+  'hazard.train.carriage.wood',
 ] as const;
 
 export type GameAssetRole =
@@ -49,6 +60,24 @@ const truckDefinition = (
 ): KenneyAssetDefinition => ({
   path,
   logicalSize: [2.8, 1, 0.95],
+  rotation: [0, Math.PI / 2, 0],
+  verticalOffset: 0,
+});
+
+const trainLocomotiveDefinition = (
+  path: string,
+): KenneyAssetDefinition => ({
+  path,
+  logicalSize: [2, 1.3, 0.95],
+  rotation: [0, Math.PI / 2, 0],
+  verticalOffset: 0,
+});
+
+const trainCarriageDefinition = (
+  path: string,
+): KenneyAssetDefinition => ({
+  path,
+  logicalSize: [1.9, 1.15, 0.95],
   rotation: [0, Math.PI / 2, 0],
   verticalOffset: 0,
 });
@@ -148,12 +177,53 @@ export const KENNEY_ASSETS = {
     'assets/kenney/car-kit/firetruck.glb',
   ),
 
-  'hazard.train': {
-    path: 'assets/kenney/train-kit/train-diesel-a.glb',
-    logicalSize: [5.5, 1.3, 1],
-    rotation: [0, Math.PI / 2, 0],
-    verticalOffset: 0,
-  },
+  'hazard.train': trainLocomotiveDefinition(
+    'assets/kenney/train-kit/train-diesel-a.glb',
+  ),
+
+  'hazard.train.locomotive.diesel-b': trainLocomotiveDefinition(
+    'assets/kenney/train-kit/train-diesel-b.glb',
+  ),
+
+  'hazard.train.locomotive.diesel-c': trainLocomotiveDefinition(
+    'assets/kenney/train-kit/train-diesel-c.glb',
+  ),
+
+  'hazard.train.locomotive.a': trainLocomotiveDefinition(
+    'assets/kenney/train-kit/train-locomotive-a.glb',
+  ),
+
+  'hazard.train.carriage.box': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-box.glb',
+  ),
+
+  'hazard.train.carriage.coal': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-coal.glb',
+  ),
+
+  'hazard.train.carriage.container-blue': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-container-blue.glb',
+  ),
+
+  'hazard.train.carriage.dirt': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-dirt.glb',
+  ),
+
+  'hazard.train.carriage.flatbed-wood': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-flatbed-wood.glb',
+  ),
+
+  'hazard.train.carriage.lumber': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-lumber.glb',
+  ),
+
+  'hazard.train.carriage.tank-large': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-tank-large.glb',
+  ),
+
+  'hazard.train.carriage.wood': trainCarriageDefinition(
+    'assets/kenney/train-kit/train-carriage-wood.glb',
+  ),
 } satisfies Record<
   GameAssetRole,
   KenneyAssetDefinition

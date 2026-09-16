@@ -15,6 +15,7 @@ WORLD_VERSION = 3
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
 HAZARD_CIRCUIT = 25
+TRAIN_CIRCUIT = 80
 
 OPENING_ROWS = 3
 CONTENT_ROWS_PER_GROUP = 6
@@ -24,7 +25,7 @@ SOLVABILITY_TRANSITION_LIMIT = 1_024
 GENERATION_ATTEMPTS = 8
 ROWS_AHEAD = 15
 ROWS_BEHIND = 8
-TRAIN_WARNING_SECONDS = 2
+TRAIN_WARNING_SECONDS = 1.2
 
 PROGRESS_REWARD = 1
 TERMINAL_PENALTY = -10
@@ -218,16 +219,17 @@ def _create_hazards(
     kind: LaneKind, rng: _Rng, difficulty: DifficultyProfile
 ) -> list[Hazard]:
     count = _hazard_count(kind, rng, difficulty)
-    half_circuit = HAZARD_CIRCUIT // 2
+    circuit = TRAIN_CIRCUIT if kind == "rail" else HAZARD_CIRCUIT
+    half_circuit = circuit // 2
     first_position = rng.integer(-half_circuit, half_circuit)
-    spacing = HAZARD_CIRCUIT // count
+    spacing = circuit // count
     hazards: list[Hazard] = []
     for index in range(count):
         hazard_kind = rng.pick(_HAZARD_KINDS[kind])
         unwrapped_position = first_position + index * spacing
-        position = ((unwrapped_position + half_circuit) % HAZARD_CIRCUIT) - half_circuit
+        position = ((unwrapped_position + half_circuit) % circuit) - half_circuit
         if hazard_kind == "train":
-            size = 4
+            size = 18
         elif hazard_kind == "car":
             size = 2
         elif hazard_kind == "truck":
@@ -258,7 +260,11 @@ def _hazard_lane(
         row=row,
         kind=kind,
         direction=lane_rng.pick((-1, 1)),
-        speed=lane_rng.integer(difficulty.minimum_speed, difficulty.maximum_speed),
+        speed=(
+            lane_rng.integer(10, 12)
+            if kind == "rail"
+            else lane_rng.integer(difficulty.minimum_speed, difficulty.maximum_speed)
+        ),
         phase=lane_rng.integer(0, 999) / 1000,
         hazards=_create_hazards(kind, lane_rng, difficulty),
     )
@@ -337,9 +343,10 @@ def _unwrapped_hazard_position_at(lane: Lane, hazard: Hazard, time: float) -> fl
 
 def hazard_position_at(lane: Lane, hazard: Hazard, time: float) -> float:
     unwrapped = _unwrapped_hazard_position_at(lane, hazard, time)
-    half_circuit = HAZARD_CIRCUIT / 2
-    first_remainder = math.fmod(unwrapped + half_circuit, HAZARD_CIRCUIT)
-    return math.fmod(first_remainder + HAZARD_CIRCUIT, HAZARD_CIRCUIT) - half_circuit
+    circuit = TRAIN_CIRCUIT if hazard.kind == "train" else HAZARD_CIRCUIT
+    half_circuit = circuit / 2
+    first_remainder = math.fmod(unwrapped + half_circuit, circuit)
+    return math.fmod(first_remainder + circuit, circuit) - half_circuit
 
 
 def hazard_contains(lane: Lane, hazard: Hazard, column: float, time: float) -> bool:
@@ -358,8 +365,9 @@ def _hazard_sweeps_column(
     half_size = hazard.size / 2
     lower = min(start, end) - half_size
     upper = max(start, end) + half_size
-    first_image = math.ceil((lower - column) / HAZARD_CIRCUIT)
-    last_image = math.floor((upper - column) / HAZARD_CIRCUIT)
+    circuit = TRAIN_CIRCUIT if hazard.kind == "train" else HAZARD_CIRCUIT
+    first_image = math.ceil((lower - column) / circuit)
+    last_image = math.floor((upper - column) / circuit)
     return first_image <= last_image
 
 

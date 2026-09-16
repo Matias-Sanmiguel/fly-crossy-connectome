@@ -26,7 +26,12 @@ export type LaneTransition = {
 export const DECISION_SECONDS = 0.2;
 export const WORLD_HALF_WIDTH = 5;
 export const HAZARD_CIRCUIT = 25;
-const TRAIN_WARNING_SECONDS = 2;
+export const TRAIN_CIRCUIT = 80;
+export const TRAIN_WARNING_SECONDS = 1.2;
+
+function hazardCircuitLength(hazard: Hazard): number {
+  return hazard.kind === 'train' ? TRAIN_CIRCUIT : HAZARD_CIRCUIT;
+}
 
 function unwrappedHazardPositionAt(lane: Lane, hazard: Hazard, time: number): number {
   const direction = lane.direction ?? 0;
@@ -38,8 +43,9 @@ function unwrappedHazardPositionAt(lane: Lane, hazard: Hazard, time: number): nu
 /** Horizontal center on the repeating hazard circuit at an authoritative time. */
 export function hazardPositionAt(lane: Lane, hazard: Hazard, time: number): number {
   const unwrapped = unwrappedHazardPositionAt(lane, hazard, time);
-  const halfCircuit = HAZARD_CIRCUIT / 2;
-  return ((unwrapped + halfCircuit) % HAZARD_CIRCUIT + HAZARD_CIRCUIT) % HAZARD_CIRCUIT
+  const circuit = hazardCircuitLength(hazard);
+  const halfCircuit = circuit / 2;
+  return ((unwrapped + halfCircuit) % circuit + circuit) % circuit
     - halfCircuit;
 }
 
@@ -59,8 +65,9 @@ export function hazardSweepsColumn(
   const halfSize = hazard.size / 2;
   const lower = Math.min(from, to) - halfSize;
   const upper = Math.max(from, to) + halfSize;
-  const firstImage = Math.ceil((lower - column) / HAZARD_CIRCUIT);
-  const lastImage = Math.floor((upper - column) / HAZARD_CIRCUIT);
+  const circuit = hazardCircuitLength(hazard);
+  const firstImage = Math.ceil((lower - column) / circuit);
+  const lastImage = Math.floor((upper - column) / circuit);
   return firstImage <= lastImage;
 }
 

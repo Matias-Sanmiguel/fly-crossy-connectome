@@ -275,13 +275,13 @@
           "row": 52,
           "kind": "rail",
           "direction": 1,
-          "speed": 2,
+          "speed": 12,
           "phase": 0.21,
           "hazards": [
             {
               "kind": "train",
-              "position": -11,
-              "size": 4
+              "position": -35,
+              "size": 18
             }
           ]
         },
@@ -586,13 +586,13 @@
           "row": 157,
           "kind": "rail",
           "direction": -1,
-          "speed": 4,
+          "speed": 11,
           "phase": 0.08,
           "hazards": [
             {
               "kind": "train",
-              "position": 12,
-              "size": 4
+              "position": 39,
+              "size": 18
             }
           ]
         },

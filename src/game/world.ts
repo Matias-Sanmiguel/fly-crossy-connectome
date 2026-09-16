@@ -5,6 +5,7 @@ import {
   advanceLaneTransition,
   decisionTimeAfterSteps,
   HAZARD_CIRCUIT,
+  TRAIN_CIRCUIT,
 } from './transition.ts';
 
 export const WORLD_VERSION = 3;
@@ -109,17 +110,18 @@ function createHazards(
 ): Hazard[] {
   const count = hazardCount(kind, rng, difficulty);
   const kinds = hazardKindByLane[kind];
-  const halfCircuit = Math.floor(HAZARD_CIRCUIT / 2);
+  const circuit = kind === 'rail' ? TRAIN_CIRCUIT : HAZARD_CIRCUIT;
+  const halfCircuit = Math.floor(circuit / 2);
   const firstPosition = rng.integer(-halfCircuit, halfCircuit);
-  const spacing = Math.floor(HAZARD_CIRCUIT / count);
+  const spacing = Math.floor(circuit / count);
   return Array.from({ length: count }, (_, index) => {
     const hazardKind = rng.pick(kinds);
     const unwrappedPosition = firstPosition + index * spacing;
     const position = (
-      (unwrappedPosition + halfCircuit) % HAZARD_CIRCUIT + HAZARD_CIRCUIT
-    ) % HAZARD_CIRCUIT - halfCircuit;
+      (unwrappedPosition + halfCircuit) % circuit + circuit
+    ) % circuit - halfCircuit;
     const size = hazardKind === 'train'
-      ? 4
+      ? 18
       : hazardKind === 'car'
         ? 2
         : hazardKind === 'truck'
@@ -151,7 +153,9 @@ function hazardLane(
     row,
     kind,
     direction,
-    speed: laneRng.integer(difficulty.minimumSpeed, difficulty.maximumSpeed),
+    speed: kind === 'rail'
+      ? laneRng.integer(10, 12)
+      : laneRng.integer(difficulty.minimumSpeed, difficulty.maximumSpeed),
     phase: laneRng.integer(0, 999) / 1000,
     hazards: createHazards(kind, laneRng, difficulty),
   };
