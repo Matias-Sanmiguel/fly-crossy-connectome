@@ -34,6 +34,7 @@ test('Kenney manifest pins exactly the approved CC0 inventory', async () => {
 
   assert.equal(manifest.version, 1);
   assert.equal(manifest.assets.length, 9);
+  assert.equal(manifest.textures.length, 4);
   assert.deepEqual(
     manifest.assets.map((item) => item.role).sort(),
     expectedRoles,
@@ -45,6 +46,14 @@ test('Kenney manifest pins exactly the approved CC0 inventory', async () => {
     assert.match(item.source, /^https:\/\/kenney\.nl\/assets\//);
     assert.match(item.sha256, /^[a-f0-9]{64}$/);
     assert.match(item.archiveSha256, /^[a-f0-9]{64}$/);
+    assert.ok(Number.isInteger(item.bytes) && item.bytes > 0);
+    assert.equal(item.license, 'CC0-1.0');
+  }
+
+  assert.equal(new Set(manifest.textures.map((item) => item.path)).size, 4);
+  for (const item of manifest.textures) {
+    assert.match(item.path, /^assets\/kenney\/.+\/Textures\/colormap\.png$/);
+    assert.match(item.sha256, /^[a-f0-9]{64}$/);
     assert.ok(Number.isInteger(item.bytes) && item.bytes > 0);
     assert.equal(item.license, 'CC0-1.0');
   }
@@ -107,9 +116,9 @@ test('Kenney validator detects a tampered GLB in an isolated copy', async (t) =>
   const temporaryRoot = await mkdtemp(join(tmpdir(), 'fly-crossy-kenney-'));
   t.after(() => rm(temporaryRoot, { recursive: true, force: true }));
 
-  for (const asset of manifest.assets) {
-    const source = fileURLToPath(new URL(`public/${asset.path}`, root));
-    const destination = join(temporaryRoot, asset.path);
+  for (const file of [...manifest.assets, ...manifest.textures]) {
+    const source = fileURLToPath(new URL(`public/${file.path}`, root));
+    const destination = join(temporaryRoot, file.path);
     await mkdir(dirname(destination), { recursive: true });
     await copyFile(source, destination);
   }

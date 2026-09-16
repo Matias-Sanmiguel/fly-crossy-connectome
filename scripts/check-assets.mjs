@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 const publicRoot = new URL('../public/', import.meta.url);
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const KENNEY_PATH_PATTERN = /^assets\/kenney\/[a-z0-9-]+\/[a-z0-9-]+\.glb$/;
+const KENNEY_TEXTURE_PATTERN = /^assets\/kenney\/[a-z0-9-]+\/Textures\/colormap\.png$/;
 const KENNEY_SOURCE_PATTERN = /^https:\/\/kenney\.nl\/assets\/[a-z0-9-]+$/;
 const KENNEY_ROLES = new Set([
   'lane.road',
@@ -17,9 +18,18 @@ const KENNEY_ROLES = new Set([
   'hazard.truck',
   'hazard.train',
 ]);
-const MANIFEST_KEYS = new Set(['version', 'assets']);
+const MANIFEST_KEYS = new Set(['version', 'assets', 'textures']);
 const ASSET_KEYS = new Set([
   'role',
+  'path',
+  'bytes',
+  'sha256',
+  'source',
+  'archiveSha256',
+  'upstreamPath',
+  'license',
+]);
+const TEXTURE_KEYS = new Set([
   'path',
   'bytes',
   'sha256',
@@ -61,6 +71,9 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
   }
   if (!Array.isArray(manifest.assets) || manifest.assets.length !== 9) {
     throw new Error('Kenney manifest must contain exactly 9 assets.');
+  }
+  if (!Array.isArray(manifest.textures) || manifest.textures.length !== 4) {
+    throw new Error('Kenney manifest must contain exactly 4 required textures.');
   }
 
   const roles = new Set();
@@ -127,6 +140,69 @@ export async function validateKenneyManifest(manifest, root = publicRoot) {
 
   if (roles.size !== KENNEY_ROLES.size) {
     throw new Error('Kenney manifest role inventory is incomplete.');
+  }
+
+  const texturePaths = new Set();
+  for (const [index, texture] of manifest.textures.entries()) {
+    const label = `Kenney texture ${index}`;
+    requirePlainObject(texture, label);
+    rejectUnexpectedKeys(texture, TEXTURE_KEYS, label);
+
+    if (
+      typeof texture.path !== 'string'
+      || !KENNEY_TEXTURE_PATTERN.test(texture.path)
+    ) {
+      throw new Error(`${label} has an invalid local path.`);
+    }
+    if (texturePaths.has(texture.path)) {
+      throw new Error(`Kenney manifest has duplicate texture path: ${texture.path}`);
+    }
+    texturePaths.add(texture.path);
+
+    if (!Number.isInteger(texture.bytes) || texture.bytes <= 0) {
+      throw new Error(`${label} has an invalid byte count.`);
+    }
+    if (typeof texture.sha256 !== 'string' || !SHA256_PATTERN.test(texture.sha256)) {
+      throw new Error(`${label} has an invalid checksum.`);
+    }
+    if (
+      typeof texture.archiveSha256 !== 'string'
+      || !SHA256_PATTERN.test(texture.archiveSha256)
+    ) {
+      throw new Error(`${label} has an invalid archive checksum.`);
+    }
+    if (
+      typeof texture.source !== 'string'
+      || !KENNEY_SOURCE_PATTERN.test(texture.source)
+    ) {
+      throw new Error(`${label} must use an official Kenney source URL.`);
+    }
+    if (texture.upstreamPath !== 'Models/GLB format/Textures/colormap.png') {
+      throw new Error(`${label} has an invalid upstream path.`);
+    }
+    if (texture.license !== 'CC0-1.0') {
+      throw new Error(`${label} must declare CC0-1.0.`);
+    }
+
+    const textureUrl = new URL(texture.path, root);
+    if (!textureUrl.href.startsWith(root.href)) {
+      throw new Error(`${label} path escapes the public asset root.`);
+    }
+    const bytes = await readFile(textureUrl);
+    if (bytes.byteLength !== texture.bytes) {
+      throw new Error(`${label} byte count does not match the manifest.`);
+    }
+    if (digest(bytes) !== texture.sha256) {
+      throw new Error(`${label} checksum does not match the manifest.`);
+    }
+  }
+
+  for (const asset of manifest.assets) {
+    const directory = asset.path.slice(0, asset.path.lastIndexOf('/'));
+    const requiredTexture = `${directory}/Textures/colormap.png`;
+    if (!texturePaths.has(requiredTexture)) {
+      throw new Error(`Kenney asset is missing its required texture: ${requiredTexture}`);
+    }
   }
 }
 
