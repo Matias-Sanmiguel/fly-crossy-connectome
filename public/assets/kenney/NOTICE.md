@@ -18,4 +18,4 @@ Sources:
 - https://kenney.nl/assets/survival-kit
 - https://creativecommons.org/publicdomain/zero/1.0/
 
-Rail crossing warning bodies use `construction-light.glb` from Kenney City Kit Roads; the red warning lamp is rendered separately so only the lamp blinks.
+Rail crossing warning bodies use `road-sign-stop.glb` from Kenney City Kit Roads; the red warning lamp is rendered separately so only the lamp blinks.

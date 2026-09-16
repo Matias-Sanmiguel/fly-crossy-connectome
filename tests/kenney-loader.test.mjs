@@ -19,7 +19,7 @@ test('semantic asset registry pins mappings and finite transforms', () => {
   );
   assert.equal(
     KENNEY_ASSETS['decoration.rail-warning-light'].path,
-    'assets/kenney/city-roads/construction-light.glb',
+    'assets/kenney/city-roads/road-sign-stop.glb',
   );
   assert.deepEqual(KENNEY_ASSETS['lane.road'].logicalSize, [1, 0.2, 1]);
   assert.deepEqual(KENNEY_ASSETS['lane.rail'].logicalSize, [1, 0.18, 1]);

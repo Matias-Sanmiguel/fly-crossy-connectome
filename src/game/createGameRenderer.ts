@@ -307,7 +307,7 @@ export function createGameRenderer(
         railSignalLampMaterial,
       );
       lamp.name = 'rail-warning-red-lamp';
-      lamp.position.set(0, 1.12, 0);
+      lamp.position.set(0, 0.93, 0.17);
       root.add(lamp);
     }
 

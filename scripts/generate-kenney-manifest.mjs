@@ -52,7 +52,7 @@ const ASSETS = [
   ],
   [
     'city-roads',
-    'construction-light.glb',
+    'road-sign-stop.glb',
     'decoration.rail-warning-light',
   ],
   [

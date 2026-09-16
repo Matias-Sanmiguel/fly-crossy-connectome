@@ -119,7 +119,7 @@ export const KENNEY_ASSETS = {
   },
 
   'decoration.rail-warning-light': {
-    path: 'assets/kenney/city-roads/construction-light.glb',
+    path: 'assets/kenney/city-roads/road-sign-stop.glb',
     logicalSize: [0.38, 1.15, 0.38],
     rotation: [0, 0, 0],
     verticalOffset: 0,

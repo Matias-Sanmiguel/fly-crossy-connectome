@@ -23,12 +23,12 @@
     },
     {
       "role": "decoration.rail-warning-light",
-      "path": "assets/kenney/city-roads/construction-light.glb",
-      "bytes": 15320,
-      "sha256": "80dd781d6ad1bcb6e07670cc1ce03027031381768aca62b9c7b6e7df99c33650",
+      "path": "assets/kenney/city-roads/road-sign-stop.glb",
+      "bytes": 10720,
+      "sha256": "0991181f37171daf8d2501e436a688e46ea2bcebb5e27aa451640fcbaab107ef",
       "source": "https://kenney.nl/assets/city-kit-roads",
       "archiveSha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
-      "upstreamPath": "Models/GLB format/construction-light.glb",
+      "upstreamPath": "Models/GLB format/road-sign-stop.glb",
       "license": "CC0-1.0"
     },
     {
