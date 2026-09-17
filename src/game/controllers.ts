@@ -28,7 +28,7 @@ export interface Controller {
   subscribeFailure?(listener: (error: Error) => void): () => void;
 }
 
-export const BUNDLED_CONNECTOME_POLICY_PATH = 'models/reduced-connectome-policy-v3.json';
+export const BUNDLED_CONNECTOME_POLICY_PATH = 'models/reduced-connectome-policy-v6.json';
 
 export function parseBundledConnectomePolicy(
   value: unknown,

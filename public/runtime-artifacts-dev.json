@@ -7,8 +7,8 @@
         "sha256": "2424c9dd2e44534e600aeda1a9058039b1f22a4bd983284a27adc10b22130719"
       },
       "checkpoint": {
-        "path": "models/reduced-connectome-policy-v3.json",
-        "sha256": "3b159c1cae8ce2b6c4c8f162dc6770bd0462a3acd7b6e90b4a90dd364f979fe5"
+        "path": "models/reduced-connectome-policy-v6.json",
+        "sha256": "30104f77bc3c240c7effd0fc830e7e0216e5659ad4fe49cb044504b1e446fedd"
       }
     }
   ]

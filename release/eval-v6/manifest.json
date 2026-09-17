@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "environmentVersion": 6,
+  "population": 80,
+  "environmentFreezeCommit": "486a8265cf793daf9e1ea024b1c147b42a7370b3",
+  "graph": {
+    "path": "../../public/data/connectome/graph.json",
+    "sha256": "2424c9dd2e44534e600aeda1a9058039b1f22a4bd983284a27adc10b22130719"
+  },
+  "checkpoint": {
+    "path": "training/connectome/checkpoint.pt",
+    "sha256": "0170f778031161590761cac4ec87a0815d555051cac826c5019dc5bda469d8d9"
+  },
+  "policy": {
+    "path": "training/connectome/policy.json",
+    "sha256": "30104f77bc3c240c7effd0fc830e7e0216e5659ad4fe49cb044504b1e446fedd"
+  },
+  "selection": {
+    "path": "evaluation/selection-v6.json",
+    "sha256": "b09fb1079a776eb0f7cb6e6c75159432480995df470c01788734696e9e1ec3c8",
+    "selectedRun": "final-80n-v6-train-1m-01"
+  },
+  "finalTest": {
+    "path": "evaluation/final-test-v6-200x500.json",
+    "sha256": "93febe454d244794e78e7fba74726038ec49ae607ca07774b9b98ceddd65d940",
+    "episodeCount": 200,
+    "maxStepsPerEpisode": 500,
+    "summary": {
+      "episodeCount": 200,
+      "score": {
+        "mean": 19.13,
+        "median": 12.5,
+        "max": 82.0
+      },
+      "survivalSteps": {
+        "mean": 187.63,
+        "median": 87.5,
+        "max": 500.0
+      },
+      "terminalReasons": {
+        "step-limit": 55,
+        "train": 52,
+        "vehicle": 88,
+        "water": 5
+      },
+      "actionCounts": {
+        "forward": 5955,
+        "backward": 810,
+        "left": 17925,
+        "right": 11890,
+        "wait": 946
+      },
+      "actionDistribution": {
+        "forward": 0.15868997495070084,
+        "backward": 0.02158503437616586,
+        "left": 0.47766881628737407,
+        "right": 0.3168469860896445,
+        "wait": 0.025209188296114692
+      },
+      "waitFrequency": 0.025209188296114692
+    }
+  },
+  "training": {
+    "seed": "final-80n-v6-train-1m-01",
+    "steps": 1000000,
+    "envs": 8,
+    "learningRate": 0.0003,
+    "device": "cpu"
+  },
+  "files": [
+    {
+      "path": "training/connectome/checkpoint.pt",
+      "sha256": "0170f778031161590761cac4ec87a0815d555051cac826c5019dc5bda469d8d9"
+    },
+    {
+      "path": "training/connectome/metadata.json",
+      "sha256": "53c9b44a6d65d589bcc76fcf0eaed1987c87c88813540df206e5f45b27c3a1dc"
+    },
+    {
+      "path": "training/connectome/metrics.json",
+      "sha256": "6748437f281c9bcdf529826c3388732dd964b872d40aa011889e66e617b41ecf"
+    },
+    {
+      "path": "training/connectome/policy.json",
+      "sha256": "30104f77bc3c240c7effd0fc830e7e0216e5659ad4fe49cb044504b1e446fedd"
+    },
+    {
+      "path": "evaluation/selection-v6.json",
+      "sha256": "b09fb1079a776eb0f7cb6e6c75159432480995df470c01788734696e9e1ec3c8"
+    },
+    {
+      "path": "evaluation/final-test-v6-200x500.json",
+      "sha256": "93febe454d244794e78e7fba74726038ec49ae607ca07774b9b98ceddd65d940"
+    },
+    {
+      "path": "evaluation/summary.md",
+      "sha256": "1445f46a1f7f0ea9a1a202cf6440a60e327140781dab6213ebf334e1a7b81762"
+    }
+  ]
+}

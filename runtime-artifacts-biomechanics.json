@@ -1,3 +1,15 @@
 {
-  "artifacts": []
+  "artifacts": [
+    {
+      "population": 80,
+      "graph": {
+        "path": "public/data/connectome/graph.json",
+        "sha256": "2424c9dd2e44534e600aeda1a9058039b1f22a4bd983284a27adc10b22130719"
+      },
+      "checkpoint": {
+        "path": "release/eval-v6/training/connectome/checkpoint.pt",
+        "sha256": "0170f778031161590761cac4ec87a0815d555051cac826c5019dc5bda469d8d9"
+      }
+    }
+  ]
 }

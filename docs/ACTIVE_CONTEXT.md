@@ -13,9 +13,9 @@ We are intentionally PAUSING expansion from the 80-neuron controller to:
 
 Current priority:
 
-GAME POLISH -> GAMEPLAY FREEZE -> FINAL 80N TRAINING -> POPULATION PIPELINE
+ENVIRONMENT V6 FROZEN -> FINAL 80N RELEASED -> POPULATION PIPELINE
 
-Do not begin the 1k-neuron population work unless explicitly requested.
+The next planned engineering phase is the 1k-neuron population pipeline.
 
 ---
 
@@ -123,8 +123,18 @@ waited approximately 85.8% of decisions.
 
 This was a clear behavioral improvement over 80n-v1.
 
-However this is NOT the final 80n model because gameplay is currently being
-changed before environment freeze.
+That v2 result is historical. The final released 80n controller is now:
+
+- environment: v6
+- run: `final-80n-v6-train-1m-01`
+- training budget: 1,000,000 PPO steps, 8 envs
+- validation (100 x 200): score mean 23.33, median 21.5, max 84
+- final untouched test (200 x 500): score mean 19.13, median 12.5, max 82
+- final-test mean survival: 187.63 steps
+- final-test step-limit: 55 / 200
+- release: `release/eval-v6/`
+
+Do not tune against the `final-test-v6-*` seeds.
 
 Scientific caution:
 
@@ -139,8 +149,8 @@ Do not make biological superiority claims.
 
 Current `WORLD_VERSION` is 6.
 
-Environment v6 is the current final-training candidate. It extends static
-grass blockers across every playable column from -5 through +5.
+Environment v6 is frozen and is the authoritative environment for the final
+80-neuron release. Static grass blockers cover every playable column -5..+5.
 
 The freeze boundary includes:
 

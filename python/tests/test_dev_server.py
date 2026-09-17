@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -16,14 +17,17 @@ from fly_crossy.env import WORLD_VERSION
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_dev_server_does_not_activate_historical_v3_checkpoint_for_v6() -> None:
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def test_dev_server_uses_released_v6_checkpoint_and_preserves_v3_history() -> None:
     assert WORLD_VERSION == 6
 
     assert LEGACY_CHECKPOINT_PATH == (
         ROOT / "release/eval-v1/training/connectome/checkpoint.pt"
     )
     assert LEGACY_CHECKPOINT_PATH.is_file()
-
     historical = torch.load(
         LEGACY_CHECKPOINT_PATH,
         map_location="cpu",
@@ -34,9 +38,18 @@ def test_dev_server_does_not_activate_historical_v3_checkpoint_for_v6() -> None:
     assert CHECKPOINT_PATH == (
         ROOT / "release/eval-v6/training/connectome/checkpoint.pt"
     )
+    released = torch.load(
+        CHECKPOINT_PATH,
+        map_location="cpu",
+        weights_only=True,
+    )
+    assert released["environment_version"] == 6
+    assert released["controller"] == "connectome"
+    assert released["training"]["seed"] == "final-80n-v6-train-1m-01"
+    assert released["training"]["steps"] == 1_000_000
 
-    # Loading stays lazy. During the freeze->training transition there is no
-    # valid v6 runtime checkpoint to instantiate yet.
+    # The runtime loader remains lazy; app construction already verifies the
+    # artifact registry bytes during module import.
     assert controller is None
 
     manifest = json.loads(
@@ -44,9 +57,20 @@ def test_dev_server_does_not_activate_historical_v3_checkpoint_for_v6() -> None:
             encoding="utf-8"
         )
     )
-    assert isinstance(manifest["artifacts"], list)
-    assert all(
-        artifact["checkpoint"]["path"]
-        != "release/eval-v1/training/connectome/checkpoint.pt"
-        for artifact in manifest["artifacts"]
-    )
+    assert manifest == {
+        "artifacts": [
+            {
+                "population": 80,
+                "graph": {
+                    "path": "public/data/connectome/graph.json",
+                    "sha256": _sha256(
+                        ROOT / "public/data/connectome/graph.json"
+                    ),
+                },
+                "checkpoint": {
+                    "path": "release/eval-v6/training/connectome/checkpoint.pt",
+                    "sha256": _sha256(CHECKPOINT_PATH),
+                },
+            }
+        ]
+    }

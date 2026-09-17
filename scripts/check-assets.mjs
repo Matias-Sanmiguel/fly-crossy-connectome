@@ -263,10 +263,10 @@ async function verifyConnectomeAssets() {
   }
 
   const bundledPolicy = await readFile(
-    new URL('models/reduced-connectome-policy-v3.json', publicRoot),
+    new URL('models/reduced-connectome-policy-v6.json', publicRoot),
   );
   const releasedPolicy = await readFile(
-    new URL('../release/eval-v1/training/connectome/policy.json', publicRoot),
+    new URL('../release/eval-v6/training/connectome/policy.json', publicRoot),
   );
   if (digest(bundledPolicy) !== digest(releasedPolicy)) {
     throw new Error('Bundled autoplay policy must match the released connectome policy.');

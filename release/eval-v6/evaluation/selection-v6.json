@@ -1,0 +1,239 @@
+{
+  "version": 1,
+  "environmentVersion": 6,
+  "population": 80,
+  "criterion": "highest validation score.mean among three independent 1,000,000-step PPO runs",
+  "validationSeeds": [
+    "heldout-v6-000",
+    "heldout-v6-001",
+    "heldout-v6-002",
+    "heldout-v6-003",
+    "heldout-v6-004",
+    "heldout-v6-005",
+    "heldout-v6-006",
+    "heldout-v6-007",
+    "heldout-v6-008",
+    "heldout-v6-009",
+    "heldout-v6-010",
+    "heldout-v6-011",
+    "heldout-v6-012",
+    "heldout-v6-013",
+    "heldout-v6-014",
+    "heldout-v6-015",
+    "heldout-v6-016",
+    "heldout-v6-017",
+    "heldout-v6-018",
+    "heldout-v6-019",
+    "heldout-v6-020",
+    "heldout-v6-021",
+    "heldout-v6-022",
+    "heldout-v6-023",
+    "heldout-v6-024",
+    "heldout-v6-025",
+    "heldout-v6-026",
+    "heldout-v6-027",
+    "heldout-v6-028",
+    "heldout-v6-029",
+    "heldout-v6-030",
+    "heldout-v6-031",
+    "heldout-v6-032",
+    "heldout-v6-033",
+    "heldout-v6-034",
+    "heldout-v6-035",
+    "heldout-v6-036",
+    "heldout-v6-037",
+    "heldout-v6-038",
+    "heldout-v6-039",
+    "heldout-v6-040",
+    "heldout-v6-041",
+    "heldout-v6-042",
+    "heldout-v6-043",
+    "heldout-v6-044",
+    "heldout-v6-045",
+    "heldout-v6-046",
+    "heldout-v6-047",
+    "heldout-v6-048",
+    "heldout-v6-049",
+    "heldout-v6-050",
+    "heldout-v6-051",
+    "heldout-v6-052",
+    "heldout-v6-053",
+    "heldout-v6-054",
+    "heldout-v6-055",
+    "heldout-v6-056",
+    "heldout-v6-057",
+    "heldout-v6-058",
+    "heldout-v6-059",
+    "heldout-v6-060",
+    "heldout-v6-061",
+    "heldout-v6-062",
+    "heldout-v6-063",
+    "heldout-v6-064",
+    "heldout-v6-065",
+    "heldout-v6-066",
+    "heldout-v6-067",
+    "heldout-v6-068",
+    "heldout-v6-069",
+    "heldout-v6-070",
+    "heldout-v6-071",
+    "heldout-v6-072",
+    "heldout-v6-073",
+    "heldout-v6-074",
+    "heldout-v6-075",
+    "heldout-v6-076",
+    "heldout-v6-077",
+    "heldout-v6-078",
+    "heldout-v6-079",
+    "heldout-v6-080",
+    "heldout-v6-081",
+    "heldout-v6-082",
+    "heldout-v6-083",
+    "heldout-v6-084",
+    "heldout-v6-085",
+    "heldout-v6-086",
+    "heldout-v6-087",
+    "heldout-v6-088",
+    "heldout-v6-089",
+    "heldout-v6-090",
+    "heldout-v6-091",
+    "heldout-v6-092",
+    "heldout-v6-093",
+    "heldout-v6-094",
+    "heldout-v6-095",
+    "heldout-v6-096",
+    "heldout-v6-097",
+    "heldout-v6-098",
+    "heldout-v6-099"
+  ],
+  "maxStepsPerEpisode": 200,
+  "candidates": [
+    {
+      "run": "final-80n-v6-train-1m-01",
+      "checkpointSha256": "0170f778031161590761cac4ec87a0815d555051cac826c5019dc5bda469d8d9",
+      "trainingSummary": {
+        "episodesCompleted": 10898,
+        "meanEpisodeReturn": -4.710282620663575,
+        "bestScore": 106.0
+      },
+      "validationSummary": {
+        "episodeCount": 100,
+        "score": {
+          "mean": 23.33,
+          "median": 21.5,
+          "max": 84.0
+        },
+        "survivalSteps": {
+          "mean": 126.21,
+          "median": 123.5,
+          "max": 200.0
+        },
+        "terminalReasons": {
+          "step-limit": 46,
+          "train": 21,
+          "vehicle": 33
+        },
+        "actionCounts": {
+          "forward": 3177,
+          "backward": 240,
+          "left": 4864,
+          "right": 3916,
+          "wait": 424
+        },
+        "actionDistribution": {
+          "forward": 0.2517233182790587,
+          "backward": 0.019015925837889233,
+          "left": 0.3853894303145551,
+          "right": 0.31027652325489263,
+          "wait": 0.03359480231360431
+        },
+        "waitFrequency": 0.03359480231360431
+      }
+    },
+    {
+      "run": "final-80n-v6-train-1m-02",
+      "checkpointSha256": "5021e580c6c05b2f8233ba33d05be9f1b86a677eef9e917eba0a53008e5230ee",
+      "trainingSummary": {
+        "episodesCompleted": 10401,
+        "meanEpisodeReturn": -6.48471300836561,
+        "bestScore": 85.0
+      },
+      "validationSummary": {
+        "episodeCount": 100,
+        "score": {
+          "mean": 16.54,
+          "median": 11.0,
+          "max": 73.0
+        },
+        "survivalSteps": {
+          "mean": 76.04,
+          "median": 49.0,
+          "max": 200.0
+        },
+        "terminalReasons": {
+          "step-limit": 17,
+          "train": 21,
+          "vehicle": 47,
+          "water": 15
+        },
+        "actionCounts": {
+          "forward": 3040,
+          "backward": 0,
+          "left": 1809,
+          "right": 2720,
+          "wait": 35
+        },
+        "actionDistribution": {
+          "forward": 0.3997895844292478,
+          "backward": 0.0,
+          "left": 0.23790110468174644,
+          "right": 0.35770647027880065,
+          "wait": 0.004602840610205155
+        },
+        "waitFrequency": 0.004602840610205155
+      }
+    },
+    {
+      "run": "final-80n-v6-train-1m-03",
+      "checkpointSha256": "c607f2177f0712d7354df8cb66a0a7d9057dab9a7e547af5a373c75081fd61f4",
+      "trainingSummary": {
+        "episodesCompleted": 9591,
+        "meanEpisodeReturn": -6.392536753205962,
+        "bestScore": 98.0
+      },
+      "validationSummary": {
+        "episodeCount": 100,
+        "score": {
+          "mean": 19.88,
+          "median": 16.0,
+          "max": 65.0
+        },
+        "survivalSteps": {
+          "mean": 121.76,
+          "median": 115.0,
+          "max": 200.0
+        },
+        "terminalReasons": {
+          "step-limit": 38,
+          "train": 22,
+          "vehicle": 40
+        },
+        "actionCounts": {
+          "forward": 2647,
+          "backward": 24,
+          "left": 4250,
+          "right": 3550,
+          "wait": 1705
+        },
+        "actionDistribution": {
+          "forward": 0.21739487516425757,
+          "backward": 0.0019710906701708277,
+          "left": 0.3490473061760841,
+          "right": 0.29155716162943496,
+          "wait": 0.14002956636005257
+        },
+        "waitFrequency": 0.14002956636005257
+      }
+    }
+  ],
+  "selectedRun": "final-80n-v6-train-1m-01"
+}

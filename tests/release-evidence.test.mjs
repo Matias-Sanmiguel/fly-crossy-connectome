@@ -31,7 +31,7 @@ test('tracked release manifest verifies checkpoints, policies, and evaluation ev
   }
 });
 
-test('browser ships the exact released connectome policy for autonomous startup', async () => {
+test('historical eval-v1 policy remains byte-identical to its preserved public v3 artifact', async () => {
   const released = manifest.files.find(
     (file) => file.path === 'training/connectome/policy.json',
   );

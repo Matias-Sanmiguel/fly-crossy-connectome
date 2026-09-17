@@ -135,7 +135,7 @@ test('fixed graph controller persists recurrence and resets simulated activity',
 
 test('bundled connectome policy drives actions with mapped neural activity', async () => {
   const raw = JSON.parse(await readFile(
-    new URL('../public/models/reduced-connectome-policy-v3.json', import.meta.url),
+    new URL('../public/models/reduced-connectome-policy-v6.json', import.meta.url),
     'utf8',
   ));
   const visibleIds = new Set(raw.activityBodyIds);
