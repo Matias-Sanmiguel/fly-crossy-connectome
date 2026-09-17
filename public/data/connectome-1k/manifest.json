@@ -1,0 +1,32 @@
+{
+  "dataset": "FlyEM MaleCNS v1.0, min confidence 0.5",
+  "license": "CC BY 4.0",
+  "source": "https://male-cns.janelia.org/download/",
+  "nodes": 1000,
+  "edges": 113852,
+  "synapticContacts": 1180239,
+  "inputCells": 32,
+  "readoutCells": 16,
+  "coreCells": 80,
+  "addedCells": 920,
+  "directNeighborCandidates": 28906,
+  "addedBidirectionalWithCore": 920,
+  "graphSha256": "0ee325a761e7405f55b102a4bd52886cf54884118da435d12453500f2ffe4991",
+  "coreGraph": {
+    "path": "../connectome/graph.json",
+    "sha256": "2424c9dd2e44534e600aeda1a9058039b1f22a4bd983284a27adc10b22130719"
+  },
+  "sources": {
+    "annotations": "2177e246113e4cfbf1e7772ec37c6da1955ff22e8063d0b1f833101f99a9a3b2",
+    "edges": "e35da783d1c686b2b58b3b87cd6a403ae43bfcfba8bff28e08ef752c1a56afc1",
+    "neurotransmitters": "95c9289220663abeb3409f3ad9e5a7f8a53f8093f5139d15502cd08da8879621"
+  },
+  "sourceUrls": {
+    "annotations": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather",
+    "edges": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather",
+    "neurotransmitters": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather"
+  },
+  "selection": "Capacity expansion from the frozen 80-cell FlyDino-derived core. Retain all 80 core body IDs and their 32 engineered input cells plus 16 engineered readout cells. Add 920 atlas-visible MaleCNS v1.0 cells with soma annotations, ranked only by measured direct synaptic connectivity to the 80-cell core: descending order of min(core->candidate contacts, candidate->core contacts), then total bidirectional contacts, then strongest single direction, then ascending body ID. No Fly Crossy rewards, scores, training seeds, evaluation seeds, or game outcomes are used. Retain every measured directed internal edge among the selected 1000 cells; aggregate duplicate source-target rows by summed contact count.",
+  "assumptions": "The original 32 engineered sensory interfaces and 16 engineered readout interfaces are preserved exactly from the 80-cell baseline. Added cells receive no new engineered game-specific role. Acetylcholine is modeled as +1; GABA/glutamate as -1; unknown/modulatory transmitters as 0. Runtime dynamics remain simplified signed incoming-normalized leaky tanh rate units and are not claimed to be physiological.",
+  "scopeWarning": "This is a deterministic 1000-cell capacity experiment around the historical 80-cell core, not a representative whole-brain MaleCNS model."
+}

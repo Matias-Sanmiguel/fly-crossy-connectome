@@ -14,7 +14,7 @@ import torch
 from torch import Tensor
 from torch.distributions import Categorical
 
-from .connectome import load_default_reduced_graph
+from .connectome import load_reduced_graph_variant
 from .env import (
     BLOCKED_COST,
     FlyCrossyEnv,
@@ -52,10 +52,17 @@ class TrainingConfig:
     learning_rate: float
     output: Path
     device: str = "auto"
+    connectome_graph: str = "80"
 
     def validate(self) -> None:
         if self.controller not in ("conventional", "connectome"):
             raise ValueError("Controller must be conventional or connectome.")
+        if self.connectome_graph not in ("80", "1k"):
+            raise ValueError("Connectome graph must be 80 or 1k.")
+        if self.controller != "connectome" and self.connectome_graph != "80":
+            raise ValueError(
+                "Non-connectome controllers must keep the default graph selector."
+            )
         if not self.seed:
             raise ValueError("Training seed must not be empty.")
         if self.steps <= 0 or self.envs <= 0:
@@ -182,7 +189,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
 
     if config.controller == "connectome":
         model: DensePolicy | FixedGraphPolicy = FixedGraphPolicy(
-            load_default_reduced_graph(),
+            load_reduced_graph_variant(config.connectome_graph),
             OBSERVATION_INPUT_SIZE,
             len(ACTION_ORDER),
         ).to(device)
@@ -372,6 +379,11 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                 "envs": config.envs,
                 "learning_rate": config.learning_rate,
                 "world_seeds": training_world_seeds,
+                "connectome_graph": (
+                    config.connectome_graph
+                    if config.controller == "connectome"
+                    else None
+                ),
                 "reward": reward_metadata,
             },
         },
@@ -445,6 +457,12 @@ def _parse_arguments() -> TrainingConfig:
     parser.add_argument("--learning-rate", type=float, default=3e-4)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    parser.add_argument(
+        "--connectome-graph",
+        choices=("80", "1k"),
+        default="80",
+        help="MaleCNS graph capacity variant used by the connectome controller.",
+    )
     arguments = parser.parse_args()
     return TrainingConfig(
         controller=arguments.controller,
@@ -454,6 +472,7 @@ def _parse_arguments() -> TrainingConfig:
         learning_rate=arguments.learning_rate,
         output=arguments.output,
         device=arguments.device,
+        connectome_graph=arguments.connectome_graph,
     )
 
 

@@ -19,6 +19,17 @@ DEFAULT_ATLAS_PATH = (
     Path(__file__).resolve().parents[2] / "public" / "data" / "brain-atlas"
 )
 
+CONNECTOME_GRAPH_PATHS = {
+    "80": DEFAULT_GRAPH_PATH,
+    "1k": (
+        Path(__file__).resolve().parents[2]
+        / "public"
+        / "data"
+        / "connectome-1k"
+        / "graph.json"
+    ),
+}
+
 
 def _required_text(value: object, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
@@ -574,21 +585,56 @@ def build_reduced_graph(
     )
 
 
-def load_default_reduced_graph() -> ReducedGraphArtifact:
-    """Load the pinned 80-cell FlyDino-selected MaleCNS subset against this atlas."""
-    graph_payload = json.loads(DEFAULT_GRAPH_PATH.read_text(encoding="utf-8"))
+def load_reduced_graph_variant(variant: str) -> ReducedGraphArtifact:
+    """Load one pinned MaleCNS graph variant against the shared atlas."""
+    try:
+        graph_path = CONNECTOME_GRAPH_PATHS[variant]
+    except KeyError as error:
+        raise ValueError(
+            f"Unknown connectome graph variant {variant!r}; "
+            f"expected one of {tuple(CONNECTOME_GRAPH_PATHS)}."
+        ) from error
+
+    if not graph_path.is_file():
+        raise ValueError(
+            f"Connectome graph variant {variant!r} does not exist: {graph_path}"
+        )
+
+    graph_payload = json.loads(graph_path.read_text(encoding="utf-8"))
     nodes = graph_payload.get("nodes")
     if not isinstance(nodes, list):
-        raise ValueError("Pinned reduced graph has no node table.")
-    ids = np.frombuffer((DEFAULT_ATLAS_PATH / "ids.bin").read_bytes(), dtype="<u4")
-    groups = np.frombuffer((DEFAULT_ATLAS_PATH / "groups.bin").read_bytes(), dtype="u1")
+        raise ValueError(
+            f"Connectome graph variant {variant!r} has no node table."
+        )
+
+    ids = np.frombuffer(
+        (DEFAULT_ATLAS_PATH / "ids.bin").read_bytes(),
+        dtype="<u4",
+    )
+    groups = np.frombuffer(
+        (DEFAULT_ATLAS_PATH / "groups.bin").read_bytes(),
+        dtype="u1",
+    )
     if ids.shape != groups.shape:
-        raise ValueError("MaleCNS atlas IDs and groups have incompatible lengths.")
+        raise ValueError(
+            "MaleCNS atlas IDs and groups have incompatible lengths."
+        )
+
     visible = ids[groups < 3]
-    selected = [int(node["id"]) for node in nodes if isinstance(node, Mapping)]
+    selected = [
+        int(node["id"])
+        for node in nodes
+        if isinstance(node, Mapping)
+    ]
+
     return build_reduced_graph(
-        DEFAULT_GRAPH_PATH,
+        graph_path,
         selected_ids=selected,
         atlas_visible_ids=visible,
         minimum_edge_threshold=1,
     )
+
+
+def load_default_reduced_graph() -> ReducedGraphArtifact:
+    """Load the historical pinned 80-cell MaleCNS subset."""
+    return load_reduced_graph_variant("80")
