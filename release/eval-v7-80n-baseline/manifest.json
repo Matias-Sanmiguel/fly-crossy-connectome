@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "kind": "capacity-baseline",
+  "environmentVersion": 7,
+  "population": 80,
+  "environmentFreezeCommit": "c5ecfe93481dac79d0ce7d9082f2600e8bde5542",
+  "graph": {
+    "path": "../../public/data/connectome/graph.json",
+    "sha256": "2424c9dd2e44534e600aeda1a9058039b1f22a4bd983284a27adc10b22130719"
+  },
+  "checkpoint": {
+    "path": "training/connectome/checkpoint.pt",
+    "sha256": "1a46a5fb86e38994c5f7b148cd6b8169e1c19acb674f8dd9e8d46770fc65ac7b"
+  },
+  "policy": {
+    "path": "training/connectome/policy.json",
+    "sha256": "3411f2df6eadcbe9e6483653c2254182bdeb4431bf1aadb484860fb211cdbc7e"
+  },
+  "diagnostic": {
+    "path": "evaluation/diagnostic-v7-behavior-300x500.json",
+    "sha256": "db880a654849c8f4d0a6511815c83e09c672cac5d76313d22d4265d0053b3249",
+    "seedPrefix": "diagnostic-v6",
+    "episodeCount": 300,
+    "maxStepsPerEpisode": 500,
+    "summary": {
+      "episodes": {
+        "count": 300,
+        "scoreMean": 28.046666666666667,
+        "survivalMean": 75.94,
+        "stepLimit": 8,
+        "terminalReasons": {
+          "water": 141,
+          "train": 36,
+          "vehicle": 115,
+          "step-limit": 8
+        }
+      },
+      "stagnation": {
+        "maxNoProgressStreakMean": 24.83,
+        "maxNoProgressStreakMax": 492,
+        "episodesAtLeast20": 46,
+        "episodesAtLeast50": 18,
+        "episodesAtLeast100": 13,
+        "maxSamePositionStreakMean": 8.993333333333334,
+        "maxSamePositionStreakMax": 448
+      },
+      "oscillation": {
+        "pingPongReturns": 3675,
+        "episodesAlternatingAtLeast4": 172,
+        "episodesAlternatingAtLeast8": 20,
+        "episodesAlternatingAtLeast12": 2,
+        "maxAlternationRunMean": 4.096666666666667,
+        "maxAlternationRunMax": 22,
+        "meanProbabilitiesOnPingPongReturn": {
+          "forward": 0.08564155570546372,
+          "backward": 0.010584390644535667,
+          "left": 0.3801503493416845,
+          "right": 0.4033970634741186,
+          "wait": 0.12022664026959108
+        },
+        "meanTop2MarginOnPingPongReturn": 0.3864290871823422,
+        "meanEntropyOnPingPongReturn": 0.9546811167251653
+      },
+      "blockedMovement": {
+        "sceneryBlocks": 2881,
+        "boundsBlocks": 1446,
+        "repeatedSameBlockedTarget": 3378
+      },
+      "missedProgress": {
+        "safeForwardOpportunities": 15717,
+        "safeForwardIgnored": 7477,
+        "safeForwardIgnoredRate": 0.4757269198956544,
+        "meanProbabilitiesWhenForwardWasSafe": {
+          "forward": 0.4761801041384553,
+          "backward": 0.003972326630307249,
+          "left": 0.25778584605462895,
+          "right": 0.20637793301033458,
+          "wait": 0.055683790351567765
+        }
+      },
+      "river": {
+        "frontSteps": 3275,
+        "safeEntryOpportunities": 1725,
+        "safeEntryTaken": 24,
+        "safeEntryIgnored": 1701,
+        "safeEntryTakenRate": 0.01391304347826087,
+        "entries": 24,
+        "forwardMovesWhileOnRiver": 28,
+        "waitsWhileOnRiver": 0,
+        "supportedWaitsWhileOnRiver": 0,
+        "sectionsEncountered": 148,
+        "sectionsEntered": 24,
+        "sectionsCrossed": 5,
+        "sectionEntryRate": 0.16216216216216217,
+        "sectionCrossRateGivenEntry": 0.20833333333333334,
+        "episodesFrontStreakAtLeast10": 55,
+        "episodesFrontStreakAtLeast20": 28,
+        "episodesFrontStreakAtLeast50": 11,
+        "maxFrontStreakMean": 10.396666666666667,
+        "maxFrontStreakMax": 492,
+        "meanProbabilitiesWhenSafeRiverEntryAvailable": {
+          "forward": 0.034221003800347705,
+          "backward": 0.024130717214784058,
+          "left": 0.4611783916333123,
+          "right": 0.3306206633798454,
+          "wait": 0.14984922329638747
+        }
+      },
+      "policyConfidence": {
+        "meanActionProbabilities": {
+          "forward": 0.36223948220513713,
+          "backward": 0.007424171628726343,
+          "left": 0.30630679375896064,
+          "right": 0.25670359219098277,
+          "wait": 0.06732596030333755
+        },
+        "meanTop2Margin": 0.5167593018294895,
+        "meanEntropy": 0.7580425687604225
+      }
+    }
+  },
+  "training": {
+    "seed": "diagnostic-80n-v7-train-1m-01",
+    "steps": 1000000,
+    "envs": 8,
+    "learningRate": 0.0003,
+    "device": "cpu",
+    "graphNodes": 80,
+    "graphEdges": 1296,
+    "graphArtifactHash": "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862"
+  },
+  "files": [
+    {
+      "path": "evaluation/diagnostic-v7-behavior-300x500.json",
+      "sha256": "db880a654849c8f4d0a6511815c83e09c672cac5d76313d22d4265d0053b3249"
+    },
+    {
+      "path": "training/connectome/checkpoint.pt",
+      "sha256": "1a46a5fb86e38994c5f7b148cd6b8169e1c19acb674f8dd9e8d46770fc65ac7b"
+    },
+    {
+      "path": "training/connectome/metadata.json",
+      "sha256": "57cb865fb3224cf22fe2ad50bb67b6b3d9ba3a54db557f4af07ea777033b1431"
+    },
+    {
+      "path": "training/connectome/metrics.json",
+      "sha256": "408d732af3ec01aade195eed93b676b53a412d76b1832df20760db83be2cb8dc"
+    },
+    {
+      "path": "training/connectome/policy.json",
+      "sha256": "3411f2df6eadcbe9e6483653c2254182bdeb4431bf1aadb484860fb211cdbc7e"
+    }
+  ]
+}
