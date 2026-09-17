@@ -12,7 +12,7 @@ from torch import Tensor, nn
 
 from .checkpoint import validate_checkpoint
 from .connectome import ReducedGraphArtifact
-from .models import DensePolicy, FixedGraphPolicy
+from .models import DensePolicy, FixedGraphPolicy, PopulationFixedGraphPolicy
 from .schema import ACTION_ORDER, OBSERVATION_VERSION
 
 
@@ -77,6 +77,26 @@ def _load_fixed_graph_policy(
     return model
 
 
+def _load_population_fixed_graph_policy(
+    graph: ReducedGraphArtifact,
+    observation_size: int,
+    actions: int,
+    state_dict: Mapping[str, Tensor],
+) -> PopulationFixedGraphPolicy:
+    try:
+        model = PopulationFixedGraphPolicy(
+            graph=graph,
+            observation_size=observation_size,
+            actions=actions,
+        )
+        model.load_state_dict(state_dict)
+    except (KeyError, TypeError, ValueError, RuntimeError) as error:
+        raise ValueError(
+            "Checkpoint contains an incompatible population fixed graph policy."
+        ) from error
+    return model
+
+
 def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     """Export a conventional or fixed-graph actor checkpoint for browser inference."""
     checkpoint_path = Path(checkpoint)
@@ -93,12 +113,20 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         graph = checkpoint_metadata.graph
         if graph is None:
             raise ValueError("Checkpoint connectome graph is incompatible.")
-        model = _load_fixed_graph_policy(
-            graph,
-            checkpoint_metadata.observation_size,
-            checkpoint_metadata.actions,
-            state_dict,
-        )
+        if checkpoint_metadata.connectome_interface == "population":
+            model = _load_population_fixed_graph_policy(
+                graph,
+                checkpoint_metadata.observation_size,
+                checkpoint_metadata.actions,
+                state_dict,
+            )
+        else:
+            model = _load_fixed_graph_policy(
+                graph,
+                checkpoint_metadata.observation_size,
+                checkpoint_metadata.actions,
+                state_dict,
+            )
     else:
         hidden_size = checkpoint_metadata.hidden_size
         if hidden_size is None:
@@ -113,7 +141,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         raise ValueError("Checkpoint actor does not match the canonical action order.")
 
     checkpoint_hash = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
-    if isinstance(model, FixedGraphPolicy):
+    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)):
         graph = model.graph
         source: dict[str, Any] = {
             "kind": "predicted",
@@ -137,20 +165,48 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         time_constant = min(
             1.0, max(1e-4, _finite_scalar(model.time_constant, "Time constant"))
         )
+        if isinstance(model, PopulationFixedGraphPolicy):
+            sensory_weights = torch.zeros(
+                graph.node_count,
+                model.sensory.in_features,
+                dtype=model.sensory.weight.dtype,
+            )
+            sensory_weights.index_copy_(
+                0,
+                model.sensory_indices.detach().cpu(),
+                model.sensory.weight.detach().cpu(),
+            )
+            actor_weights = torch.zeros(
+                model.actor.out_features,
+                graph.node_count,
+                dtype=model.actor.weight.dtype,
+            )
+            actor_weights.index_copy_(
+                1,
+                model.readout_indices.detach().cpu(),
+                model.actor.weight.detach().cpu(),
+            )
+            interface_mode = "population"
+        else:
+            sensory_weights = model.sensory.weight
+            actor_weights = model.actor.weight
+            interface_mode = "legacy"
+
         network: dict[str, Any] = {
             "kind": "fixed-graph",
+            "interfaceMode": interface_mode,
             "inputSize": model.sensory.in_features,
             "bodyIds": [int(item) for item in graph.body_ids],
             "activation": "tanh",
             "sensoryWeights": _finite_row_major(
-                model.sensory.weight, "sensory weights"
+                sensory_weights, "sensory weights"
             ),
             "recurrentSource": [int(item) for item in graph.edge_index[0]],
             "recurrentTarget": [int(item) for item in graph.edge_index[1]],
             "recurrentWeights": [float(item) for item in graph.edge_weight],
             "recurrentGain": recurrent_gain,
             "timeConstant": time_constant,
-            "actorWeights": _finite_row_major(model.actor.weight, "actor weights"),
+            "actorWeights": _finite_row_major(actor_weights, "actor weights"),
             "actorBias": _finite_row_major(model.actor.bias, "actor bias"),
         }
         activity_body_ids = [int(item) for item in graph.body_ids]

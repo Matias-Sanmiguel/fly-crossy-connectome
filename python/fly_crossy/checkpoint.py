@@ -25,6 +25,7 @@ class ValidatedCheckpoint:
     actions: int
     hidden_size: int | None
     graph: ReducedGraphArtifact | None
+    connectome_interface: str | None
     state_dict: Mapping[str, Tensor]
     training: dict[str, Any]
 
@@ -179,6 +180,7 @@ def validate_checkpoint(
 
     hidden_size: int | None = None
     graph: ReducedGraphArtifact | None = None
+    connectome_interface: str | None = None
     if controller == "conventional":
         try:
             hidden_size = _strict_positive_integer(model["hidden_size"], "hidden size")
@@ -202,16 +204,43 @@ def validate_checkpoint(
             graph = ReducedGraphArtifact.from_checkpoint(graph_value)
         except (KeyError, TypeError, ValueError) as error:
             raise ValueError("Checkpoint connectome graph is incompatible.") from error
+
+        interface_value = model.get("interface", "legacy")
+        connectome_interface = _required_string(
+            interface_value, "connectome interface"
+        )
+        if connectome_interface not in ("legacy", "population"):
+            raise ValueError(
+                "Checkpoint connectome interface must be legacy or population."
+            )
+
         node_count = graph.node_count
-        expected_shapes = {
-            "recurrent_gain": (),
-            "time_constant": (),
-            "sensory.weight": (node_count, observation_size),
-            "actor.weight": (actions, node_count),
-            "actor.bias": (actions,),
-            "critic.weight": (1, node_count),
-            "critic.bias": (1,),
-        }
+        if connectome_interface == "legacy":
+            expected_shapes = {
+                "recurrent_gain": (),
+                "time_constant": (),
+                "sensory.weight": (node_count, observation_size),
+                "actor.weight": (actions, node_count),
+                "actor.bias": (actions,),
+                "critic.weight": (1, node_count),
+                "critic.bias": (1,),
+            }
+        else:
+            sensory_count = len(graph.sensory_body_ids)
+            readout_count = len(graph.readout_body_ids)
+            if sensory_count <= 0 or readout_count <= 0:
+                raise ValueError(
+                    "Checkpoint population interface requires sensory and readout cells."
+                )
+            expected_shapes = {
+                "recurrent_gain": (),
+                "time_constant": (),
+                "sensory.weight": (sensory_count, observation_size),
+                "actor.weight": (actions, readout_count),
+                "actor.bias": (actions,),
+                "critic.weight": (1, readout_count),
+                "critic.bias": (1,),
+            }
 
     state_dict = _validate_state_dict(state_dict_value, expected_shapes)
     training = dict(training_value)
@@ -231,6 +260,7 @@ def validate_checkpoint(
         actions=actions,
         hidden_size=hidden_size,
         graph=graph,
+        connectome_interface=connectome_interface,
         state_dict=state_dict,
         training=training,
     )

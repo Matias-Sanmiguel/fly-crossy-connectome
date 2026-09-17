@@ -26,7 +26,7 @@ from .env import (
     hash_seed,
 )
 from .export import export_policy
-from .models import DensePolicy, FixedGraphPolicy
+from .models import DensePolicy, FixedGraphPolicy, PopulationFixedGraphPolicy
 from .schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE
 
 
@@ -53,15 +53,21 @@ class TrainingConfig:
     output: Path
     device: str = "auto"
     connectome_graph: str = "80"
+    connectome_interface: str = "legacy"
 
     def validate(self) -> None:
         if self.controller not in ("conventional", "connectome"):
             raise ValueError("Controller must be conventional or connectome.")
         if self.connectome_graph not in ("80", "1k"):
             raise ValueError("Connectome graph must be 80 or 1k.")
-        if self.controller != "connectome" and self.connectome_graph != "80":
+        if self.connectome_interface not in ("legacy", "population"):
+            raise ValueError("Connectome interface must be legacy or population.")
+        if self.controller != "connectome" and (
+            self.connectome_graph != "80"
+            or self.connectome_interface != "legacy"
+        ):
             raise ValueError(
-                "Non-connectome controllers must keep the default graph selector."
+                "Non-connectome controllers must keep default connectome selectors."
             )
         if not self.seed:
             raise ValueError("Training seed must not be empty.")
@@ -120,7 +126,7 @@ def _ppo_update(
         for indices in torch.randperm(batch_size, device=observations.device).split(
             MINIBATCH_SIZE
         ):
-            if isinstance(model, FixedGraphPolicy):
+            if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)):
                 if hidden_states is None:
                     raise ValueError("Fixed graph PPO updates require recurrent hidden states.")
                 logits, values, _ = model(observations[indices], hidden_states[indices])
@@ -188,11 +194,19 @@ def train(config: TrainingConfig) -> dict[str, Any]:
     completed_episodes: list[dict[str, Any]] = []
 
     if config.controller == "connectome":
-        model: DensePolicy | FixedGraphPolicy = FixedGraphPolicy(
-            load_reduced_graph_variant(config.connectome_graph),
-            OBSERVATION_INPUT_SIZE,
-            len(ACTION_ORDER),
-        ).to(device)
+        graph = load_reduced_graph_variant(config.connectome_graph)
+        policy_type = (
+            FixedGraphPolicy
+            if config.connectome_interface == "legacy"
+            else PopulationFixedGraphPolicy
+        )
+        model: DensePolicy | FixedGraphPolicy | PopulationFixedGraphPolicy = (
+            policy_type(
+                graph,
+                OBSERVATION_INPUT_SIZE,
+                len(ACTION_ORDER),
+            ).to(device)
+        )
         hidden_state: Tensor | None = torch.zeros(
             config.envs, model.graph.node_count, dtype=torch.float32, device=device
         )
@@ -220,7 +234,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         for _ in range(rollout_length):
             observation_tensor = torch.as_tensor(observations, dtype=torch.float32, device=device)
             with torch.no_grad():
-                if isinstance(model, FixedGraphPolicy):
+                if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)):
                     assert hidden_state is not None
                     rollout_hidden_states.append(hidden_state)
                     logits, values, next_hidden_state = model(
@@ -287,7 +301,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             bootstrap_observations = torch.as_tensor(
                 observations, dtype=torch.float32, device=device
             )
-            if isinstance(model, FixedGraphPolicy):
+            if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)):
                 assert hidden_state is not None
                 _, bootstrap_value, _ = model(bootstrap_observations, hidden_state)
             else:
@@ -344,11 +358,12 @@ def train(config: TrainingConfig) -> dict[str, Any]:
 
     model_metadata: dict[str, Any]
 
-    if isinstance(model, FixedGraphPolicy):
+    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)):
         model_metadata = {
             "observation_size": OBSERVATION_INPUT_SIZE,
             "actions": len(ACTION_ORDER),
             "graph": model.graph.to_checkpoint(),
+            "interface": config.connectome_interface,
         }
     else:
         model_metadata = {
@@ -384,6 +399,11 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                     if config.controller == "connectome"
                     else None
                 ),
+                "connectome_interface": (
+                    config.connectome_interface
+                    if config.controller == "connectome"
+                    else None
+                ),
                 "reward": reward_metadata,
             },
         },
@@ -408,7 +428,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                     "graphEdges": model.graph.edge_count,
                     "graphArtifactHash": model.graph.artifact_sha256,
                 }
-                if isinstance(model, FixedGraphPolicy)
+                if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy))
                 else {"hiddenSize": HIDDEN_SIZE}
             ),
         },
@@ -463,6 +483,12 @@ def _parse_arguments() -> TrainingConfig:
         default="80",
         help="MaleCNS graph capacity variant used by the connectome controller.",
     )
+    parser.add_argument(
+        "--connectome-interface",
+        choices=("legacy", "population"),
+        default="legacy",
+        help="Artificial interface mode for the fixed MaleCNS graph.",
+    )
     arguments = parser.parse_args()
     return TrainingConfig(
         controller=arguments.controller,
@@ -473,6 +499,7 @@ def _parse_arguments() -> TrainingConfig:
         output=arguments.output,
         device=arguments.device,
         connectome_graph=arguments.connectome_graph,
+        connectome_interface=arguments.connectome_interface,
     )
 
 

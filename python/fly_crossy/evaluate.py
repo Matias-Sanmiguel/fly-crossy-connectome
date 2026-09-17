@@ -18,7 +18,7 @@ from torch import Tensor
 from .connectome import ReducedGraphArtifact
 from .checkpoint import validate_checkpoint
 from .env import FlyCrossyEnv, WORLD_VERSION, hash_seed
-from .models import DensePolicy, FixedGraphPolicy
+from .models import DensePolicy, FixedGraphPolicy, PopulationFixedGraphPolicy
 from .schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE, Action
 
 
@@ -288,7 +288,7 @@ class _PolicyRunner:
     def reset(self) -> None:
         self.hidden = (
             torch.zeros(1, self.model.graph.node_count, dtype=torch.float32)
-            if isinstance(self.model, FixedGraphPolicy)
+            if isinstance(self.model, (FixedGraphPolicy, PopulationFixedGraphPolicy))
             else None
         )
 
@@ -296,14 +296,14 @@ class _PolicyRunner:
         inputs = torch.from_numpy(observation).unsqueeze(0)
         started = perf_counter()
         with torch.no_grad():
-            if isinstance(self.model, FixedGraphPolicy):
+            if isinstance(self.model, (FixedGraphPolicy, PopulationFixedGraphPolicy)):
                 if self.hidden is None:
                     raise RuntimeError("Reset the fixed graph evaluator before inference.")
                 logits, _, activity = self.model(inputs, self.hidden)
                 if self.silenced_indices:
                     activity = activity.clone()
                     activity[:, self.silenced_indices] = 0
-                    logits = self.model.actor(activity)
+                    logits = self.model.actor_from_activity(activity)
                 self.hidden = activity
             else:
                 logits, _ = self.model(inputs)
@@ -362,7 +362,12 @@ def _load_checkpoint(
         graph = validated.graph
         if graph is None:
             raise ValueError("Connectome checkpoint graph is incompatible.")
-        model = FixedGraphPolicy(graph, observation_size, actions)
+        policy_type = (
+            PopulationFixedGraphPolicy
+            if validated.connectome_interface == "population"
+            else FixedGraphPolicy
+        )
+        model = policy_type(graph, observation_size, actions)
     try:
         model.load_state_dict(state_dict, strict=True)
     except (RuntimeError, TypeError) as error:
@@ -430,13 +435,13 @@ def _evidence(
 ) -> dict[str, Any]:
     parameters, trainable_parameters = _parameter_count(model)
     graph_hash = (
-        model.graph.artifact_sha256 if isinstance(model, FixedGraphPolicy) else None
+        model.graph.artifact_sha256 if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)) else None
     )
     return {
         "checkpointPath": str(checkpoint_path),
         "checkpointSha256": _sha256(checkpoint_path),
         "checkpointController": (
-            "connectome" if isinstance(model, FixedGraphPolicy) else "conventional"
+            "connectome" if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)) else "conventional"
         ),
         "trainingSeed": str(training["seed"]),
         "trainingEnvironmentSteps": int(training["steps"]),
@@ -851,13 +856,16 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
             "Evaluation concrete training world seeds overlap held-out seeds: "
             + ", ".join(sorted(overlap))
         )
-    if not isinstance(connectome, FixedGraphPolicy):
+    if not isinstance(
+        connectome, (FixedGraphPolicy, PopulationFixedGraphPolicy)
+    ):
         raise ValueError("Connectome evaluation requires a fixed graph policy.")
 
+    policy_type = type(connectome)
     rewired_graph = degree_preserving_rewire(
         connectome.graph, seed=config.rewiring_seed, swaps=config.rewiring_swaps
     )
-    rewired = FixedGraphPolicy(
+    rewired = policy_type(
         rewired_graph,
         observation_size=connectome.sensory.in_features,
         actions=connectome.actor.out_features,
@@ -865,7 +873,7 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
     rewired.load_state_dict(connectome.state_dict(), strict=True)
     rewired.eval()
 
-    silenced = FixedGraphPolicy(
+    silenced = policy_type(
         connectome.graph,
         observation_size=connectome.sensory.in_features,
         actions=connectome.actor.out_features,
@@ -879,7 +887,7 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
         else connectome.graph.readout_body_ids
     )
 
-    untrained = FixedGraphPolicy(
+    untrained = policy_type(
         connectome.graph,
         observation_size=connectome.sensory.in_features,
         actions=connectome.actor.out_features,
