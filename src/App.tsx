@@ -20,6 +20,7 @@ import {
 } from './game/controllers';
 import type { GameAssetStatus } from './game/createGameRenderer';
 import { OBSERVATION_INPUT_SIZE, parsePolicy, type ExportedPolicyV1 } from './game/model';
+import { OBSERVATION_VERSION } from './game/observation';
 import { activityPresentation } from './game/provenance';
 import { useAtlas } from './hooks/useAtlas';
 import {
@@ -66,7 +67,7 @@ export function App() {
   });
 
   useEffect(() => {
-    if (!atlas) return;
+    if (!atlas || !BUNDLED_CONNECTOME_POLICY_PATH) return;
     const abort = new AbortController();
     void fetch(asset(BUNDLED_CONNECTOME_POLICY_PATH), { signal: abort.signal })
       .then((response) => {
@@ -103,7 +104,10 @@ export function App() {
     if (!atlas) throw Error('Wait for the measured MaleCNS atlas to load.');
     const nextPolicy = parsePolicy(value, atlas.visibleIds);
     if (nextPolicy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
-      throw Error('Policy input shape does not match ObservationV1.');
+      throw Error('Policy input shape does not match ObservationV2.');
+    }
+    if (nextPolicy.observationVersion !== OBSERVATION_VERSION) {
+      throw Error('Policy observation version does not match the current environment.');
     }
     setPolicy(nextPolicy);
     setMode('model');

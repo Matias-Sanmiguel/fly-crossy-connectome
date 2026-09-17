@@ -19,13 +19,13 @@ LEGACY_CHECKPOINT_PATH = (
     / "checkpoint.pt"
 )
 
-# Environment v6 final 80-neuron release. Historical v3 evidence and
-# diagnostic v4/v5 runs remain separate; this path is the authoritative
-# released v6 checkpoint used by the biomechanical runtime.
+# Environment v7 is the current training candidate. The released v6
+# controller remains immutable evidence under release/eval-v6; do not run it
+# against ObservationV2. This path stays fail-closed until v7 is released.
 CHECKPOINT_PATH = (
     ROOT
     / "release"
-    / "eval-v6"
+    / "eval-v7"
     / "training"
     / "connectome"
     / "checkpoint.pt"
@@ -43,7 +43,7 @@ def _get_controller() -> ConnectomeActionSelector:
 
     if not CHECKPOINT_PATH.is_file():
         raise RuntimeError(
-            "Environment v6 released controller artifact is unavailable."
+            "Environment v7 controller is not released yet."
         )
 
     controller = ConnectomeActionSelector(CHECKPOINT_PATH)

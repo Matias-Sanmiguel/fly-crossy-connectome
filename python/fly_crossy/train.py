@@ -16,6 +16,7 @@ from torch.distributions import Categorical
 
 from .connectome import load_default_reduced_graph
 from .env import (
+    BLOCKED_COST,
     FlyCrossyEnv,
     PROGRESS_REWARD,
     STAGNATION_COST,
@@ -350,11 +351,12 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         }
 
     reward_metadata = {
-        "version": 2,
+        "version": 3,
         "progress": PROGRESS_REWARD,
         "terminal": TERMINAL_PENALTY,
         "step": STEP_COST,
         "stagnation": STAGNATION_COST,
+        "blocked": BLOCKED_COST,
     }
 
     torch.save(

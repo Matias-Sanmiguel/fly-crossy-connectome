@@ -6,7 +6,7 @@ import { observe } from '../src/game/observation.ts';
 import { createGame, hazardPositionAt, stepGame } from '../src/game/simulation.ts';
 import { generateRows, WORLD_VERSION } from '../src/game/world.ts';
 
-const fixtureUrl = new URL('../tests/fixtures/environment-parity-v1.json', import.meta.url);
+const fixtureUrl = new URL('../tests/fixtures/environment-parity-v2.json', import.meta.url);
 const fixture = JSON.parse(await readFile(fixtureUrl, 'utf8'));
 
 const stateFrom = (specification) => {
@@ -51,7 +51,7 @@ for (const parityCase of fixture.cases) {
 
 await writeFile(fixtureUrl, `${JSON.stringify(fixture, null, 2)}\n`, 'utf8');
 
-const worldFixtureUrl = new URL('../tests/fixtures/world-generation-v6.json', import.meta.url);
+const worldFixtureUrl = new URL('../tests/fixtures/world-generation-v7.json', import.meta.url);
 const worldFixture = {
   version: 1,
   environmentVersion: WORLD_VERSION,

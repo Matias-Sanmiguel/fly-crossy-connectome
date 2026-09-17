@@ -43,7 +43,7 @@ const baseState = () => ({
 test('observation is a fixed radius-five egocentric window', () => {
   const observation = observe(baseState());
 
-  assert.equal(observation.version, 1);
+  assert.equal(observation.version, 2);
   assert.equal(observation.radius, 5);
   assert.equal(observation.cells.length, 11);
   assert.ok(observation.cells.every((row) => row.length === 11));
@@ -56,9 +56,9 @@ test('observation encodes local occupancy and normalized motion only', () => {
   const observation = observe(baseState());
 
   assert.equal(observation.cells[5][5], 5, 'vehicle occupancy');
-  assert.deepEqual(observation.motion[5][5], [-1, 1]);
+  assert.deepEqual(observation.motion[5][5], [-1, 3 / 5]);
   assert.equal(observation.cells[6][6], 7, 'log occupancy');
-  assert.deepEqual(observation.motion[6][6], [1, 1 / 3]);
+  assert.deepEqual(observation.motion[6][6], [1, 1 / 5]);
   assert.equal(observation.cells.flat().includes(6), false, 'row six is outside the radius-five window');
 });
 

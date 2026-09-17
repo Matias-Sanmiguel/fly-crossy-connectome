@@ -7,7 +7,7 @@ import {
   runFixedGraphNetwork,
 } from './model.ts';
 import type { ExportedPolicyV1, ModelSource } from './model.ts';
-import type { ObservationV1 } from './observation.ts';
+import { OBSERVATION_VERSION, type ObservationV1 } from './observation.ts';
 import type { Action } from './types.ts';
 import type { ActivityProvenance } from './provenance.ts';
 
@@ -28,7 +28,7 @@ export interface Controller {
   subscribeFailure?(listener: (error: Error) => void): () => void;
 }
 
-export const BUNDLED_CONNECTOME_POLICY_PATH = 'models/reduced-connectome-policy-v6.json';
+export const BUNDLED_CONNECTOME_POLICY_PATH: string | null = null;
 
 export function parseBundledConnectomePolicy(
   value: unknown,
@@ -39,7 +39,10 @@ export function parseBundledConnectomePolicy(
     throw Error('Bundled autoplay policy must provide mapped reduced-connectome activity.');
   }
   if (policy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
-    throw Error('Bundled autoplay policy input shape does not match ObservationV1.');
+    throw Error('Bundled autoplay policy input shape does not match ObservationV2.');
+  }
+  if (policy.observationVersion !== OBSERVATION_VERSION) {
+    throw Error('Bundled autoplay policy observation version does not match the current environment.');
   }
   return policy;
 }

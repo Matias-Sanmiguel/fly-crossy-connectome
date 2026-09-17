@@ -3,8 +3,11 @@ import type { GameState } from './simulation.ts';
 import { isSceneryBlocked } from './scenery.ts';
 import type { Action, Hazard, Lane, LaneKind } from './types.ts';
 
+export const OBSERVATION_VERSION = 2 as const;
+
+/** ObservationV2; legacy type name is retained to avoid protocol churn. */
 export type ObservationV1 = {
-  version: 1;
+  version: 2;
   radius: 5;
   cells: number[][];
   motion: number[][][];
@@ -23,6 +26,7 @@ export const CELL_ENCODING = {
   vehicle: 5,
   train: 6,
   log: 7,
+  blocker: 8,
 } as const;
 
 const laneEncoding: Record<LaneKind, number> = {
@@ -45,7 +49,8 @@ function occupiedEncoding(hazard: Hazard): number {
 function laneMotion(lane: Lane, hazard: Hazard | undefined): number[] {
   if (!hazard) return [0, 0];
   const direction = lane.direction ?? 0;
-  const normalizedSpeed = Math.min(1, (lane.speed ?? 0) / 3);
+  const speedScale = hazard.kind === 'train' ? 12 : 5;
+  const normalizedSpeed = Math.min(1, (lane.speed ?? 0) / speedScale);
   return [direction, normalizedSpeed];
 }
 
@@ -77,7 +82,7 @@ export function observe(state: GameState): ObservationV1 {
       if (Math.abs(column) > WORLD_HALF_WIDTH) continue;
       const observationColumn = columnOffset + OBSERVATION_RADIUS;
       if (isSceneryBlocked(state.seed, lane.row, lane.kind, column)) {
-        cells[observationRow]![observationColumn] = CELL_ENCODING.unknown;
+        cells[observationRow]![observationColumn] = CELL_ENCODING.blocker;
         motion[observationRow]![observationColumn] = [0, 0];
         continue;
       }
@@ -94,7 +99,7 @@ export function observe(state: GameState): ObservationV1 {
   ) / WORLD_HALF_WIDTH));
 
   return {
-    version: 1,
+    version: OBSERVATION_VERSION,
     radius: OBSERVATION_RADIUS,
     cells,
     motion,

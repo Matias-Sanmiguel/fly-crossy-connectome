@@ -6,6 +6,7 @@ import pytest
 from fly_crossy.schema import (
     ACTION_ORDER,
     OBSERVATION_INPUT_SIZE,
+    OBSERVATION_VERSION,
     Action,
     ObservationV1,
     flatten_observation,
@@ -32,7 +33,7 @@ def test_action_order_matches_browser_policy_contract() -> None:
 def test_flatten_observation_matches_browser_encoding_order() -> None:
     cells = [[0 for _ in range(11)] for _ in range(11)]
     motion = [[[0.0, 0.0] for _ in range(11)] for _ in range(11)]
-    cells[0][0] = 7
+    cells[0][0] = 8
     motion[0][0] = [-1.0, 1.0 / 3.0]
     observation = ObservationV1(
         cells=cells,
@@ -46,6 +47,8 @@ def test_flatten_observation_matches_browser_encoding_order() -> None:
 
     assert encoded.shape == (OBSERVATION_INPUT_SIZE,)
     assert encoded.dtype == np.float32
+    assert OBSERVATION_VERSION == 2
+    assert observation.version == 2
     assert encoded[0] == pytest.approx(1.0)
     assert encoded[1:121].tolist() == [0.0] * 120
     assert encoded[121:125].tolist() == pytest.approx([-1.0, 1.0 / 3.0, 0.0, 0.0])

@@ -10,7 +10,7 @@ import { generateRows } from '../src/game/world.ts';
 import { WORLD_VERSION } from '../src/game/world.ts';
 
 const fixture = JSON.parse(readFileSync(
-  new URL('./fixtures/environment-parity-v1.json', import.meta.url),
+  new URL('./fixtures/environment-parity-v2.json', import.meta.url),
   'utf8',
 ));
 

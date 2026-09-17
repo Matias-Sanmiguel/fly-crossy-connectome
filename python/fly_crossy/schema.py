@@ -24,6 +24,7 @@ ACTION_ORDER = (
     Action.WAIT,
 )
 OBSERVATION_RADIUS = 5
+OBSERVATION_VERSION = 2
 OBSERVATION_INPUT_SIZE = 370
 
 
@@ -34,13 +35,13 @@ class ObservationV1:
     support: int
     previous_action: Action
     edge_distance: float
-    version: int = 1
+    version: int = OBSERVATION_VERSION
     radius: int = OBSERVATION_RADIUS
 
 
 def flatten_observation(observation: ObservationV1) -> NDArray[np.float32]:
     """Encode ObservationV1 in the browser policy's stable numeric order."""
-    cells = [value / 7 for row in observation.cells for value in row]
+    cells = [value / 8 for row in observation.cells for value in row]
     motion = [value for row in observation.motion for cell in row for value in cell]
     previous_action = [float(observation.previous_action == action) for action in ACTION_ORDER]
     encoded = np.asarray(

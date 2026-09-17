@@ -80,7 +80,7 @@ test('dense policy chooses the maximum logit using the canonical observation enc
   const inputSize = 370;
   const policy = {
     version: 1,
-    observationVersion: 1,
+    observationVersion: 2,
     actions: ['forward', 'backward', 'left', 'right', 'wait'],
     source: { kind: 'predicted', name: 'Dense fixture', normalization: 'No activity values' },
     network: {
@@ -107,7 +107,7 @@ test('fixed graph controller persists recurrence and resets simulated activity',
   const inputSize = 370;
   const policy = {
     version: 1,
-    observationVersion: 1,
+    observationVersion: 2,
     actions: ['forward', 'backward', 'left', 'right', 'wait'],
     source: { kind: 'predicted', name: 'Fixed fixture', normalization: 'tanh mapped to [0, 1]' },
     network: {
@@ -133,23 +133,18 @@ test('fixed graph controller persists recurrence and resets simulated activity',
   assert.deepEqual((await controller.decide(observation, signal())).activity, first.activity);
 });
 
-test('bundled connectome policy drives actions with mapped neural activity', async () => {
+test('historical v6 bundled policy is rejected by the v7 ObservationV2 contract', async () => {
   const raw = JSON.parse(await readFile(
     new URL('../public/models/reduced-connectome-policy-v6.json', import.meta.url),
     'utf8',
   ));
   const visibleIds = new Set(raw.activityBodyIds);
-  const policy = controllerRuntime.parseBundledConnectomePolicy(raw, visibleIds);
-  const controller = createFixedGraphPolicyController(policy);
 
-  const decision = await controller.decide(observe(createGame('autoplay')), signal());
-
-  assert.equal(policy.network.kind, 'fixed-graph');
-  assert.equal(controller.activityProvenance, 'simulated-reduced-circuit');
-  assert.equal(decision.activity.length, 80);
-  assert.ok(decision.activity.every(([bodyId, value]) => (
-    visibleIds.has(bodyId) && Number.isFinite(value) && value >= 0 && value <= 1
-  )));
+  assert.equal(controllerRuntime.BUNDLED_CONNECTOME_POLICY_PATH, null);
+  assert.throws(
+    () => controllerRuntime.parseBundledConnectomePolicy(raw, visibleIds),
+    /observation version/i,
+  );
 });
 
 test('autoplay episode seeds change without growing beyond the seed contract', () => {

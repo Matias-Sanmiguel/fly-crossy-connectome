@@ -9,7 +9,8 @@ import {
   TRAIN_CIRCUIT,
 } from './transition.ts';
 
-export const WORLD_VERSION = 6;
+export const WORLD_VERSION = 7;
+export const WORLD_LAYOUT_VERSION = 6;
 
 const OPENING_ROWS = 3;
 const CONTENT_ROWS_PER_GROUP = 6;
@@ -67,7 +68,7 @@ function groupIndexFor(row: number): number {
 }
 
 function seedForGroup(seed: string, groupIndex: number): string {
-  return `${WORLD_VERSION}:${seed}:${groupIndex}`;
+  return `${WORLD_LAYOUT_VERSION}:${seed}:${groupIndex}`;
 }
 
 function laneTemplateForGroup(seed: string, groupIndex: number): readonly LaneKind[] {

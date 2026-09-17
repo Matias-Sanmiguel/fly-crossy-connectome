@@ -11,7 +11,8 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 6
+WORLD_VERSION = 7
+WORLD_LAYOUT_VERSION = 6
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
 HAZARD_CIRCUIT = 25
@@ -30,7 +31,8 @@ TRAIN_WARNING_SECONDS = 1.2
 PROGRESS_REWARD = 1
 TERMINAL_PENALTY = -10
 STEP_COST = -0.01
-STAGNATION_COST = -0.05
+STAGNATION_COST = -0.10
+BLOCKED_COST = -0.10
 
 LaneKind = Literal["grass", "road", "rail", "river"]
 SectionFamily = Literal["road", "rail", "river"]
@@ -214,7 +216,7 @@ def _group_index_for(row: int) -> int:
 
 
 def _seed_for_group(seed: str, group_index: int) -> str:
-    return f"{WORLD_VERSION}:{seed}:{group_index}"
+    return f"{WORLD_LAYOUT_VERSION}:{seed}:{group_index}"
 
 
 def _lane_template_for_group(seed: str, group_index: int) -> tuple[LaneKind, ...]:
@@ -665,6 +667,7 @@ def create_game(seed: str) -> GameState:
 def _reward(
     previous: GameState,
     next_state: GameState,
+    events: Sequence[dict[str, object]] = (),
 ) -> float:
     progress = (
         max(
@@ -689,11 +692,16 @@ def _reward(
         else 0
     )
 
+    blocked = BLOCKED_COST if any(
+        event.get("type") == "blocked" for event in events
+    ) else 0
+
     return (
         progress
         + terminal
         + STEP_COST
         + stagnation
+        + blocked
     )
 
 
@@ -723,7 +731,7 @@ def step_game(state: GameState, action: Action) -> StepResult:
     )
     return StepResult(
         state=next_state,
-        reward=_reward(state, next_state),
+        reward=_reward(state, next_state, transition.events),
         events=transition.events,
     )
 
@@ -750,7 +758,8 @@ def _occupied_encoding(hazard: Hazard) -> int:
 def _lane_motion(lane: Lane, hazard: Hazard | None) -> list[float]:
     if hazard is None:
         return [0, 0]
-    return [lane.direction or 0, min(1, (lane.speed or 0) / 3)]
+    speed_scale = 12 if hazard.kind == "train" else 5
+    return [lane.direction or 0, min(1, (lane.speed or 0) / speed_scale)]
 
 
 def _is_river_supported(state: GameState) -> bool:
@@ -784,7 +793,7 @@ def observe(state: GameState) -> ObservationV1:
                 continue
             observation_column = column_offset + OBSERVATION_RADIUS
             if _scenery_blocked(state.seed, lane.row, lane.kind, column):
-                cells[observation_row][observation_column] = 0
+                cells[observation_row][observation_column] = 8
                 motion[observation_row][observation_column] = [0, 0]
                 continue
             hazard = _occupying_hazard(lane, column, state.time)

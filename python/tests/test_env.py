@@ -34,19 +34,19 @@ from fly_crossy.schema import (
 )
 
 
-FIXTURE = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "episode-v1.json"
+FIXTURE = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "episode-v2.json"
 PARITY_FIXTURE = (
     Path(__file__).resolve().parents[2]
     / "tests"
     / "fixtures"
-    / "environment-parity-v1.json"
+    / "environment-parity-v2.json"
 )
 PARITY = json.loads(PARITY_FIXTURE.read_text(encoding="utf-8"))
 WORLD_PARITY_FIXTURE = (
     Path(__file__).resolve().parents[2]
     / "tests"
     / "fixtures"
-    / "world-generation-v6.json"
+    / "world-generation-v7.json"
 )
 
 
@@ -111,7 +111,7 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
     assert hash_seed("") == 2_166_136_261
     assert hash_seed("episode-v1-safe-opening") == 4_109_462_559
     assert hash_seed("parity-🪰") == 3_375_820_797
-    assert WORLD_VERSION == 6
+    assert WORLD_VERSION == 7
 
     rows = generate_rows("parity-seed", 3, 2)
     assert [lane.row for lane in rows] == [3, 4]
@@ -391,7 +391,7 @@ def test_fixture_episode_matches_browser_contract() -> None:
 
     observation, info = env.reset(seed=fixture["seed"])
 
-    assert fixture["version"] == 1
+    assert fixture["version"] == 2
     assert observation.shape == (OBSERVATION_INPUT_SIZE,)
     assert observation.dtype == np.float32
     assert info == {"score": 0, "seed": fixture["seed"]}
@@ -444,7 +444,7 @@ def test_reset_is_deterministic_and_terminal_states_do_not_advance() -> None:
     terminal_step = env.state.step
     _, repeated_reward, repeated_terminated, repeated_truncated, repeated_info = env.step(Action.WAIT)
 
-    assert reward == pytest.approx(-10.06)
+    assert reward == pytest.approx(-10.11)
     assert terminated is True
     assert truncated is False
     assert info == {"score": 3, "terminalReason": "vehicle"}

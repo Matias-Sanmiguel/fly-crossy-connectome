@@ -13,7 +13,7 @@ from torch import Tensor, nn
 from .checkpoint import validate_checkpoint
 from .connectome import ReducedGraphArtifact
 from .models import DensePolicy, FixedGraphPolicy
-from .schema import ACTION_ORDER
+from .schema import ACTION_ORDER, OBSERVATION_VERSION
 
 
 def _finite_row_major(tensor: Tensor, label: str) -> list[float]:
@@ -119,8 +119,9 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             "kind": "predicted",
             "name": "Reduced MaleCNS fixed-graph PPO controller",
             "normalization": (
-                "ObservationV1 uses its declared 370-value encoding; raw tanh node "
-                "activity is mapped as (activity + 1) / 2 for atlas display"
+                "ObservationV2 uses the declared 370-value encoding with explicit "
+                "blocker cells and hazard-speed scaling; raw tanh node activity is "
+                "mapped as (activity + 1) / 2 for atlas display"
             ),
             "checkpointHash": checkpoint_hash,
             "datasetVersion": graph.dataset_version,
@@ -158,8 +159,8 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             "kind": "predicted",
             "name": "Conventional PPO baseline",
             "normalization": (
-                "ObservationV1 cells divided by 7; motion, support, previous-action "
-                "one-hot, and edge distance unchanged"
+                "ObservationV2 cells divided by 8; motion uses hazard-specific "
+                "speed scaling; support, previous-action one-hot, and edge distance unchanged"
             ),
             "checkpointHash": checkpoint_hash,
         }
@@ -176,7 +177,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
 
     payload: dict[str, Any] = {
         "version": 1,
-        "observationVersion": 1,
+        "observationVersion": OBSERVATION_VERSION,
         "actions": [action.value for action in ACTION_ORDER],
         "source": source,
         "network": network,

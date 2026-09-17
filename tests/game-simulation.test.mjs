@@ -245,12 +245,12 @@ test(
 
     assert.equal(
       reward(progress, stagnant),
-      -0.060000000000000005,
+      -0.11,
     );
 
     assert.equal(
       reward(stagnant, terminal),
-      -10.06,
+      -10.11,
     );
   },
 );
@@ -266,7 +266,7 @@ test('terminal states do not advance again', () => {
 
 test('versioned episode fixture reproduces score, rewards, and terminal reason', () => {
   const fixture = JSON.parse(readFileSync(
-    new URL('./fixtures/episode-v1.json', import.meta.url),
+    new URL('./fixtures/episode-v2.json', import.meta.url),
     'utf8',
   ));
   let state = createGame(fixture.seed);
@@ -284,7 +284,7 @@ test('versioned episode fixture reproduces score, rewards, and terminal reason',
     });
   }
 
-  assert.equal(fixture.version, 1);
+  assert.equal(fixture.version, 2);
   assert.equal(
     rewards.length,
     fixture.rewards.length,

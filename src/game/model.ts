@@ -1,4 +1,4 @@
-import type { ObservationV1 } from './observation.ts';
+import { OBSERVATION_VERSION, type ObservationV1 } from './observation.ts';
 import type { Action } from './types.ts';
 
 export const POLICY_ACTIONS = ['forward', 'backward', 'left', 'right', 'wait'] as const;
@@ -54,7 +54,7 @@ export type FixedGraphNetwork = {
 
 export type ExportedPolicyV1 = {
   version: 1;
-  observationVersion: 1;
+  observationVersion: 1 | 2;
   actions: Action[];
   source: ModelSource;
   network: DenseNetwork | FixedGraphNetwork;
@@ -266,7 +266,9 @@ function parseFixedGraphNetwork(
 export function parsePolicy(input: unknown, visibleIds: ReadonlySet<number>): ExportedPolicyV1 {
   const policy = requireRecord(input, 'Policy');
   if (policy.version !== 1) throw Error('Expected policy version 1.');
-  if (policy.observationVersion !== 1) throw Error('Expected observation version 1.');
+  if (policy.observationVersion !== 1 && policy.observationVersion !== OBSERVATION_VERSION) {
+    throw Error('Expected observation version 1 or 2.');
+  }
   const actions = policy.actions;
   if (!Array.isArray(actions)
     || actions.length !== POLICY_ACTIONS.length
@@ -306,7 +308,7 @@ export function parsePolicy(input: unknown, visibleIds: ReadonlySet<number>): Ex
   }
   return {
     version: 1,
-    observationVersion: 1,
+    observationVersion: policy.observationVersion,
     actions: [...POLICY_ACTIONS],
     source,
     network,
@@ -316,7 +318,7 @@ export function parsePolicy(input: unknown, visibleIds: ReadonlySet<number>): Ex
 
 /** Stable numeric encoding shared by exported browser policies. */
 export function encodeObservation(observation: ObservationV1): number[] {
-  const cells = observation.cells.flat().map((value) => value / 7);
+  const cells = observation.cells.flat().map((value) => value / 8);
   const motion = observation.motion.flat(2);
   const previousAction = POLICY_ACTIONS.map((action) => Number(observation.previousAction === action));
   const encoded = [...cells, ...motion, observation.support, ...previousAction, observation.edgeDistance];

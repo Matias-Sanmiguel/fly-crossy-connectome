@@ -95,5 +95,5 @@ export function stepGame(state: GameState, action: Action): StepResult {
     previousAction: action,
   };
 
-  return { state: next, reward: calculateReward(state, next), events: transition.events };
+  return { state: next, reward: calculateReward(state, next, transition.events), events: transition.events };
 }

@@ -17,60 +17,22 @@ from fly_crossy.env import WORLD_VERSION
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def test_dev_server_uses_released_v6_checkpoint_and_preserves_v3_history() -> None:
-    assert WORLD_VERSION == 6
+def test_dev_server_is_fail_closed_until_v7_release_and_preserves_v6() -> None:
+    assert WORLD_VERSION == 7
 
     assert LEGACY_CHECKPOINT_PATH == (
         ROOT / "release/eval-v1/training/connectome/checkpoint.pt"
     )
     assert LEGACY_CHECKPOINT_PATH.is_file()
-    historical = torch.load(
-        LEGACY_CHECKPOINT_PATH,
-        map_location="cpu",
-        weights_only=True,
-    )
-    assert historical["environment_version"] == 3
+
+    v6 = ROOT / "release/eval-v6/training/connectome/checkpoint.pt"
+    assert v6.is_file()
+    saved = torch.load(v6, map_location="cpu", weights_only=True)
+    assert saved["environment_version"] == 6
+    assert saved["training"]["seed"] == "final-80n-v6-train-1m-01"
 
     assert CHECKPOINT_PATH == (
-        ROOT / "release/eval-v6/training/connectome/checkpoint.pt"
+        ROOT / "release/eval-v7/training/connectome/checkpoint.pt"
     )
-    released = torch.load(
-        CHECKPOINT_PATH,
-        map_location="cpu",
-        weights_only=True,
-    )
-    assert released["environment_version"] == 6
-    assert released["controller"] == "connectome"
-    assert released["training"]["seed"] == "final-80n-v6-train-1m-01"
-    assert released["training"]["steps"] == 1_000_000
-
-    # The runtime loader remains lazy; app construction already verifies the
-    # artifact registry bytes during module import.
+    assert not CHECKPOINT_PATH.exists()
     assert controller is None
-
-    manifest = json.loads(
-        (ROOT / "runtime-artifacts-biomechanics.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    assert manifest == {
-        "artifacts": [
-            {
-                "population": 80,
-                "graph": {
-                    "path": "public/data/connectome/graph.json",
-                    "sha256": _sha256(
-                        ROOT / "public/data/connectome/graph.json"
-                    ),
-                },
-                "checkpoint": {
-                    "path": "release/eval-v6/training/connectome/checkpoint.pt",
-                    "sha256": _sha256(CHECKPOINT_PATH),
-                },
-            }
-        ]
-    }
