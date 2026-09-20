@@ -12,7 +12,12 @@ from torch import Tensor, nn
 
 from .checkpoint import validate_checkpoint
 from .connectome import ReducedGraphArtifact
-from .models import DensePolicy, FixedGraphPolicy, PopulationFixedGraphPolicy
+from .models import (
+    DensePolicy,
+    FixedGraphPolicy,
+    NestedPopulationFixedGraphPolicy,
+    PopulationFixedGraphPolicy,
+)
 from .schema import ACTION_ORDER, OBSERVATION_VERSION
 
 
@@ -97,6 +102,28 @@ def _load_population_fixed_graph_policy(
     return model
 
 
+
+def _load_nested_fixed_graph_policy(
+    graph: ReducedGraphArtifact,
+    core_graph: ReducedGraphArtifact,
+    observation_size: int,
+    actions: int,
+    state_dict: Mapping[str, Tensor],
+) -> NestedPopulationFixedGraphPolicy:
+    try:
+        model = NestedPopulationFixedGraphPolicy(
+            graph=graph,
+            core_graph=core_graph,
+            observation_size=observation_size,
+            actions=actions,
+        )
+        model.load_state_dict(state_dict)
+    except (KeyError, TypeError, ValueError, RuntimeError) as error:
+        raise ValueError(
+            "Checkpoint contains an incompatible nested fixed graph policy."
+        ) from error
+    return model
+
 def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     """Export a conventional or fixed-graph actor checkpoint for browser inference."""
     checkpoint_path = Path(checkpoint)
@@ -113,7 +140,18 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         graph = checkpoint_metadata.graph
         if graph is None:
             raise ValueError("Checkpoint connectome graph is incompatible.")
-        if checkpoint_metadata.connectome_interface == "population":
+        if checkpoint_metadata.connectome_interface == "nested":
+            core_graph = checkpoint_metadata.core_graph
+            if core_graph is None:
+                raise ValueError("Checkpoint nested core graph is incompatible.")
+            model = _load_nested_fixed_graph_policy(
+                graph,
+                core_graph,
+                checkpoint_metadata.observation_size,
+                checkpoint_metadata.actions,
+                state_dict,
+            )
+        elif checkpoint_metadata.connectome_interface == "population":
             model = _load_population_fixed_graph_policy(
                 graph,
                 checkpoint_metadata.observation_size,
@@ -141,7 +179,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         raise ValueError("Checkpoint actor does not match the canonical action order.")
 
     checkpoint_hash = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
-    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy)):
+    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy)):
         graph = model.graph
         source: dict[str, Any] = {
             "kind": "predicted",
@@ -165,7 +203,9 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         time_constant = min(
             1.0, max(1e-4, _finite_scalar(model.time_constant, "Time constant"))
         )
-        if isinstance(model, PopulationFixedGraphPolicy):
+        if isinstance(
+            model, (PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy)
+        ):
             sensory_weights = torch.zeros(
                 graph.node_count,
                 model.sensory.in_features,
@@ -186,11 +226,32 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 model.readout_indices.detach().cpu(),
                 model.actor.weight.detach().cpu(),
             )
-            interface_mode = "population"
+            interface_mode = (
+                "nested"
+                if isinstance(model, NestedPopulationFixedGraphPolicy)
+                else "population"
+            )
         else:
             sensory_weights = model.sensory.weight
             actor_weights = model.actor.weight
             interface_mode = "legacy"
+
+        if isinstance(model, NestedPopulationFixedGraphPolicy):
+            recurrent_indices, recurrent_values = model.effective_recurrent_edges()
+            recurrent_source = [
+                int(item) for item in recurrent_indices[0].detach().cpu().tolist()
+            ]
+            recurrent_target = [
+                int(item) for item in recurrent_indices[1].detach().cpu().tolist()
+            ]
+            recurrent_weights = [
+                float(item) for item in recurrent_values.detach().cpu().tolist()
+            ]
+            recurrent_gain = 1.0
+        else:
+            recurrent_source = [int(item) for item in graph.edge_index[0]]
+            recurrent_target = [int(item) for item in graph.edge_index[1]]
+            recurrent_weights = [float(item) for item in graph.edge_weight]
 
         network: dict[str, Any] = {
             "kind": "fixed-graph",
@@ -201,9 +262,9 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             "sensoryWeights": _finite_row_major(
                 sensory_weights, "sensory weights"
             ),
-            "recurrentSource": [int(item) for item in graph.edge_index[0]],
-            "recurrentTarget": [int(item) for item in graph.edge_index[1]],
-            "recurrentWeights": [float(item) for item in graph.edge_weight],
+            "recurrentSource": recurrent_source,
+            "recurrentTarget": recurrent_target,
+            "recurrentWeights": recurrent_weights,
             "recurrentGain": recurrent_gain,
             "timeConstant": time_constant,
             "actorWeights": _finite_row_major(actor_weights, "actor weights"),

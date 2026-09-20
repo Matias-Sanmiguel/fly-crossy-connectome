@@ -7,7 +7,11 @@ import torch
 
 from fly_crossy.checkpoint import validate_checkpoint
 from fly_crossy.env import WORLD_VERSION
-from fly_crossy.models import FixedGraphPolicy, PopulationFixedGraphPolicy
+from fly_crossy.models import (
+    FixedGraphPolicy,
+    NestedPopulationFixedGraphPolicy,
+    PopulationFixedGraphPolicy,
+)
 from fly_crossy.protocol import Action, Observation
 from fly_crossy.schema import (
     ACTION_ORDER,
@@ -59,16 +63,30 @@ class ConnectomeActionSelector:
                 "Connectome checkpoint has no validated graph."
             )
 
-        policy_type = (
-            PopulationFixedGraphPolicy
-            if checkpoint.connectome_interface == "population"
-            else FixedGraphPolicy
-        )
-        model = policy_type(
-            graph,
-            checkpoint.observation_size,
-            checkpoint.actions,
-        )
+        if checkpoint.connectome_interface == "nested":
+            core_graph = checkpoint.core_graph
+            if core_graph is None:
+                raise ValueError(
+                    "Nested connectome checkpoint has no validated core graph."
+                )
+            model = NestedPopulationFixedGraphPolicy(
+                graph,
+                core_graph,
+                checkpoint.observation_size,
+                checkpoint.actions,
+            )
+        elif checkpoint.connectome_interface == "population":
+            model = PopulationFixedGraphPolicy(
+                graph,
+                checkpoint.observation_size,
+                checkpoint.actions,
+            )
+        else:
+            model = FixedGraphPolicy(
+                graph,
+                checkpoint.observation_size,
+                checkpoint.actions,
+            )
 
         model.load_state_dict(
             checkpoint.state_dict

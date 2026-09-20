@@ -154,3 +154,238 @@ class PopulationFixedGraphPolicy(nn.Module):
     @staticmethod
     def normalized_activity(activity: Tensor) -> Tensor:
         return FixedGraphPolicy.normalized_activity(activity)
+class NestedPopulationFixedGraphPolicy(nn.Module):
+    """Population interface with an exactly preserved 80-cell recurrent core."""
+
+    def __init__(
+        self,
+        graph: ReducedGraphArtifact,
+        core_graph: ReducedGraphArtifact,
+        observation_size: int,
+        actions: int = 5,
+    ) -> None:
+        super().__init__()
+        if observation_size <= 0 or actions <= 0:
+            raise ValueError("Nested fixed graph policy dimensions must be positive.")
+
+        graph_ids = [int(body_id) for body_id in graph.body_ids]
+        core_ids = [int(body_id) for body_id in core_graph.body_ids]
+        graph_id_set = set(graph_ids)
+        core_id_set = set(core_ids)
+
+        if not core_id_set.issubset(graph_id_set):
+            raise ValueError("Nested core body IDs must be contained in the full graph.")
+        if set(int(x) for x in graph.sensory_body_ids) != set(
+            int(x) for x in core_graph.sensory_body_ids
+        ):
+            raise ValueError("Nested graph sensory population must match the core.")
+        if set(int(x) for x in graph.readout_body_ids) != set(
+            int(x) for x in core_graph.readout_body_ids
+        ):
+            raise ValueError("Nested graph readout population must match the core.")
+
+        self.graph = graph
+        self.core_graph = core_graph
+        index_by_body_id = {
+            int(body_id): index for index, body_id in enumerate(graph.body_ids)
+        }
+
+        sensory_indices = [
+            index_by_body_id[int(body_id)] for body_id in graph.sensory_body_ids
+        ]
+        readout_indices = [
+            index_by_body_id[int(body_id)] for body_id in graph.readout_body_ids
+        ]
+        self.register_buffer(
+            "sensory_indices",
+            torch.tensor(sensory_indices, dtype=torch.long),
+            persistent=False,
+        )
+        self.register_buffer(
+            "readout_indices",
+            torch.tensor(readout_indices, dtype=torch.long),
+            persistent=False,
+        )
+
+        core_sources: list[int] = []
+        core_targets: list[int] = []
+        core_weights: list[float] = []
+        for edge, weight in zip(
+            core_graph.edge_index.T.tolist(),
+            core_graph.edge_weight.tolist(),
+            strict=True,
+        ):
+            source_body_id = int(core_graph.body_ids[int(edge[0])])
+            target_body_id = int(core_graph.body_ids[int(edge[1])])
+            core_sources.append(index_by_body_id[source_body_id])
+            core_targets.append(index_by_body_id[target_body_id])
+            core_weights.append(float(weight))
+
+        self.register_buffer(
+            "core_adjacency",
+            self._make_sparse_adjacency(
+                graph.node_count,
+                core_sources,
+                core_targets,
+                core_weights,
+            ),
+            persistent=False,
+        )
+
+        # The full 1k artifact was normalized over every incoming edge. For the
+        # nested model we remove core->core edges from the expansion and
+        # re-normalize all remaining edges per target. Because all incoming
+        # weights to a given target shared the same old denominator, this
+        # recovers the relative signed contact weights within the expansion.
+        expansion_edges: list[tuple[int, int, float]] = []
+        expansion_denominators: dict[int, float] = {}
+        for edge, weight in zip(
+            graph.edge_index.T.tolist(),
+            graph.edge_weight.tolist(),
+            strict=True,
+        ):
+            source = int(edge[0])
+            target = int(edge[1])
+            source_body_id = int(graph.body_ids[source])
+            target_body_id = int(graph.body_ids[target])
+            if source_body_id in core_id_set and target_body_id in core_id_set:
+                continue
+            numeric_weight = float(weight)
+            expansion_edges.append((source, target, numeric_weight))
+            expansion_denominators[target] = (
+                expansion_denominators.get(target, 0.0) + abs(numeric_weight)
+            )
+
+        expansion_sources: list[int] = []
+        expansion_targets: list[int] = []
+        expansion_weights: list[float] = []
+        for source, target, weight in expansion_edges:
+            denominator = expansion_denominators.get(target, 0.0)
+            expansion_sources.append(source)
+            expansion_targets.append(target)
+            expansion_weights.append(
+                0.0 if denominator == 0.0 else weight / denominator
+            )
+
+        self.register_buffer(
+            "expansion_adjacency",
+            self._make_sparse_adjacency(
+                graph.node_count,
+                expansion_sources,
+                expansion_targets,
+                expansion_weights,
+            ),
+            persistent=False,
+        )
+
+        self.sensory = nn.Linear(
+            observation_size, len(sensory_indices), bias=False
+        )
+        self.actor = nn.Linear(len(readout_indices), actions)
+        self.critic = nn.Linear(len(readout_indices), 1)
+        self.recurrent_gain = nn.Parameter(torch.tensor(1.0))
+        self.expansion_gain = nn.Parameter(torch.tensor(0.1))
+        self.time_constant = nn.Parameter(torch.tensor(1.0))
+
+    @staticmethod
+    def _make_sparse_adjacency(
+        node_count: int,
+        sources: list[int],
+        targets: list[int],
+        weights: list[float],
+    ) -> Tensor:
+        if len(sources) != len(targets) or len(sources) != len(weights):
+            raise ValueError("Nested adjacency arrays must have matching lengths.")
+        if weights:
+            indices = torch.tensor([targets, sources], dtype=torch.long)
+            values = torch.tensor(weights, dtype=torch.float32)
+        else:
+            indices = torch.empty((2, 0), dtype=torch.long)
+            values = torch.empty((0,), dtype=torch.float32)
+        with torch.sparse.check_sparse_tensor_invariants():
+            return torch.sparse_coo_tensor(
+                indices,
+                values,
+                (node_count, node_count),
+                dtype=torch.float32,
+                check_invariants=True,
+            ).coalesce()
+
+    @property
+    def core_edge_count(self) -> int:
+        return int(self.core_adjacency._nnz())
+
+    @property
+    def expansion_edge_count(self) -> int:
+        return int(self.expansion_adjacency._nnz())
+
+    def forward(
+        self, observation: Tensor, hidden: Tensor
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        if observation.ndim != 2 or observation.shape[1] != self.sensory.in_features:
+            raise ValueError("Nested fixed graph observation has an incompatible shape.")
+        if hidden.shape != (observation.shape[0], self.graph.node_count):
+            raise ValueError("Nested fixed graph hidden state has an incompatible shape.")
+
+        sensory_drive = self.sensory(observation)
+        injected = torch.zeros_like(hidden)
+        injected = torch.index_copy(
+            injected, 1, self.sensory_indices, sensory_drive
+        )
+
+        core_recurrent = torch.sparse.mm(self.core_adjacency, hidden.T).T
+        expansion_recurrent = torch.sparse.mm(
+            self.expansion_adjacency, hidden.T
+        ).T
+
+        core_gain = torch.clamp(self.recurrent_gain, min=0.0)
+        expansion_gain = torch.clamp(self.expansion_gain, min=0.0, max=1.0)
+        candidate = torch.tanh(
+            injected
+            + core_gain * core_recurrent
+            + expansion_gain * expansion_recurrent
+        )
+
+        time_constant = torch.clamp(self.time_constant, min=1e-4, max=1.0)
+        activity = hidden + time_constant * (candidate - hidden)
+        readout_activity = activity.index_select(1, self.readout_indices)
+
+        return (
+            self.actor(readout_activity),
+            self.critic(readout_activity).squeeze(-1),
+            activity,
+        )
+
+    def actor_from_activity(self, activity: Tensor) -> Tensor:
+        return self.actor(activity.index_select(1, self.readout_indices))
+
+    def effective_recurrent_edges(self) -> tuple[Tensor, Tensor]:
+        """Return source-target indices and already-gained recurrent weights."""
+        core = self.core_adjacency.coalesce()
+        expansion = self.expansion_adjacency.coalesce()
+
+        index_parts: list[Tensor] = []
+        value_parts: list[Tensor] = []
+
+        if core._nnz():
+            index_parts.append(core.indices()[[1, 0]])
+            value_parts.append(
+                core.values() * torch.clamp(self.recurrent_gain, min=0.0)
+            )
+        if expansion._nnz():
+            index_parts.append(expansion.indices()[[1, 0]])
+            value_parts.append(
+                expansion.values()
+                * torch.clamp(self.expansion_gain, min=0.0, max=1.0)
+            )
+
+        if not index_parts:
+            return (
+                torch.empty((2, 0), dtype=torch.long),
+                torch.empty((0,), dtype=torch.float32),
+            )
+        return torch.cat(index_parts, dim=1), torch.cat(value_parts, dim=0)
+
+    @staticmethod
+    def normalized_activity(activity: Tensor) -> Tensor:
+        return FixedGraphPolicy.normalized_activity(activity)

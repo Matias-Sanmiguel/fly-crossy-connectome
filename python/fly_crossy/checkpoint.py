@@ -25,6 +25,7 @@ class ValidatedCheckpoint:
     actions: int
     hidden_size: int | None
     graph: ReducedGraphArtifact | None
+    core_graph: ReducedGraphArtifact | None
     connectome_interface: str | None
     state_dict: Mapping[str, Tensor]
     training: dict[str, Any]
@@ -180,6 +181,7 @@ def validate_checkpoint(
 
     hidden_size: int | None = None
     graph: ReducedGraphArtifact | None = None
+    core_graph: ReducedGraphArtifact | None = None
     connectome_interface: str | None = None
     if controller == "conventional":
         try:
@@ -209,9 +211,9 @@ def validate_checkpoint(
         connectome_interface = _required_string(
             interface_value, "connectome interface"
         )
-        if connectome_interface not in ("legacy", "population"):
+        if connectome_interface not in ("legacy", "population", "nested"):
             raise ValueError(
-                "Checkpoint connectome interface must be legacy or population."
+                "Checkpoint connectome interface must be legacy, population, or nested."
             )
 
         node_count = graph.node_count
@@ -242,6 +244,45 @@ def validate_checkpoint(
                 "critic.bias": (1,),
             }
 
+            if connectome_interface == "nested":
+                core_graph_value = model.get("core_graph")
+                if not isinstance(core_graph_value, Mapping):
+                    raise ValueError(
+                        "Checkpoint nested connectome model is missing its core graph."
+                    )
+                try:
+                    core_graph = ReducedGraphArtifact.from_checkpoint(
+                        core_graph_value
+                    )
+                except (KeyError, TypeError, ValueError) as error:
+                    raise ValueError(
+                        "Checkpoint nested core graph is incompatible."
+                    ) from error
+
+                if not set(int(x) for x in core_graph.body_ids).issubset(
+                    set(int(x) for x in graph.body_ids)
+                ):
+                    raise ValueError(
+                        "Checkpoint nested core graph must be contained in the full graph."
+                    )
+                if set(int(x) for x in core_graph.sensory_body_ids) != set(
+                    int(x) for x in graph.sensory_body_ids
+                ):
+                    raise ValueError(
+                        "Checkpoint nested sensory population must match the core."
+                    )
+                if set(int(x) for x in core_graph.readout_body_ids) != set(
+                    int(x) for x in graph.readout_body_ids
+                ):
+                    raise ValueError(
+                        "Checkpoint nested readout population must match the core."
+                    )
+
+                expected_shapes = {
+                    **expected_shapes,
+                    "expansion_gain": (),
+                }
+
     state_dict = _validate_state_dict(state_dict_value, expected_shapes)
     training = dict(training_value)
     training.update(
@@ -260,6 +301,7 @@ def validate_checkpoint(
         actions=actions,
         hidden_size=hidden_size,
         graph=graph,
+        core_graph=core_graph,
         connectome_interface=connectome_interface,
         state_dict=state_dict,
         training=training,
