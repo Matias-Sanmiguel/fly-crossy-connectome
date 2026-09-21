@@ -15,6 +15,7 @@ from .connectome import ReducedGraphArtifact
 from .models import (
     DensePolicy,
     FixedGraphPolicy,
+    GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
     PopulationFixedGraphPolicy,
 )
@@ -124,6 +125,28 @@ def _load_nested_fixed_graph_policy(
         ) from error
     return model
 
+
+def _load_gated_nested_fixed_graph_policy(
+    graph: ReducedGraphArtifact,
+    core_graph: ReducedGraphArtifact,
+    observation_size: int,
+    actions: int,
+    state_dict: Mapping[str, Tensor],
+) -> GatedNestedPopulationFixedGraphPolicy:
+    try:
+        model = GatedNestedPopulationFixedGraphPolicy(
+            graph=graph,
+            core_graph=core_graph,
+            observation_size=observation_size,
+            actions=actions,
+        )
+        model.load_state_dict(state_dict)
+    except (KeyError, TypeError, ValueError, RuntimeError) as error:
+        raise ValueError(
+            "Checkpoint contains an incompatible gated nested fixed graph policy."
+        ) from error
+    return model
+
 def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     """Export a conventional or fixed-graph actor checkpoint for browser inference."""
     checkpoint_path = Path(checkpoint)
@@ -140,7 +163,18 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         graph = checkpoint_metadata.graph
         if graph is None:
             raise ValueError("Checkpoint connectome graph is incompatible.")
-        if checkpoint_metadata.connectome_interface == "nested":
+        if checkpoint_metadata.connectome_interface == "nested-gated":
+            core_graph = checkpoint_metadata.core_graph
+            if core_graph is None:
+                raise ValueError("Checkpoint nested core graph is incompatible.")
+            model = _load_gated_nested_fixed_graph_policy(
+                graph,
+                core_graph,
+                checkpoint_metadata.observation_size,
+                checkpoint_metadata.actions,
+                state_dict,
+            )
+        elif checkpoint_metadata.connectome_interface == "nested":
             core_graph = checkpoint_metadata.core_graph
             if core_graph is None:
                 raise ValueError("Checkpoint nested core graph is incompatible.")
@@ -179,7 +213,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         raise ValueError("Checkpoint actor does not match the canonical action order.")
 
     checkpoint_hash = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
-    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy)):
+    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)):
         graph = model.graph
         source: dict[str, Any] = {
             "kind": "predicted",
@@ -204,7 +238,12 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             1.0, max(1e-4, _finite_scalar(model.time_constant, "Time constant"))
         )
         if isinstance(
-            model, (PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy)
+            model,
+            (
+                PopulationFixedGraphPolicy,
+                NestedPopulationFixedGraphPolicy,
+                GatedNestedPopulationFixedGraphPolicy,
+            ),
         ):
             sensory_weights = torch.zeros(
                 graph.node_count,
@@ -226,17 +265,24 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 model.readout_indices.detach().cpu(),
                 model.actor.weight.detach().cpu(),
             )
-            interface_mode = (
-                "nested"
-                if isinstance(model, NestedPopulationFixedGraphPolicy)
-                else "population"
-            )
+            if isinstance(model, GatedNestedPopulationFixedGraphPolicy):
+                interface_mode = "nested-gated"
+            elif isinstance(model, NestedPopulationFixedGraphPolicy):
+                interface_mode = "nested"
+            else:
+                interface_mode = "population"
         else:
             sensory_weights = model.sensory.weight
             actor_weights = model.actor.weight
             interface_mode = "legacy"
 
-        if isinstance(model, NestedPopulationFixedGraphPolicy):
+        if isinstance(
+            model,
+            (
+                NestedPopulationFixedGraphPolicy,
+                GatedNestedPopulationFixedGraphPolicy,
+            ),
+        ):
             recurrent_indices, recurrent_values = model.effective_recurrent_edges()
             recurrent_source = [
                 int(item) for item in recurrent_indices[0].detach().cpu().tolist()

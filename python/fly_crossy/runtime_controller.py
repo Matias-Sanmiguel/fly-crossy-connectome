@@ -9,6 +9,7 @@ from fly_crossy.checkpoint import validate_checkpoint
 from fly_crossy.env import WORLD_VERSION
 from fly_crossy.models import (
     FixedGraphPolicy,
+    GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
     PopulationFixedGraphPolicy,
 )
@@ -63,7 +64,19 @@ class ConnectomeActionSelector:
                 "Connectome checkpoint has no validated graph."
             )
 
-        if checkpoint.connectome_interface == "nested":
+        if checkpoint.connectome_interface == "nested-gated":
+            core_graph = checkpoint.core_graph
+            if core_graph is None:
+                raise ValueError(
+                    "Nested connectome checkpoint has no validated core graph."
+                )
+            model = GatedNestedPopulationFixedGraphPolicy(
+                graph,
+                core_graph,
+                checkpoint.observation_size,
+                checkpoint.actions,
+            )
+        elif checkpoint.connectome_interface == "nested":
             core_graph = checkpoint.core_graph
             if core_graph is None:
                 raise ValueError(

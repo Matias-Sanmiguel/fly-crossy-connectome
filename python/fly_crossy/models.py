@@ -389,3 +389,90 @@ class NestedPopulationFixedGraphPolicy(nn.Module):
     @staticmethod
     def normalized_activity(activity: Tensor) -> Tensor:
         return FixedGraphPolicy.normalized_activity(activity)
+class GatedNestedPopulationFixedGraphPolicy(NestedPopulationFixedGraphPolicy):
+    """Nested core-preserving policy with a differentiable bounded expansion gate."""
+
+    def __init__(
+        self,
+        graph: ReducedGraphArtifact,
+        core_graph: ReducedGraphArtifact,
+        observation_size: int,
+        actions: int = 5,
+    ) -> None:
+        super().__init__(graph, core_graph, observation_size, actions)
+
+        # Preserve old "nested" checkpoint semantics by using a separate class
+        # and a different state key. The new gate is parameterized in logit
+        # space so its effective value always remains strictly in (0, 1).
+        del self.expansion_gain
+        initial_strength = torch.tensor(0.1, dtype=torch.float32)
+        self.expansion_logit = nn.Parameter(torch.logit(initial_strength))
+
+    def expansion_strength(self) -> Tensor:
+        return torch.sigmoid(self.expansion_logit)
+
+    def forward(
+        self, observation: Tensor, hidden: Tensor
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        if observation.ndim != 2 or observation.shape[1] != self.sensory.in_features:
+            raise ValueError(
+                "Gated nested fixed graph observation has an incompatible shape."
+            )
+        if hidden.shape != (observation.shape[0], self.graph.node_count):
+            raise ValueError(
+                "Gated nested fixed graph hidden state has an incompatible shape."
+            )
+
+        sensory_drive = self.sensory(observation)
+        injected = torch.zeros_like(hidden)
+        injected = torch.index_copy(
+            injected, 1, self.sensory_indices, sensory_drive
+        )
+
+        core_recurrent = torch.sparse.mm(self.core_adjacency, hidden.T).T
+        expansion_recurrent = torch.sparse.mm(
+            self.expansion_adjacency, hidden.T
+        ).T
+
+        core_gain = torch.clamp(self.recurrent_gain, min=0.0)
+        candidate = torch.tanh(
+            injected
+            + core_gain * core_recurrent
+            + self.expansion_strength() * expansion_recurrent
+        )
+
+        time_constant = torch.clamp(self.time_constant, min=1e-4, max=1.0)
+        activity = hidden + time_constant * (candidate - hidden)
+        readout_activity = activity.index_select(1, self.readout_indices)
+
+        return (
+            self.actor(readout_activity),
+            self.critic(readout_activity).squeeze(-1),
+            activity,
+        )
+
+    def effective_recurrent_edges(self) -> tuple[Tensor, Tensor]:
+        """Return source-target indices and already-gained recurrent weights."""
+        core = self.core_adjacency.coalesce()
+        expansion = self.expansion_adjacency.coalesce()
+
+        index_parts: list[Tensor] = []
+        value_parts: list[Tensor] = []
+
+        if core._nnz():
+            index_parts.append(core.indices()[[1, 0]])
+            value_parts.append(
+                core.values() * torch.clamp(self.recurrent_gain, min=0.0)
+            )
+        if expansion._nnz():
+            index_parts.append(expansion.indices()[[1, 0]])
+            value_parts.append(
+                expansion.values() * self.expansion_strength()
+            )
+
+        if not index_parts:
+            return (
+                torch.empty((2, 0), dtype=torch.long),
+                torch.empty((0,), dtype=torch.float32),
+            )
+        return torch.cat(index_parts, dim=1), torch.cat(value_parts, dim=0)

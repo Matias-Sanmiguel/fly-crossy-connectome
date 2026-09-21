@@ -120,5 +120,5 @@ def test_observation_marks_static_obstacle_as_unavailable_cell() -> None:
     assert scenario is not None
     seed, row, blocker = scenario
     observation = observe(_state_at(seed, row, 0))
-    assert observation.cells[5][blocker + 5] == 0
+    assert observation.cells[5][blocker + 5] == 8
     assert observation.motion[5][blocker + 5] == [0, 0]

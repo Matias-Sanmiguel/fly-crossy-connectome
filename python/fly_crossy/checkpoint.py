@@ -211,9 +211,12 @@ def validate_checkpoint(
         connectome_interface = _required_string(
             interface_value, "connectome interface"
         )
-        if connectome_interface not in ("legacy", "population", "nested"):
+        if connectome_interface not in (
+            "legacy", "population", "nested", "nested-gated"
+        ):
             raise ValueError(
-                "Checkpoint connectome interface must be legacy, population, or nested."
+                "Checkpoint connectome interface must be legacy, population, "
+                "nested, or nested-gated."
             )
 
         node_count = graph.node_count
@@ -244,7 +247,7 @@ def validate_checkpoint(
                 "critic.bias": (1,),
             }
 
-            if connectome_interface == "nested":
+            if connectome_interface in ("nested", "nested-gated"):
                 core_graph_value = model.get("core_graph")
                 if not isinstance(core_graph_value, Mapping):
                     raise ValueError(
@@ -280,7 +283,11 @@ def validate_checkpoint(
 
                 expected_shapes = {
                     **expected_shapes,
-                    "expansion_gain": (),
+                    (
+                        "expansion_logit"
+                        if connectome_interface == "nested-gated"
+                        else "expansion_gain"
+                    ): (),
                 }
 
     state_dict = _validate_state_dict(state_dict_value, expected_shapes)
