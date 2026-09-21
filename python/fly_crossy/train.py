@@ -28,6 +28,7 @@ from .env import (
 from .export import export_policy
 from .models import (
     DensePolicy,
+    FeedbackNestedPopulationFixedGraphPolicy,
     FixedGraphPolicy,
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
@@ -67,11 +68,11 @@ class TrainingConfig:
         if self.connectome_graph not in ("80", "1k"):
             raise ValueError("Connectome graph must be 80 or 1k.")
         if self.connectome_interface not in (
-            "legacy", "population", "nested", "nested-gated"
+            "legacy", "population", "nested", "nested-gated", "nested-feedback"
         ):
             raise ValueError(
                 "Connectome interface must be legacy, population, nested, "
-                "or nested-gated."
+                "nested-gated, or nested-feedback."
             )
         if self.controller != "connectome" and (
             self.connectome_graph != "80"
@@ -115,7 +116,7 @@ def _mean(values: list[float]) -> float:
 
 
 def _ppo_update(
-    model: DensePolicy | FixedGraphPolicy | PopulationFixedGraphPolicy | NestedPopulationFixedGraphPolicy | GatedNestedPopulationFixedGraphPolicy,
+    model: DensePolicy | FixedGraphPolicy | PopulationFixedGraphPolicy | NestedPopulationFixedGraphPolicy | GatedNestedPopulationFixedGraphPolicy | FeedbackNestedPopulationFixedGraphPolicy,
     optimizer: torch.optim.Optimizer,
     observations: Tensor,
     actions: Tensor,
@@ -137,7 +138,7 @@ def _ppo_update(
         for indices in torch.randperm(batch_size, device=observations.device).split(
             MINIBATCH_SIZE
         ):
-            if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)):
+            if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
                 if hidden_states is None:
                     raise ValueError("Fixed graph PPO updates require recurrent hidden states.")
                 logits, values, _ = model(observations[indices], hidden_states[indices])
@@ -225,8 +226,15 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                 OBSERVATION_INPUT_SIZE,
                 len(ACTION_ORDER),
             ).to(device)
-        else:
+        elif config.connectome_interface == "nested-gated":
             model = GatedNestedPopulationFixedGraphPolicy(
+                graph,
+                load_reduced_graph_variant("80"),
+                OBSERVATION_INPUT_SIZE,
+                len(ACTION_ORDER),
+            ).to(device)
+        else:
+            model = FeedbackNestedPopulationFixedGraphPolicy(
                 graph,
                 load_reduced_graph_variant("80"),
                 OBSERVATION_INPUT_SIZE,
@@ -260,7 +268,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         for _ in range(rollout_length):
             observation_tensor = torch.as_tensor(observations, dtype=torch.float32, device=device)
             with torch.no_grad():
-                if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)):
+                if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
                     assert hidden_state is not None
                     rollout_hidden_states.append(hidden_state)
                     logits, values, next_hidden_state = model(
@@ -327,7 +335,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             bootstrap_observations = torch.as_tensor(
                 observations, dtype=torch.float32, device=device
             )
-            if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)):
+            if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
                 assert hidden_state is not None
                 _, bootstrap_value, _ = model(bootstrap_observations, hidden_state)
             else:
@@ -384,7 +392,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
 
     model_metadata: dict[str, Any]
 
-    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)):
+    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
         model_metadata = {
             "observation_size": OBSERVATION_INPUT_SIZE,
             "actions": len(ACTION_ORDER),
@@ -397,6 +405,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                     (
                         NestedPopulationFixedGraphPolicy,
                         GatedNestedPopulationFixedGraphPolicy,
+                        FeedbackNestedPopulationFixedGraphPolicy,
                     ),
                 )
                 else {}
@@ -465,7 +474,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                     "graphEdges": model.graph.edge_count,
                     "graphArtifactHash": model.graph.artifact_sha256,
                 }
-                if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy))
+                if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy))
                 else {"hiddenSize": HIDDEN_SIZE}
             ),
         },
@@ -522,7 +531,7 @@ def _parse_arguments() -> TrainingConfig:
     )
     parser.add_argument(
         "--connectome-interface",
-        choices=("legacy", "population", "nested", "nested-gated"),
+        choices=("legacy", "population", "nested", "nested-gated", "nested-feedback"),
         default="legacy",
         help="Artificial interface mode for the fixed MaleCNS graph.",
     )

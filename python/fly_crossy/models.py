@@ -476,3 +476,148 @@ class GatedNestedPopulationFixedGraphPolicy(NestedPopulationFixedGraphPolicy):
                 torch.empty((0,), dtype=torch.float32),
             )
         return torch.cat(index_parts, dim=1), torch.cat(value_parts, dim=0)
+
+
+class FeedbackNestedPopulationFixedGraphPolicy(NestedPopulationFixedGraphPolicy):
+    """Core-preserving nested policy with always-active added-cell dynamics.
+
+    Core->added and added->added edges stay active. Only added->core feedback
+    is gated, so feedback=0 preserves the 80-cell core exactly without starving
+    the 920-cell branch of activity.
+    """
+
+    def __init__(
+        self,
+        graph: ReducedGraphArtifact,
+        core_graph: ReducedGraphArtifact,
+        observation_size: int,
+        actions: int = 5,
+    ) -> None:
+        super().__init__(graph, core_graph, observation_size, actions)
+        del self.expansion_gain
+        initial_strength = torch.tensor(0.1, dtype=torch.float32)
+        self.feedback_logit = nn.Parameter(torch.logit(initial_strength))
+
+        core_ids = set(int(body_id) for body_id in core_graph.body_ids)
+        expansion = self.expansion_adjacency.coalesce()
+        indices = expansion.indices()
+        values = expansion.values()
+
+        branch_sources: list[int] = []
+        branch_targets: list[int] = []
+        branch_weights: list[float] = []
+        feedback_sources: list[int] = []
+        feedback_targets: list[int] = []
+        feedback_weights: list[float] = []
+
+        for edge in range(values.numel()):
+            target = int(indices[0, edge])
+            source = int(indices[1, edge])
+            weight = float(values[edge])
+            if int(graph.body_ids[target]) in core_ids:
+                feedback_sources.append(source)
+                feedback_targets.append(target)
+                feedback_weights.append(weight)
+            else:
+                branch_sources.append(source)
+                branch_targets.append(target)
+                branch_weights.append(weight)
+
+        self.register_buffer(
+            "branch_adjacency",
+            self._make_sparse_adjacency(
+                graph.node_count,
+                branch_sources,
+                branch_targets,
+                branch_weights,
+            ),
+            persistent=False,
+        )
+        self.register_buffer(
+            "feedback_adjacency",
+            self._make_sparse_adjacency(
+                graph.node_count,
+                feedback_sources,
+                feedback_targets,
+                feedback_weights,
+            ),
+            persistent=False,
+        )
+
+    def feedback_strength(self) -> Tensor:
+        return torch.sigmoid(self.feedback_logit)
+
+    @property
+    def branch_edge_count(self) -> int:
+        return int(self.branch_adjacency._nnz())
+
+    @property
+    def feedback_edge_count(self) -> int:
+        return int(self.feedback_adjacency._nnz())
+
+    def forward(
+        self, observation: Tensor, hidden: Tensor
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        if observation.ndim != 2 or observation.shape[1] != self.sensory.in_features:
+            raise ValueError(
+                "Feedback nested fixed graph observation has an incompatible shape."
+            )
+        if hidden.shape != (observation.shape[0], self.graph.node_count):
+            raise ValueError(
+                "Feedback nested fixed graph hidden state has an incompatible shape."
+            )
+
+        sensory_drive = self.sensory(observation)
+        injected = torch.zeros_like(hidden)
+        injected = torch.index_copy(
+            injected, 1, self.sensory_indices, sensory_drive
+        )
+
+        core_recurrent = torch.sparse.mm(self.core_adjacency, hidden.T).T
+        branch_recurrent = torch.sparse.mm(self.branch_adjacency, hidden.T).T
+        feedback_recurrent = torch.sparse.mm(self.feedback_adjacency, hidden.T).T
+        recurrent_gain = torch.clamp(self.recurrent_gain, min=0.0)
+
+        candidate = torch.tanh(
+            injected
+            + recurrent_gain
+            * (
+                core_recurrent
+                + branch_recurrent
+                + self.feedback_strength() * feedback_recurrent
+            )
+        )
+
+        time_constant = torch.clamp(self.time_constant, min=1e-4, max=1.0)
+        activity = hidden + time_constant * (candidate - hidden)
+        readout_activity = activity.index_select(1, self.readout_indices)
+        return (
+            self.actor(readout_activity),
+            self.critic(readout_activity).squeeze(-1),
+            activity,
+        )
+
+    def effective_recurrent_edges(self) -> tuple[Tensor, Tensor]:
+        recurrent_gain = torch.clamp(self.recurrent_gain, min=0.0)
+        groups = (
+            (self.core_adjacency.coalesce(), recurrent_gain),
+            (self.branch_adjacency.coalesce(), recurrent_gain),
+            (
+                self.feedback_adjacency.coalesce(),
+                recurrent_gain * self.feedback_strength(),
+            ),
+        )
+
+        index_parts: list[Tensor] = []
+        value_parts: list[Tensor] = []
+        for adjacency, gain in groups:
+            if adjacency._nnz():
+                index_parts.append(adjacency.indices()[[1, 0]])
+                value_parts.append(adjacency.values() * gain)
+
+        if not index_parts:
+            return (
+                torch.empty((2, 0), dtype=torch.long),
+                torch.empty((0,), dtype=torch.float32),
+            )
+        return torch.cat(index_parts, dim=1), torch.cat(value_parts, dim=0)

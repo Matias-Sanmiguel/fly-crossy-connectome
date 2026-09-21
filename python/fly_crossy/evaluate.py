@@ -20,6 +20,7 @@ from .checkpoint import validate_checkpoint
 from .env import FlyCrossyEnv, WORLD_VERSION, hash_seed
 from .models import (
     DensePolicy,
+    FeedbackNestedPopulationFixedGraphPolicy,
     FixedGraphPolicy,
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
@@ -294,7 +295,7 @@ class _PolicyRunner:
     def reset(self) -> None:
         self.hidden = (
             torch.zeros(1, self.model.graph.node_count, dtype=torch.float32)
-            if isinstance(self.model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy))
+            if isinstance(self.model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy))
             else None
         )
 
@@ -302,7 +303,7 @@ class _PolicyRunner:
         inputs = torch.from_numpy(observation).unsqueeze(0)
         started = perf_counter()
         with torch.no_grad():
-            if isinstance(self.model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)):
+            if isinstance(self.model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
                 if self.hidden is None:
                     raise RuntimeError("Reset the fixed graph evaluator before inference.")
                 logits, _, activity = self.model(inputs, self.hidden)
@@ -368,7 +369,14 @@ def _load_checkpoint(
         graph = validated.graph
         if graph is None:
             raise ValueError("Connectome checkpoint graph is incompatible.")
-        if validated.connectome_interface == "nested-gated":
+        if validated.connectome_interface == "nested-feedback":
+            core_graph = validated.core_graph
+            if core_graph is None:
+                raise ValueError("Connectome nested core graph is incompatible.")
+            model = FeedbackNestedPopulationFixedGraphPolicy(
+                graph, core_graph, observation_size, actions
+            )
+        elif validated.connectome_interface == "nested-gated":
             core_graph = validated.core_graph
             if core_graph is None:
                 raise ValueError("Connectome nested core graph is incompatible.")
@@ -455,13 +463,13 @@ def _evidence(
 ) -> dict[str, Any]:
     parameters, trainable_parameters = _parameter_count(model)
     graph_hash = (
-        model.graph.artifact_sha256 if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)) else None
+        model.graph.artifact_sha256 if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)) else None
     )
     return {
         "checkpointPath": str(checkpoint_path),
         "checkpointSha256": _sha256(checkpoint_path),
         "checkpointController": (
-            "connectome" if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)) else "conventional"
+            "connectome" if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)) else "conventional"
         ),
         "trainingSeed": str(training["seed"]),
         "trainingEnvironmentSteps": int(training["steps"]),
@@ -882,6 +890,13 @@ def evaluate(config_path: str | Path, output: str | Path) -> dict[str, str]:
         raise ValueError("Connectome evaluation requires a fixed graph policy.")
 
     def policy_like(graph: ReducedGraphArtifact):
+        if isinstance(connectome, FeedbackNestedPopulationFixedGraphPolicy):
+            return FeedbackNestedPopulationFixedGraphPolicy(
+                graph,
+                connectome.core_graph,
+                observation_size=connectome.sensory.in_features,
+                actions=connectome.actor.out_features,
+            )
         if isinstance(connectome, GatedNestedPopulationFixedGraphPolicy):
             return GatedNestedPopulationFixedGraphPolicy(
                 graph,

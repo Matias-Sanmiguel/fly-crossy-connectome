@@ -14,6 +14,7 @@ from .checkpoint import validate_checkpoint
 from .connectome import ReducedGraphArtifact
 from .models import (
     DensePolicy,
+    FeedbackNestedPopulationFixedGraphPolicy,
     FixedGraphPolicy,
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
@@ -147,6 +148,28 @@ def _load_gated_nested_fixed_graph_policy(
         ) from error
     return model
 
+
+def _load_feedback_nested_fixed_graph_policy(
+    graph: ReducedGraphArtifact,
+    core_graph: ReducedGraphArtifact,
+    observation_size: int,
+    actions: int,
+    state_dict: Mapping[str, Tensor],
+) -> FeedbackNestedPopulationFixedGraphPolicy:
+    try:
+        model = FeedbackNestedPopulationFixedGraphPolicy(
+            graph=graph,
+            core_graph=core_graph,
+            observation_size=observation_size,
+            actions=actions,
+        )
+        model.load_state_dict(state_dict)
+    except (KeyError, TypeError, ValueError, RuntimeError) as error:
+        raise ValueError(
+            "Checkpoint contains an incompatible feedback nested fixed graph policy."
+        ) from error
+    return model
+
 def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     """Export a conventional or fixed-graph actor checkpoint for browser inference."""
     checkpoint_path = Path(checkpoint)
@@ -163,7 +186,18 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         graph = checkpoint_metadata.graph
         if graph is None:
             raise ValueError("Checkpoint connectome graph is incompatible.")
-        if checkpoint_metadata.connectome_interface == "nested-gated":
+        if checkpoint_metadata.connectome_interface == "nested-feedback":
+            core_graph = checkpoint_metadata.core_graph
+            if core_graph is None:
+                raise ValueError("Checkpoint nested core graph is incompatible.")
+            model = _load_feedback_nested_fixed_graph_policy(
+                graph,
+                core_graph,
+                checkpoint_metadata.observation_size,
+                checkpoint_metadata.actions,
+                state_dict,
+            )
+        elif checkpoint_metadata.connectome_interface == "nested-gated":
             core_graph = checkpoint_metadata.core_graph
             if core_graph is None:
                 raise ValueError("Checkpoint nested core graph is incompatible.")
@@ -243,6 +277,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 PopulationFixedGraphPolicy,
                 NestedPopulationFixedGraphPolicy,
                 GatedNestedPopulationFixedGraphPolicy,
+                FeedbackNestedPopulationFixedGraphPolicy,
             ),
         ):
             sensory_weights = torch.zeros(
@@ -265,7 +300,9 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 model.readout_indices.detach().cpu(),
                 model.actor.weight.detach().cpu(),
             )
-            if isinstance(model, GatedNestedPopulationFixedGraphPolicy):
+            if isinstance(model, FeedbackNestedPopulationFixedGraphPolicy):
+                interface_mode = "nested-feedback"
+            elif isinstance(model, GatedNestedPopulationFixedGraphPolicy):
                 interface_mode = "nested-gated"
             elif isinstance(model, NestedPopulationFixedGraphPolicy):
                 interface_mode = "nested"
@@ -281,6 +318,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             (
                 NestedPopulationFixedGraphPolicy,
                 GatedNestedPopulationFixedGraphPolicy,
+                FeedbackNestedPopulationFixedGraphPolicy,
             ),
         ):
             recurrent_indices, recurrent_values = model.effective_recurrent_edges()
