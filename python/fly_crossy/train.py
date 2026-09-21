@@ -419,12 +419,13 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         }
 
     reward_metadata = {
-        "version": 3,
+        "version": 4,
         "progress": PROGRESS_REWARD,
         "terminal": TERMINAL_PENALTY,
         "step": STEP_COST,
         "stagnation": STAGNATION_COST,
         "blocked": BLOCKED_COST,
+        "supportedCarryStagnationExempt": True,
     }
 
     torch.save(

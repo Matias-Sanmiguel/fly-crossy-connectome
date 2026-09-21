@@ -8,6 +8,7 @@ import pytest
 from fly_crossy.env import (
     GameState,
     GridPosition,
+    Hazard,
     Lane,
     WORLD_LAYOUT_VERSION,
     WORLD_VERSION,
@@ -23,8 +24,8 @@ from fly_crossy.schema import OBSERVATION_VERSION, Action, flatten_observation
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_v7_preserves_v6_world_layout_fixture() -> None:
-    assert WORLD_VERSION == 7
+def test_v8_preserves_v6_world_layout_fixture() -> None:
+    assert WORLD_VERSION == 8
     assert WORLD_LAYOUT_VERSION == 6
 
     fixture = json.loads(
@@ -55,7 +56,7 @@ def test_v7_preserves_v6_world_layout_fixture() -> None:
 
 
 def test_observation_v2_exposes_blocker_and_stays_370_values() -> None:
-    seed = "v7-blocker-contract"
+    seed = "v8-blocker-contract"
     row = 3
     while not _scenery_obstacle_columns(seed, row, "grass"):
         row += 1
@@ -85,11 +86,11 @@ def test_observation_v2_exposes_blocker_and_stays_370_values() -> None:
     assert encoded[5 * 11 + column_index] == pytest.approx(1.0)
 
 
-def test_reward_v3_penalizes_wait_and_blocked_action() -> None:
-    waiting = step_game(create_game("v7-wait-cost"), Action.WAIT)
+def test_reward_v4_exempts_safe_carry_but_keeps_other_costs() -> None:
+    waiting = step_game(create_game("v8-wait-cost"), Action.WAIT)
     assert waiting.reward == pytest.approx(-0.11)
 
-    state = create_game("v7-block-cost")
+    state = create_game("v8-block-cost")
     edge = GameState(
         version=WORLD_VERSION,
         seed=state.seed,
@@ -105,3 +106,54 @@ def test_reward_v3_penalizes_wait_and_blocked_action() -> None:
     assert blocked.state.terminal is None
     assert any(event.get("type") == "blocked" for event in blocked.events)
     assert blocked.reward == pytest.approx(-0.21)
+
+
+    carried_state = GameState(
+        version=WORLD_VERSION,
+        seed="v8-safe-carry",
+        step=0,
+        time=0,
+        fly=GridPosition(row=3, column=0),
+        score=3,
+        lanes=[
+            Lane(
+                row=3,
+                kind="river",
+                hazards=[Hazard(kind="log", position=-0.5, size=2)],
+                direction=1,
+                speed=1,
+                phase=0,
+            )
+        ],
+        terminal=None,
+        previous_action=Action.WAIT,
+    )
+    carried = step_game(carried_state, Action.WAIT)
+    assert carried.state.terminal is None
+    assert any(event.get("type") == "carried" for event in carried.events)
+    assert carried.reward == pytest.approx(-0.01)
+
+    unsafe_carry_state = GameState(
+        version=WORLD_VERSION,
+        seed="v8-unsafe-carry",
+        step=0,
+        time=0,
+        fly=GridPosition(row=3, column=4.9),
+        score=3,
+        lanes=[
+            Lane(
+                row=3,
+                kind="river",
+                hazards=[Hazard(kind="log", position=4.4, size=2)],
+                direction=1,
+                speed=1,
+                phase=0,
+            )
+        ],
+        terminal=None,
+        previous_action=Action.WAIT,
+    )
+    unsafe_carry = step_game(unsafe_carry_state, Action.WAIT)
+    assert any(event.get("type") == "carried" for event in unsafe_carry.events)
+    assert unsafe_carry.state.terminal == "bounds"
+    assert unsafe_carry.reward == pytest.approx(-10.11)

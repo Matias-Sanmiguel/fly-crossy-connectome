@@ -24,8 +24,13 @@ export function reward(
       ? TERMINAL_PENALTY
       : 0;
 
+  const productiveCarry =
+    next.terminal === null
+    && events.some((event) => event.type === 'carried');
+
   const stagnation =
     next.score <= previous.score
+    && !productiveCarry
       ? STAGNATION_COST
       : 0;
 

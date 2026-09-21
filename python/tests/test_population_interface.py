@@ -7,6 +7,7 @@ import torch
 
 from fly_crossy.checkpoint import validate_checkpoint
 from fly_crossy.connectome import load_reduced_graph_variant
+from fly_crossy.env import WORLD_VERSION
 from fly_crossy.models import PopulationFixedGraphPolicy
 from fly_crossy.schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE
 from fly_crossy.train import TrainingConfig, train
@@ -106,7 +107,7 @@ def test_population_tiny_runs_round_trip_for_80_and_1k(tmp_path: Path) -> None:
         assert validated.connectome_interface == "population"
         assert validated.graph is not None
         assert validated.graph.node_count == expected_nodes
-        assert metadata["environmentVersion"] == 7
+        assert metadata["environmentVersion"] == WORLD_VERSION
         assert metadata["configuration"]["connectome_interface"] == "population"
         assert metadata["configuration"]["graphNodes"] == expected_nodes
 

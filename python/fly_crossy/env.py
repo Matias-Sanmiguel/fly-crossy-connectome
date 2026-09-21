@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 7
+WORLD_VERSION = 8
 WORLD_LAYOUT_VERSION = 6
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
@@ -686,9 +686,17 @@ def _reward(
         else 0
     )
 
+    productive_carry = (
+        next_state.terminal is None
+        and any(event.get("type") == "carried" for event in events)
+    )
+
     stagnation = (
         STAGNATION_COST
-        if next_state.score <= previous.score
+        if (
+            next_state.score <= previous.score
+            and not productive_carry
+        )
         else 0
     )
 

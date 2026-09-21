@@ -205,7 +205,7 @@
       "expected": {
         "beforeObservationSha256": "f5310eb6e06ad71c9dbb7b1a5c9c35c6b57c6f57a4070a59daed73302a09aeb5",
         "afterObservationSha256": "b1d112185d3d31720fa2d7b0bba74dfe8f5d16d944590dd85d7f011ecc07edf3",
-        "reward": -0.11,
+        "reward": -0.01,
         "fly": {
           "row": 3,
           "column": 0.2
@@ -607,5 +607,5 @@
       }
     }
   ],
-  "environmentVersion": 7
+  "environmentVersion": 8
 }

@@ -8,6 +8,7 @@ import torch
 
 from fly_crossy.checkpoint import validate_checkpoint
 from fly_crossy.connectome import load_reduced_graph_variant
+from fly_crossy.env import WORLD_VERSION
 from fly_crossy.models import (
     NestedPopulationFixedGraphPolicy,
     PopulationFixedGraphPolicy,
@@ -159,7 +160,7 @@ def test_nested_tiny_runs_round_trip_for_80_and_1k(tmp_path: Path) -> None:
         assert validated.core_graph is not None
         assert validated.graph.node_count == expected_nodes
         assert validated.core_graph.node_count == 80
-        assert metadata["environmentVersion"] == 7
+        assert metadata["environmentVersion"] == WORLD_VERSION
         assert metadata["configuration"]["connectome_interface"] == "nested"
         assert metadata["configuration"]["graphNodes"] == expected_nodes
         assert policy["network"]["kind"] == "fixed-graph"

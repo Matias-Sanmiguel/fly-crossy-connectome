@@ -17,8 +17,8 @@ from fly_crossy.env import WORLD_VERSION
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_dev_server_is_fail_closed_until_v7_release_and_preserves_v6() -> None:
-    assert WORLD_VERSION == 7
+def test_dev_server_is_fail_closed_until_v8_release_and_preserves_history() -> None:
+    assert WORLD_VERSION == 8
 
     assert LEGACY_CHECKPOINT_PATH == (
         ROOT / "release/eval-v1/training/connectome/checkpoint.pt"
@@ -31,8 +31,13 @@ def test_dev_server_is_fail_closed_until_v7_release_and_preserves_v6() -> None:
     assert saved["environment_version"] == 6
     assert saved["training"]["seed"] == "final-80n-v6-train-1m-01"
 
+    v7 = ROOT / "release/eval-v7-80n-baseline/training/connectome/checkpoint.pt"
+    assert v7.is_file()
+    saved_v7 = torch.load(v7, map_location="cpu", weights_only=True)
+    assert saved_v7["environment_version"] == 7
+
     assert CHECKPOINT_PATH == (
-        ROOT / "release/eval-v7/training/connectome/checkpoint.pt"
+        ROOT / "release/eval-v8/training/connectome/checkpoint.pt"
     )
     assert not CHECKPOINT_PATH.exists()
     assert controller is None

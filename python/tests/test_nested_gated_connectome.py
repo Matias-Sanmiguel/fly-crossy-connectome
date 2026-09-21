@@ -8,6 +8,7 @@ import torch
 
 from fly_crossy.checkpoint import validate_checkpoint
 from fly_crossy.connectome import load_reduced_graph_variant
+from fly_crossy.env import WORLD_VERSION
 from fly_crossy.models import (
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
@@ -114,7 +115,7 @@ def test_gated_nested_tiny_runs_round_trip_for_80_and_1k(tmp_path: Path) -> None
         assert validated.core_graph.node_count == 80
         assert "expansion_logit" in validated.state_dict
         assert "expansion_gain" not in validated.state_dict
-        assert metadata["environmentVersion"] == 7
+        assert metadata["environmentVersion"] == WORLD_VERSION
         assert metadata["configuration"]["connectome_interface"] == "nested-gated"
         assert policy["network"]["kind"] == "fixed-graph"
         assert policy["network"]["interfaceMode"] == "nested-gated"

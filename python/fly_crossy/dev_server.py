@@ -19,13 +19,13 @@ LEGACY_CHECKPOINT_PATH = (
     / "checkpoint.pt"
 )
 
-# Environment v7 is the current training candidate. The released v6
-# controller remains immutable evidence under release/eval-v6; do not run it
-# against ObservationV2. This path stays fail-closed until v7 is released.
+# Environment v8 is the current training candidate. Historical v6/v7
+# controllers remain immutable evidence; do not run them against the v8
+# reward boundary. This path stays fail-closed until v8 is released.
 CHECKPOINT_PATH = (
     ROOT
     / "release"
-    / "eval-v7"
+    / "eval-v8"
     / "training"
     / "connectome"
     / "checkpoint.pt"
@@ -43,7 +43,7 @@ def _get_controller() -> ConnectomeActionSelector:
 
     if not CHECKPOINT_PATH.is_file():
         raise RuntimeError(
-            "Environment v7 controller is not released yet."
+            "Environment v8 controller is not released yet."
         )
 
     controller = ConnectomeActionSelector(CHECKPOINT_PATH)

@@ -147,6 +147,7 @@ test('waiting on a river log inherits its displacement', () => {
   assert.equal(result.state.terminal, null);
   assert.equal(result.state.fly.column, 0.2);
   assert.ok(result.events.some((event) => event.type === 'carried' && event.displacement === 0.2));
+  assert.equal(result.reward, -0.01);
 });
 
 test('unsupported water is terminal', () => {
