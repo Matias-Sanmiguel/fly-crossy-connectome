@@ -48,6 +48,7 @@ VALUE_COEFFICIENT = 0.5
 ENTROPY_COEFFICIENT = 0.01
 MAX_GRADIENT_NORM = 0.5
 DETERMINISTIC_CUBLAS_WORKSPACE = ":4096:8"
+RECURRENT_TRAINING_VERSION = "sequence-bptt-v1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,6 +180,141 @@ def _ppo_update(
     }
 
 
+
+def _ppo_update_recurrent(
+    model: FixedGraphPolicy
+    | PopulationFixedGraphPolicy
+    | NestedPopulationFixedGraphPolicy
+    | GatedNestedPopulationFixedGraphPolicy
+    | FeedbackNestedPopulationFixedGraphPolicy,
+    optimizer: torch.optim.Optimizer,
+    observations: Tensor,
+    actions: Tensor,
+    old_log_probabilities: Tensor,
+    advantages: Tensor,
+    returns: Tensor,
+    dones: Tensor,
+    initial_hidden_state: Tensor,
+) -> dict[str, float]:
+    """Sequence-aware PPO update with truncated BPTT through each rollout."""
+    if observations.ndim != 3:
+        raise ValueError(
+            "Recurrent PPO observations must have shape [time, env, input]."
+        )
+    if actions.shape != observations.shape[:2]:
+        raise ValueError("Recurrent PPO actions must have shape [time, env].")
+    if old_log_probabilities.shape != actions.shape:
+        raise ValueError("Recurrent PPO log probabilities must match actions.")
+    if advantages.shape != actions.shape or returns.shape != actions.shape:
+        raise ValueError("Recurrent PPO advantages and returns must match actions.")
+    if dones.shape != actions.shape:
+        raise ValueError("Recurrent PPO dones must match actions.")
+    if initial_hidden_state.ndim != 2:
+        raise ValueError(
+            "Recurrent PPO initial hidden state must have shape [env, node]."
+        )
+    if initial_hidden_state.shape[0] != observations.shape[1]:
+        raise ValueError(
+            "Recurrent PPO hidden-state environment count is incompatible."
+        )
+
+    normalized_advantages = (advantages - advantages.mean()) / (
+        advantages.std(unbiased=False) + 1e-8
+    )
+    time_steps = observations.shape[0]
+    environment_count = observations.shape[1]
+    environments_per_minibatch = max(
+        1,
+        MINIBATCH_SIZE // max(1, time_steps),
+    )
+
+    policy_losses: list[float] = []
+    value_losses: list[float] = []
+    entropies: list[float] = []
+    approximate_kls: list[float] = []
+
+    for _ in range(PPO_EPOCHS):
+        for environment_indices in torch.randperm(
+            environment_count,
+            device=observations.device,
+        ).split(environments_per_minibatch):
+            hidden = initial_hidden_state[environment_indices].clone()
+            logits_by_step: list[Tensor] = []
+            values_by_step: list[Tensor] = []
+
+            for timestep in range(time_steps):
+                logits, values, next_hidden = model(
+                    observations[timestep, environment_indices],
+                    hidden,
+                )
+                logits_by_step.append(logits)
+                values_by_step.append(values)
+
+                alive = (
+                    1.0 - dones[timestep, environment_indices]
+                ).unsqueeze(1)
+                hidden = next_hidden * alive
+
+            logits = torch.stack(logits_by_step)
+            values = torch.stack(values_by_step)
+            selected_actions = actions[:, environment_indices]
+            distribution = Categorical(logits=logits)
+            new_log_probabilities = distribution.log_prob(selected_actions)
+
+            old_selected_log_probabilities = old_log_probabilities[
+                :, environment_indices
+            ]
+            selected_advantages = normalized_advantages[:, environment_indices]
+            selected_returns = returns[:, environment_indices]
+
+            log_ratio = (
+                new_log_probabilities - old_selected_log_probabilities
+            )
+            ratio = log_ratio.exp()
+            unclipped = -selected_advantages * ratio
+            clipped = -selected_advantages * torch.clamp(
+                ratio,
+                1 - CLIP_COEFFICIENT,
+                1 + CLIP_COEFFICIENT,
+            )
+            policy_loss = torch.maximum(unclipped, clipped).mean()
+            value_loss = 0.5 * (
+                values - selected_returns
+            ).square().mean()
+            entropy = distribution.entropy().mean()
+            loss = (
+                policy_loss
+                + VALUE_COEFFICIENT * value_loss
+                - ENTROPY_COEFFICIENT * entropy
+            )
+
+            optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(
+                model.parameters(),
+                MAX_GRADIENT_NORM,
+            )
+            optimizer.step()
+
+            policy_losses.append(float(policy_loss.detach().cpu()))
+            value_losses.append(float(value_loss.detach().cpu()))
+            entropies.append(float(entropy.detach().cpu()))
+            approximate_kls.append(
+                float(
+                    ((ratio - 1) - log_ratio)
+                    .mean()
+                    .detach()
+                    .cpu()
+                )
+            )
+
+    return {
+        "policyLoss": _mean(policy_losses),
+        "valueLoss": _mean(value_losses),
+        "entropy": _mean(entropies),
+        "approximateKl": _mean(approximate_kls),
+    }
+
 def train(config: TrainingConfig) -> dict[str, Any]:
     """Train a conventional or reduced-connectome PPO actor-critic artifact bundle."""
     config.validate()
@@ -256,13 +392,17 @@ def train(config: TrainingConfig) -> dict[str, Any]:
 
     while total_steps < config.steps:
         rollout_length = min(ROLLOUT_STEPS, (config.steps - total_steps) // config.envs)
+        rollout_initial_hidden_state = (
+            hidden_state.clone()
+            if hidden_state is not None
+            else None
+        )
         rollout_observations: list[Tensor] = []
         rollout_actions: list[Tensor] = []
         rollout_log_probabilities: list[Tensor] = []
         rollout_rewards: list[Tensor] = []
         rollout_dones: list[Tensor] = []
         rollout_values: list[Tensor] = []
-        rollout_hidden_states: list[Tensor] = []
         episode_start = len(completed_episodes)
 
         for _ in range(rollout_length):
@@ -270,7 +410,6 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             with torch.no_grad():
                 if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
                     assert hidden_state is not None
-                    rollout_hidden_states.append(hidden_state)
                     logits, values, next_hidden_state = model(
                         observation_tensor, hidden_state
                     )
@@ -359,20 +498,42 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             advantages[timestep] = last_advantage
         returns = advantages + values_tensor
 
-        update_metrics = _ppo_update(
+        if isinstance(
             model,
-            optimizer,
-            torch.stack(rollout_observations).flatten(0, 1),
-            torch.stack(rollout_actions).flatten(),
-            torch.stack(rollout_log_probabilities).flatten(),
-            advantages.flatten(),
-            returns.flatten(),
             (
-                torch.stack(rollout_hidden_states).flatten(0, 1)
-                if rollout_hidden_states
-                else None
+                FixedGraphPolicy,
+                PopulationFixedGraphPolicy,
+                NestedPopulationFixedGraphPolicy,
+                GatedNestedPopulationFixedGraphPolicy,
+                FeedbackNestedPopulationFixedGraphPolicy,
             ),
-        )
+        ):
+            if rollout_initial_hidden_state is None:
+                raise RuntimeError(
+                    "Recurrent rollout has no initial hidden state."
+                )
+            update_metrics = _ppo_update_recurrent(
+                model,
+                optimizer,
+                torch.stack(rollout_observations),
+                torch.stack(rollout_actions),
+                torch.stack(rollout_log_probabilities),
+                advantages,
+                returns,
+                dones_tensor,
+                rollout_initial_hidden_state,
+            )
+        else:
+            update_metrics = _ppo_update(
+                model,
+                optimizer,
+                torch.stack(rollout_observations).flatten(0, 1),
+                torch.stack(rollout_actions).flatten(),
+                torch.stack(rollout_log_probabilities).flatten(),
+                advantages.flatten(),
+                returns.flatten(),
+                None,
+            )
         update_index += 1
         recent_returns = [
             float(episode["return"]) for episode in completed_episodes[episode_start:]
@@ -452,6 +613,11 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                     else None
                 ),
                 "reward": reward_metadata,
+                "recurrent_training": (
+                    RECURRENT_TRAINING_VERSION
+                    if config.controller == "connectome"
+                    else None
+                ),
             },
         },
         checkpoint_path,
@@ -469,6 +635,11 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             "resolvedDevice": str(device),
             "trainingWorldSeeds": training_world_seeds,
             "reward": reward_metadata,
+            "recurrentTraining": (
+                RECURRENT_TRAINING_VERSION
+                if config.controller == "connectome"
+                else None
+            ),
             **(
                 {
                     "graphNodes": model.graph.node_count,
