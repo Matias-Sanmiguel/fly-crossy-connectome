@@ -1,19 +1,21 @@
-import { WORLD_HALF_WIDTH, hazardContains } from './simulation.ts';
+import { WORLD_HALF_WIDTH, hazardContains, hazardPositionAt } from './simulation.ts';
 import type { GameState } from './simulation.ts';
 import { isSceneryBlocked } from './scenery.ts';
 import type { Action, Hazard, Lane, LaneKind } from './types.ts';
 
-export const OBSERVATION_VERSION = 2 as const;
+export const OBSERVATION_VERSION = 3 as const;
 
-/** ObservationV2; legacy type name is retained to avoid protocol churn. */
+/** ObservationV3; legacy type name is retained to avoid protocol churn. */
 export type ObservationV1 = {
-  version: 2;
+  version: 3;
   radius: 5;
   cells: number[][];
   motion: number[][][];
+  hazardOffset: number[][];
   support: 0 | 1;
   previousAction: Action;
   edgeDistance: number;
+  signedColumn: number;
 };
 
 export const OBSERVATION_RADIUS = 5;
@@ -54,6 +56,18 @@ function laneMotion(lane: Lane, hazard: Hazard | undefined): number[] {
   return [direction, normalizedSpeed];
 }
 
+function occupyingHazardOffset(
+  lane: Lane,
+  hazard: Hazard | undefined,
+  column: number,
+  time: number,
+): number {
+  if (!hazard) return 0;
+  const halfSize = Math.max(1, hazard.size / 2);
+  const offset = (hazardPositionAt(lane, hazard, time) - column) / halfSize;
+  return Math.max(-1, Math.min(1, offset));
+}
+
 function isRiverSupported(state: GameState): boolean {
   const lane = state.lanes.find((candidate) => candidate.row === state.fly.row);
   return lane?.kind === 'river' && lane.hazards.some((hazard) => (
@@ -71,6 +85,10 @@ export function observe(state: GameState): ObservationV1 {
     { length: size },
     () => Array.from({ length: size }, () => [0, 0]),
   );
+  const hazardOffset = Array.from(
+    { length: size },
+    () => Array<number>(size).fill(0),
+  );
 
   for (let rowOffset = -OBSERVATION_RADIUS; rowOffset <= OBSERVATION_RADIUS; rowOffset += 1) {
     const lane = lanes.get(state.fly.row + rowOffset);
@@ -84,6 +102,7 @@ export function observe(state: GameState): ObservationV1 {
       if (isSceneryBlocked(state.seed, lane.row, lane.kind, column)) {
         cells[observationRow]![observationColumn] = CELL_ENCODING.blocker;
         motion[observationRow]![observationColumn] = [0, 0];
+        hazardOffset[observationRow]![observationColumn] = 0;
         continue;
       }
       const hazard = occupyingHazard(lane, column, state.time);
@@ -91,20 +110,32 @@ export function observe(state: GameState): ObservationV1 {
         ? occupiedEncoding(hazard)
         : laneEncoding[lane.kind];
       motion[observationRow]![observationColumn] = laneMotion(lane, hazard);
+      hazardOffset[observationRow]![observationColumn] = occupyingHazardOffset(
+        lane,
+        hazard,
+        column,
+        state.time,
+      );
     }
   }
 
   const edgeDistance = Math.max(0, Math.min(1, (
     WORLD_HALF_WIDTH - Math.abs(state.fly.column)
   ) / WORLD_HALF_WIDTH));
+  const signedColumn = Math.max(
+    -1,
+    Math.min(1, state.fly.column / WORLD_HALF_WIDTH),
+  );
 
   return {
     version: OBSERVATION_VERSION,
     radius: OBSERVATION_RADIUS,
     cells,
     motion,
+    hazardOffset,
     support: isRiverSupported(state) ? 1 : 0,
     previousAction: state.previousAction ?? 'wait',
     edgeDistance,
+    signedColumn,
   };
 }

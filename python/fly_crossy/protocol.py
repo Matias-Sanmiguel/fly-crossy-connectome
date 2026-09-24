@@ -96,7 +96,7 @@ class Reset(Envelope):
 class Observation(Envelope):
     type: Literal["observation"]
     game_step: Annotated[StrictInt, Field(ge=0, le=MAX_SEQUENCE)]
-    observation: Annotated[list[FiniteFloat], Field(min_length=370, max_length=370)]
+    observation: Annotated[list[FiniteFloat], Field(min_length=492, max_length=492)]
     reward: Annotated[StrictFloat, Field(ge=-1_000_000, le=1_000_000, allow_inf_nan=False)]
 
 

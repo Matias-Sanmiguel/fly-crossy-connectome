@@ -28,8 +28,8 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "d5d97a1891efe076458e9c8acf860419c1a22c7773a4f06edde6ac1eef0e798a",
-        "afterObservationSha256": "ff79e3238036fc7aaaf908739042819c390b4f29922ee28ac25b2b5d6428c51d",
+        "beforeObservationSha256": "70c16d56896153a3a95f3ac73dfb806a946e66215631dae5a3e588c3f1e9f3a7",
+        "afterObservationSha256": "cb824c4d68cba6478e9eec14874f645afb6ba780c8f75f1008a772a950151af1",
         "reward": 0.99,
         "fly": {
           "row": 3,
@@ -118,8 +118,8 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "e93dd6f17606dfb1beb3f06b1e3ef1ae59df58edae745d749860f3c19967418e",
-        "afterObservationSha256": "728eb91f253f91dbd4af0e82cce8834f93252e65ef85d87457f7d0b775cbf4c8",
+        "beforeObservationSha256": "ce3ffff5972b8146938bf70392f3ba91fb2077ae4921a7f207527d136a030796",
+        "afterObservationSha256": "b0ee6e3b1eeab3f948ff519f2f5120867bc88502e98638063bcc554ab2a0a776",
         "reward": -0.11,
         "fly": {
           "row": 3,
@@ -203,8 +203,8 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "f5310eb6e06ad71c9dbb7b1a5c9c35c6b57c6f57a4070a59daed73302a09aeb5",
-        "afterObservationSha256": "b1d112185d3d31720fa2d7b0bba74dfe8f5d16d944590dd85d7f011ecc07edf3",
+        "beforeObservationSha256": "0e41ae0f359344b667768bbea1391ec0b211d7e8e2f7ac03f5aa213ac337a11f",
+        "afterObservationSha256": "f93c44406cdf9f738327934e92f3d33968ebb25f29d9a1e978f72dba191fb2d3",
         "reward": -0.01,
         "fly": {
           "row": 3,
@@ -298,8 +298,8 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "c9878cd35d2729090edcae5b53b2fe2d7f2ab9a09ec52a4bfbc3b306abcfaa80",
-        "afterObservationSha256": "e5e9e84647a63e05b679b0475539bf4dcec14e425bc6b43d2c1d9cb5542e5837",
+        "beforeObservationSha256": "393f8814107b6dab569aeb0e2101bb21f7dcf986194a0878ca9de81ac60f808a",
+        "afterObservationSha256": "ef911ae266a22d5b42318e04adb1e4c79e2fa6237c2e48291c58d84181073605",
         "reward": -10.11,
         "fly": {
           "row": 3,
@@ -384,8 +384,8 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "08d05017e6835c26caac2ae634db4dc4c54bc163487c369ee46dc264b371b97c",
-        "afterObservationSha256": "22cc1cfe6595c0d308179a9a9911b17bb33e7a34a4f294f2f7b0b9ef291588e9",
+        "beforeObservationSha256": "589183e25562bd507f092367ce424f8e1146af8318cfdca4128cd06c62ab0445",
+        "afterObservationSha256": "3fb0a752586d48c802357f77d7da18cbee0923d4714d78d86d5f6be955bf3641",
         "reward": -0.11,
         "fly": {
           "row": 3,
@@ -469,8 +469,8 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "532b73f064b9aaa6cd3277a7d5980e9e9efce67c2680852d2a866ebb4cd3f845",
-        "afterObservationSha256": "5ab5af5c50cae87b7cacbe3f5fd762338bf0735d715cf5213c1ee27311aab8e5",
+        "beforeObservationSha256": "a3d6b6d0dc571c0292109c01e85eb2dd0af9a1db571269587860c560c7c601be",
+        "afterObservationSha256": "089dcb7a827a8e4e549125ade52106e76241493be48cbb385f9bd6ed37f41f83",
         "reward": -10.11,
         "fly": {
           "row": 3,
@@ -556,8 +556,8 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "cc542a2c55961cec957fe9e094711c15f52e7b17bea5dc74e19269ec9095626d",
-        "afterObservationSha256": "bbb97e189755bfede93eb932811228171849f918dd6fd279674eb690f8fdec08",
+        "beforeObservationSha256": "0226efa8eb6905dbed17ac33cf5e3fe9ec8fddf04121a79eda159fe56f8f364e",
+        "afterObservationSha256": "490c50abe67d57ebe56758bb733d072a0cf2cc43b6ba58fb5269ba8c108da185",
         "reward": -0.11,
         "fly": {
           "row": 100,
@@ -607,5 +607,5 @@
       }
     }
   ],
-  "environmentVersion": 8
+  "environmentVersion": 9
 }

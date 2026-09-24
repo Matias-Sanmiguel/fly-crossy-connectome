@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "totalSteps": 4,
+  "trainingCurve": [
+    {
+      "update": 1,
+      "totalSteps": 4,
+      "policyLoss": -0.0054740309715271,
+      "valueLoss": 23.86951971054077,
+      "entropy": 1.6011249125003815,
+      "approximateKl": 5.256384611129761e-05,
+      "trafficPredictionLoss": 0.0,
+      "episodesCompleted": 1,
+      "meanEpisodeReturn": -10.219999999999999
+    }
+  ],
+  "episodes": [
+    {
+      "episode": 1,
+      "environment": 0,
+      "return": -10.219999999999999,
+      "length": 2,
+      "score": 0.0,
+      "terminalReason": "vehicle"
+    }
+  ],
+  "summary": {
+    "episodesCompleted": 1,
+    "meanEpisodeReturn": -10.219999999999999,
+    "bestScore": 0.0
+  }
+}

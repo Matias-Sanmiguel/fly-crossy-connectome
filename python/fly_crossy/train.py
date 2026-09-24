@@ -14,7 +14,7 @@ import torch
 from torch import Tensor
 from torch.distributions import Categorical
 
-from .connectome import load_reduced_graph_variant
+from .connectome import ReducedGraphArtifact, load_reduced_graph_variant
 from .env import (
     BLOCKED_COST,
     FlyCrossyEnv,
@@ -49,6 +49,10 @@ ENTROPY_COEFFICIENT = 0.01
 MAX_GRADIENT_NORM = 0.5
 DETERMINISTIC_CUBLAS_WORKSPACE = ":4096:8"
 RECURRENT_TRAINING_VERSION = "sequence-bptt-v1"
+PREDICTIVE_AUXILIARY_VERSION = "traffic-next-observation-v1"
+WIDE_SENSORY_COUNT = 128
+PREDICTIVE_TARGET_SIZE = 132
+PREDICTIVE_AUXILIARY_COEFFICIENT = 0.05
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,11 +73,24 @@ class TrainingConfig:
         if self.connectome_graph not in ("80", "1k"):
             raise ValueError("Connectome graph must be 80 or 1k.")
         if self.connectome_interface not in (
-            "legacy", "population", "nested", "nested-gated", "nested-feedback"
+            "legacy",
+            "population",
+            "population-wide-predictive",
+            "nested",
+            "nested-gated",
+            "nested-feedback",
         ):
             raise ValueError(
-                "Connectome interface must be legacy, population, nested, "
-                "nested-gated, or nested-feedback."
+                "Connectome interface must be legacy, population, "
+                "population-wide-predictive, nested, nested-gated, "
+                "or nested-feedback."
+            )
+        if (
+            self.connectome_interface == "population-wide-predictive"
+            and self.connectome_graph != "1k"
+        ):
+            raise ValueError(
+                "population-wide-predictive currently requires the 1k graph."
             )
         if self.controller != "connectome" and (
             self.connectome_graph != "80"
@@ -91,6 +108,110 @@ class TrainingConfig:
         if not np.isfinite(self.learning_rate) or self.learning_rate <= 0:
             raise ValueError("Learning rate must be positive and finite.")
 
+
+
+def _build_wide_sensory_graph(
+    graph: ReducedGraphArtifact,
+    target_count: int = WIDE_SENSORY_COUNT,
+) -> ReducedGraphArtifact:
+    """Derive a wider input interface without using game outcomes.
+
+    Keep every historical sensory cell, exclude declared readout cells, and add
+    bidirectionally well-connected graph hubs until target_count is reached.
+    Node/edge topology and recurrent weights stay unchanged.
+    """
+    original = [int(value) for value in graph.sensory_body_ids]
+    if len(original) >= target_count:
+        return graph
+    if graph.node_count < target_count:
+        raise ValueError("Graph is too small for the requested sensory population.")
+
+    body_ids = [int(value) for value in graph.body_ids]
+    readout_ids = set(int(value) for value in graph.readout_body_ids)
+    original_set = set(original)
+
+    incoming = np.zeros(graph.node_count, dtype=np.float64)
+    outgoing = np.zeros(graph.node_count, dtype=np.float64)
+    for source, target, weight in zip(
+        graph.edge_index[0],
+        graph.edge_index[1],
+        graph.edge_weight,
+        strict=True,
+    ):
+        magnitude = abs(float(weight))
+        outgoing[int(source)] += magnitude
+        incoming[int(target)] += magnitude
+
+    candidates = [
+        index
+        for index, body_id in enumerate(body_ids)
+        if body_id not in original_set and body_id not in readout_ids
+    ]
+    candidates.sort(
+        key=lambda index: (
+            -min(incoming[index], outgoing[index]),
+            -(incoming[index] + outgoing[index]),
+            -outgoing[index],
+            body_ids[index],
+        )
+    )
+    needed = target_count - len(original)
+    if len(candidates) < needed:
+        raise ValueError("Not enough non-readout graph cells for wide sensory input.")
+
+    added = [body_ids[index] for index in candidates[:needed]]
+    sensory_ids = np.asarray([*original, *added], dtype=np.int64)
+
+    return ReducedGraphArtifact(
+        dataset_version=graph.dataset_version,
+        source_url=graph.source_url,
+        license=graph.license,
+        source_sha256=graph.source_sha256,
+        selection_rule=(
+            graph.selection_rule
+            + " Wide predictive interface: retain the historical sensory cells "
+            + f"and add {needed} non-readout cells using graph topology only, "
+            + "ranked by bidirectional weighted degree, then total weighted "
+            + "degree, outgoing weighted degree, and ascending body ID. "
+            + "No Fly Crossy rewards, scores, policies, training seeds, "
+            + "evaluation seeds, or outcomes are used for this interface selection."
+        ),
+        minimum_edge_threshold=graph.minimum_edge_threshold,
+        body_ids=graph.body_ids.copy(),
+        edge_index=graph.edge_index.copy(),
+        edge_weight=graph.edge_weight.copy(),
+        sensory_body_ids=sensory_ids,
+        readout_body_ids=graph.readout_body_ids.copy(),
+    )
+
+
+def _predictive_traffic_target(observations: Tensor) -> Tensor:
+    """Extract next-step local-scene targets from ObservationV3.
+
+    Observation rows 6..8 are the three rows immediately ahead. For their 33
+    cells predict normalized cell code, two motion values, and sub-cell hazard
+    offset: 33 + 66 + 33 = 132 values.
+    """
+    if observations.shape[-1] != OBSERVATION_INPUT_SIZE:
+        raise ValueError("Predictive target received an incompatible observation.")
+    if OBSERVATION_INPUT_SIZE != 492:
+        raise ValueError("Predictive target requires ObservationV3 (492 values).")
+
+    prefix = observations.shape[:-1]
+    cells = observations[..., :121].reshape(*prefix, 11, 11)
+    motion = observations[..., 121:363].reshape(*prefix, 11, 11, 2)
+    offsets = observations[..., 363:484].reshape(*prefix, 11, 11)
+
+    selected_cells = cells[..., 6:9, :].flatten(start_dim=-2)
+    selected_motion = motion[..., 6:9, :, :].flatten(start_dim=-3)
+    selected_offsets = offsets[..., 6:9, :].flatten(start_dim=-2)
+    target = torch.cat(
+        (selected_cells, selected_motion, selected_offsets),
+        dim=-1,
+    )
+    if target.shape[-1] != PREDICTIVE_TARGET_SIZE:
+        raise RuntimeError("Predictive traffic target has an unexpected width.")
+    return target
 
 def _resolve_device(requested: str) -> torch.device:
     if requested == "auto":
@@ -195,6 +316,8 @@ def _ppo_update_recurrent(
     returns: Tensor,
     dones: Tensor,
     initial_hidden_state: Tensor,
+    next_observations: Tensor | None = None,
+    traffic_predictor: torch.nn.Linear | None = None,
 ) -> dict[str, float]:
     """Sequence-aware PPO update with truncated BPTT through each rollout."""
     if observations.ndim != 3:
@@ -217,6 +340,15 @@ def _ppo_update_recurrent(
         raise ValueError(
             "Recurrent PPO hidden-state environment count is incompatible."
         )
+    if traffic_predictor is not None:
+        if not isinstance(model, PopulationFixedGraphPolicy):
+            raise ValueError(
+                "Traffic prediction auxiliary is supported only by the population policy."
+            )
+        if next_observations is None or next_observations.shape != observations.shape:
+            raise ValueError(
+                "Traffic prediction requires next observations matching the rollout."
+            )
 
     normalized_advantages = (advantages - advantages.mean()) / (
         advantages.std(unbiased=False) + 1e-8
@@ -232,6 +364,7 @@ def _ppo_update_recurrent(
     value_losses: list[float] = []
     entropies: list[float] = []
     approximate_kls: list[float] = []
+    traffic_prediction_losses: list[float] = []
 
     for _ in range(PPO_EPOCHS):
         for environment_indices in torch.randperm(
@@ -241,6 +374,7 @@ def _ppo_update_recurrent(
             hidden = initial_hidden_state[environment_indices].clone()
             logits_by_step: list[Tensor] = []
             values_by_step: list[Tensor] = []
+            traffic_predictions_by_step: list[Tensor] = []
 
             for timestep in range(time_steps):
                 logits, values, next_hidden = model(
@@ -250,6 +384,25 @@ def _ppo_update_recurrent(
                 logits_by_step.append(logits)
                 values_by_step.append(values)
 
+                if traffic_predictor is not None:
+                    assert isinstance(model, PopulationFixedGraphPolicy)
+                    readout_activity = next_hidden.index_select(
+                        1, model.readout_indices
+                    )
+                    selected_action = actions[timestep, environment_indices]
+                    action_one_hot = torch.nn.functional.one_hot(
+                        selected_action,
+                        num_classes=len(ACTION_ORDER),
+                    ).to(dtype=readout_activity.dtype)
+                    traffic_predictions_by_step.append(
+                        traffic_predictor(
+                            torch.cat(
+                                (readout_activity, action_one_hot),
+                                dim=1,
+                            )
+                        )
+                    )
+
                 alive = (
                     1.0 - dones[timestep, environment_indices]
                 ).unsqueeze(1)
@@ -258,6 +411,35 @@ def _ppo_update_recurrent(
             logits = torch.stack(logits_by_step)
             values = torch.stack(values_by_step)
             selected_actions = actions[:, environment_indices]
+
+            if traffic_predictor is not None:
+                assert next_observations is not None
+                predictions = torch.stack(traffic_predictions_by_step)
+                targets = _predictive_traffic_target(
+                    next_observations[:, environment_indices]
+                )
+                alive_mask = (
+                    1.0 - dones[:, environment_indices]
+                ).unsqueeze(-1)
+                prediction_error = torch.nn.functional.smooth_l1_loss(
+                    predictions,
+                    targets,
+                    reduction="none",
+                )
+                prediction_denominator = torch.clamp(
+                    alive_mask.sum() * PREDICTIVE_TARGET_SIZE,
+                    min=1.0,
+                )
+                traffic_prediction_loss = (
+                    prediction_error * alive_mask
+                ).sum() / prediction_denominator
+            else:
+                traffic_prediction_loss = torch.zeros(
+                    (),
+                    dtype=values.dtype,
+                    device=values.device,
+                )
+
             distribution = Categorical(logits=logits)
             new_log_probabilities = distribution.log_prob(selected_actions)
 
@@ -286,12 +468,16 @@ def _ppo_update_recurrent(
                 policy_loss
                 + VALUE_COEFFICIENT * value_loss
                 - ENTROPY_COEFFICIENT * entropy
+                + PREDICTIVE_AUXILIARY_COEFFICIENT * traffic_prediction_loss
             )
 
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
+            gradient_parameters = list(model.parameters())
+            if traffic_predictor is not None:
+                gradient_parameters.extend(traffic_predictor.parameters())
             torch.nn.utils.clip_grad_norm_(
-                model.parameters(),
+                gradient_parameters,
                 MAX_GRADIENT_NORM,
             )
             optimizer.step()
@@ -299,6 +485,9 @@ def _ppo_update_recurrent(
             policy_losses.append(float(policy_loss.detach().cpu()))
             value_losses.append(float(value_loss.detach().cpu()))
             entropies.append(float(entropy.detach().cpu()))
+            traffic_prediction_losses.append(
+                float(traffic_prediction_loss.detach().cpu())
+            )
             approximate_kls.append(
                 float(
                     ((ratio - 1) - log_ratio)
@@ -313,6 +502,7 @@ def _ppo_update_recurrent(
         "valueLoss": _mean(value_losses),
         "entropy": _mean(entropies),
         "approximateKl": _mean(approximate_kls),
+        "trafficPredictionLoss": _mean(traffic_prediction_losses),
     }
 
 def train(config: TrainingConfig) -> dict[str, Any]:
@@ -340,16 +530,22 @@ def train(config: TrainingConfig) -> dict[str, Any]:
     episode_returns = [0.0] * config.envs
     episode_lengths = [0] * config.envs
     completed_episodes: list[dict[str, Any]] = []
+    traffic_predictor: torch.nn.Linear | None = None
 
     if config.controller == "connectome":
         graph = load_reduced_graph_variant(config.connectome_graph)
+        if config.connectome_interface == "population-wide-predictive":
+            graph = _build_wide_sensory_graph(graph)
         if config.connectome_interface == "legacy":
             model = FixedGraphPolicy(
                 graph,
                 OBSERVATION_INPUT_SIZE,
                 len(ACTION_ORDER),
             ).to(device)
-        elif config.connectome_interface == "population":
+        elif config.connectome_interface in (
+            "population",
+            "population-wide-predictive",
+        ):
             model = PopulationFixedGraphPolicy(
                 graph,
                 OBSERVATION_INPUT_SIZE,
@@ -380,12 +576,23 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         hidden_state: Tensor | None = torch.zeros(
             config.envs, model.graph.node_count, dtype=torch.float32, device=device
         )
+        if config.connectome_interface == "population-wide-predictive":
+            traffic_predictor = torch.nn.Linear(
+                len(model.readout_indices) + len(ACTION_ORDER),
+                PREDICTIVE_TARGET_SIZE,
+            ).to(device)
     else:
         model = DensePolicy(
             OBSERVATION_INPUT_SIZE, HIDDEN_SIZE, len(ACTION_ORDER)
         ).to(device)
         hidden_state = None
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+    optimizer_parameters = list(model.parameters())
+    if traffic_predictor is not None:
+        optimizer_parameters.extend(traffic_predictor.parameters())
+    optimizer = torch.optim.Adam(
+        optimizer_parameters,
+        lr=config.learning_rate,
+    )
     total_steps = 0
     update_index = 0
     training_curve: list[dict[str, Any]] = []
@@ -398,6 +605,7 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             else None
         )
         rollout_observations: list[Tensor] = []
+        rollout_next_observations: list[Tensor] = []
         rollout_actions: list[Tensor] = []
         rollout_log_probabilities: list[Tensor] = []
         rollout_rewards: list[Tensor] = []
@@ -462,7 +670,15 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             rollout_rewards.append(torch.tensor(rewards, dtype=torch.float32, device=device))
             rollout_dones.append(torch.tensor(dones, dtype=torch.float32, device=device))
             rollout_values.append(values)
-            observations = np.stack(next_observations)
+            next_observation_array = np.stack(next_observations)
+            rollout_next_observations.append(
+                torch.as_tensor(
+                    next_observation_array,
+                    dtype=torch.float32,
+                    device=device,
+                )
+            )
+            observations = next_observation_array
             if next_hidden_state is not None:
                 hidden_state = next_hidden_state.clone()
                 hidden_state[
@@ -522,6 +738,8 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                 returns,
                 dones_tensor,
                 rollout_initial_hidden_state,
+                next_observations=torch.stack(rollout_next_observations),
+                traffic_predictor=traffic_predictor,
             )
         else:
             update_metrics = _ppo_update(
@@ -618,6 +836,18 @@ def train(config: TrainingConfig) -> dict[str, Any]:
                     if config.controller == "connectome"
                     else None
                 ),
+                "predictive_auxiliary": (
+                    {
+                        "version": PREDICTIVE_AUXILIARY_VERSION,
+                        "coefficient": PREDICTIVE_AUXILIARY_COEFFICIENT,
+                        "targetRowsAhead": [1, 2, 3],
+                        "targetSize": PREDICTIVE_TARGET_SIZE,
+                        "sensoryCells": WIDE_SENSORY_COUNT,
+                        "inferenceHeadExported": False,
+                    }
+                    if traffic_predictor is not None
+                    else None
+                ),
             },
         },
         checkpoint_path,
@@ -638,6 +868,18 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             "recurrentTraining": (
                 RECURRENT_TRAINING_VERSION
                 if config.controller == "connectome"
+                else None
+            ),
+            "predictiveAuxiliary": (
+                {
+                    "version": PREDICTIVE_AUXILIARY_VERSION,
+                    "coefficient": PREDICTIVE_AUXILIARY_COEFFICIENT,
+                    "targetRowsAhead": [1, 2, 3],
+                    "targetSize": PREDICTIVE_TARGET_SIZE,
+                    "sensoryCells": WIDE_SENSORY_COUNT,
+                    "inferenceHeadExported": False,
+                }
+                if traffic_predictor is not None
                 else None
             ),
             **(
@@ -703,7 +945,14 @@ def _parse_arguments() -> TrainingConfig:
     )
     parser.add_argument(
         "--connectome-interface",
-        choices=("legacy", "population", "nested", "nested-gated", "nested-feedback"),
+        choices=(
+            "legacy",
+            "population",
+            "population-wide-predictive",
+            "nested",
+            "nested-gated",
+            "nested-feedback",
+        ),
         default="legacy",
         help="Artificial interface mode for the fixed MaleCNS graph.",
     )

@@ -30,7 +30,7 @@ def test_feedback_nested_parameter_count_and_initial_gate_are_capacity_invariant
     model_1k = FeedbackNestedPopulationFixedGraphPolicy(
         capacity, core, OBSERVATION_INPUT_SIZE, len(ACTION_ORDER)
     )
-    assert _parameter_count(model_80) == _parameter_count(model_1k) == 11945
+    assert _parameter_count(model_80) == _parameter_count(model_1k) == 15849
     assert float(model_80.feedback_strength().detach()) == pytest.approx(0.1)
     assert float(model_1k.feedback_strength().detach()) == pytest.approx(0.1)
 

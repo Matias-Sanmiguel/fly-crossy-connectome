@@ -39,7 +39,7 @@ def test_client_variants_are_discriminated_and_strict() -> None:
     variants = [
         {"type": "configure", **envelope, "population": 1000, "backend": "gpu-strict", "seed": 7, "speed": 1},
         {"type": "reset", **envelope, "episodeId": "e-abcdefgh", "seed": 7},
-        {"type": "observation", **envelope, "gameStep": 4, "observation": [0.0] * 370, "reward": 0.5},
+        {"type": "observation", **envelope, "gameStep": 4, "observation": [0.0] * 492, "reward": 0.5},
         {"type": "pause", **envelope},
         {"type": "resume", **envelope},
         {"type": "request_keyframe", **envelope},

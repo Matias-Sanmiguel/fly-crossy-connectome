@@ -51,11 +51,16 @@ class ConnectomeActionSelector:
                 f"Unable to load connectome checkpoint: {path}"
             ) from exc
 
+        expected_observation_size = (
+            OBSERVATION_INPUT_SIZE
+            if expected_environment_version == WORLD_VERSION
+            else None
+        )
         checkpoint = validate_checkpoint(
             saved,
             expected_controller="connectome",
             expected_environment_version=expected_environment_version,
-            expected_observation_size=OBSERVATION_INPUT_SIZE,
+            expected_observation_size=expected_observation_size,
         )
 
         graph = checkpoint.graph
@@ -101,7 +106,10 @@ class ConnectomeActionSelector:
                 checkpoint.observation_size,
                 checkpoint.actions,
             )
-        elif checkpoint.connectome_interface == "population":
+        elif checkpoint.connectome_interface in (
+            "population",
+            "population-wide-predictive",
+        ):
             model = PopulationFixedGraphPolicy(
                 graph,
                 checkpoint.observation_size,

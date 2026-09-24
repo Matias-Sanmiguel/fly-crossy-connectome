@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "observationVersion": 3,
+  "actions": [
+    "forward",
+    "backward",
+    "left",
+    "right",
+    "wait"
+  ],
+  "source": {
+    "kind": "predicted",
+    "name": "Reduced MaleCNS fixed-graph PPO controller",
+    "normalization": "ObservationV3 uses the declared 492-value encoding with explicit blocker cells, hazard-speed/sub-cell phase, and signed lateral position; raw tanh node activity is mapped as (activity + 1) / 2 for atlas display",
+    "checkpointHash": "bbc020cc32f15fa0b5330d604a413fb85dd6a40b11f4d258faf132b34a3c267c",
+    "datasetVersion": "Fixture v1",
+    "sourceUrl": "https://example.test/fixture",
+    "license": "CC BY 4.0",
+    "selectionRule": "Two-cell fixture.",
+    "graphSourceHash": "79be365c4b6cb89941d340a37be07029b578b4ff903206785960970e9a615798",
+    "graphArtifactHash": "6e1b221ce0397d324629b20fb93c7297be7d860a5a769b5b4cdbfc185062e630"
+  },
+  "network": {
+    "kind": "fixed-graph",
+    "interfaceMode": "legacy",
+    "inputSize": 3,
+    "bodyIds": [
+      101,
+      102
+    ],
+    "activation": "tanh",
+    "sensoryWeights": [
+      0.1798844337463379,
+      -0.2286044955253601,
+      -0.023213624954223633,
+      0.3202834725379944,
+      0.4826236963272095,
+      0.4977147579193115
+    ],
+    "recurrentSource": [
+      0,
+      1
+    ],
+    "recurrentTarget": [
+      1,
+      0
+    ],
+    "recurrentWeights": [
+      1.0,
+      -1.0
+    ],
+    "recurrentGain": 1.0,
+    "timeConstant": 1.0,
+    "actorWeights": [
+      -0.338901549577713,
+      0.6412381529808044,
+      -0.16908395290374756,
+      -0.12666434049606323,
+      0.6378393769264221,
+      0.09705674648284912,
+      -0.5118101835250854,
+      -0.4145543575286865,
+      0.019658148288726807,
+      -0.0212135910987854
+    ],
+    "actorBias": [
+      0.02725386619567871,
+      -0.216688334941864,
+      -0.07403051853179932,
+      0.1860477328300476,
+      0.2754122018814087
+    ]
+  },
+  "activityBodyIds": [
+    101,
+    102
+  ]
+}

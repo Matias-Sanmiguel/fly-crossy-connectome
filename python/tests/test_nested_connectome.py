@@ -93,7 +93,7 @@ def test_nested_parameter_count_is_capacity_invariant() -> None:
         capacity, core, OBSERVATION_INPUT_SIZE, len(ACTION_ORDER)
     )
 
-    assert _parameter_count(model_80) == _parameter_count(model_1k) == 11945
+    assert _parameter_count(model_80) == _parameter_count(model_1k) == 15849
     assert float(model_80.expansion_gain.detach()) == pytest.approx(0.1)
     assert float(model_1k.expansion_gain.detach()) == pytest.approx(0.1)
 

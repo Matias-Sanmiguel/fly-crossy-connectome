@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "environmentVersion": 9,
+  "configuration": {
+    "controller": "connectome",
+    "seed": "population-bptt-tiny",
+    "steps": 64,
+    "envs": 1,
+    "learning_rate": 0.0003,
+    "output": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp\\test_population_tiny_training_0\\population-bptt",
+    "device": "cpu",
+    "connectome_graph": "80",
+    "connectome_interface": "population",
+    "resolvedDevice": "cpu",
+    "trainingWorldSeeds": [
+      "population-bptt-tiny:0:0",
+      "population-bptt-tiny:0:1",
+      "population-bptt-tiny:0:2"
+    ],
+    "reward": {
+      "version": 4,
+      "progress": 1,
+      "terminal": -10,
+      "step": -0.01,
+      "stagnation": -0.1,
+      "blocked": -0.1,
+      "supportedCarryStagnationExempt": true
+    },
+    "recurrentTraining": "sequence-bptt-v1",
+    "predictiveAuxiliary": null,
+    "graphNodes": 80,
+    "graphEdges": 1296,
+    "graphArtifactHash": "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862"
+  },
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu132",
+    "cudaAvailable": true
+  },
+  "checkpoint": {
+    "path": "checkpoint.pt",
+    "sha256": "87934ae671771d0427042980f92db6f51935a999fb52b86dae52336fee99cdc3"
+  },
+  "policy": {
+    "path": "policy.json"
+  }
+}

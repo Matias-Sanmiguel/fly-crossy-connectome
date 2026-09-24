@@ -26,18 +26,16 @@ def observation(
     episode_id: str,
     game_step: int,
 ) -> Observation:
-    return Observation.model_validate(
-        {
-            "type": "observation",
-            "version": 2,
-            "sessionId": "s-runtime01",
-            "episodeId": episode_id,
-            "sequence": game_step + 1,
-            "simulationTime": float(game_step),
-            "gameStep": game_step,
-            "observation": [0.0] * 370,
-            "reward": 0.0,
-        }
+    return Observation.model_construct(
+        type="observation",
+        version=2,
+        session_id="s-runtime01",
+        episode_id=episode_id,
+        sequence=game_step + 1,
+        simulation_time=float(game_step),
+        game_step=game_step,
+        observation=[0.0] * 370,
+        reward=0.0,
     )
 
 

@@ -212,11 +212,17 @@ def validate_checkpoint(
             interface_value, "connectome interface"
         )
         if connectome_interface not in (
-            "legacy", "population", "nested", "nested-gated", "nested-feedback"
+            "legacy",
+            "population",
+            "population-wide-predictive",
+            "nested",
+            "nested-gated",
+            "nested-feedback",
         ):
             raise ValueError(
                 "Checkpoint connectome interface must be legacy, population, "
-                "nested, nested-gated, or nested-feedback."
+                "population-wide-predictive, nested, nested-gated, "
+                "or nested-feedback."
             )
 
         node_count = graph.node_count

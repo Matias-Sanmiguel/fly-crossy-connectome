@@ -18,15 +18,15 @@ const fixedSource = {
   graphArtifactHash: '2'.repeat(64),
 };
 
-test('policy parser preserves historical v1 and current v2 observation versions', () => {
+test('policy parser preserves historical v1 and current v3 observation versions', () => {
   assert.throws(() => parsePolicy({ version: 99 }, visibleIds), /version 1/i);
   assert.equal(parsePolicy(fixture, visibleIds).observationVersion, 1);
   assert.equal(
-    parsePolicy({ ...fixture, observationVersion: 2 }, visibleIds).observationVersion,
-    2,
+    parsePolicy({ ...fixture, observationVersion: 3 }, visibleIds).observationVersion,
+    3,
   );
   assert.throws(
-    () => parsePolicy({ ...fixture, observationVersion: 3 }, visibleIds),
+    () => parsePolicy({ ...fixture, observationVersion: 2 }, visibleIds),
     /observation version/i,
   );
 });

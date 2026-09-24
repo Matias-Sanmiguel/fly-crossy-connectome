@@ -39,7 +39,7 @@ export function parseBundledConnectomePolicy(
     throw Error('Bundled autoplay policy must provide mapped reduced-connectome activity.');
   }
   if (policy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
-    throw Error('Bundled autoplay policy input shape does not match ObservationV2.');
+    throw Error('Bundled autoplay policy input shape does not match ObservationV3.');
   }
   if (policy.observationVersion !== OBSERVATION_VERSION) {
     throw Error('Bundled autoplay policy observation version does not match the current environment.');

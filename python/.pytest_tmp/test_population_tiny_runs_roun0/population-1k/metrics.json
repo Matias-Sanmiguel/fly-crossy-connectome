@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "totalSteps": 4,
+  "trainingCurve": [
+    {
+      "update": 1,
+      "totalSteps": 4,
+      "policyLoss": -0.0007273927330970764,
+      "valueLoss": 25.08094358444214,
+      "entropy": 1.6085120141506195,
+      "approximateKl": 1.1473894119262695e-06,
+      "trafficPredictionLoss": 0.0,
+      "episodesCompleted": 1,
+      "meanEpisodeReturn": -7.14
+    }
+  ],
+  "episodes": [
+    {
+      "episode": 1,
+      "environment": 0,
+      "return": -7.14,
+      "length": 4,
+      "score": 3.0,
+      "terminalReason": "water"
+    }
+  ],
+  "summary": {
+    "episodesCompleted": 1,
+    "meanEpisodeReturn": -7.14,
+    "bestScore": 3.0
+  }
+}

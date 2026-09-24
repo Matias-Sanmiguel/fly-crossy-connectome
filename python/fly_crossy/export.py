@@ -219,7 +219,10 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 checkpoint_metadata.actions,
                 state_dict,
             )
-        elif checkpoint_metadata.connectome_interface == "population":
+        elif checkpoint_metadata.connectome_interface in (
+            "population",
+            "population-wide-predictive",
+        ):
             model = _load_population_fixed_graph_policy(
                 graph,
                 checkpoint_metadata.observation_size,
@@ -253,8 +256,8 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             "kind": "predicted",
             "name": "Reduced MaleCNS fixed-graph PPO controller",
             "normalization": (
-                "ObservationV2 uses the declared 370-value encoding with explicit "
-                "blocker cells and hazard-speed scaling; raw tanh node activity is "
+                "ObservationV3 uses the declared 492-value encoding with explicit "
+                "blocker cells, hazard-speed/sub-cell phase, and signed lateral position; raw tanh node activity is "
                 "mapped as (activity + 1) / 2 for atlas display"
             ),
             "checkpointHash": checkpoint_hash,

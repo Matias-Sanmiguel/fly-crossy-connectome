@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "totalSteps": 4,
+  "trainingCurve": [
+    {
+      "update": 1,
+      "totalSteps": 4,
+      "policyLoss": -0.009518519043922424,
+      "valueLoss": 0.05540193524211645,
+      "entropy": 1.601071447134018,
+      "approximateKl": 0.00011184439063072205,
+      "trafficPredictionLoss": 0.0,
+      "episodesCompleted": 0,
+      "meanEpisodeReturn": 0.0
+    }
+  ],
+  "episodes": [],
+  "summary": {
+    "episodesCompleted": 0,
+    "meanEpisodeReturn": 0.0,
+    "bestScore": 0.0
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "environmentVersion": 9,
+  "configuration": {
+    "controller": "connectome",
+    "seed": "population-wide-predictive-tiny",
+    "steps": 8,
+    "envs": 1,
+    "learning_rate": 0.0003,
+    "output": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp\\test_population_wide_predictiv0\\population-wide-predictive",
+    "device": "cpu",
+    "connectome_graph": "1k",
+    "connectome_interface": "population-wide-predictive",
+    "resolvedDevice": "cpu",
+    "trainingWorldSeeds": [
+      "population-wide-predictive-tiny:0:0"
+    ],
+    "reward": {
+      "version": 4,
+      "progress": 1,
+      "terminal": -10,
+      "step": -0.01,
+      "stagnation": -0.1,
+      "blocked": -0.1,
+      "supportedCarryStagnationExempt": true
+    },
+    "recurrentTraining": "sequence-bptt-v1",
+    "predictiveAuxiliary": {
+      "version": "traffic-next-observation-v1",
+      "coefficient": 0.05,
+      "targetRowsAhead": [
+        1,
+        2,
+        3
+      ],
+      "targetSize": 132,
+      "sensoryCells": 128,
+      "inferenceHeadExported": false
+    },
+    "graphNodes": 1000,
+    "graphEdges": 113852,
+    "graphArtifactHash": "055e61237e9e70c0c34dad5c69b276c19c99d71f4a1f64c0b921dd7b3978e253"
+  },
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu132",
+    "cudaAvailable": true
+  },
+  "checkpoint": {
+    "path": "checkpoint.pt",
+    "sha256": "8e099486cca271291d9c809b2c48327e7f7043173830c725133360d355285c2c"
+  },
+  "policy": {
+    "path": "policy.json"
+  }
+}

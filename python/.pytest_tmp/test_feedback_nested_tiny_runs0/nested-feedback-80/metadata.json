@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "environmentVersion": 9,
+  "configuration": {
+    "controller": "connectome",
+    "seed": "nested-feedback-80-tiny",
+    "steps": 4,
+    "envs": 1,
+    "learning_rate": 0.0003,
+    "output": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp\\test_feedback_nested_tiny_runs0\\nested-feedback-80",
+    "device": "cpu",
+    "connectome_graph": "80",
+    "connectome_interface": "nested-feedback",
+    "resolvedDevice": "cpu",
+    "trainingWorldSeeds": [
+      "nested-feedback-80-tiny:0:0",
+      "nested-feedback-80-tiny:0:1"
+    ],
+    "reward": {
+      "version": 4,
+      "progress": 1,
+      "terminal": -10,
+      "step": -0.01,
+      "stagnation": -0.1,
+      "blocked": -0.1,
+      "supportedCarryStagnationExempt": true
+    },
+    "recurrentTraining": "sequence-bptt-v1",
+    "predictiveAuxiliary": null,
+    "graphNodes": 80,
+    "graphEdges": 1296,
+    "graphArtifactHash": "e7a2b3c1e2f4244b3fb01d838dd4ca4c677ab5eb5efdcfd9f59cb25171d70862"
+  },
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu132",
+    "cudaAvailable": true
+  },
+  "checkpoint": {
+    "path": "checkpoint.pt",
+    "sha256": "d48c4d5ba39d06f894cb41a7c77fe8d53c72b5db79b58f9bd48405b453c22bed"
+  },
+  "policy": {
+    "path": "policy.json"
+  }
+}

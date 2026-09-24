@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "environmentVersion": 9,
+  "configuration": {
+    "controller": "conventional",
+    "seed": "deterministic-runtime-test",
+    "steps": 1,
+    "envs": 1,
+    "learning_rate": 0.0003,
+    "output": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp\\test_cuda_capable_modes_config0\\auto",
+    "device": "auto",
+    "connectome_graph": "80",
+    "connectome_interface": "legacy",
+    "resolvedDevice": "cpu",
+    "trainingWorldSeeds": [
+      "deterministic-runtime-test:0:0"
+    ],
+    "reward": {
+      "version": 4,
+      "progress": 1,
+      "terminal": -10,
+      "step": -0.01,
+      "stagnation": -0.1,
+      "blocked": -0.1,
+      "supportedCarryStagnationExempt": true
+    },
+    "recurrentTraining": null,
+    "predictiveAuxiliary": null,
+    "hiddenSize": 64
+  },
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu132",
+    "cudaAvailable": false
+  },
+  "checkpoint": {
+    "path": "checkpoint.pt",
+    "sha256": "51ac8c91b904aef27ff2fc397f7760442a9e72151d636240368614092eb43451"
+  },
+  "policy": {
+    "path": "policy.json"
+  }
+}

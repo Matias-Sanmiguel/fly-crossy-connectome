@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 8
+WORLD_VERSION = 9
 WORLD_LAYOUT_VERSION = 6
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
@@ -788,6 +788,7 @@ def observe(state: GameState) -> ObservationV1:
     lanes = {lane.row: lane for lane in state.lanes}
     cells = [[0 for _ in range(size)] for _ in range(size)]
     motion = [[[0, 0] for _ in range(size)] for _ in range(size)]
+    hazard_offset = [[0.0 for _ in range(size)] for _ in range(size)]
     lane_encoding: dict[LaneKind, int] = {"grass": 1, "road": 2, "rail": 3, "river": 4}
 
     for row_offset in range(-OBSERVATION_RADIUS, OBSERVATION_RADIUS + 1):
@@ -803,23 +804,38 @@ def observe(state: GameState) -> ObservationV1:
             if _scenery_blocked(state.seed, lane.row, lane.kind, column):
                 cells[observation_row][observation_column] = 8
                 motion[observation_row][observation_column] = [0, 0]
+                hazard_offset[observation_row][observation_column] = 0.0
                 continue
             hazard = _occupying_hazard(lane, column, state.time)
             cells[observation_row][observation_column] = (
                 _occupied_encoding(hazard) if hazard is not None else lane_encoding[lane.kind]
             )
             motion[observation_row][observation_column] = _lane_motion(lane, hazard)
+            if hazard is not None:
+                half_size = max(1.0, hazard.size / 2)
+                offset = (
+                    hazard_position_at(lane, hazard, state.time) - column
+                ) / half_size
+                hazard_offset[observation_row][observation_column] = max(
+                    -1.0, min(1.0, offset)
+                )
 
     edge_distance = max(
         0,
         min(1, (WORLD_HALF_WIDTH - abs(state.fly.column)) / WORLD_HALF_WIDTH),
     )
+    signed_column = max(
+        -1.0,
+        min(1.0, state.fly.column / WORLD_HALF_WIDTH),
+    )
     return ObservationV1(
         cells=cells,
         motion=motion,
+        hazard_offset=hazard_offset,
         support=1 if _is_river_supported(state) else 0,
         previous_action=state.previous_action,
         edge_distance=edge_distance,
+        signed_column=signed_column,
     )
 
 

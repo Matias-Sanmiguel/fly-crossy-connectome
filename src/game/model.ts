@@ -2,7 +2,7 @@ import { OBSERVATION_VERSION, type ObservationV1 } from './observation.ts';
 import type { Action } from './types.ts';
 
 export const POLICY_ACTIONS = ['forward', 'backward', 'left', 'right', 'wait'] as const;
-export const OBSERVATION_INPUT_SIZE = 370;
+export const OBSERVATION_INPUT_SIZE = 492;
 
 export type ModelSource = {
   kind: 'synthetic' | 'predicted' | 'measured';
@@ -54,7 +54,7 @@ export type FixedGraphNetwork = {
 
 export type ExportedPolicyV1 = {
   version: 1;
-  observationVersion: 1 | 2;
+  observationVersion: 1 | 2 | 3;
   actions: Action[];
   source: ModelSource;
   network: DenseNetwork | FixedGraphNetwork;
@@ -267,7 +267,7 @@ export function parsePolicy(input: unknown, visibleIds: ReadonlySet<number>): Ex
   const policy = requireRecord(input, 'Policy');
   if (policy.version !== 1) throw Error('Expected policy version 1.');
   if (policy.observationVersion !== 1 && policy.observationVersion !== OBSERVATION_VERSION) {
-    throw Error('Expected observation version 1 or 2.');
+    throw Error('Expected observation version 1 or 3.');
   }
   const actions = policy.actions;
   if (!Array.isArray(actions)
@@ -320,8 +320,17 @@ export function parsePolicy(input: unknown, visibleIds: ReadonlySet<number>): Ex
 export function encodeObservation(observation: ObservationV1): number[] {
   const cells = observation.cells.flat().map((value) => value / 8);
   const motion = observation.motion.flat(2);
+  const hazardOffset = observation.hazardOffset.flat();
   const previousAction = POLICY_ACTIONS.map((action) => Number(observation.previousAction === action));
-  const encoded = [...cells, ...motion, observation.support, ...previousAction, observation.edgeDistance];
+  const encoded = [
+    ...cells,
+    ...motion,
+    ...hazardOffset,
+    observation.support,
+    ...previousAction,
+    observation.edgeDistance,
+    observation.signedColumn,
+  ];
   if (encoded.length !== OBSERVATION_INPUT_SIZE || !encoded.every(Number.isFinite)) {
     throw Error(`Observation must encode to ${OBSERVATION_INPUT_SIZE} finite values.`);
   }

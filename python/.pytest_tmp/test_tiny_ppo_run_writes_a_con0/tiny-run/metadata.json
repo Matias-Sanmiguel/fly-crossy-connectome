@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "environmentVersion": 9,
+  "configuration": {
+    "controller": "conventional",
+    "seed": "tiny-test",
+    "steps": 16,
+    "envs": 2,
+    "learning_rate": 0.0003,
+    "output": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp\\test_tiny_ppo_run_writes_a_con0\\tiny-run",
+    "device": "cpu",
+    "connectome_graph": "80",
+    "connectome_interface": "legacy",
+    "resolvedDevice": "cpu",
+    "trainingWorldSeeds": [
+      "tiny-test:0:0",
+      "tiny-test:1:0",
+      "tiny-test:1:1",
+      "tiny-test:1:2"
+    ],
+    "reward": {
+      "version": 4,
+      "progress": 1,
+      "terminal": -10,
+      "step": -0.01,
+      "stagnation": -0.1,
+      "blocked": -0.1,
+      "supportedCarryStagnationExempt": true
+    },
+    "recurrentTraining": null,
+    "predictiveAuxiliary": null,
+    "hiddenSize": 64
+  },
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu132",
+    "cudaAvailable": true
+  },
+  "checkpoint": {
+    "path": "checkpoint.pt",
+    "sha256": "298f4dc39d4fad6bb3e31c6524f754e80ba4e975854ab273aac1c1a1863a7561"
+  },
+  "policy": {
+    "path": "policy.json"
+  }
+}

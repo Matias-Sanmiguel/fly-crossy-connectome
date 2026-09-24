@@ -167,10 +167,10 @@ test('client permits one observation until its action result arrives', () => {
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
   sockets[0].open();
   sockets[0].receive(ready());
-  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 1, simulationTime: 2 });
+  client.observe({ gameStep: 3, observation: Array(492).fill(0), reward: 1, simulationTime: 2 });
 
   assert.throws(
-    () => client.observe({ gameStep: 4, observation: Array(370).fill(0), reward: 0, simulationTime: 3 }),
+    () => client.observe({ gameStep: 4, observation: Array(492).fill(0), reward: 0, simulationTime: 3 }),
     /pending observation/i,
   );
   sockets[0].receive({ type: 'intention', ...envelope(1), intentionId: 'i-current1', action: 'wait', motorPhase: 'neutral' });
@@ -195,7 +195,7 @@ test('client can observe immediately after a successful local resume', () => {
   assert.equal(sockets[0].sent.at(-1).type, 'resume');
   assert.doesNotThrow(() => client.observe({
     gameStep: 3,
-    observation: Array(370).fill(0),
+    observation: Array(492).fill(0),
     reward: 0,
     simulationTime: 3,
   }));
@@ -210,7 +210,7 @@ test('client rejects malformed observations before they enter the outbound queue
   sockets[0].receive(ready());
 
   assert.throws(
-    () => client.observe({ gameStep: 3, observation: Array(369).fill(0), reward: 0, simulationTime: 1 }),
+    () => client.observe({ gameStep: 3, observation: Array(491).fill(0), reward: 0, simulationTime: 1 }),
     /observation/i,
   );
   assert.equal(client.state.phase, 'ready');
@@ -225,7 +225,7 @@ test('client rejects non-finite observation values before they enter the outboun
   sockets[0].receive(ready());
 
   assert.throws(
-    () => client.observe({ gameStep: 3, observation: [...Array(369).fill(0), Number.NaN], reward: 0, simulationTime: 1 }),
+    () => client.observe({ gameStep: 3, observation: [...Array(491).fill(0), Number.NaN], reward: 0, simulationTime: 1 }),
     /observation value/i,
   );
   assert.equal(sockets[0].sent.some(({ type }) => type === 'observation'), false);
@@ -381,7 +381,7 @@ test('client retains controlled error when keyframe recovery is backpressured du
   sockets[0].open();
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
   sockets[0].receive(ready());
-  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  client.observe({ gameStep: 3, observation: Array(492).fill(0), reward: 0, simulationTime: 1 });
   sockets[0].receive({ type: 'intention', ...envelope(1), intentionId: 'i-current1', action: 'wait', motorPhase: 'neutral' });
   sockets[0].readyState = 0;
   client.pause(1);
@@ -396,7 +396,7 @@ test('client fails an unsolicited reset_complete instead of clearing active work
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
   sockets[0].open();
   sockets[0].receive(ready());
-  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  client.observe({ gameStep: 3, observation: Array(492).fill(0), reward: 0, simulationTime: 1 });
   sockets[0].receive({ type: 'reset_complete', ...envelope(1) });
 
   assert.equal(client.state.phase, 'error');
@@ -409,7 +409,7 @@ test('client leaves reset state untouched when reset input is invalid', () => {
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
   sockets[0].open();
   sockets[0].receive(ready());
-  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  client.observe({ gameStep: 3, observation: Array(492).fill(0), reward: 0, simulationTime: 1 });
   const before = client.state;
 
   assert.throws(() => client.reset({ simulationTime: -1 }), /simulation time/i);
@@ -511,7 +511,7 @@ test('client does not publish an old action result after a state subscriber reco
   client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
   sockets[0].open();
   sockets[0].receive(ready());
-  client.observe({ gameStep: 3, observation: Array(370).fill(0), reward: 0, simulationTime: 1 });
+  client.observe({ gameStep: 3, observation: Array(492).fill(0), reward: 0, simulationTime: 1 });
   sockets[0].receive({
     type: 'intention', ...envelope(1), intentionId: 'i-current1',
     action: 'wait', motorPhase: 'neutral',

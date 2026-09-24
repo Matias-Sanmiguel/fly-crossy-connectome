@@ -32,7 +32,7 @@ import {
 import { asset } from './lib/atlas';
 
 type UiMode = 'human' | 'scripted' | 'model';
-const MAX_POLICY_BYTES = 10 * 1024 * 1024;
+const MAX_POLICY_BYTES = 50 * 1024 * 1024;
 
 export function App() {
   const { atlas, error: atlasError } = useAtlas();
@@ -104,7 +104,7 @@ export function App() {
     if (!atlas) throw Error('Wait for the measured MaleCNS atlas to load.');
     const nextPolicy = parsePolicy(value, atlas.visibleIds);
     if (nextPolicy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
-      throw Error('Policy input shape does not match ObservationV2.');
+      throw Error('Policy input shape does not match ObservationV3.');
     }
     if (nextPolicy.observationVersion !== OBSERVATION_VERSION) {
       throw Error('Policy observation version does not match the current environment.');
@@ -207,7 +207,7 @@ export function App() {
                   if (!selected) return;
                   try {
                     if (selected.size > MAX_POLICY_BYTES) {
-                      throw Error('Policy JSON must be 10 MB or smaller.');
+                      throw Error('Policy JSON must be 50 MB or smaller.');
                     }
                     acceptPolicy(JSON.parse(await selected.text()));
                   } catch (error) {

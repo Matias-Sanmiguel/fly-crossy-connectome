@@ -3,6 +3,7 @@ import { validateControllerDecision } from '../game/controllers.ts';
 import type { Controller, ControllerDecision } from '../game/controllers.ts';
 import { observe } from '../game/observation.ts';
 import { createGame, DECISION_SECONDS, stepGame } from '../game/simulation.ts';
+import { applyConnectomeSafetyReflex } from '../game/safetyReflex.ts';
 import type { GameEvent, GameState, StepResult } from '../game/simulation.ts';
 import type { Action } from '../game/types.ts';
 import type { ActivityFrame } from '../lib/replay.ts';
@@ -245,6 +246,7 @@ export function useGame({
   const pending = useRef<{ requestId: number; abort: AbortController } | null>(null);
   const nextRequestId = useRef(1);
   const queuedHumanAction = useRef<Action | null>(null);
+  const connectomeNoProgressSteps = useRef(0);
   const [documentVisible, setDocumentVisible] = useState(() => !document.hidden);
 
   const abortPending = useCallback(() => {
@@ -256,6 +258,7 @@ export function useGame({
     if (previousSeed.current === seed) return;
     previousSeed.current = seed;
     queuedHumanAction.current = null;
+    connectomeNoProgressSteps.current = 0;
     abortPending();
     controller?.reset(seed);
     dispatch({ type: 'reset', seed, status: mode === 'human' ? 'manual' : 'ready' });
@@ -263,6 +266,7 @@ export function useGame({
 
   useEffect(() => {
     queuedHumanAction.current = null;
+    connectomeNoProgressSteps.current = 0;
     abortPending();
     controller?.reset(run.game.seed);
     dispatch({ type: 'controller-clear', status: mode === 'human' ? 'manual' : 'ready' });
@@ -310,8 +314,23 @@ export function useGame({
       void controller.decide(observe(run.game), abort.signal).then((rawDecision) => {
         const decision = validateControllerDecision(rawDecision, visibleIds);
         if (pending.current?.requestId !== requestId || abort.signal.aborted) return;
+
+        const adjusted = controller.kind === 'connectome'
+          ? applyConnectomeSafetyReflex(
+            run.game,
+            decision,
+            connectomeNoProgressSteps.current,
+          )
+          : { decision, nextNoProgressSteps: 0 };
+
+        if (controller.kind === 'connectome') {
+          connectomeNoProgressSteps.current = adjusted.nextNoProgressSteps;
+        } else {
+          connectomeNoProgressSteps.current = 0;
+        }
+
         pending.current = null;
-        dispatch({ type: 'controller-decision', requestId, decision });
+        dispatch({ type: 'controller-decision', requestId, decision: adjusted.decision });
       }).catch((error: unknown) => {
         if (pending.current?.requestId !== requestId || abort.signal.aborted) return;
         pending.current = null;
@@ -338,6 +357,7 @@ export function useGame({
 
   const reset = useCallback((nextSeed?: string) => {
     queuedHumanAction.current = null;
+    connectomeNoProgressSteps.current = 0;
     abortPending();
     controller?.reset(nextSeed ?? run.game.seed);
     dispatch({

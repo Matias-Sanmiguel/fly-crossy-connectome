@@ -32,7 +32,7 @@ def test_population_interface_parameter_count_is_capacity_invariant() -> None:
     assert model_1k.sensory.out_features == 32
     assert model_80.actor.in_features == 16
     assert model_1k.actor.in_features == 16
-    assert _parameter_count(model_80) == _parameter_count(model_1k) == 11944
+    assert _parameter_count(model_80) == _parameter_count(model_1k) == 15848
 
 
 def test_population_interface_injects_only_declared_sensory_cells() -> None:

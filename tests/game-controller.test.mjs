@@ -5,6 +5,10 @@ import test from 'node:test';
 import { selectRenderableInstances } from '../src/game/rendering.ts';
 import { observe } from '../src/game/observation.ts';
 import { createGame } from '../src/game/simulation.ts';
+import {
+  applyConnectomeSafetyReflex,
+  SAFETY_REFLEX_STAGNATION_STEPS,
+} from '../src/game/safetyReflex.ts';
 import { generateRows } from '../src/game/world.ts';
 import {
   createDensePolicyController,
@@ -77,10 +81,10 @@ test('scripted controller returns actions in order without invented neural activ
 
 test('dense policy chooses the maximum logit using the canonical observation encoding', async () => {
   const observation = observe(createGame('dense'));
-  const inputSize = 370;
+  const inputSize = 492;
   const policy = {
     version: 1,
-    observationVersion: 2,
+    observationVersion: 3,
     actions: ['forward', 'backward', 'left', 'right', 'wait'],
     source: { kind: 'predicted', name: 'Dense fixture', normalization: 'No activity values' },
     network: {
@@ -104,10 +108,10 @@ test('dense policy chooses the maximum logit using the canonical observation enc
 
 test('fixed graph controller persists recurrence and resets simulated activity', async () => {
   const observation = observe(createGame('fixed'));
-  const inputSize = 370;
+  const inputSize = 492;
   const policy = {
     version: 1,
-    observationVersion: 2,
+    observationVersion: 3,
     actions: ['forward', 'backward', 'left', 'right', 'wait'],
     source: { kind: 'predicted', name: 'Fixed fixture', normalization: 'tanh mapped to [0, 1]' },
     network: {
@@ -133,7 +137,7 @@ test('fixed graph controller persists recurrence and resets simulated activity',
   assert.deepEqual((await controller.decide(observation, signal())).activity, first.activity);
 });
 
-test('historical v6 bundled policy is rejected by the v7 ObservationV2 contract', async () => {
+test('historical v6 bundled policy is rejected by the v7 ObservationV3 contract', async () => {
   const raw = JSON.parse(await readFile(
     new URL('../public/models/reduced-connectome-policy-v6.json', import.meta.url),
     'utf8',
@@ -145,6 +149,120 @@ test('historical v6 bundled policy is rejected by the v7 ObservationV2 contract'
     () => controllerRuntime.parseBundledConnectomePolicy(raw, visibleIds),
     /observation version/i,
   );
+});
+
+
+test('connectome safety reflex vetoes an immediately terminal proposal using safe logits', () => {
+  const base = createGame('reflex-terminal-v1');
+  const state = {
+    ...base,
+    fly: { row: 3, column: 0 },
+    score: 3,
+    lanes: [
+      { row: 2, kind: 'grass', hazards: [] },
+      { row: 3, kind: 'grass', hazards: [] },
+      {
+        row: 4,
+        kind: 'river',
+        direction: 1,
+        speed: 1,
+        phase: 0,
+        hazards: [{ kind: 'log', position: 3, size: 1 }],
+      },
+    ],
+  };
+  const decision = {
+    action: 'forward',
+    activity: [[101, 0.7]],
+    diagnostics: {
+      'logit.forward': 9,
+      'logit.backward': 1,
+      'logit.left': 2,
+      'logit.right': 5,
+      'logit.wait': 4,
+    },
+  };
+
+  const result = applyConnectomeSafetyReflex(state, decision, 0);
+
+  assert.equal(result.decision.action, 'right');
+  assert.equal(result.decision.diagnostics['reflex.applied'], 1);
+  assert.equal(result.decision.diagnostics['reflex.terminalVeto'], 1);
+  assert.equal(result.decision.diagnostics['reflex.stagnationOverride'], 0);
+  assert.deepEqual(result.decision.activity, decision.activity);
+});
+
+test('connectome safety reflex does not invent a rescue when every safe action lacks a model logit', () => {
+  const base = createGame('reflex-no-logit-v1');
+  const state = {
+    ...base,
+    fly: { row: 3, column: 0 },
+    score: 3,
+    lanes: [
+      { row: 2, kind: 'grass', hazards: [] },
+      { row: 3, kind: 'grass', hazards: [] },
+      {
+        row: 4,
+        kind: 'river',
+        direction: 1,
+        speed: 1,
+        phase: 0,
+        hazards: [{ kind: 'log', position: 3, size: 1 }],
+      },
+    ],
+  };
+  const decision = {
+    action: 'forward',
+    activity: [],
+    diagnostics: { 'logit.forward': 9 },
+  };
+
+  const result = applyConnectomeSafetyReflex(state, decision, 0);
+
+  assert.equal(result.decision.action, 'forward');
+  assert.equal(result.decision.diagnostics['reflex.applied'], 0);
+});
+
+test('connectome safety reflex forces safe forward only after the bounded stagnation threshold', () => {
+  const base = createGame('reflex-stagnation-v1');
+  const state = {
+    ...base,
+    fly: { row: 3, column: 0 },
+    score: 3,
+    lanes: [
+      { row: 2, kind: 'grass', hazards: [] },
+      { row: 3, kind: 'grass', hazards: [] },
+      { row: 4, kind: 'grass', hazards: [] },
+    ],
+  };
+  const decision = {
+    action: 'wait',
+    activity: [],
+    diagnostics: {
+      'logit.forward': 1,
+      'logit.backward': 0,
+      'logit.left': 2,
+      'logit.right': 3,
+      'logit.wait': 8,
+    },
+  };
+
+  const before = applyConnectomeSafetyReflex(
+    state,
+    decision,
+    SAFETY_REFLEX_STAGNATION_STEPS - 1,
+  );
+  const atThreshold = applyConnectomeSafetyReflex(
+    state,
+    decision,
+    SAFETY_REFLEX_STAGNATION_STEPS,
+  );
+
+  assert.equal(before.decision.action, 'wait');
+  assert.equal(atThreshold.decision.action, 'forward');
+  assert.equal(atThreshold.decision.diagnostics['reflex.terminalVeto'], 0);
+  assert.equal(atThreshold.decision.diagnostics['reflex.stagnationOverride'], 1);
+  assert.equal(atThreshold.nextNoProgressSteps, 0);
 });
 
 test('autoplay episode seeds change without growing beyond the seed contract', () => {

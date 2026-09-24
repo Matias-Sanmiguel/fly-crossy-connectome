@@ -62,7 +62,7 @@ def observation_message(
         "sequence": sequence,
         "simulationTime": float(sequence) if simulation_time is None else simulation_time,
         "gameStep": step,
-        "observation": [0.0] * 370,
+        "observation": [0.0] * 492,
         "reward": 0.0,
     })
     assert isinstance(message, Observation)

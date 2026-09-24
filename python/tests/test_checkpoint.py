@@ -11,6 +11,7 @@ import fly_crossy.evaluate as evaluate_module
 import fly_crossy.export as export_module
 from fly_crossy.checkpoint import validate_checkpoint
 from fly_crossy.env import WORLD_VERSION
+from fly_crossy.schema import OBSERVATION_INPUT_SIZE
 
 
 RELEASE_ROOT = Path(__file__).resolve().parents[2] / "release" / "eval-v1" / "training"
@@ -43,6 +44,35 @@ STATE_KEYS = {
 }
 
 
+def _upgrade_observation_boundary_for_current_schema(
+    payload: dict[str, object],
+    controller: str,
+) -> None:
+    # Adapt only the temporary test copy. The released checkpoint remains
+    # historical evidence with its original 370-value observation boundary.
+    model = payload["model"]
+    state_dict = payload["model_state_dict"]
+    old_size = int(model["observation_size"])
+    if old_size == OBSERVATION_INPUT_SIZE:
+        return
+
+    model["observation_size"] = OBSERVATION_INPUT_SIZE
+    input_key = (
+        "hidden_1.weight"
+        if controller == "conventional"
+        else "sensory.weight"
+    )
+    old_weight = state_dict[input_key]
+    upgraded = torch.zeros(
+        old_weight.shape[0],
+        OBSERVATION_INPUT_SIZE,
+        dtype=old_weight.dtype,
+    )
+    copy_width = min(old_size, OBSERVATION_INPUT_SIZE)
+    upgraded[:, :copy_width] = old_weight[:, :copy_width]
+    state_dict[input_key] = upgraded
+
+
 def _payload(
     controller: str,
     *,
@@ -52,10 +82,9 @@ def _payload(
     payload["model"] = dict(payload["model"])
     payload["training"] = dict(payload["training"])
     payload["model_state_dict"] = dict(payload["model_state_dict"])
-    # eval-v1 is historical Environment v3 evidence. Most tests below mutate
-    # a temporary copy to exercise the CURRENT schema, so give those copies
-    # the current environment version to avoid masking the intended failure.
     payload["environment_version"] = environment_version
+    if environment_version != RELEASE_ENVIRONMENT_VERSION:
+        _upgrade_observation_boundary_for_current_schema(payload, controller)
     return payload
 
 
