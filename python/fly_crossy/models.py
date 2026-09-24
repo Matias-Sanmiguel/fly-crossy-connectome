@@ -143,7 +143,7 @@ class PopulationFixedGraphPolicy(nn.Module):
         activity = hidden + time_constant * (candidate - hidden)
         readout_activity = activity.index_select(1, self.readout_indices)
         return (
-            self.actor(readout_activity),
+            self.actor_from_activity(activity),
             self.critic(readout_activity).squeeze(-1),
             activity,
         )
@@ -154,6 +154,42 @@ class PopulationFixedGraphPolicy(nn.Module):
     @staticmethod
     def normalized_activity(activity: Tensor) -> Tensor:
         return FixedGraphPolicy.normalized_activity(activity)
+
+class TrafficAwarePopulationPolicy(PopulationFixedGraphPolicy):
+    """Controller V2: recurrent connectome plus learned per-action safety heads."""
+
+    SAFETY_GAIN = 4.0
+    ROUTE_GAIN = 0.75
+
+    def __init__(
+        self,
+        graph: ReducedGraphArtifact,
+        observation_size: int,
+        actions: int = 5,
+    ) -> None:
+        super().__init__(graph, observation_size, actions)
+        readout_count = len(self.readout_indices)
+        self.risk_head = nn.Linear(readout_count, actions)
+        self.route_head = nn.Linear(readout_count, actions)
+
+    def auxiliary_from_activity(self, activity: Tensor) -> tuple[Tensor, Tensor]:
+        readout_activity = activity.index_select(1, self.readout_indices)
+        return (
+            self.risk_head(readout_activity),
+            self.route_head(readout_activity),
+        )
+
+    def actor_from_activity(self, activity: Tensor) -> Tensor:
+        readout_activity = activity.index_select(1, self.readout_indices)
+        base_logits = self.actor(readout_activity)
+        risk_logits = self.risk_head(readout_activity)
+        route_logits = self.route_head(readout_activity)
+        return (
+            base_logits
+            - self.SAFETY_GAIN * torch.sigmoid(risk_logits)
+            + self.ROUTE_GAIN * torch.sigmoid(route_logits)
+        )
+
 class NestedPopulationFixedGraphPolicy(nn.Module):
     """Population interface with an exactly preserved 80-cell recurrent core."""
 

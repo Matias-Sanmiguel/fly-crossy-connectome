@@ -43,7 +43,7 @@ const baseState = () => ({
 test('observation is a fixed radius-five egocentric window', () => {
   const observation = observe(baseState());
 
-  assert.equal(observation.version, 2);
+  assert.equal(observation.version, 4);
   assert.equal(observation.radius, 5);
   assert.equal(observation.cells.length, 11);
   assert.ok(observation.cells.every((row) => row.length === 11));

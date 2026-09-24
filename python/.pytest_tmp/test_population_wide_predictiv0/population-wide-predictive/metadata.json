@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 9,
+  "environmentVersion": 10,
   "configuration": {
     "controller": "connectome",
     "seed": "population-wide-predictive-tiny",
@@ -16,13 +16,14 @@
       "population-wide-predictive-tiny:0:0"
     ],
     "reward": {
-      "version": 4,
-      "progress": 1,
-      "terminal": -10,
+      "version": 5,
+      "progress": 0.35,
+      "terminal": -5.0,
       "step": -0.01,
-      "stagnation": -0.1,
+      "stagnation": 0.0,
+      "wait": -0.03,
       "blocked": -0.1,
-      "supportedCarryStagnationExempt": true
+      "supportedCarryWaitExempt": true
     },
     "recurrentTraining": "sequence-bptt-v1",
     "predictiveAuxiliary": {
@@ -49,7 +50,7 @@
   },
   "checkpoint": {
     "path": "checkpoint.pt",
-    "sha256": "8e099486cca271291d9c809b2c48327e7f7043173830c725133360d355285c2c"
+    "sha256": "8f521eba0e0811db92ba3717d353f5160a50d2562e82282c4824e27d31e084aa"
   },
   "policy": {
     "path": "policy.json"

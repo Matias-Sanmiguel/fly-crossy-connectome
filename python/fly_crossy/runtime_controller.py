@@ -13,6 +13,7 @@ from fly_crossy.models import (
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
     PopulationFixedGraphPolicy,
+    TrafficAwarePopulationPolicy,
 )
 from fly_crossy.protocol import Action, Observation
 from fly_crossy.schema import (
@@ -103,6 +104,12 @@ class ConnectomeActionSelector:
             model = NestedPopulationFixedGraphPolicy(
                 graph,
                 core_graph,
+                checkpoint.observation_size,
+                checkpoint.actions,
+            )
+        elif checkpoint.connectome_interface == "controller-v2":
+            model = TrafficAwarePopulationPolicy(
+                graph,
                 checkpoint.observation_size,
                 checkpoint.actions,
             )

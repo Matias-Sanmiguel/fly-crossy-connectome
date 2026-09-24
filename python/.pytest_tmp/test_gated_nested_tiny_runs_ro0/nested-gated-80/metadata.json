@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 9,
+  "environmentVersion": 10,
   "configuration": {
     "controller": "connectome",
     "seed": "nested-gated-80-tiny",
@@ -16,13 +16,14 @@
       "nested-gated-80-tiny:0:0"
     ],
     "reward": {
-      "version": 4,
-      "progress": 1,
-      "terminal": -10,
+      "version": 5,
+      "progress": 0.35,
+      "terminal": -5.0,
       "step": -0.01,
-      "stagnation": -0.1,
+      "stagnation": 0.0,
+      "wait": -0.03,
       "blocked": -0.1,
-      "supportedCarryStagnationExempt": true
+      "supportedCarryWaitExempt": true
     },
     "recurrentTraining": "sequence-bptt-v1",
     "predictiveAuxiliary": null,
@@ -38,7 +39,7 @@
   },
   "checkpoint": {
     "path": "checkpoint.pt",
-    "sha256": "654684f43fcacb2095ab89aa39013dbf59a51744f9f5de360640cb0c49297326"
+    "sha256": "fbc22668233c280605acc04d0dde310e368a04825aedd9f5b81aecae207adc77"
   },
   "policy": {
     "path": "policy.json"

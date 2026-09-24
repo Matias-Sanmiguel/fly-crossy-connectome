@@ -105,7 +105,7 @@ def observation() -> dict[str, object]:
         "sequence": 2,
         "simulationTime": 1.0,
         "gameStep": 0,
-        "observation": [0.0] * 492,
+        "observation": [0.0] * 517,
         "reward": 0.0,
     }
 

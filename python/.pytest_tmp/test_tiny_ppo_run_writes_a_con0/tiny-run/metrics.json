@@ -5,27 +5,27 @@
     {
       "update": 1,
       "totalSteps": 16,
-      "policyLoss": -0.012715054675936699,
-      "valueLoss": 18.618704795837402,
-      "entropy": 1.6051322221755981,
-      "approximateKl": 0.0001932857558131218,
+      "policyLoss": -0.017680629156529903,
+      "valueLoss": 3.50319367647171,
+      "entropy": 1.6046068370342255,
+      "approximateKl": 0.0003487728536128998,
       "episodesCompleted": 2,
-      "meanEpisodeReturn": -10.384999999999998
+      "meanEpisodeReturn": -5.039999999999999
     }
   ],
   "episodes": [
     {
       "episode": 1,
       "environment": 1,
-      "return": -10.549999999999999,
-      "length": 5,
+      "return": -5.029999999999999,
+      "length": 3,
       "score": 0.0,
       "terminalReason": "vehicle"
     },
     {
       "episode": 2,
       "environment": 1,
-      "return": -10.219999999999999,
+      "return": -5.05,
       "length": 2,
       "score": 0.0,
       "terminalReason": "vehicle"
@@ -33,7 +33,7 @@
   ],
   "summary": {
     "episodesCompleted": 2,
-    "meanEpisodeReturn": -10.384999999999998,
+    "meanEpisodeReturn": -5.039999999999999,
     "bestScore": 0.0
   }
 }

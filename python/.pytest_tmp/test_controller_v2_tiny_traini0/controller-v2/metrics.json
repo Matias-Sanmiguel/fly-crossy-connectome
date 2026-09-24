@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "totalSteps": 8,
+  "trainingCurve": [
+    {
+      "update": 1,
+      "totalSteps": 8,
+      "policyLoss": -0.014121722429990768,
+      "valueLoss": 0.03734069876372814,
+      "entropy": 1.6073866784572601,
+      "approximateKl": 0.0002705436199903488,
+      "teacherRiskLoss": 0.7051807940006256,
+      "teacherRouteLoss": 0.6949499994516373,
+      "teacherRiskAccuracy": 0.2750000059604645,
+      "episodesCompleted": 0,
+      "meanEpisodeReturn": 0.0
+    }
+  ],
+  "episodes": [],
+  "summary": {
+    "episodesCompleted": 0,
+    "meanEpisodeReturn": 0.0,
+    "bestScore": 0.0
+  }
+}

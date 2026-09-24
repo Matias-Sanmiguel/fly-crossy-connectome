@@ -111,7 +111,7 @@ def test_hash_and_row_generation_match_browser_contract() -> None:
     assert hash_seed("") == 2_166_136_261
     assert hash_seed("episode-v1-safe-opening") == 4_109_462_559
     assert hash_seed("parity-🪰") == 3_375_820_797
-    assert WORLD_VERSION == 9
+    assert WORLD_VERSION == 10
 
     rows = generate_rows("parity-seed", 3, 2)
     assert [lane.row for lane in rows] == [3, 4]

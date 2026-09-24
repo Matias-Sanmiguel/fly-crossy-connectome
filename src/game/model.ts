@@ -2,7 +2,7 @@ import { OBSERVATION_VERSION, type ObservationV1 } from './observation.ts';
 import type { Action } from './types.ts';
 
 export const POLICY_ACTIONS = ['forward', 'backward', 'left', 'right', 'wait'] as const;
-export const OBSERVATION_INPUT_SIZE = 492;
+export const OBSERVATION_INPUT_SIZE = 517;
 
 export type ModelSource = {
   kind: 'synthetic' | 'predicted' | 'measured';
@@ -37,6 +37,7 @@ export type DenseNetwork = {
 
 export type FixedGraphNetwork = {
   kind: 'fixed-graph';
+  interfaceMode?: string;
   inputSize: number;
   bodyIds: number[];
   activation: Activation;
@@ -50,11 +51,17 @@ export type FixedGraphNetwork = {
   /** Row-major [action, node]. */
   actorWeights: number[];
   actorBias: number[];
+  riskWeights?: number[];
+  riskBias?: number[];
+  routeWeights?: number[];
+  routeBias?: number[];
+  safetyGain?: number;
+  routeGain?: number;
 };
 
 export type ExportedPolicyV1 = {
   version: 1;
-  observationVersion: 1 | 2 | 3;
+  observationVersion: 1 | 2 | 3 | 4;
   actions: Action[];
   source: ModelSource;
   network: DenseNetwork | FixedGraphNetwork;
@@ -238,8 +245,22 @@ function parseFixedGraphNetwork(
     || value.timeConstant <= 0 || value.timeConstant > 1) {
     throw Error('Fixed graph time constant must be finite and in (0, 1].');
   }
+  const interfaceMode = typeof value.interfaceMode === 'string'
+    ? value.interfaceMode
+    : undefined;
+  const controllerV2 = interfaceMode === 'controller-v2';
+  if (controllerV2) {
+    if (typeof value.safetyGain !== 'number' || !Number.isFinite(value.safetyGain)
+      || value.safetyGain <= 0
+      || typeof value.routeGain !== 'number' || !Number.isFinite(value.routeGain)
+      || value.routeGain < 0) {
+      throw Error('Controller V2 gains must be finite with positive safety gain.');
+    }
+  }
+
   return {
     kind: 'fixed-graph',
+    ...(interfaceMode !== undefined ? { interfaceMode } : {}),
     inputSize,
     bodyIds,
     activation,
@@ -259,6 +280,30 @@ function parseFixedGraphNetwork(
       'Fixed graph actor weights',
     ),
     actorBias: requireFiniteArray(value.actorBias, POLICY_ACTIONS.length, 'Fixed graph actor bias'),
+    ...(controllerV2 ? {
+      riskWeights: requireFiniteArray(
+        value.riskWeights,
+        POLICY_ACTIONS.length * nodeCount,
+        'Controller V2 risk weights',
+      ),
+      riskBias: requireFiniteArray(
+        value.riskBias,
+        POLICY_ACTIONS.length,
+        'Controller V2 risk bias',
+      ),
+      routeWeights: requireFiniteArray(
+        value.routeWeights,
+        POLICY_ACTIONS.length * nodeCount,
+        'Controller V2 route weights',
+      ),
+      routeBias: requireFiniteArray(
+        value.routeBias,
+        POLICY_ACTIONS.length,
+        'Controller V2 route bias',
+      ),
+      safetyGain: value.safetyGain as number,
+      routeGain: value.routeGain as number,
+    } : {}),
   };
 }
 
@@ -267,7 +312,7 @@ export function parsePolicy(input: unknown, visibleIds: ReadonlySet<number>): Ex
   const policy = requireRecord(input, 'Policy');
   if (policy.version !== 1) throw Error('Expected policy version 1.');
   if (policy.observationVersion !== 1 && policy.observationVersion !== OBSERVATION_VERSION) {
-    throw Error('Expected observation version 1 or 3.');
+    throw Error('Expected observation version 1 or 4.');
   }
   const actions = policy.actions;
   if (!Array.isArray(actions)
@@ -322,6 +367,7 @@ export function encodeObservation(observation: ObservationV1): number[] {
   const motion = observation.motion.flat(2);
   const hazardOffset = observation.hazardOffset.flat();
   const previousAction = POLICY_ACTIONS.map((action) => Number(observation.previousAction === action));
+  const traffic = observation.traffic.flat();
   const encoded = [
     ...cells,
     ...motion,
@@ -330,6 +376,7 @@ export function encodeObservation(observation: ObservationV1): number[] {
     ...previousAction,
     observation.edgeDistance,
     observation.signedColumn,
+    ...traffic,
   ];
   if (encoded.length !== OBSERVATION_INPUT_SIZE || !encoded.every(Number.isFinite)) {
     throw Error(`Observation must encode to ${OBSERVATION_INPUT_SIZE} finite values.`);
@@ -376,7 +423,7 @@ export function runFixedGraphNetwork(
   network: FixedGraphNetwork,
   input: readonly number[],
   hidden: readonly number[],
-): { logits: number[]; activity: number[] } {
+): { logits: number[]; activity: number[]; risk?: number[]; route?: number[] } {
   const nodeCount = network.bodyIds.length;
   if (input.length !== network.inputSize || !input.every(Number.isFinite)) {
     throw Error(`Fixed graph input must contain ${network.inputSize} finite values.`);
@@ -402,7 +449,7 @@ export function runFixedGraphNetwork(
     );
     return hidden[node]! + network.timeConstant * (candidate - hidden[node]!);
   });
-  const logits = Array.from({ length: POLICY_ACTIONS.length }, (_, action) => {
+  const baseLogits = Array.from({ length: POLICY_ACTIONS.length }, (_, action) => {
     let value = network.actorBias[action]!;
     const offset = action * nodeCount;
     for (let node = 0; node < nodeCount; node += 1) {
@@ -410,8 +457,45 @@ export function runFixedGraphNetwork(
     }
     return value;
   });
+
+  let risk: number[] | undefined;
+  let route: number[] | undefined;
+  let logits = baseLogits;
+
+  if (
+    network.riskWeights
+    && network.riskBias
+    && network.routeWeights
+    && network.routeBias
+    && network.safetyGain !== undefined
+    && network.routeGain !== undefined
+  ) {
+    const sigmoid = (value: number) => 1 / (1 + Math.exp(-value));
+    risk = Array.from({ length: POLICY_ACTIONS.length }, (_, action) => {
+      let value = network.riskBias![action]!;
+      const offset = action * nodeCount;
+      for (let node = 0; node < nodeCount; node += 1) {
+        value += network.riskWeights![offset + node]! * activity[node]!;
+      }
+      return sigmoid(value);
+    });
+    route = Array.from({ length: POLICY_ACTIONS.length }, (_, action) => {
+      let value = network.routeBias![action]!;
+      const offset = action * nodeCount;
+      for (let node = 0; node < nodeCount; node += 1) {
+        value += network.routeWeights![offset + node]! * activity[node]!;
+      }
+      return sigmoid(value);
+    });
+    logits = baseLogits.map((value, action) => (
+      value
+      - network.safetyGain! * risk![action]!
+      + network.routeGain! * route![action]!
+    ));
+  }
+
   if (!activity.every(Number.isFinite) || !logits.every(Number.isFinite)) {
     throw Error('Fixed graph inference produced non-finite values.');
   }
-  return { logits, activity };
+  return { logits, activity, ...(risk ? { risk } : {}), ...(route ? { route } : {}) };
 }

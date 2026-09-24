@@ -11,44 +11,44 @@
   ],
   "steps": [
     {
-      "reward": 0.99,
+      "reward": 0.34,
       "score": 1,
       "terminalReason": null
     },
     {
-      "reward": 0.99,
+      "reward": 0.34,
       "score": 2,
       "terminalReason": null
     },
     {
-      "reward": -0.11,
+      "reward": -0.01,
       "score": 2,
       "terminalReason": null
     },
     {
-      "reward": -0.11,
+      "reward": -0.04,
       "score": 2,
       "terminalReason": null
     },
     {
-      "reward": -0.11,
+      "reward": -0.01,
       "score": 2,
       "terminalReason": null
     },
     {
-      "reward": -0.11,
+      "reward": -0.01,
       "score": 2,
       "terminalReason": null
     }
   ],
   "expectedScore": 2,
   "rewards": [
-    0.99,
-    0.99,
-    -0.11,
-    -0.11,
-    -0.11,
-    -0.11
+    0.34,
+    0.34,
+    -0.01,
+    -0.04,
+    -0.01,
+    -0.01
   ],
   "terminalReason": null
 }

@@ -5,36 +5,44 @@
     {
       "update": 1,
       "totalSteps": 64,
-      "policyLoss": -0.001251362031325698,
-      "valueLoss": 11.15432333946228,
-      "entropy": 1.5991506576538086,
-      "approximateKl": 2.9961345717310905e-05,
+      "policyLoss": 0.001073214691132307,
+      "valueLoss": 4.676304221153259,
+      "entropy": 1.5958136916160583,
+      "approximateKl": 0.00015178206376731396,
       "trafficPredictionLoss": 0.0,
-      "episodesCompleted": 2,
-      "meanEpisodeReturn": -10.26
+      "episodesCompleted": 3,
+      "meanEpisodeReturn": -5.203333333333333
     }
   ],
   "episodes": [
     {
       "episode": 1,
       "environment": 0,
-      "return": -11.41,
-      "length": 11,
+      "return": -5.32,
+      "length": 17,
       "score": 0.0,
       "terminalReason": "vehicle"
     },
     {
       "episode": 2,
       "environment": 0,
-      "return": -9.11,
-      "length": 21,
-      "score": 3.0,
-      "terminalReason": "water"
+      "return": -5.02,
+      "length": 22,
+      "score": 1.0,
+      "terminalReason": "vehicle"
+    },
+    {
+      "episode": 3,
+      "environment": 0,
+      "return": -5.27,
+      "length": 15,
+      "score": 0.0,
+      "terminalReason": "vehicle"
     }
   ],
   "summary": {
-    "episodesCompleted": 2,
-    "meanEpisodeReturn": -10.26,
-    "bestScore": 3.0
+    "episodesCompleted": 3,
+    "meanEpisodeReturn": -5.203333333333333,
+    "bestScore": 1.0
   }
 }

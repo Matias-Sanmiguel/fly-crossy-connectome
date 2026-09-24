@@ -39,7 +39,7 @@ export function parseBundledConnectomePolicy(
     throw Error('Bundled autoplay policy must provide mapped reduced-connectome activity.');
   }
   if (policy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
-    throw Error('Bundled autoplay policy input shape does not match ObservationV3.');
+    throw Error('Bundled autoplay policy input shape does not match ObservationV4.');
   }
   if (policy.observationVersion !== OBSERVATION_VERSION) {
     throw Error('Bundled autoplay policy observation version does not match the current environment.');
@@ -168,9 +168,19 @@ export function createFixedGraphPolicyController(policy: ExportedPolicyV1): Cont
       for (let index = 1; index < result.logits.length; index += 1) {
         if (result.logits[index]! > result.logits[selected]!) selected = index;
       }
-      const diagnostics = Object.fromEntries(
+      const diagnostics: Record<string, number> = Object.fromEntries(
         POLICY_ACTIONS.map((action, index) => [`logit.${action}`, result.logits[index]!] as const),
       );
+      if (result.risk) {
+        POLICY_ACTIONS.forEach((action, index) => {
+          diagnostics[`risk.${action}`] = result.risk![index]!;
+        });
+      }
+      if (result.route) {
+        POLICY_ACTIONS.forEach((action, index) => {
+          diagnostics[`route.${action}`] = result.route![index]!;
+        });
+      }
       const activity = policy.activityBodyIds.map((bodyId, index): [number, number] => [
         bodyId,
         Math.max(0, Math.min(1, (result.activity[index]! + 1) / 2)),

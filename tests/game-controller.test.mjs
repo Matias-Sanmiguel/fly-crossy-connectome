@@ -81,10 +81,10 @@ test('scripted controller returns actions in order without invented neural activ
 
 test('dense policy chooses the maximum logit using the canonical observation encoding', async () => {
   const observation = observe(createGame('dense'));
-  const inputSize = 492;
+  const inputSize = 517;
   const policy = {
     version: 1,
-    observationVersion: 3,
+    observationVersion: 4,
     actions: ['forward', 'backward', 'left', 'right', 'wait'],
     source: { kind: 'predicted', name: 'Dense fixture', normalization: 'No activity values' },
     network: {
@@ -108,10 +108,10 @@ test('dense policy chooses the maximum logit using the canonical observation enc
 
 test('fixed graph controller persists recurrence and resets simulated activity', async () => {
   const observation = observe(createGame('fixed'));
-  const inputSize = 492;
+  const inputSize = 517;
   const policy = {
     version: 1,
-    observationVersion: 3,
+    observationVersion: 4,
     actions: ['forward', 'backward', 'left', 'right', 'wait'],
     source: { kind: 'predicted', name: 'Fixed fixture', normalization: 'tanh mapped to [0, 1]' },
     network: {
@@ -137,7 +137,7 @@ test('fixed graph controller persists recurrence and resets simulated activity',
   assert.deepEqual((await controller.decide(observation, signal())).activity, first.activity);
 });
 
-test('historical v6 bundled policy is rejected by the v7 ObservationV3 contract', async () => {
+test('historical v6 bundled policy is rejected by the current ObservationV4 contract', async () => {
   const raw = JSON.parse(await readFile(
     new URL('../public/models/reduced-connectome-policy-v6.json', import.meta.url),
     'utf8',
@@ -147,12 +147,12 @@ test('historical v6 bundled policy is rejected by the v7 ObservationV3 contract'
   assert.equal(controllerRuntime.BUNDLED_CONNECTOME_POLICY_PATH, null);
   assert.throws(
     () => controllerRuntime.parseBundledConnectomePolicy(raw, visibleIds),
-    /observation version/i,
+    /observation version|input shape/i,
   );
 });
 
 
-test('connectome safety reflex vetoes an immediately terminal proposal using safe logits', () => {
+test('connectome safety reflex leaves terminal traffic decisions to the model', () => {
   const base = createGame('reflex-terminal-v1');
   const state = {
     ...base,
@@ -185,9 +185,9 @@ test('connectome safety reflex vetoes an immediately terminal proposal using saf
 
   const result = applyConnectomeSafetyReflex(state, decision, 0);
 
-  assert.equal(result.decision.action, 'right');
-  assert.equal(result.decision.diagnostics['reflex.applied'], 1);
-  assert.equal(result.decision.diagnostics['reflex.terminalVeto'], 1);
+  assert.equal(result.decision.action, 'forward');
+  assert.equal(result.decision.diagnostics['reflex.applied'], 0);
+  assert.equal(result.decision.diagnostics['reflex.terminalVeto'], 0);
   assert.equal(result.decision.diagnostics['reflex.stagnationOverride'], 0);
   assert.deepEqual(result.decision.activity, decision.activity);
 });
@@ -223,7 +223,7 @@ test('connectome safety reflex does not invent a rescue when every safe action l
   assert.equal(result.decision.diagnostics['reflex.applied'], 0);
 });
 
-test('connectome safety reflex forces safe forward only after the bounded stagnation threshold', () => {
+test('connectome safety reflex does not invent forward progress after stagnation', () => {
   const base = createGame('reflex-stagnation-v1');
   const state = {
     ...base,
@@ -259,10 +259,10 @@ test('connectome safety reflex forces safe forward only after the bounded stagna
   );
 
   assert.equal(before.decision.action, 'wait');
-  assert.equal(atThreshold.decision.action, 'forward');
+  assert.equal(atThreshold.decision.action, 'wait');
   assert.equal(atThreshold.decision.diagnostics['reflex.terminalVeto'], 0);
-  assert.equal(atThreshold.decision.diagnostics['reflex.stagnationOverride'], 1);
-  assert.equal(atThreshold.nextNoProgressSteps, 0);
+  assert.equal(atThreshold.decision.diagnostics['reflex.stagnationOverride'], 0);
+  assert.equal(atThreshold.nextNoProgressSteps, SAFETY_REFLEX_STAGNATION_STEPS + 1);
 });
 
 test('autoplay episode seeds change without growing beyond the seed contract', () => {

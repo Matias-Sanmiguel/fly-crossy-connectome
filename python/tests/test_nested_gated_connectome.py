@@ -32,7 +32,7 @@ def test_gated_nested_parameter_count_and_initial_strength_are_capacity_invarian
         capacity, core, OBSERVATION_INPUT_SIZE, len(ACTION_ORDER)
     )
 
-    assert _parameter_count(model_80) == _parameter_count(model_1k) == 15849
+    assert _parameter_count(model_80) == _parameter_count(model_1k) == 16649
     assert float(model_80.expansion_strength().detach()) == pytest.approx(0.1)
     assert float(model_1k.expansion_strength().detach()) == pytest.approx(0.1)
 

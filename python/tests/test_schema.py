@@ -44,8 +44,8 @@ def test_flatten_observation_v3_matches_browser_encoding_order() -> None:
 
     assert OBSERVATION_VERSION == 3
     assert observation.version == 3
-    assert OBSERVATION_INPUT_SIZE == 492
-    assert encoded.shape == (492,)
+    assert OBSERVATION_INPUT_SIZE == 517
+    assert encoded.shape == (517,)
     assert encoded.dtype == np.float32
     assert encoded[0] == pytest.approx(1.0)
     assert encoded[121:125].tolist() == pytest.approx(
@@ -82,7 +82,7 @@ def test_flatten_observation_rejects_wrong_shape_or_nonfinite_values() -> None:
         signed_column=float("nan"),
     )
 
-    with pytest.raises(ValueError, match="492 finite values"):
+    with pytest.raises(ValueError, match="517 finite values"):
         flatten_observation(malformed)
-    with pytest.raises(ValueError, match="492 finite values"):
+    with pytest.raises(ValueError, match="517 finite values"):
         flatten_observation(nonfinite)

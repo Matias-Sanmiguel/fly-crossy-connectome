@@ -67,7 +67,7 @@ def test_export_contains_provenance_and_finite_row_major_weights(tmp_path: Path)
     payload = export_policy(checkpoint, output)
 
     assert payload["version"] == 1
-    assert payload["observationVersion"] == 3
+    assert payload["observationVersion"] == 4
     assert payload["actions"] == [action.value for action in ACTION_ORDER]
     assert payload["source"]["kind"] == "predicted"
     assert payload["source"]["checkpointHash"] == hashlib.sha256(

@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 9
+WORLD_VERSION = 10
 WORLD_LAYOUT_VERSION = 6
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
@@ -28,10 +28,11 @@ ROWS_AHEAD = 15
 ROWS_BEHIND = 8
 TRAIN_WARNING_SECONDS = 1.2
 
-PROGRESS_REWARD = 1
-TERMINAL_PENALTY = -10
+PROGRESS_REWARD = 0.35
+TERMINAL_PENALTY = -5.0
 STEP_COST = -0.01
-STAGNATION_COST = -0.10
+STAGNATION_COST = 0.0
+WAIT_COST = -0.03
 BLOCKED_COST = -0.10
 
 LaneKind = Literal["grass", "road", "rail", "river"]
@@ -691,10 +692,10 @@ def _reward(
         and any(event.get("type") == "carried" for event in events)
     )
 
-    stagnation = (
-        STAGNATION_COST
+    waiting = (
+        WAIT_COST
         if (
-            next_state.score <= previous.score
+            next_state.previous_action == Action.WAIT
             and not productive_carry
         )
         else 0
@@ -708,7 +709,7 @@ def _reward(
         progress
         + terminal
         + STEP_COST
-        + stagnation
+        + waiting
         + blocked
     )
 
@@ -782,6 +783,89 @@ def _js_round(value: float) -> int:
     return math.floor(value + 0.5)
 
 
+
+TRAFFIC_RADAR_ROWS = 5
+TRAFFIC_RADAR_HORIZON_SECONDS = 2.0
+
+
+def _time_to_hazard_contact(
+    lane: Lane,
+    hazard: Hazard,
+    column: float,
+    time: float,
+) -> float:
+    speed = float(lane.speed or 0)
+    direction = int(lane.direction or 0)
+    if speed <= 0 or direction == 0:
+        return math.inf
+    if hazard_contains(lane, hazard, column, time):
+        return 0.0
+
+    center = hazard_position_at(lane, hazard, time)
+    circuit = TRAIN_CIRCUIT if hazard.kind == "train" else HAZARD_CIRCUIT
+    half_size = hazard.size / 2
+    along_motion = (direction * (column - center)) % circuit
+    return max(0.0, along_motion - half_size) / speed
+
+
+def traffic_radar(state: GameState) -> list[list[float]]:
+    """Long-range present-state traffic sensing for current row + four ahead.
+
+    Per row:
+      lane_code/8, signed_speed, TTC(left), TTC(center), TTC(right)
+
+    TTC is normalized to [0, 1]; 0 means contact now, 1 means no contact
+    inside the 2-second horizon. The full periodic traffic circuit is visible,
+    not only the playable +/-5 columns.
+    """
+    anchor_column = _js_round(state.fly.column)
+    result: list[list[float]] = []
+    lane_encoding: dict[LaneKind, int] = {
+        "grass": 1,
+        "road": 2,
+        "rail": 3,
+        "river": 4,
+    }
+
+    for row_offset in range(TRAFFIC_RADAR_ROWS):
+        lane = _lane_for(state, state.fly.row + row_offset)
+        if lane.kind in ("road", "rail"):
+            scale = 12.0 if lane.kind == "rail" else 5.0
+            signed_speed = float(lane.direction or 0) * min(
+                1.0, float(lane.speed or 0) / scale
+            )
+        else:
+            signed_speed = 0.0
+
+        ttc_values: list[float] = []
+        for column_offset in (-1, 0, 1):
+            column = anchor_column + column_offset
+            if abs(column) > WORLD_HALF_WIDTH:
+                ttc_values.append(0.0)
+                continue
+            if lane.kind not in ("road", "rail"):
+                ttc_values.append(1.0)
+                continue
+            contact = min(
+                (
+                    _time_to_hazard_contact(lane, hazard, column, state.time)
+                    for hazard in lane.hazards
+                    if hazard.kind in ("car", "truck", "train")
+                ),
+                default=math.inf,
+            )
+            ttc_values.append(
+                max(0.0, min(1.0, contact / TRAFFIC_RADAR_HORIZON_SECONDS))
+            )
+
+        result.append([
+            lane_encoding[lane.kind] / 8.0,
+            signed_speed,
+            *ttc_values,
+        ])
+
+    return result
+
 def observe(state: GameState) -> ObservationV1:
     size = OBSERVATION_RADIUS * 2 + 1
     anchor_column = _js_round(state.fly.column)
@@ -836,6 +920,7 @@ def observe(state: GameState) -> ObservationV1:
         previous_action=state.previous_action,
         edge_distance=edge_distance,
         signed_column=signed_column,
+        traffic=traffic_radar(state),
     )
 
 

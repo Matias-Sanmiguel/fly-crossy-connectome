@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "observationVersion": 3,
+  "observationVersion": 4,
   "actions": [
     "forward",
     "backward",
@@ -11,8 +11,8 @@
   "source": {
     "kind": "predicted",
     "name": "Reduced MaleCNS fixed-graph PPO controller",
-    "normalization": "ObservationV3 uses the declared 492-value encoding with explicit blocker cells, hazard-speed/sub-cell phase, and signed lateral position; raw tanh node activity is mapped as (activity + 1) / 2 for atlas display",
-    "checkpointHash": "bbc020cc32f15fa0b5330d604a413fb85dd6a40b11f4d258faf132b34a3c267c",
+    "normalization": "ObservationV4 uses the declared 517-value encoding with long-range traffic radar and explicit blocker cells, hazard-speed/sub-cell phase, and signed lateral position; raw tanh node activity is mapped as (activity + 1) / 2 for atlas display",
+    "checkpointHash": "ffad396cfa1386663673d7d209473b5030af0312bca79b398d4bf918df060cc8",
     "datasetVersion": "Fixture v1",
     "sourceUrl": "https://example.test/fixture",
     "license": "CC BY 4.0",

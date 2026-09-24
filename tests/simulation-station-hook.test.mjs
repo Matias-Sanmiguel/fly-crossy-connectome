@@ -64,7 +64,7 @@ test(
 
     assert.equal(
       observation.observation.length,
-      370,
+      517,
     );
 
     assert.ok(

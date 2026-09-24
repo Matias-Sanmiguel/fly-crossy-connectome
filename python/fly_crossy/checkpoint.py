@@ -215,13 +215,14 @@ def validate_checkpoint(
             "legacy",
             "population",
             "population-wide-predictive",
+            "controller-v2",
             "nested",
             "nested-gated",
             "nested-feedback",
         ):
             raise ValueError(
                 "Checkpoint connectome interface must be legacy, population, "
-                "population-wide-predictive, nested, nested-gated, "
+                "population-wide-predictive, controller-v2, nested, nested-gated, "
                 "or nested-feedback."
             )
 
@@ -252,6 +253,14 @@ def validate_checkpoint(
                 "critic.weight": (1, readout_count),
                 "critic.bias": (1,),
             }
+            if connectome_interface == "controller-v2":
+                expected_shapes = {
+                    **expected_shapes,
+                    "risk_head.weight": (actions, readout_count),
+                    "risk_head.bias": (actions,),
+                    "route_head.weight": (actions, readout_count),
+                    "route_head.bias": (actions,),
+                }
 
             if connectome_interface in ("nested", "nested-gated", "nested-feedback"):
                 core_graph_value = model.get("core_graph")

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 9,
+  "environmentVersion": 10,
   "configuration": {
     "controller": "conventional",
     "seed": "deterministic-runtime-test",
@@ -16,13 +16,14 @@
       "deterministic-runtime-test:0:0"
     ],
     "reward": {
-      "version": 4,
-      "progress": 1,
-      "terminal": -10,
+      "version": 5,
+      "progress": 0.35,
+      "terminal": -5.0,
       "step": -0.01,
-      "stagnation": -0.1,
+      "stagnation": 0.0,
+      "wait": -0.03,
       "blocked": -0.1,
-      "supportedCarryStagnationExempt": true
+      "supportedCarryWaitExempt": true
     },
     "recurrentTraining": null,
     "predictiveAuxiliary": null,
@@ -36,7 +37,7 @@
   },
   "checkpoint": {
     "path": "checkpoint.pt",
-    "sha256": "51ac8c91b904aef27ff2fc397f7760442a9e72151d636240368614092eb43451"
+    "sha256": "7f61ec75288db2fbd9b056530c4e14fa20fb2952be78cab44a78fc71976e9af5"
   },
   "policy": {
     "path": "policy.json"

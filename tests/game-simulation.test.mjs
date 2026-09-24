@@ -211,7 +211,7 @@ test('world rows extend ahead, retain future rows, and prune only far behind', (
 });
 
 test(
-  'reward combines progress, time, stagnation, and terminal costs',
+  'reward v5 combines progress, time, wait, and terminal costs',
   () => {
     const previous = stateWith({
       fly: { row: 0, column: 0 },
@@ -241,17 +241,17 @@ test(
 
     assert.equal(
       reward(previous, progress),
-      1.99,
+      0.69,
     );
 
     assert.equal(
       reward(progress, stagnant),
-      -0.11,
+      -0.04,
     );
 
     assert.equal(
       reward(stagnant, terminal),
-      -10.11,
+      -5.04,
     );
   },
 );

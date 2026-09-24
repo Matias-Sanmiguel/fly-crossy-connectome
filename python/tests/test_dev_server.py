@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_dev_server_is_fail_closed_until_v9_release_and_preserves_history() -> None:
-    assert WORLD_VERSION == 9
+    assert WORLD_VERSION == 10
 
     assert LEGACY_CHECKPOINT_PATH == (
         ROOT / "release/eval-v1/training/connectome/checkpoint.pt"
@@ -37,7 +37,7 @@ def test_dev_server_is_fail_closed_until_v9_release_and_preserves_history() -> N
     assert saved_v7["environment_version"] == 7
 
     assert CHECKPOINT_PATH == (
-        ROOT / "release/eval-v9/training/connectome/checkpoint.pt"
+        ROOT / "release/eval-v10/training/connectome/checkpoint.pt"
     )
     assert not CHECKPOINT_PATH.exists()
     assert controller is None

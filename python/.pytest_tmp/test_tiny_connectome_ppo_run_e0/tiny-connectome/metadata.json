@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 9,
+  "environmentVersion": 10,
   "configuration": {
     "controller": "connectome",
     "seed": "tiny-connectome-test",
@@ -17,13 +17,14 @@
       "tiny-connectome-test:0:1"
     ],
     "reward": {
-      "version": 4,
-      "progress": 1,
-      "terminal": -10,
+      "version": 5,
+      "progress": 0.35,
+      "terminal": -5.0,
       "step": -0.01,
-      "stagnation": -0.1,
+      "stagnation": 0.0,
+      "wait": -0.03,
       "blocked": -0.1,
-      "supportedCarryStagnationExempt": true
+      "supportedCarryWaitExempt": true
     },
     "recurrentTraining": "sequence-bptt-v1",
     "predictiveAuxiliary": null,
@@ -39,7 +40,7 @@
   },
   "checkpoint": {
     "path": "checkpoint.pt",
-    "sha256": "ab43a0c055d8156ede9bd30b62eb5ee6a00144da460beb2d1ccfa749becc08be"
+    "sha256": "cea5c8ad7ab1d60adf33d5e46dbb754b99edf33d3fff268fc9975b6b2b21912e"
   },
   "policy": {
     "path": "policy.json"

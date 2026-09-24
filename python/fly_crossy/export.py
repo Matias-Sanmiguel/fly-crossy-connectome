@@ -19,6 +19,7 @@ from .models import (
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
     PopulationFixedGraphPolicy,
+    TrafficAwarePopulationPolicy,
 )
 from .schema import ACTION_ORDER, OBSERVATION_VERSION
 
@@ -103,6 +104,26 @@ def _load_population_fixed_graph_policy(
         ) from error
     return model
 
+
+
+def _load_traffic_aware_policy(
+    graph: ReducedGraphArtifact,
+    observation_size: int,
+    actions: int,
+    state_dict: Mapping[str, Tensor],
+) -> TrafficAwarePopulationPolicy:
+    try:
+        model = TrafficAwarePopulationPolicy(
+            graph=graph,
+            observation_size=observation_size,
+            actions=actions,
+        )
+        model.load_state_dict(state_dict)
+    except (KeyError, TypeError, ValueError, RuntimeError) as error:
+        raise ValueError(
+            "Checkpoint contains an incompatible Controller V2 policy."
+        ) from error
+    return model
 
 
 def _load_nested_fixed_graph_policy(
@@ -219,6 +240,13 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 checkpoint_metadata.actions,
                 state_dict,
             )
+        elif checkpoint_metadata.connectome_interface == "controller-v2":
+            model = _load_traffic_aware_policy(
+                graph,
+                checkpoint_metadata.observation_size,
+                checkpoint_metadata.actions,
+                state_dict,
+            )
         elif checkpoint_metadata.connectome_interface in (
             "population",
             "population-wide-predictive",
@@ -250,13 +278,13 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         raise ValueError("Checkpoint actor does not match the canonical action order.")
 
     checkpoint_hash = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
-    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy)):
+    if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, TrafficAwarePopulationPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
         graph = model.graph
         source: dict[str, Any] = {
             "kind": "predicted",
             "name": "Reduced MaleCNS fixed-graph PPO controller",
             "normalization": (
-                "ObservationV3 uses the declared 492-value encoding with explicit "
+                "ObservationV4 uses the declared 517-value encoding with long-range traffic radar and explicit "
                 "blocker cells, hazard-speed/sub-cell phase, and signed lateral position; raw tanh node activity is "
                 "mapped as (activity + 1) / 2 for atlas display"
             ),
@@ -303,7 +331,9 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 model.readout_indices.detach().cpu(),
                 model.actor.weight.detach().cpu(),
             )
-            if isinstance(model, FeedbackNestedPopulationFixedGraphPolicy):
+            if isinstance(model, TrafficAwarePopulationPolicy):
+                interface_mode = "controller-v2"
+            elif isinstance(model, FeedbackNestedPopulationFixedGraphPolicy):
                 interface_mode = "nested-feedback"
             elif isinstance(model, GatedNestedPopulationFixedGraphPolicy):
                 interface_mode = "nested-gated"
@@ -357,6 +387,45 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             "actorWeights": _finite_row_major(actor_weights, "actor weights"),
             "actorBias": _finite_row_major(model.actor.bias, "actor bias"),
         }
+        if isinstance(model, TrafficAwarePopulationPolicy):
+            risk_weights = torch.zeros(
+                model.risk_head.out_features,
+                graph.node_count,
+                dtype=model.risk_head.weight.dtype,
+            )
+            route_weights = torch.zeros(
+                model.route_head.out_features,
+                graph.node_count,
+                dtype=model.route_head.weight.dtype,
+            )
+            risk_weights.index_copy_(
+                1,
+                model.readout_indices.detach().cpu(),
+                model.risk_head.weight.detach().cpu(),
+            )
+            route_weights.index_copy_(
+                1,
+                model.readout_indices.detach().cpu(),
+                model.route_head.weight.detach().cpu(),
+            )
+            network.update(
+                {
+                    "riskWeights": _finite_row_major(
+                        risk_weights, "Controller V2 risk weights"
+                    ),
+                    "riskBias": _finite_row_major(
+                        model.risk_head.bias, "Controller V2 risk bias"
+                    ),
+                    "routeWeights": _finite_row_major(
+                        route_weights, "Controller V2 route weights"
+                    ),
+                    "routeBias": _finite_row_major(
+                        model.route_head.bias, "Controller V2 route bias"
+                    ),
+                    "safetyGain": model.SAFETY_GAIN,
+                    "routeGain": model.ROUTE_GAIN,
+                }
+            )
         activity_body_ids = [int(item) for item in graph.body_ids]
     else:
         source = {

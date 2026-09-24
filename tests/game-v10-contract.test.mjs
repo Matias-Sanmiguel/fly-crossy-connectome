@@ -11,8 +11,8 @@ import {
   generateRows,
 } from '../src/game/world.ts';
 
-test('v9 changes only the observation contract and preserves the v6 world layout', () => {
-  assert.equal(WORLD_VERSION, 9);
+test('v10 changes only the observation contract and preserves the v6 world layout', () => {
+  assert.equal(WORLD_VERSION, 10);
   assert.equal(WORLD_LAYOUT_VERSION, 6);
 
   const fixture = JSON.parse(readFileSync(
@@ -28,23 +28,23 @@ test('v9 changes only the observation contract and preserves the v6 world layout
   }
 });
 
-test('ObservationV3 exposes signed lateral position and 492 values', () => {
+test('ObservationV4 exposes signed lateral position and 517 values', () => {
   const state = {
-    ...createGame('v9-position-contract'),
+    ...createGame('v10-position-contract'),
     fly: { row: 0, column: 3 },
   };
   const observation = observe(state);
 
   assert.equal(observation.version, OBSERVATION_VERSION);
-  assert.equal(observation.version, 3);
+  assert.equal(observation.version, 4);
   assert.equal(observation.signedColumn, 0.6);
   assert.equal(observation.edgeDistance, 0.4);
-  assert.equal(encodeObservation(observation).length, 492);
+  assert.equal(encodeObservation(observation).length, 517);
 });
 
-test('ObservationV3 exposes continuous sub-cell hazard phase without future information', () => {
+test('ObservationV4 exposes continuous sub-cell hazard phase without future information', () => {
   const state = {
-    ...createGame('v9-hazard-offset'),
+    ...createGame('v10-hazard-offset'),
     fly: { row: 2, column: 0 },
     score: 2,
     time: 0,
@@ -69,12 +69,12 @@ test('ObservationV3 exposes continuous sub-cell hazard phase without future info
   assert.deepEqual(observation.motion[6][5], [1, 0.2]);
 });
 
-test('Reward v4 remains unchanged in environment v9', () => {
-  const waiting = stepGame(createGame('v9-wait-cost'), 'wait');
-  assert.equal(waiting.reward, -0.11);
+test('Reward v5 distinguishes waiting from navigation in environment v10', () => {
+  const waiting = stepGame(createGame('v10-wait-cost'), 'wait');
+  assert.equal(waiting.reward, -0.04);
 
   const carriedState = {
-    ...createGame('v9-safe-carry'),
+    ...createGame('v10-safe-carry'),
     fly: { row: 3, column: 0 },
     score: 3,
     lanes: [{

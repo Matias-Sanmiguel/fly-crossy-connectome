@@ -28,8 +28,8 @@ from fly_crossy.schema import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_v9_preserves_v6_world_layout_fixture() -> None:
-    assert WORLD_VERSION == 9
+def test_v10_preserves_v6_world_layout_fixture() -> None:
+    assert WORLD_VERSION == 10
     assert WORLD_LAYOUT_VERSION == 6
 
     fixture = json.loads(
@@ -59,8 +59,8 @@ def test_v9_preserves_v6_world_layout_fixture() -> None:
         ] == case["rows"]
 
 
-def test_observation_v3_has_signed_position_and_492_values() -> None:
-    state = create_game("v9-position-contract")
+def test_observation_v3_has_signed_position_and_517_values() -> None:
+    state = create_game("v10-position-contract")
     state = GameState(
         version=WORLD_VERSION,
         seed=state.seed,
@@ -75,19 +75,19 @@ def test_observation_v3_has_signed_position_and_492_values() -> None:
     observation = observe(state)
     encoded = flatten_observation(observation)
 
-    assert OBSERVATION_VERSION == 3
-    assert observation.version == 3
-    assert OBSERVATION_INPUT_SIZE == 492
+    assert OBSERVATION_VERSION == 4
+    assert observation.version == 4
+    assert OBSERVATION_INPUT_SIZE == 517
     assert observation.signed_column == pytest.approx(0.6)
     assert observation.edge_distance == pytest.approx(0.4)
-    assert encoded.shape == (492,)
+    assert encoded.shape == (517,)
     assert encoded[-1] == pytest.approx(0.6)
 
 
 def test_observation_v3_exposes_continuous_hazard_offset() -> None:
     state = GameState(
         version=WORLD_VERSION,
-        seed="v9-hazard-offset",
+        seed="v10-hazard-offset",
         step=0,
         time=0,
         fly=GridPosition(row=2, column=0),
@@ -115,13 +115,13 @@ def test_observation_v3_exposes_continuous_hazard_offset() -> None:
     assert observation.motion[6][5] == pytest.approx([1.0, 0.2])
 
 
-def test_reward_v4_remains_unchanged_in_environment_v9() -> None:
-    waiting = step_game(create_game("v9-wait-cost"), Action.WAIT)
+def test_reward_v4_remains_unchanged_in_environment_v10() -> None:
+    waiting = step_game(create_game("v10-wait-cost"), Action.WAIT)
     assert waiting.reward == pytest.approx(-0.11)
 
     carried_state = GameState(
         version=WORLD_VERSION,
-        seed="v9-safe-carry",
+        seed="v10-safe-carry",
         step=0,
         time=0,
         fly=GridPosition(row=3, column=0),

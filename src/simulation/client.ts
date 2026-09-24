@@ -150,8 +150,8 @@ function validateConfiguration(value: SimulationConfiguration): SimulationConfig
 }
 
 function validateObservation(value: SimulationObservation): SimulationObservation {
-  if (!Array.isArray(value.observation) || value.observation.length !== 492) {
-    throw Error('Simulation observation must contain exactly 492 values.');
+  if (!Array.isArray(value.observation) || value.observation.length !== 517) {
+    throw Error('Simulation observation must contain exactly 517 values.');
   }
   return {
     gameStep: integer(value.gameStep, 'game step', 0, MAX_SEQUENCE),

@@ -5,10 +5,10 @@
     {
       "update": 1,
       "totalSteps": 4,
-      "policyLoss": -0.005903512239456177,
-      "valueLoss": 0.2804458662867546,
-      "entropy": 1.6001475751399994,
-      "approximateKl": 7.998943328857422e-05,
+      "policyLoss": -0.012043774127960205,
+      "valueLoss": 0.0824533961713314,
+      "entropy": 1.5985181033611298,
+      "approximateKl": 0.00022057443857192993,
       "trafficPredictionLoss": 0.0,
       "episodesCompleted": 0,
       "meanEpisodeReturn": 0.0

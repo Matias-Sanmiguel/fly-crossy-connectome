@@ -1,13 +1,14 @@
-import { WORLD_HALF_WIDTH, hazardContains, hazardPositionAt } from './simulation.ts';
+import { HAZARD_CIRCUIT, WORLD_HALF_WIDTH, hazardContains, hazardPositionAt } from './simulation.ts';
+import { TRAIN_CIRCUIT } from './transition.ts';
 import type { GameState } from './simulation.ts';
 import { isSceneryBlocked } from './scenery.ts';
 import type { Action, Hazard, Lane, LaneKind } from './types.ts';
 
-export const OBSERVATION_VERSION = 3 as const;
+export const OBSERVATION_VERSION = 4 as const;
 
-/** ObservationV3; legacy type name is retained to avoid protocol churn. */
+/** ObservationV4; legacy type name is retained to avoid protocol churn. */
 export type ObservationV1 = {
-  version: 3;
+  version: 4;
   radius: 5;
   cells: number[][];
   motion: number[][][];
@@ -16,6 +17,7 @@ export type ObservationV1 = {
   previousAction: Action;
   edgeDistance: number;
   signedColumn: number;
+  traffic: number[][];
 };
 
 export const OBSERVATION_RADIUS = 5;
@@ -73,6 +75,61 @@ function isRiverSupported(state: GameState): boolean {
   return lane?.kind === 'river' && lane.hazards.some((hazard) => (
     hazard.kind === 'log' && hazardContains(lane, hazard, state.fly.column, state.time)
   ));
+}
+
+
+export const TRAFFIC_RADAR_ROWS = 5;
+export const TRAFFIC_RADAR_HORIZON_SECONDS = 2;
+
+function positiveModulo(value: number, modulus: number): number {
+  return ((value % modulus) + modulus) % modulus;
+}
+
+function timeToHazardContact(
+  lane: Lane,
+  hazard: Hazard,
+  column: number,
+  time: number,
+): number {
+  const speed = lane.speed ?? 0;
+  const direction = lane.direction ?? 0;
+  if (speed <= 0 || direction === 0) return Number.POSITIVE_INFINITY;
+  if (hazardContains(lane, hazard, column, time)) return 0;
+
+  const center = hazardPositionAt(lane, hazard, time);
+  const circuit = hazard.kind === 'train' ? TRAIN_CIRCUIT : HAZARD_CIRCUIT;
+  const alongMotion = positiveModulo(direction * (column - center), circuit);
+  return Math.max(0, alongMotion - hazard.size / 2) / speed;
+}
+
+export function trafficRadar(state: GameState): number[][] {
+  const anchorColumn = Math.round(state.fly.column);
+  const lanes = new Map(state.lanes.map((lane) => [lane.row, lane]));
+
+  return Array.from({ length: TRAFFIC_RADAR_ROWS }, (_, rowOffset) => {
+    const lane = lanes.get(state.fly.row + rowOffset);
+    if (!lane) return [0, 0, 1, 1, 1];
+
+    const scale = lane.kind === 'rail' ? 12 : 5;
+    const signedSpeed = lane.kind === 'road' || lane.kind === 'rail'
+      ? (lane.direction ?? 0) * Math.min(1, (lane.speed ?? 0) / scale)
+      : 0;
+
+    const ttc = [-1, 0, 1].map((columnOffset) => {
+      const column = anchorColumn + columnOffset;
+      if (Math.abs(column) > WORLD_HALF_WIDTH) return 0;
+      if (lane.kind !== 'road' && lane.kind !== 'rail') return 1;
+
+      let contact = Number.POSITIVE_INFINITY;
+      for (const hazard of lane.hazards) {
+        if (hazard.kind !== 'car' && hazard.kind !== 'truck' && hazard.kind !== 'train') continue;
+        contact = Math.min(contact, timeToHazardContact(lane, hazard, column, state.time));
+      }
+      return Math.max(0, Math.min(1, contact / TRAFFIC_RADAR_HORIZON_SECONDS));
+    });
+
+    return [laneEncoding[lane.kind] / 8, signedSpeed, ...ttc];
+  });
 }
 
 /** Encode a bounded egocentric snapshot with no rows or columns outside radius five. */
@@ -137,5 +194,6 @@ export function observe(state: GameState): ObservationV1 {
     previousAction: state.previousAction ?? 'wait',
     edgeDistance,
     signedColumn,
+    traffic: trafficRadar(state),
   };
 }

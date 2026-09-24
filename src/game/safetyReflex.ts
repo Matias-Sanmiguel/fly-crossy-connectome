@@ -109,150 +109,50 @@ export function applyConnectomeSafetyReflex(
   if (!Number.isSafeInteger(noProgressSteps) || noProgressSteps < 0) {
     throw Error('Safety reflex no-progress counter must be a non-negative integer.');
   }
-  if (state.terminal !== null) {
-    return { decision, nextNoProgressSteps: 0 };
-  }
+  if (state.terminal !== null) return { decision, nextNoProgressSteps: 0 };
 
-  const outcomes = new Map<Action, StepResult>();
-  for (const action of ACTION_ORDER) outcomes.set(action, stepGame(state, action));
-
-  const proposedAction = decision.action;
-  const proposedResult = outcomes.get(proposedAction)!;
-  const viableActions = ACTION_ORDER.filter((action) => (
-    action === 'wait'
-      ? outcomes.get(action)!.state.terminal === null
-      : viableMovement(state, outcomes.get(action)!)
-  ));
-  const viableMovingActions = ACTION_ORDER.filter(
-    (action) => action !== 'wait' && viableMovement(state, outcomes.get(action)!),
-  );
-
-  let executedAction = proposedAction;
-  let terminalVeto = false;
+  const proposedResult = stepGame(state, decision.action);
+  let executedAction = decision.action;
   let blockedVeto = false;
-  let sceneryBypass = false;
-  let edgeCorrection = false;
-  let stagnationOverride = false;
 
-  // Immediate death veto. The replacement still comes from the connectome logits.
-  if (proposedResult.state.terminal !== null && viableActions.length > 0) {
-    const safeChoice = highestLogitAction(decision, viableActions);
-    if (safeChoice !== null) {
-      executedAction = safeChoice;
-      terminalVeto = executedAction !== proposedAction;
+  // V10: this layer is not allowed to make traffic/navigation decisions.
+  if (decision.action !== 'wait' && isBlocked(proposedResult)) {
+    const outcomes = new Map<Action, StepResult>();
+    for (const action of ACTION_ORDER) outcomes.set(action, stepGame(state, action));
+    const viable = ACTION_ORDER.filter((action) => (
+      action !== 'wait'
+      && viableMovement(state, outcomes.get(action)!)
+      && !isBlocked(outcomes.get(action)!)
+    ));
+    const replacement = highestLogitAction(decision, viable);
+    if (replacement !== null) {
+      executedAction = replacement;
+      blockedVeto = replacement !== decision.action;
     }
   }
 
-  // A blocked movement is not useful progress. Prefer a lateral bypass that
-  // actually opens a forward cell; otherwise use the best viable model action.
-  let executedResult = outcomes.get(executedAction)!;
-  if (
-    executedAction !== 'wait'
-    && isBlocked(executedResult)
-    && viableMovingActions.length > 0
-  ) {
-    const bypass = chooseLateralBypass(state, decision, outcomes)
-      ?? highestLogitAction(decision, viableMovingActions);
-    if (bypass !== null) {
-      executedAction = bypass;
-      blockedVeto = executedAction !== proposedAction;
-    }
-  }
-
-  // If a tree/rock is directly ahead and the model just waits in front of it,
-  // sidestep immediately instead of waiting for the stagnation threshold.
-  const forwardResult = outcomes.get('forward')!;
-  const forwardBlockedByScenery = isBlocked(forwardResult, 'scenery');
-  executedResult = outcomes.get(executedAction)!;
-  if (
-    forwardBlockedByScenery
-    && executedResult.state.score <= state.score
-    && (executedAction === 'wait' || isBlocked(executedResult))
-  ) {
-    const bypass = chooseLateralBypass(state, decision, outcomes);
-    if (bypass !== null) {
-      executedAction = bypass;
-      sceneryBypass = true;
-    }
-  }
-
-  // Stop the learned right-only drift from pinning the fly to a wall.
-  // Near an edge, an outward lateral move is replaced by the inward move when
-  // the inward move is viable and does not make the local route worse.
-  const outward: Action | null = state.fly.column >= SAFETY_REFLEX_EDGE_COLUMN
-    ? 'right'
-    : state.fly.column <= -SAFETY_REFLEX_EDGE_COLUMN
-      ? 'left'
-      : null;
-  const inward: Action | null = outward === 'right'
-    ? 'left'
-    : outward === 'left'
-      ? 'right'
-      : null;
-
-  if (outward !== null && inward !== null && executedAction === outward) {
-    const outwardResult = outcomes.get(outward)!;
-    const inwardResult = outcomes.get(inward)!;
-    if (
-      viableMovement(state, inwardResult)
-      && (
-        !viableMovement(state, outwardResult)
-        || forwardOpensAfter(inwardResult)
-        || !forwardOpensAfter(outwardResult)
-      )
-    ) {
-      executedAction = inward;
-      edgeCorrection = true;
-    }
-  }
-
-  // Short anti-stagnation reflex. Unlike v1, FORWARD must really advance the
-  // score; a blocked FORWARD no longer qualifies as a safe escape.
-  executedResult = outcomes.get(executedAction)!;
-  if (
-    noProgressSteps >= SAFETY_REFLEX_STAGNATION_STEPS
-    && executedResult.state.score <= state.score
-  ) {
-    if (
-      forwardResult.state.terminal === null
-      && !isBlocked(forwardResult)
-      && forwardResult.state.score > state.score
-    ) {
-      executedAction = 'forward';
-      stagnationOverride = true;
-    } else if (forwardBlockedByScenery) {
-      const bypass = chooseLateralBypass(state, decision, outcomes);
-      if (bypass !== null) {
-        executedAction = bypass;
-        stagnationOverride = true;
-        sceneryBypass = true;
-      }
-    }
-  }
-
-  executedResult = outcomes.get(executedAction)!;
+  const executedResult = stepGame(state, executedAction);
   const nextNoProgressSteps = executedResult.state.terminal !== null
     ? 0
-    : executedResult.state.score > state.score
-      ? 0
-      : noProgressSteps + 1;
+    : executedResult.state.score > state.score ? 0 : noProgressSteps + 1;
 
-  const adjustedDecision: ControllerDecision = {
-    ...decision,
-    action: executedAction,
-    diagnostics: {
-      ...decision.diagnostics,
-      'reflex.applied': executedAction === proposedAction ? 0 : 1,
-      'reflex.terminalVeto': terminalVeto ? 1 : 0,
-      'reflex.blockedVeto': blockedVeto ? 1 : 0,
-      'reflex.sceneryBypass': sceneryBypass ? 1 : 0,
-      'reflex.edgeCorrection': edgeCorrection ? 1 : 0,
-      'reflex.stagnationOverride': stagnationOverride ? 1 : 0,
-      'reflex.noProgressBefore': noProgressSteps,
-      'reflex.proposedActionIndex': ACTION_ORDER.indexOf(proposedAction),
-      'reflex.executedActionIndex': ACTION_ORDER.indexOf(executedAction),
+  return {
+    decision: {
+      ...decision,
+      action: executedAction,
+      diagnostics: {
+        ...decision.diagnostics,
+        'reflex.applied': executedAction === decision.action ? 0 : 1,
+        'reflex.terminalVeto': 0,
+        'reflex.blockedVeto': blockedVeto ? 1 : 0,
+        'reflex.sceneryBypass': blockedVeto ? 1 : 0,
+        'reflex.edgeCorrection': 0,
+        'reflex.stagnationOverride': 0,
+        'reflex.noProgressBefore': noProgressSteps,
+        'reflex.proposedActionIndex': ACTION_ORDER.indexOf(decision.action),
+        'reflex.executedActionIndex': ACTION_ORDER.indexOf(executedAction),
+      },
     },
+    nextNoProgressSteps,
   };
-
-  return { decision: adjustedDecision, nextNoProgressSteps };
 }

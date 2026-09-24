@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 9,
+  "environmentVersion": 10,
   "configuration": {
     "controller": "conventional",
     "seed": "tiny-test",
@@ -19,13 +19,14 @@
       "tiny-test:1:2"
     ],
     "reward": {
-      "version": 4,
-      "progress": 1,
-      "terminal": -10,
+      "version": 5,
+      "progress": 0.35,
+      "terminal": -5.0,
       "step": -0.01,
-      "stagnation": -0.1,
+      "stagnation": 0.0,
+      "wait": -0.03,
       "blocked": -0.1,
-      "supportedCarryStagnationExempt": true
+      "supportedCarryWaitExempt": true
     },
     "recurrentTraining": null,
     "predictiveAuxiliary": null,
@@ -39,7 +40,7 @@
   },
   "checkpoint": {
     "path": "checkpoint.pt",
-    "sha256": "298f4dc39d4fad6bb3e31c6524f754e80ba4e975854ab273aac1c1a1863a7561"
+    "sha256": "9a6c4a8c4728b3d5201d43982f3d791be45a67cbfaf96e756d5121447c63a28d"
   },
   "policy": {
     "path": "policy.json"

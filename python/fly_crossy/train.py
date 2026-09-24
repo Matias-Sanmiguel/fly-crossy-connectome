@@ -21,6 +21,7 @@ from .env import (
     PROGRESS_REWARD,
     STAGNATION_COST,
     STEP_COST,
+    WAIT_COST,
     TERMINAL_PENALTY,
     WORLD_VERSION,
     hash_seed,
@@ -33,8 +34,10 @@ from .models import (
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
     PopulationFixedGraphPolicy,
+    TrafficAwarePopulationPolicy,
 )
 from .schema import ACTION_ORDER, OBSERVATION_INPUT_SIZE
+from .traffic_teacher import action_teacher_targets
 
 
 HIDDEN_SIZE = 64
@@ -53,6 +56,10 @@ PREDICTIVE_AUXILIARY_VERSION = "traffic-next-observation-v1"
 WIDE_SENSORY_COUNT = 128
 PREDICTIVE_TARGET_SIZE = 132
 PREDICTIVE_AUXILIARY_COEFFICIENT = 0.05
+CONTROLLER_V2_SENSORY_COUNT = 128
+CONTROLLER_V2_READOUT_COUNT = 128
+CONTROLLER_V2_RISK_COEFFICIENT = 1.0
+CONTROLLER_V2_ROUTE_COEFFICIENT = 0.5
 
 
 @dataclass(frozen=True, slots=True)
@@ -76,21 +83,25 @@ class TrainingConfig:
             "legacy",
             "population",
             "population-wide-predictive",
+            "controller-v2",
             "nested",
             "nested-gated",
             "nested-feedback",
         ):
             raise ValueError(
                 "Connectome interface must be legacy, population, "
-                "population-wide-predictive, nested, nested-gated, "
-                "or nested-feedback."
+                "population-wide-predictive, controller-v2, nested, "
+                "nested-gated, or nested-feedback."
             )
         if (
-            self.connectome_interface == "population-wide-predictive"
+            self.connectome_interface in (
+                "population-wide-predictive",
+                "controller-v2",
+            )
             and self.connectome_graph != "1k"
         ):
             raise ValueError(
-                "population-wide-predictive currently requires the 1k graph."
+                "population-wide-predictive and controller-v2 require the 1k graph."
             )
         if self.controller != "connectome" and (
             self.connectome_graph != "80"
@@ -185,6 +196,75 @@ def _build_wide_sensory_graph(
     )
 
 
+
+def _build_controller_v2_graph(
+    graph: ReducedGraphArtifact,
+) -> ReducedGraphArtifact:
+    """Build the 128-input / 128-decision interface from topology only."""
+    graph = _build_wide_sensory_graph(
+        graph,
+        target_count=CONTROLLER_V2_SENSORY_COUNT,
+    )
+    original_readout = [int(value) for value in graph.readout_body_ids]
+    if len(original_readout) >= CONTROLLER_V2_READOUT_COUNT:
+        return graph
+
+    body_ids = [int(value) for value in graph.body_ids]
+    sensory_ids = set(int(value) for value in graph.sensory_body_ids)
+    readout_set = set(original_readout)
+    incoming = np.zeros(graph.node_count, dtype=np.float64)
+    outgoing = np.zeros(graph.node_count, dtype=np.float64)
+
+    for source, target, weight in zip(
+        graph.edge_index[0],
+        graph.edge_index[1],
+        graph.edge_weight,
+        strict=True,
+    ):
+        magnitude = abs(float(weight))
+        outgoing[int(source)] += magnitude
+        incoming[int(target)] += magnitude
+
+    candidates = [
+        index
+        for index, body_id in enumerate(body_ids)
+        if body_id not in sensory_ids and body_id not in readout_set
+    ]
+    candidates.sort(
+        key=lambda index: (
+            -incoming[index],
+            -min(incoming[index], outgoing[index]),
+            -(incoming[index] + outgoing[index]),
+            body_ids[index],
+        )
+    )
+    needed = CONTROLLER_V2_READOUT_COUNT - len(original_readout)
+    if len(candidates) < needed:
+        raise ValueError("Not enough graph cells for Controller V2 readout.")
+
+    readout_ids = np.asarray(
+        [*original_readout, *[body_ids[index] for index in candidates[:needed]]],
+        dtype=np.int64,
+    )
+    return ReducedGraphArtifact(
+        dataset_version=graph.dataset_version,
+        source_url=graph.source_url,
+        license=graph.license,
+        source_sha256=graph.source_sha256,
+        selection_rule=(
+            graph.selection_rule
+            + " Controller V2 expands the decision population to 128 non-sensory "
+            + "cells using graph topology only: incoming weighted degree, "
+            + "bidirectional weighted degree, total weighted degree, and body ID."
+        ),
+        minimum_edge_threshold=graph.minimum_edge_threshold,
+        body_ids=graph.body_ids.copy(),
+        edge_index=graph.edge_index.copy(),
+        edge_weight=graph.edge_weight.copy(),
+        sensory_body_ids=graph.sensory_body_ids.copy(),
+        readout_body_ids=readout_ids,
+    )
+
 def _predictive_traffic_target(observations: Tensor) -> Tensor:
     """Extract next-step local-scene targets from ObservationV3.
 
@@ -194,8 +274,8 @@ def _predictive_traffic_target(observations: Tensor) -> Tensor:
     """
     if observations.shape[-1] != OBSERVATION_INPUT_SIZE:
         raise ValueError("Predictive target received an incompatible observation.")
-    if OBSERVATION_INPUT_SIZE != 492:
-        raise ValueError("Predictive target requires ObservationV3 (492 values).")
+    if OBSERVATION_INPUT_SIZE != 517:
+        raise ValueError("Predictive target requires ObservationV4 (517 values).")
 
     prefix = observations.shape[:-1]
     cells = observations[..., :121].reshape(*prefix, 11, 11)
@@ -505,6 +585,137 @@ def _ppo_update_recurrent(
         "trafficPredictionLoss": _mean(traffic_prediction_losses),
     }
 
+
+def _ppo_update_controller_v2(
+    model: TrafficAwarePopulationPolicy,
+    optimizer: torch.optim.Optimizer,
+    observations: Tensor,
+    actions: Tensor,
+    old_log_probabilities: Tensor,
+    advantages: Tensor,
+    returns: Tensor,
+    dones: Tensor,
+    initial_hidden_state: Tensor,
+    teacher_risk_targets: Tensor,
+    teacher_route_targets: Tensor,
+) -> dict[str, float]:
+    expected = (*actions.shape, len(ACTION_ORDER))
+    if observations.ndim != 3:
+        raise ValueError("Controller V2 observations must be [time, env, input].")
+    if teacher_risk_targets.shape != expected:
+        raise ValueError("Controller V2 risk targets have an incompatible shape.")
+    if teacher_route_targets.shape != expected:
+        raise ValueError("Controller V2 route targets have an incompatible shape.")
+
+    normalized_advantages = (advantages - advantages.mean()) / (
+        advantages.std(unbiased=False) + 1e-8
+    )
+    time_steps = observations.shape[0]
+    environment_count = observations.shape[1]
+    environments_per_minibatch = max(1, MINIBATCH_SIZE // max(1, time_steps))
+
+    policy_losses: list[float] = []
+    value_losses: list[float] = []
+    entropies: list[float] = []
+    approximate_kls: list[float] = []
+    risk_losses: list[float] = []
+    route_losses: list[float] = []
+    risk_accuracies: list[float] = []
+
+    for _ in range(PPO_EPOCHS):
+        for environment_indices in torch.randperm(
+            environment_count,
+            device=observations.device,
+        ).split(environments_per_minibatch):
+            hidden = initial_hidden_state[environment_indices].clone()
+            logits_by_step: list[Tensor] = []
+            values_by_step: list[Tensor] = []
+            risk_by_step: list[Tensor] = []
+            route_by_step: list[Tensor] = []
+
+            for timestep in range(time_steps):
+                logits, values, next_hidden = model(
+                    observations[timestep, environment_indices],
+                    hidden,
+                )
+                risk_logits, route_logits = model.auxiliary_from_activity(next_hidden)
+                logits_by_step.append(logits)
+                values_by_step.append(values)
+                risk_by_step.append(risk_logits)
+                route_by_step.append(route_logits)
+                alive = (1.0 - dones[timestep, environment_indices]).unsqueeze(1)
+                hidden = next_hidden * alive
+
+            logits = torch.stack(logits_by_step)
+            values = torch.stack(values_by_step)
+            risk_logits = torch.stack(risk_by_step)
+            route_logits = torch.stack(route_by_step)
+            selected_actions = actions[:, environment_indices]
+            distribution = Categorical(logits=logits)
+            new_log_probabilities = distribution.log_prob(selected_actions)
+            old_selected = old_log_probabilities[:, environment_indices]
+            selected_advantages = normalized_advantages[:, environment_indices]
+            selected_returns = returns[:, environment_indices]
+
+            log_ratio = new_log_probabilities - old_selected
+            ratio = log_ratio.exp()
+            unclipped = -selected_advantages * ratio
+            clipped = -selected_advantages * torch.clamp(
+                ratio,
+                1 - CLIP_COEFFICIENT,
+                1 + CLIP_COEFFICIENT,
+            )
+            policy_loss = torch.maximum(unclipped, clipped).mean()
+            value_loss = 0.5 * (values - selected_returns).square().mean()
+            entropy = distribution.entropy().mean()
+
+            risk_target = teacher_risk_targets[:, environment_indices]
+            route_target = teacher_route_targets[:, environment_indices]
+            risk_loss = torch.nn.functional.binary_cross_entropy_with_logits(
+                risk_logits,
+                risk_target,
+            )
+            route_loss = torch.nn.functional.binary_cross_entropy_with_logits(
+                route_logits,
+                route_target,
+            )
+            loss = (
+                policy_loss
+                + VALUE_COEFFICIENT * value_loss
+                - ENTROPY_COEFFICIENT * entropy
+                + CONTROLLER_V2_RISK_COEFFICIENT * risk_loss
+                + CONTROLLER_V2_ROUTE_COEFFICIENT * route_loss
+            )
+
+            optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), MAX_GRADIENT_NORM)
+            optimizer.step()
+
+            predicted_risk = torch.sigmoid(risk_logits) >= 0.5
+            risk_accuracy = (
+                predicted_risk == (risk_target >= 0.5)
+            ).float().mean()
+            policy_losses.append(float(policy_loss.detach().cpu()))
+            value_losses.append(float(value_loss.detach().cpu()))
+            entropies.append(float(entropy.detach().cpu()))
+            risk_losses.append(float(risk_loss.detach().cpu()))
+            route_losses.append(float(route_loss.detach().cpu()))
+            risk_accuracies.append(float(risk_accuracy.detach().cpu()))
+            approximate_kls.append(
+                float((((ratio - 1) - log_ratio).mean()).detach().cpu())
+            )
+
+    return {
+        "policyLoss": _mean(policy_losses),
+        "valueLoss": _mean(value_losses),
+        "entropy": _mean(entropies),
+        "approximateKl": _mean(approximate_kls),
+        "teacherRiskLoss": _mean(risk_losses),
+        "teacherRouteLoss": _mean(route_losses),
+        "teacherRiskAccuracy": _mean(risk_accuracies),
+    }
+
 def train(config: TrainingConfig) -> dict[str, Any]:
     """Train a conventional or reduced-connectome PPO actor-critic artifact bundle."""
     config.validate()
@@ -536,8 +747,16 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         graph = load_reduced_graph_variant(config.connectome_graph)
         if config.connectome_interface == "population-wide-predictive":
             graph = _build_wide_sensory_graph(graph)
+        elif config.connectome_interface == "controller-v2":
+            graph = _build_controller_v2_graph(graph)
         if config.connectome_interface == "legacy":
             model = FixedGraphPolicy(
+                graph,
+                OBSERVATION_INPUT_SIZE,
+                len(ACTION_ORDER),
+            ).to(device)
+        elif config.connectome_interface == "controller-v2":
+            model = TrafficAwarePopulationPolicy(
                 graph,
                 OBSERVATION_INPUT_SIZE,
                 len(ACTION_ORDER),
@@ -611,9 +830,31 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         rollout_rewards: list[Tensor] = []
         rollout_dones: list[Tensor] = []
         rollout_values: list[Tensor] = []
+        rollout_teacher_risk: list[Tensor] = []
+        rollout_teacher_route: list[Tensor] = []
         episode_start = len(completed_episodes)
 
         for _ in range(rollout_length):
+            if isinstance(model, TrafficAwarePopulationPolicy):
+                teacher_rows = [
+                    action_teacher_targets(environment.state)
+                    for environment in environments
+                ]
+                rollout_teacher_risk.append(
+                    torch.tensor(
+                        [[float(target.short_horizon_risk) for target in row] for row in teacher_rows],
+                        dtype=torch.float32,
+                        device=device,
+                    )
+                )
+                rollout_teacher_route.append(
+                    torch.tensor(
+                        [[float(target.opens_safe_forward) for target in row] for row in teacher_rows],
+                        dtype=torch.float32,
+                        device=device,
+                    )
+                )
+
             observation_tensor = torch.as_tensor(observations, dtype=torch.float32, device=device)
             with torch.no_grad():
                 if isinstance(model, (FixedGraphPolicy, PopulationFixedGraphPolicy, NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy, FeedbackNestedPopulationFixedGraphPolicy)):
@@ -714,7 +955,23 @@ def train(config: TrainingConfig) -> dict[str, Any]:
             advantages[timestep] = last_advantage
         returns = advantages + values_tensor
 
-        if isinstance(
+        if isinstance(model, TrafficAwarePopulationPolicy):
+            if rollout_initial_hidden_state is None:
+                raise RuntimeError("Controller V2 rollout has no initial hidden state.")
+            update_metrics = _ppo_update_controller_v2(
+                model,
+                optimizer,
+                torch.stack(rollout_observations),
+                torch.stack(rollout_actions),
+                torch.stack(rollout_log_probabilities),
+                advantages,
+                returns,
+                dones_tensor,
+                rollout_initial_hidden_state,
+                torch.stack(rollout_teacher_risk),
+                torch.stack(rollout_teacher_route),
+            )
+        elif isinstance(
             model,
             (
                 FixedGraphPolicy,
@@ -798,13 +1055,14 @@ def train(config: TrainingConfig) -> dict[str, Any]:
         }
 
     reward_metadata = {
-        "version": 4,
+        "version": 5,
         "progress": PROGRESS_REWARD,
         "terminal": TERMINAL_PENALTY,
         "step": STEP_COST,
         "stagnation": STAGNATION_COST,
+        "wait": WAIT_COST,
         "blocked": BLOCKED_COST,
-        "supportedCarryStagnationExempt": True,
+        "supportedCarryWaitExempt": True,
     }
 
     torch.save(
@@ -949,6 +1207,7 @@ def _parse_arguments() -> TrainingConfig:
             "legacy",
             "population",
             "population-wide-predictive",
+            "controller-v2",
             "nested",
             "nested-gated",
             "nested-feedback",

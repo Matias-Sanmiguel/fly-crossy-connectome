@@ -28,9 +28,9 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "70c16d56896153a3a95f3ac73dfb806a946e66215631dae5a3e588c3f1e9f3a7",
-        "afterObservationSha256": "cb824c4d68cba6478e9eec14874f645afb6ba780c8f75f1008a772a950151af1",
-        "reward": 0.99,
+        "beforeObservationSha256": "fecee86437aa5d6c9e18e3c0123615bcb8b80d264a41fbb337d0383f22081e02",
+        "afterObservationSha256": "3d2e838649812b5fdbcc1594f2a3ce1177aa86226fdbd1ee057abb01d92b1d85",
+        "reward": 0.33999999999999997,
         "fly": {
           "row": 3,
           "column": 4
@@ -118,9 +118,9 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "ce3ffff5972b8146938bf70392f3ba91fb2077ae4921a7f207527d136a030796",
-        "afterObservationSha256": "b0ee6e3b1eeab3f948ff519f2f5120867bc88502e98638063bcc554ab2a0a776",
-        "reward": -0.11,
+        "beforeObservationSha256": "6b53741bb54dbdf50a4fc4489f51181a67da4a5fd9b57a390dc24f7f8a55adac",
+        "afterObservationSha256": "7151c629f291aa57a5db39c796b0f7b5d0547541e1795b93f99787951d47cb4e",
+        "reward": -0.04,
         "fly": {
           "row": 3,
           "column": 0
@@ -203,8 +203,8 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "0e41ae0f359344b667768bbea1391ec0b211d7e8e2f7ac03f5aa213ac337a11f",
-        "afterObservationSha256": "f93c44406cdf9f738327934e92f3d33968ebb25f29d9a1e978f72dba191fb2d3",
+        "beforeObservationSha256": "894ac6ff12fde28a27ed29e77b9d698b7e6bb1f26316323420bcfcffa2765b95",
+        "afterObservationSha256": "1c19bcc2544f9acb3ba08771599ce8cc8078d4541eb86ba8aa83bc2d7f9fd75d",
         "reward": -0.01,
         "fly": {
           "row": 3,
@@ -298,9 +298,9 @@
       },
       "action": "forward",
       "expected": {
-        "beforeObservationSha256": "393f8814107b6dab569aeb0e2101bb21f7dcf986194a0878ca9de81ac60f808a",
-        "afterObservationSha256": "ef911ae266a22d5b42318e04adb1e4c79e2fa6237c2e48291c58d84181073605",
-        "reward": -10.11,
+        "beforeObservationSha256": "f9d76abccb118602b0a720251bb64b9052fae657294cd30d211a4bb506ed08bd",
+        "afterObservationSha256": "e9c084997aa9eadc941c75f845a493174d494531257c9fbc698fdbd8c93651b6",
+        "reward": -5.01,
         "fly": {
           "row": 3,
           "column": 0
@@ -384,9 +384,9 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "589183e25562bd507f092367ce424f8e1146af8318cfdca4128cd06c62ab0445",
-        "afterObservationSha256": "3fb0a752586d48c802357f77d7da18cbee0923d4714d78d86d5f6be955bf3641",
-        "reward": -0.11,
+        "beforeObservationSha256": "a4e47fd0ef50931e3c79de9b11dd669db68b347217f96bc2da21daf6b28ce381",
+        "afterObservationSha256": "1c90e92500464faa2d189742ad258c13db3792d0298ad6c3b57c58d1ee09bd38",
+        "reward": -0.04,
         "fly": {
           "row": 3,
           "column": 0
@@ -469,9 +469,9 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "a3d6b6d0dc571c0292109c01e85eb2dd0af9a1db571269587860c560c7c601be",
-        "afterObservationSha256": "089dcb7a827a8e4e549125ade52106e76241493be48cbb385f9bd6ed37f41f83",
-        "reward": -10.11,
+        "beforeObservationSha256": "e2b3857d2a458cff40b13bb6577b1072060dd8d15f160bd7c63cbc5e208be781",
+        "afterObservationSha256": "be30b790115959425f67407192087015f385c127eaf014b76db7b9fdd3f1e95f",
+        "reward": -5.04,
         "fly": {
           "row": 3,
           "column": 0
@@ -556,9 +556,9 @@
       },
       "action": "wait",
       "expected": {
-        "beforeObservationSha256": "0226efa8eb6905dbed17ac33cf5e3fe9ec8fddf04121a79eda159fe56f8f364e",
-        "afterObservationSha256": "490c50abe67d57ebe56758bb733d072a0cf2cc43b6ba58fb5269ba8c108da185",
-        "reward": -0.11,
+        "beforeObservationSha256": "f77ac9a99ff2c4d8b53b91a60174bb01c9e61bc54532314cf1b5babe92fc916d",
+        "afterObservationSha256": "3a0ac16d3d62b1db4bffc7c8b80a3f0e7f8ca7d5a48f1d6c1b5b2623fb266250",
+        "reward": -0.04,
         "fly": {
           "row": 100,
           "column": 0
@@ -607,5 +607,5 @@
       }
     }
   ],
-  "environmentVersion": 9
+  "environmentVersion": 10
 }

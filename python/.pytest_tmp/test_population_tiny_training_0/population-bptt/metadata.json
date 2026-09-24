@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 9,
+  "environmentVersion": 10,
   "configuration": {
     "controller": "connectome",
     "seed": "population-bptt-tiny",
@@ -15,16 +15,18 @@
     "trainingWorldSeeds": [
       "population-bptt-tiny:0:0",
       "population-bptt-tiny:0:1",
-      "population-bptt-tiny:0:2"
+      "population-bptt-tiny:0:2",
+      "population-bptt-tiny:0:3"
     ],
     "reward": {
-      "version": 4,
-      "progress": 1,
-      "terminal": -10,
+      "version": 5,
+      "progress": 0.35,
+      "terminal": -5.0,
       "step": -0.01,
-      "stagnation": -0.1,
+      "stagnation": 0.0,
+      "wait": -0.03,
       "blocked": -0.1,
-      "supportedCarryStagnationExempt": true
+      "supportedCarryWaitExempt": true
     },
     "recurrentTraining": "sequence-bptt-v1",
     "predictiveAuxiliary": null,
@@ -40,7 +42,7 @@
   },
   "checkpoint": {
     "path": "checkpoint.pt",
-    "sha256": "87934ae671771d0427042980f92db6f51935a999fb52b86dae52336fee99cdc3"
+    "sha256": "932385507c74af08a5bad9bc44f1413a5149f570aaddd3c1329c4a31a8bcfe9f"
   },
   "policy": {
     "path": "policy.json"
