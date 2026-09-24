@@ -1,0 +1,99 @@
+{
+  "version": 2,
+  "environmentVersion": 11,
+  "observationVersion": 4,
+  "observationSize": 517,
+  "plannerVersion": "receding-horizon-v2",
+  "plannerDepth": 2,
+  "seedPrefix": "dagger-test-aggregate",
+  "episodes": 3,
+  "maxStepsPerEpisode": 2,
+  "samples": 6,
+  "actionOrder": [
+    "forward",
+    "backward",
+    "left",
+    "right",
+    "wait"
+  ],
+  "actionCounts": {
+    "forward": 6
+  },
+  "dataset": {
+    "path": "dataset.npz",
+    "sha256": "8644eb483be6be9763983510bc08c58fff3f634bd08c95600ae185bd18d6a155"
+  },
+  "aggregation": {
+    "version": "dagger-neural-rollout-v1",
+    "baseDataset": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp_dagger\\test_dagger_collection_appends0\\base",
+    "baseDatasetSha256": "fb042e7abe60e24ac4b2e92074779491553495b7b6a90da87e66780fc487e2c4",
+    "baseSamples": 2,
+    "baseEpisodes": 1,
+    "studentCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp_dagger\\test_dagger_collection_appends0\\student.pt",
+    "studentCheckpointSha256": "6216e610a7fd1f93839f6ca84d34b0025cf485b1de22a48f6a0b1af74ecb4ac8",
+    "studentInternalSteps": 2,
+    "daggerSeedPrefix": "dagger-test",
+    "daggerEpisodes": 2,
+    "daggerSamples": 4,
+    "daggerMeanScore": 0.0,
+    "daggerBestScore": 0.0,
+    "daggerMeanLength": 2,
+    "daggerTerminalReasons": {
+      "step-limit": 2
+    },
+    "expertActionCounts": {
+      "forward": 4
+    },
+    "studentActionCounts": {
+      "wait": 4
+    },
+    "expertActionDisagreementCounts": {
+      "forward": 4
+    },
+    "disagreementRate": 1.0,
+    "confusionExpertRowsStudentColumns": {
+      "forward": {
+        "forward": 0,
+        "backward": 0,
+        "left": 0,
+        "right": 0,
+        "wait": 4
+      },
+      "backward": {
+        "forward": 0,
+        "backward": 0,
+        "left": 0,
+        "right": 0,
+        "wait": 0
+      },
+      "left": {
+        "forward": 0,
+        "backward": 0,
+        "left": 0,
+        "right": 0,
+        "wait": 0
+      },
+      "right": {
+        "forward": 0,
+        "backward": 0,
+        "left": 0,
+        "right": 0,
+        "wait": 0
+      },
+      "wait": {
+        "forward": 0,
+        "backward": 0,
+        "left": 0,
+        "right": 0,
+        "wait": 0
+      }
+    },
+    "meanSearchNodesPerDecision": 20.0,
+    "meanCacheHitsPerDecision": 11.0,
+    "originalBaseSeedPrefix": "base-test",
+    "originalDaggerSeeds": [
+      "dagger-test:0000",
+      "dagger-test:0001"
+    ]
+  }
+}

@@ -10,7 +10,7 @@ import torch
 
 from .checkpoint import validate_checkpoint
 from .env import create_game, observe, step_game
-from .models import PopulationFixedGraphPolicy
+from .models import SettledPopulationFixedGraphPolicy
 from .schema import ACTION_ORDER, flatten_observation
 
 
@@ -44,12 +44,12 @@ def evaluate_neural_policy(
     validated = validate_checkpoint(saved)
     if validated.controller != "connectome":
         raise ValueError("Expected a connectome checkpoint.")
-    if validated.connectome_interface != "population":
-        raise ValueError("Expected a plain population inference policy.")
+    if validated.connectome_interface != "population-settled":
+        raise ValueError("Expected a settled population inference policy.")
     if validated.graph is None:
         raise ValueError("Checkpoint graph is missing.")
 
-    model = PopulationFixedGraphPolicy(
+    model = SettledPopulationFixedGraphPolicy(
         validated.graph,
         validated.observation_size,
         validated.actions,
@@ -93,7 +93,8 @@ def evaluate_neural_policy(
 
     ordered_scores = sorted(scores)
     return {
-        "controller": "MaleCNS-neural-only",
+        "controller": "MaleCNS-settled-neural-only",
+        "internalSteps": SettledPopulationFixedGraphPolicy.INTERNAL_STEPS,
         "episodes": episodes,
         "maxSteps": max_steps,
         "meanScore": mean(scores),
