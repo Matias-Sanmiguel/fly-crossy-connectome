@@ -1,0 +1,64 @@
+{
+  "version": 2,
+  "sensorContract": {
+    "kind": "fixed-perspective-crossy-neural-camera",
+    "width": 160,
+    "height": 120,
+    "hfovDeg": 108.0,
+    "cameraHeight": 1.15,
+    "pitchDeg": 25.0,
+    "cameraOrigin": "current fly position",
+    "source": "authoritative GameState only",
+    "presentationUiDependency": false,
+    "observationV4Dependency": false,
+    "plannerInformationInPixels": false
+  },
+  "representativeSamples": {
+    "directory": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\reports\\malecns-crossy-v2-perspective-samples",
+    "hashes": {
+      "road": "2a5ae98a821651b53947c02b963fa23a81eba61b5f9c54b5b6941cb76a0bb307",
+      "rail": "840c09a1001529084ca8b03c2b3dcc2c43f06d5e6eb806cda781ce993b9eba12",
+      "river": "53ea98fb160342a93c590a061b2a581c4255b155228a4f35e77183f60ac58f01"
+    },
+    "uniqueColors": {
+      "road": 18,
+      "rail": 17,
+      "river": 25
+    },
+    "exactLaneColorPixels": {
+      "road": 189,
+      "rail": 320,
+      "river": 858
+    }
+  },
+  "perspective": {
+    "nearOneRowPixels": 20.885350165598737,
+    "farOneRowPixels": 0.8099037690491713,
+    "farToNearRatio": 0.03877855830175175
+  },
+  "trajectory": {
+    "seed": "malecns-v2-perspective-camera-gate",
+    "stepsRendered": 40,
+    "actionCounts": {
+      "forward": 38,
+      "right": 2
+    },
+    "uniqueFrameFraction": 1.0,
+    "meanRenderMs": 23.05313249989922,
+    "meanRetinaBrainMs": 18.47379750042819,
+    "meanBrainFeatureNorm": 61.39137678146362
+  },
+  "gates": {
+    "deterministicSameStateSamePixels": true,
+    "lateralPositionVisuallyObservable": true,
+    "truePerspectiveRowCompression": true,
+    "roadSampleRendered": true,
+    "railSampleRendered": true,
+    "riverSampleRendered": true,
+    "trajectoryProducesChangingFrames": true,
+    "retinaBrainFeaturesFinite": true,
+    "retinaBrainFeaturesNonzero": true,
+    "cameraRendererUnder50ms": true,
+    "retinaBrainUnder100ms": true
+  }
+}
