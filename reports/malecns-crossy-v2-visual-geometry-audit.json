@@ -1,0 +1,241 @@
+{
+  "version": 1,
+  "purpose": "MaleCNS Crossy V2 Gate 2A: validate measured optic-lobe column geometry before implementing the frozen visual front end.",
+  "elapsedSeconds": 13.331970930099487,
+  "counts": {
+    "visualCells": 30906,
+    "columns": 1771,
+    "columnsLeft": 879,
+    "columnsRight": 892,
+    "hexlessVisualCells": 17793,
+    "crossSidePartnerRejected": 0
+  },
+  "assignment": {
+    "own_hex": 13113,
+    "pre_partner": 17772,
+    "post_partner": 16,
+    "unassigned": 5,
+    "unassignedFraction": 0.00016178088397075002
+  },
+  "perType": {
+    "T4a": {
+      "cells": 1684,
+      "assigned": 1684,
+      "unassigned": 0
+    },
+    "T4b": {
+      "cells": 1690,
+      "assigned": 1690,
+      "unassigned": 0
+    },
+    "T4c": {
+      "cells": 1778,
+      "assigned": 1778,
+      "unassigned": 0
+    },
+    "T4d": {
+      "cells": 1709,
+      "assigned": 1709,
+      "unassigned": 0
+    },
+    "T5a": {
+      "cells": 1664,
+      "assigned": 1663,
+      "unassigned": 1
+    },
+    "T5b": {
+      "cells": 1715,
+      "assigned": 1715,
+      "unassigned": 0
+    },
+    "T5c": {
+      "cells": 1720,
+      "assigned": 1720,
+      "unassigned": 0
+    },
+    "T5d": {
+      "cells": 1620,
+      "assigned": 1620,
+      "unassigned": 0
+    },
+    "Mi1": {
+      "cells": 1773,
+      "assigned": 1773,
+      "unassigned": 0
+    },
+    "Mi4": {
+      "cells": 1772,
+      "assigned": 1772,
+      "unassigned": 0
+    },
+    "Mi9": {
+      "cells": 1775,
+      "assigned": 1775,
+      "unassigned": 0
+    },
+    "Tm1": {
+      "cells": 1777,
+      "assigned": 1777,
+      "unassigned": 0
+    },
+    "Tm2": {
+      "cells": 1766,
+      "assigned": 1766,
+      "unassigned": 0
+    },
+    "Tm4": {
+      "cells": 1670,
+      "assigned": 1670,
+      "unassigned": 0
+    },
+    "Tm9": {
+      "cells": 1771,
+      "assigned": 1771,
+      "unassigned": 0
+    },
+    "Tm20": {
+      "cells": 1762,
+      "assigned": 1762,
+      "unassigned": 0
+    },
+    "Tm5a": {
+      "cells": 624,
+      "assigned": 622,
+      "unassigned": 2
+    },
+    "Tm5b": {
+      "cells": 522,
+      "assigned": 522,
+      "unassigned": 0
+    },
+    "Tm5c": {
+      "cells": 750,
+      "assigned": 748,
+      "unassigned": 2
+    },
+    "TmY5a": {
+      "cells": 1364,
+      "assigned": 1364,
+      "unassigned": 0
+    }
+  },
+  "frameEvidence": {
+    "L": {
+      "evidence": {
+        "T4a": [
+          0.1521988436717772,
+          -0.9343281516772003
+        ],
+        "T4b": [
+          -0.2571162423534313,
+          0.9525186557485452
+        ],
+        "T4c": [
+          -2.127345330288883,
+          -0.992492028857544
+        ],
+        "T4d": [
+          2.262611895927437,
+          1.432028301544021
+        ],
+        "T5a": [
+          0.09740533288918028,
+          -0.30508786778403807
+        ],
+        "T5b": [
+          -0.06776425635591059,
+          0.3055546825771886
+        ],
+        "T5c": [
+          -0.7123046822116212,
+          -0.3322393944383721
+        ],
+        "T5d": [
+          0.7098705413813915,
+          0.49582220555587964
+        ]
+      },
+      "diagnostics": {
+        "fallbackRequired": false,
+        "frontRawLength": 0.9653664737213211,
+        "upRawLength": 2.507489944174223,
+        "frontUpCos": -0.28688848895515795,
+        "snapDegrees": 17.76042591816625,
+        "upSnapDegrees": 1.0886601476137505,
+        "snappedFront": [
+          0.5000000000000001,
+          -0.8660254037844387
+        ],
+        "snappedUp": [
+          0.8660254037844387,
+          0.5000000000000001
+        ],
+        "t5FrontCos": 0.9665350632199905,
+        "t5UpCos": 0.9999932764108619
+      }
+    },
+    "R": {
+      "evidence": {
+        "T4a": [
+          0.15055377075504248,
+          -0.9755285048382187
+        ],
+        "T4b": [
+          -0.2118133436253668,
+          0.9985802081372174
+        ],
+        "T4c": [
+          -2.243990427984196,
+          -1.069185397593074
+        ],
+        "T4d": [
+          2.332524047466393,
+          1.4616724834363826
+        ],
+        "T5a": [
+          0.25604211291091655,
+          -0.3105539265457001
+        ],
+        "T5b": [
+          0.11791448293854798,
+          0.47531815882683826
+        ],
+        "T5c": [
+          -0.700402164608595,
+          -0.32987774411011705
+        ],
+        "T5d": [
+          1.0047601689685415,
+          0.6277459315500302
+        ]
+      },
+      "diagnostics": {
+        "fallbackRequired": false,
+        "frontRawLength": 1.0035456063664867,
+        "upRawLength": 2.614848291869802,
+        "frontUpCos": -0.31799335274710844,
+        "snapDegrees": 19.598585850056672,
+        "upSnapDegrees": 1.0569711625694156,
+        "snappedFront": [
+          0.5000000000000001,
+          -0.8660254037844387
+        ],
+        "snappedUp": [
+          0.8660254037844387,
+          0.5000000000000001
+        ],
+        "t5FrontCos": 0.9395055526900465,
+        "t5UpCos": 0.9999292999508744
+      }
+    }
+  },
+  "gates": {
+    "exactVisualCellCount": true,
+    "exactMeasuredColumnCount": true,
+    "exactLeftColumnCount": true,
+    "exactRightColumnCount": true,
+    "underOnePercentUnassigned": true,
+    "leftOrientationFromWiring": true,
+    "rightOrientationFromWiring": true
+  }
+}

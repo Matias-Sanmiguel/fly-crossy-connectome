@@ -1,0 +1,863 @@
+{
+  "version": 1,
+  "purpose": "Gate 0 for a clean Crossy MaleCNS architecture. No FlyDino core, no learned connectome weights, no gameplay training.",
+  "cache": "C:\\Users\\Nico\\.cache\\fly-crossy-connectome\\malecns-v1",
+  "sourceHashes": {
+    "annotations": "2177e246113e4cfbf1e7772ec37c6da1955ff22e8063d0b1f833101f99a9a3b2",
+    "edges": "e35da783d1c686b2b58b3b87cd6a403ae43bfcfba8bff28e08ef752c1a56afc1"
+  },
+  "elapsedSeconds": 15.86446475982666,
+  "annotationObjects": 211577,
+  "neurons": 166700,
+  "mappedWeightedEdges": 25582938,
+  "visualInputDefinition": [
+    "T4a",
+    "T4b",
+    "T4c",
+    "T4d",
+    "T5a",
+    "T5b",
+    "T5c",
+    "T5d",
+    "Mi1",
+    "Mi4",
+    "Mi9",
+    "Tm1",
+    "Tm2",
+    "Tm4",
+    "Tm9",
+    "Tm20",
+    "Tm5a",
+    "Tm5b",
+    "Tm5c",
+    "TmY5a"
+  ],
+  "visualInputCells": 30906,
+  "visualByType": {
+    "T4a": {
+      "cells": 1684,
+      "withHex": 0,
+      "left": 835,
+      "right": 849
+    },
+    "T4b": {
+      "cells": 1690,
+      "withHex": 0,
+      "left": 844,
+      "right": 846
+    },
+    "T4c": {
+      "cells": 1778,
+      "withHex": 0,
+      "left": 895,
+      "right": 883
+    },
+    "T4d": {
+      "cells": 1709,
+      "withHex": 0,
+      "left": 850,
+      "right": 859
+    },
+    "T5a": {
+      "cells": 1664,
+      "withHex": 0,
+      "left": 826,
+      "right": 838
+    },
+    "T5b": {
+      "cells": 1715,
+      "withHex": 0,
+      "left": 863,
+      "right": 852
+    },
+    "T5c": {
+      "cells": 1720,
+      "withHex": 0,
+      "left": 862,
+      "right": 858
+    },
+    "T5d": {
+      "cells": 1620,
+      "withHex": 0,
+      "left": 812,
+      "right": 808
+    },
+    "Mi1": {
+      "cells": 1773,
+      "withHex": 1762,
+      "left": 886,
+      "right": 887
+    },
+    "Mi4": {
+      "cells": 1772,
+      "withHex": 1758,
+      "left": 883,
+      "right": 889
+    },
+    "Mi9": {
+      "cells": 1775,
+      "withHex": 1760,
+      "left": 886,
+      "right": 889
+    },
+    "Tm1": {
+      "cells": 1777,
+      "withHex": 1767,
+      "left": 887,
+      "right": 890
+    },
+    "Tm2": {
+      "cells": 1766,
+      "withHex": 1758,
+      "left": 883,
+      "right": 883
+    },
+    "Tm4": {
+      "cells": 1670,
+      "withHex": 833,
+      "left": 837,
+      "right": 833
+    },
+    "Tm9": {
+      "cells": 1771,
+      "withHex": 1743,
+      "left": 884,
+      "right": 887
+    },
+    "Tm20": {
+      "cells": 1762,
+      "withHex": 1732,
+      "left": 886,
+      "right": 876
+    },
+    "Tm5a": {
+      "cells": 624,
+      "withHex": 0,
+      "left": 317,
+      "right": 307
+    },
+    "Tm5b": {
+      "cells": 522,
+      "withHex": 0,
+      "left": 260,
+      "right": 262
+    },
+    "Tm5c": {
+      "cells": 750,
+      "withHex": 0,
+      "left": 376,
+      "right": 374
+    },
+    "TmY5a": {
+      "cells": 1364,
+      "withHex": 0,
+      "left": 686,
+      "right": 678
+    }
+  },
+  "descendingSuperclass": "descending_neuron",
+  "descendingCells": 1314,
+  "excludedSuperclassPrefix": "vnc_",
+  "excludedCells": 65306,
+  "excludedVncNeurons": 20429,
+  "unresolvedOrGliaObjects": 44877,
+  "navigationTypeAudit": {
+    "LC4": {
+      "types": [
+        "LC4"
+      ],
+      "cells": 126
+    },
+    "LC6": {
+      "types": [
+        "LC6"
+      ],
+      "cells": 124
+    },
+    "LC9": {
+      "types": [
+        "LC9"
+      ],
+      "cells": 219
+    },
+    "LC10a": {
+      "types": [
+        "LC10a"
+      ],
+      "cells": 275
+    },
+    "LC11": {
+      "types": [
+        "LC11"
+      ],
+      "cells": 143
+    },
+    "LC12": {
+      "types": [
+        "LC12"
+      ],
+      "cells": 498
+    },
+    "LC15": {
+      "types": [
+        "LC15"
+      ],
+      "cells": 126
+    },
+    "LC16": {
+      "types": [
+        "LC16"
+      ],
+      "cells": 182
+    },
+    "LC17": {
+      "types": [
+        "LC17"
+      ],
+      "cells": 353
+    },
+    "LPLC1": {
+      "types": [
+        "LPLC1"
+      ],
+      "cells": 134
+    },
+    "LPLC2": {
+      "types": [
+        "LPLC2"
+      ],
+      "cells": 185
+    },
+    "LPi*": {
+      "types": [
+        "LPi12",
+        "LPi14",
+        "LPi21",
+        "LPi2b",
+        "LPi2c",
+        "LPi2d",
+        "LPi2e",
+        "LPi34",
+        "LPi3412",
+        "LPi3a",
+        "LPi3b",
+        "LPi3c",
+        "LPi43",
+        "LPi4a",
+        "LPi4b",
+        "LPi_unclear"
+      ],
+      "cells": 755
+    },
+    "HS*": {
+      "types": [
+        "HSE",
+        "HSN",
+        "HSS",
+        "HST"
+      ],
+      "cells": 8
+    },
+    "VS*": {
+      "types": [
+        "VS",
+        "VST1",
+        "VST2",
+        "VSm"
+      ],
+      "cells": 34
+    },
+    "AOTU019": {
+      "types": [
+        "AOTU019"
+      ],
+      "cells": 2
+    },
+    "AOTU025": {
+      "types": [
+        "AOTU025"
+      ],
+      "cells": 2
+    },
+    "PFL2": {
+      "types": [
+        "PFL2"
+      ],
+      "cells": 12
+    },
+    "PFL3": {
+      "types": [
+        "PFL3"
+      ],
+      "cells": 24
+    },
+    "EPG": {
+      "types": [
+        "EPG"
+      ],
+      "cells": 46
+    },
+    "PEN_a(PEN1)": {
+      "types": [
+        "PEN_a(PEN1)"
+      ],
+      "cells": 20
+    },
+    "PEN_b(PEN2)": {
+      "types": [
+        "PEN_b(PEN2)"
+      ],
+      "cells": 22
+    },
+    "DNa01": {
+      "types": [
+        "DNa01"
+      ],
+      "cells": 2
+    },
+    "DNa02": {
+      "types": [
+        "DNa02"
+      ],
+      "cells": 2
+    },
+    "DNb05": {
+      "types": [
+        "DNb05"
+      ],
+      "cells": 2
+    },
+    "DNb06": {
+      "types": [
+        "DNb06"
+      ],
+      "cells": 2
+    },
+    "DNg13": {
+      "types": [
+        "DNg13"
+      ],
+      "cells": 2
+    },
+    "DNg100": {
+      "types": [
+        "DNg100"
+      ],
+      "cells": 2
+    },
+    "DNp01": {
+      "types": [
+        "DNp01"
+      ],
+      "cells": 2
+    },
+    "DNp02": {
+      "types": [
+        "DNp02"
+      ],
+      "cells": 2
+    },
+    "DNp03": {
+      "types": [
+        "DNp03"
+      ],
+      "cells": 2
+    },
+    "DNp04": {
+      "types": [
+        "DNp04"
+      ],
+      "cells": 2
+    },
+    "DNp09": {
+      "types": [
+        "DNp09"
+      ],
+      "cells": 2
+    },
+    "DNp10": {
+      "types": [
+        "DNp10"
+      ],
+      "cells": 2
+    },
+    "DNp11": {
+      "types": [
+        "DNp11"
+      ],
+      "cells": 2
+    },
+    "DNp103": {
+      "types": [
+        "DNp103"
+      ],
+      "cells": 2
+    },
+    "MDN": {
+      "types": [
+        "MDN"
+      ],
+      "cells": 4
+    },
+    "DNpe050": {
+      "types": [
+        "DNpe050"
+      ],
+      "cells": 2
+    },
+    "DNp67": {
+      "types": [
+        "DNp67"
+      ],
+      "cells": 2
+    }
+  },
+  "thresholds": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    8.0,
+    10.0
+  ],
+  "hops": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "candidates": [
+    {
+      "minimumSynapses": 1.0,
+      "hops": 2,
+      "visualInputs": 30906,
+      "dynamicNodes": 87202,
+      "selectedNodes": 118108,
+      "reachableDescending": 1087,
+      "descendingTotal": 1314,
+      "storedEdges": 15366079,
+      "rawSparseBytes": 184865380,
+      "rawSparseHuman": "176.3 MiB",
+      "roughRuntimeBytes": 554596140,
+      "roughRuntimeHuman": "528.9 MiB",
+      "forwardReachableAny": 127737,
+      "backwardReachableAny": 136259,
+      "maxForwardHopInCore": 2,
+      "maxBackwardHopInCore": 2
+    },
+    {
+      "minimumSynapses": 1.0,
+      "hops": 3,
+      "visualInputs": 30906,
+      "dynamicNodes": 113862,
+      "selectedNodes": 144768,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 19508766,
+      "rawSparseBytes": 234684264,
+      "rawSparseHuman": "223.8 MiB",
+      "roughRuntimeBytes": 704052792,
+      "roughRuntimeHuman": "671.4 MiB",
+      "forwardReachableAny": 145819,
+      "backwardReachableAny": 145017,
+      "maxForwardHopInCore": 3,
+      "maxBackwardHopInCore": 3
+    },
+    {
+      "minimumSynapses": 1.0,
+      "hops": 4,
+      "visualInputs": 30906,
+      "dynamicNodes": 114075,
+      "selectedNodes": 144981,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 19513953,
+      "rawSparseBytes": 234747360,
+      "rawSparseHuman": "223.9 MiB",
+      "roughRuntimeBytes": 704242080,
+      "roughRuntimeHuman": "671.6 MiB",
+      "forwardReachableAny": 145980,
+      "backwardReachableAny": 145089,
+      "maxForwardHopInCore": 4,
+      "maxBackwardHopInCore": 4
+    },
+    {
+      "minimumSynapses": 1.0,
+      "hops": 5,
+      "visualInputs": 30906,
+      "dynamicNodes": 114079,
+      "selectedNodes": 144985,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 19513987,
+      "rawSparseBytes": 234747784,
+      "rawSparseHuman": "223.9 MiB",
+      "roughRuntimeBytes": 704243352,
+      "roughRuntimeHuman": "671.6 MiB",
+      "forwardReachableAny": 145984,
+      "backwardReachableAny": 145089,
+      "maxForwardHopInCore": 5,
+      "maxBackwardHopInCore": 4
+    },
+    {
+      "minimumSynapses": 2.0,
+      "hops": 2,
+      "visualInputs": 30906,
+      "dynamicNodes": 72577,
+      "selectedNodes": 103483,
+      "reachableDescending": 906,
+      "descendingTotal": 1314,
+      "storedEdges": 8213607,
+      "rawSparseBytes": 98977216,
+      "rawSparseHuman": "94.4 MiB",
+      "roughRuntimeBytes": 296931648,
+      "roughRuntimeHuman": "283.2 MiB",
+      "forwardReachableAny": 121073,
+      "backwardReachableAny": 125650,
+      "maxForwardHopInCore": 2,
+      "maxBackwardHopInCore": 2
+    },
+    {
+      "minimumSynapses": 2.0,
+      "hops": 3,
+      "visualInputs": 30906,
+      "dynamicNodes": 111396,
+      "selectedNodes": 142302,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 11557894,
+      "rawSparseBytes": 139263936,
+      "rawSparseHuman": "132.8 MiB",
+      "roughRuntimeBytes": 417791808,
+      "roughRuntimeHuman": "398.4 MiB",
+      "forwardReachableAny": 144965,
+      "backwardReachableAny": 143228,
+      "maxForwardHopInCore": 3,
+      "maxBackwardHopInCore": 3
+    },
+    {
+      "minimumSynapses": 2.0,
+      "hops": 4,
+      "visualInputs": 30906,
+      "dynamicNodes": 112739,
+      "selectedNodes": 143645,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 11582635,
+      "rawSparseBytes": 139566200,
+      "rawSparseHuman": "133.1 MiB",
+      "roughRuntimeBytes": 418698600,
+      "roughRuntimeHuman": "399.3 MiB",
+      "forwardReachableAny": 145470,
+      "backwardReachableAny": 144176,
+      "maxForwardHopInCore": 4,
+      "maxBackwardHopInCore": 4
+    },
+    {
+      "minimumSynapses": 2.0,
+      "hops": 5,
+      "visualInputs": 30906,
+      "dynamicNodes": 112779,
+      "selectedNodes": 143685,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 11583143,
+      "rawSparseBytes": 139572456,
+      "rawSparseHuman": "133.1 MiB",
+      "roughRuntimeBytes": 418717368,
+      "roughRuntimeHuman": "399.3 MiB",
+      "forwardReachableAny": 145507,
+      "backwardReachableAny": 144179,
+      "maxForwardHopInCore": 5,
+      "maxBackwardHopInCore": 5
+    },
+    {
+      "minimumSynapses": 3.0,
+      "hops": 2,
+      "visualInputs": 30906,
+      "dynamicNodes": 63669,
+      "selectedNodes": 94575,
+      "reachableDescending": 772,
+      "descendingTotal": 1314,
+      "storedEdges": 5136193,
+      "rawSparseBytes": 62012616,
+      "rawSparseHuman": "59.1 MiB",
+      "roughRuntimeBytes": 186037848,
+      "roughRuntimeHuman": "177.4 MiB",
+      "forwardReachableAny": 115984,
+      "backwardReachableAny": 118490,
+      "maxForwardHopInCore": 2,
+      "maxBackwardHopInCore": 2
+    },
+    {
+      "minimumSynapses": 3.0,
+      "hops": 3,
+      "visualInputs": 30906,
+      "dynamicNodes": 108532,
+      "selectedNodes": 139438,
+      "reachableDescending": 1312,
+      "descendingTotal": 1314,
+      "storedEdges": 7866734,
+      "rawSparseBytes": 94958560,
+      "rawSparseHuman": "90.6 MiB",
+      "roughRuntimeBytes": 284875680,
+      "roughRuntimeHuman": "271.7 MiB",
+      "forwardReachableAny": 143520,
+      "backwardReachableAny": 141053,
+      "maxForwardHopInCore": 3,
+      "maxBackwardHopInCore": 3
+    },
+    {
+      "minimumSynapses": 3.0,
+      "hops": 4,
+      "visualInputs": 30906,
+      "dynamicNodes": 111486,
+      "selectedNodes": 142392,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 7916978,
+      "rawSparseBytes": 95573304,
+      "rawSparseHuman": "91.1 MiB",
+      "roughRuntimeBytes": 286719912,
+      "roughRuntimeHuman": "273.4 MiB",
+      "forwardReachableAny": 144472,
+      "backwardReachableAny": 143825,
+      "maxForwardHopInCore": 4,
+      "maxBackwardHopInCore": 4
+    },
+    {
+      "minimumSynapses": 3.0,
+      "hops": 5,
+      "visualInputs": 30906,
+      "dynamicNodes": 111533,
+      "selectedNodes": 142439,
+      "reachableDescending": 1314,
+      "descendingTotal": 1314,
+      "storedEdges": 7917748,
+      "rawSparseBytes": 95582732,
+      "rawSparseHuman": "91.2 MiB",
+      "roughRuntimeBytes": 286748196,
+      "roughRuntimeHuman": "273.5 MiB",
+      "forwardReachableAny": 144512,
+      "backwardReachableAny": 143835,
+      "maxForwardHopInCore": 5,
+      "maxBackwardHopInCore": 5
+    },
+    {
+      "minimumSynapses": 5.0,
+      "hops": 2,
+      "visualInputs": 30906,
+      "dynamicNodes": 53029,
+      "selectedNodes": 83935,
+      "reachableDescending": 617,
+      "descendingTotal": 1314,
+      "storedEdges": 2552164,
+      "rawSparseBytes": 30961708,
+      "rawSparseHuman": "29.5 MiB",
+      "roughRuntimeBytes": 92885124,
+      "roughRuntimeHuman": "88.6 MiB",
+      "forwardReachableAny": 109458,
+      "backwardReachableAny": 105527,
+      "maxForwardHopInCore": 2,
+      "maxBackwardHopInCore": 2
+    },
+    {
+      "minimumSynapses": 5.0,
+      "hops": 3,
+      "visualInputs": 30906,
+      "dynamicNodes": 101711,
+      "selectedNodes": 132617,
+      "reachableDescending": 1290,
+      "descendingTotal": 1314,
+      "storedEdges": 4485706,
+      "rawSparseBytes": 54358940,
+      "rawSparseHuman": "51.8 MiB",
+      "roughRuntimeBytes": 163076820,
+      "roughRuntimeHuman": "155.5 MiB",
+      "forwardReachableAny": 138376,
+      "backwardReachableAny": 137377,
+      "maxForwardHopInCore": 3,
+      "maxBackwardHopInCore": 3
+    },
+    {
+      "minimumSynapses": 5.0,
+      "hops": 4,
+      "visualInputs": 30906,
+      "dynamicNodes": 108062,
+      "selectedNodes": 138968,
+      "reachableDescending": 1312,
+      "descendingTotal": 1314,
+      "storedEdges": 4639332,
+      "rawSparseBytes": 56227856,
+      "rawSparseHuman": "53.6 MiB",
+      "roughRuntimeBytes": 168683568,
+      "roughRuntimeHuman": "160.9 MiB",
+      "forwardReachableAny": 142003,
+      "backwardReachableAny": 142611,
+      "maxForwardHopInCore": 4,
+      "maxBackwardHopInCore": 4
+    },
+    {
+      "minimumSynapses": 5.0,
+      "hops": 5,
+      "visualInputs": 30906,
+      "dynamicNodes": 108204,
+      "selectedNodes": 139110,
+      "reachableDescending": 1313,
+      "descendingTotal": 1314,
+      "storedEdges": 4641483,
+      "rawSparseBytes": 56254236,
+      "rawSparseHuman": "53.6 MiB",
+      "roughRuntimeBytes": 168762708,
+      "roughRuntimeHuman": "160.9 MiB",
+      "forwardReachableAny": 142127,
+      "backwardReachableAny": 142641,
+      "maxForwardHopInCore": 5,
+      "maxBackwardHopInCore": 5
+    },
+    {
+      "minimumSynapses": 8.0,
+      "hops": 2,
+      "visualInputs": 30906,
+      "dynamicNodes": 40728,
+      "selectedNodes": 71634,
+      "reachableDescending": 450,
+      "descendingTotal": 1314,
+      "storedEdges": 1106029,
+      "rawSparseBytes": 13558884,
+      "rawSparseHuman": "12.9 MiB",
+      "roughRuntimeBytes": 40676652,
+      "roughRuntimeHuman": "38.8 MiB",
+      "forwardReachableAny": 100384,
+      "backwardReachableAny": 88260,
+      "maxForwardHopInCore": 2,
+      "maxBackwardHopInCore": 2
+    },
+    {
+      "minimumSynapses": 8.0,
+      "hops": 3,
+      "visualInputs": 30906,
+      "dynamicNodes": 83451,
+      "selectedNodes": 114357,
+      "reachableDescending": 1222,
+      "descendingTotal": 1314,
+      "storedEdges": 2270811,
+      "rawSparseBytes": 27707160,
+      "rawSparseHuman": "26.4 MiB",
+      "roughRuntimeBytes": 83121480,
+      "roughRuntimeHuman": "79.3 MiB",
+      "forwardReachableAny": 125186,
+      "backwardReachableAny": 128654,
+      "maxForwardHopInCore": 3,
+      "maxBackwardHopInCore": 3
+    },
+    {
+      "minimumSynapses": 8.0,
+      "hops": 4,
+      "visualInputs": 30906,
+      "dynamicNodes": 101736,
+      "selectedNodes": 132642,
+      "reachableDescending": 1306,
+      "descendingTotal": 1314,
+      "storedEdges": 2641426,
+      "rawSparseBytes": 32227680,
+      "rawSparseHuman": "30.7 MiB",
+      "roughRuntimeBytes": 96683040,
+      "roughRuntimeHuman": "92.2 MiB",
+      "forwardReachableAny": 138359,
+      "backwardReachableAny": 139104,
+      "maxForwardHopInCore": 4,
+      "maxBackwardHopInCore": 4
+    },
+    {
+      "minimumSynapses": 8.0,
+      "hops": 5,
+      "visualInputs": 30906,
+      "dynamicNodes": 102463,
+      "selectedNodes": 133369,
+      "reachableDescending": 1309,
+      "descendingTotal": 1314,
+      "storedEdges": 2651565,
+      "rawSparseBytes": 32352256,
+      "rawSparseHuman": "30.9 MiB",
+      "roughRuntimeBytes": 97056768,
+      "roughRuntimeHuman": "92.6 MiB",
+      "forwardReachableAny": 138965,
+      "backwardReachableAny": 139344,
+      "maxForwardHopInCore": 5,
+      "maxBackwardHopInCore": 5
+    },
+    {
+      "minimumSynapses": 10.0,
+      "hops": 2,
+      "visualInputs": 30906,
+      "dynamicNodes": 32871,
+      "selectedNodes": 63777,
+      "reachableDescending": 367,
+      "descendingTotal": 1314,
+      "storedEdges": 676071,
+      "rawSparseBytes": 8367960,
+      "rawSparseHuman": "8.0 MiB",
+      "roughRuntimeBytes": 25103880,
+      "roughRuntimeHuman": "23.9 MiB",
+      "forwardReachableAny": 92591,
+      "backwardReachableAny": 78106,
+      "maxForwardHopInCore": 2,
+      "maxBackwardHopInCore": 2
+    },
+    {
+      "minimumSynapses": 10.0,
+      "hops": 3,
+      "visualInputs": 30906,
+      "dynamicNodes": 72881,
+      "selectedNodes": 103787,
+      "reachableDescending": 1145,
+      "descendingTotal": 1314,
+      "storedEdges": 1572257,
+      "rawSparseBytes": 19282232,
+      "rawSparseHuman": "18.4 MiB",
+      "roughRuntimeBytes": 57846696,
+      "roughRuntimeHuman": "55.2 MiB",
+      "forwardReachableAny": 118092,
+      "backwardReachableAny": 121161,
+      "maxForwardHopInCore": 3,
+      "maxBackwardHopInCore": 3
+    },
+    {
+      "minimumSynapses": 10.0,
+      "hops": 4,
+      "visualInputs": 30906,
+      "dynamicNodes": 95412,
+      "selectedNodes": 126318,
+      "reachableDescending": 1301,
+      "descendingTotal": 1314,
+      "storedEdges": 1954243,
+      "rawSparseBytes": 23956188,
+      "rawSparseHuman": "22.8 MiB",
+      "roughRuntimeBytes": 71868564,
+      "roughRuntimeHuman": "68.5 MiB",
+      "forwardReachableAny": 134014,
+      "backwardReachableAny": 135429,
+      "maxForwardHopInCore": 4,
+      "maxBackwardHopInCore": 4
+    },
+    {
+      "minimumSynapses": 10.0,
+      "hops": 5,
+      "visualInputs": 30906,
+      "dynamicNodes": 97380,
+      "selectedNodes": 128286,
+      "reachableDescending": 1305,
+      "descendingTotal": 1314,
+      "storedEdges": 1974887,
+      "rawSparseBytes": 24211788,
+      "rawSparseHuman": "23.1 MiB",
+      "roughRuntimeBytes": 72635364,
+      "roughRuntimeHuman": "69.3 MiB",
+      "forwardReachableAny": 135659,
+      "backwardReachableAny": 136256,
+      "maxForwardHopInCore": 5,
+      "maxBackwardHopInCore": 5
+    }
+  ]
+}

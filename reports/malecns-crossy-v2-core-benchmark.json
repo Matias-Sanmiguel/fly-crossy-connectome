@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 5070",
+  "torch": "2.14.0+cu132",
+  "substrate": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\substrate-w5-h4.npz",
+  "core": {
+    "nodes": 138968,
+    "edges": 4639332,
+    "clampedVisual": 30906,
+    "dynamic": 108062,
+    "decisionReadout": 10511,
+    "decisionMs": 200.0,
+    "internalSteps": 10,
+    "dtMs": 20.0,
+    "tauMs": 20.0,
+    "integrationCoefficient": 1.0,
+    "rMax": 5.0,
+    "w0": 0.008271832950413227,
+    "inhibitoryCentringFactor": 1.8551137823773018,
+    "trainableParameters": 0
+  },
+  "buildSeconds": 0.20712510000157636,
+  "gainCalibrationSeconds": 0.07695930000045337,
+  "gain": {
+    "target": 0.95,
+    "baseGainAtW0One": 114.84757767857326,
+    "w0": 0.008271833147920528,
+    "estimatedGain": 0.95
+  },
+  "benchmark": {
+    "decisions": 50,
+    "warmup": 5,
+    "clampedLevel": 1.0,
+    "elapsedSeconds": 0.0864988999965135,
+    "msPerDecision": 1.72997799993027,
+    "msPerSubstep": 0.172997799993027,
+    "realtimeFactorVs200ms": 115.60840658555274,
+    "finite": true,
+    "meanDynamicRate": 0.6543995141983032,
+    "fractionSaturated": 0.0027576761785894632,
+    "fractionBelow005": 0.0017860117368400097,
+    "decisionFeatureShape": [
+      1,
+      21022
+    ]
+  },
+  "memory": {
+    "peakAllocatedMiB": 60.47705078125,
+    "peakReservedMiB": 64.0
+  },
+  "gates": {
+    "zeroTrainableCoreParameters": true,
+    "finiteDynamics": true,
+    "realtimeWithHalfBudgetReserved": true
+  }
+}

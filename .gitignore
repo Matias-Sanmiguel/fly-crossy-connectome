@@ -27,3 +27,7 @@ outputs/
 *.swp
 .DS_Store
 Thumbs.db
+
+# Generated neural artifacts and datasets
+artifacts/
+python/datasets/

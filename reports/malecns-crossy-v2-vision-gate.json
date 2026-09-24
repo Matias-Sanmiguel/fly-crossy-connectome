@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 5070",
+  "geometry": {
+    "frame": [
+      160,
+      120
+    ],
+    "internalSteps": 10,
+    "decisionMs": 200.0,
+    "dtMs": 20.0,
+    "visualCells": 30906,
+    "geometryColumns": 1771,
+    "reducedColumns": 540,
+    "trainableParameters": 0,
+    "unassignedCells": 5,
+    "chromaticInterface": "fixed RGB opponent proxies for Tm20/Tm5a/Tm5b/Tm5c/TmY5a; not claimed as a literal Drosophila spectral model"
+  },
+  "coreGain": {
+    "target": 0.95,
+    "baseGainAtW0One": 114.84757681995417,
+    "w0": 0.008271833209762092,
+    "estimatedGain": 0.95
+  },
+  "static": {
+    "max": 1.241259326434374e-07,
+    "mean": 8.62117210953528e-10
+  },
+  "flash": {
+    "Mi1Bright": 0.6338757872581482,
+    "Tm1Bright": 3.8205604045021824e-13,
+    "Mi1Dark": 4.348192305769771e-06,
+    "Tm1Dark": 0.5031248331069946
+  },
+  "motion": {
+    "inward_T4a": 4.518002606346272e-05,
+    "inward_T4b": 0.0025680032558739185,
+    "inward_T5a": 6.567072909842192e-18,
+    "inward_T5b": 0.0014997705584391952,
+    "outward_T4a": 0.002383078448474407,
+    "outward_T4b": 0.00014118927356321365,
+    "outward_T5a": 0.0019411778775975108,
+    "outward_T5b": 3.9703181755612604e-06,
+    "inwardT4ABSeparation": 0.9654210945812315,
+    "outwardT4ABSeparation": 0.8881341179482322
+  },
+  "endToEnd": {
+    "frames": 50,
+    "msPerDecision": 13.372896000000765,
+    "realtimeFactorVs200ms": 14.955623673435325,
+    "meanVisualRate": 0.0014447606937028467,
+    "maxVisualRate": 0.1186228021979332,
+    "meanDynamicBrainRate": 0.639615535736084,
+    "fractionBrainSaturated": 0.0020543760620057583,
+    "finite": true,
+    "peakAllocatedMiB": 97.1201171875
+  },
+  "gates": {
+    "exactCellAlignment": true,
+    "zeroTrainableVisualParameters": true,
+    "staticSceneAdapts": true,
+    "onPathRespondsToBrightFlash": true,
+    "offPathRespondsToDarkFlash": true,
+    "brightFlashPrefersOnOverOff": true,
+    "darkFlashPrefersOffOverOn": true,
+    "motionChannelsAreDirectional": true,
+    "finiteEndToEndDynamics": true,
+    "endToEndUnderHalfDecisionBudget": true,
+    "brainNotCollapsedToSaturation": true
+  }
+}
