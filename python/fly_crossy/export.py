@@ -282,7 +282,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         graph = model.graph
         source: dict[str, Any] = {
             "kind": "predicted",
-            "name": "Reduced MaleCNS fixed-graph PPO controller",
+            "name": "Reduced MaleCNS fixed-graph controller",
             "normalization": (
                 "ObservationV4 uses the declared 517-value encoding with long-range traffic radar and explicit "
                 "blocker cells, hazard-speed/sub-cell phase, and signed lateral position; raw tanh node activity is "
@@ -465,7 +465,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
 
 
 def _main() -> None:
-    parser = argparse.ArgumentParser(description="Export a PPO checkpoint for the browser.")
+    parser = argparse.ArgumentParser(description="Export a connectome checkpoint for browser inference.")
     parser.add_argument("checkpoint", type=Path)
     parser.add_argument("output", type=Path)
     arguments = parser.parse_args()

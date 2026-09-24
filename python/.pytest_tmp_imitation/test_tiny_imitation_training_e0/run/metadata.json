@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "environmentVersion": 11,
+  "observationVersion": 4,
+  "trainingMode": "expert-imitation-bptt-v1",
+  "device": "cpu",
+  "dataset": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\python\\.pytest_tmp_imitation\\test_tiny_imitation_training_e0\\expert",
+  "datasetSha256": "335bc9a3671d3b0a4f5384a19a85328ea2d403ea83fe3da57f05a904ae258a07",
+  "plannerVersion": "receding-horizon-v2",
+  "plannerDepth": 2,
+  "sensoryCells": 128,
+  "readoutCells": 128,
+  "graphNodes": 1000,
+  "graphEdges": 113852,
+  "graphArtifactHash": "2708ffd05ca8e97d1ae85b5c477eea0260109bec3306293664b4da29d67164c6",
+  "checkpoint": {
+    "path": "checkpoint.pt",
+    "sha256": "151ba778e8be370a1f072bdf5b8d4003151c2e9285ede528f192ca026e7b37ec"
+  },
+  "policy": {
+    "path": "policy.json"
+  },
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu132",
+    "cudaAvailable": true
+  }
+}

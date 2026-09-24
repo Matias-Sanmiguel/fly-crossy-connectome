@@ -24,6 +24,7 @@ import {
   RENDER_LANE_CAPACITY,
   selectRenderableInstances,
 } from './rendering.ts';
+import { interpolatedSimulationTime } from './renderTiming.ts';
 import {
   DECISION_SECONDS,
   hazardPositionAt,
@@ -654,13 +655,11 @@ export function createGameRenderer(
       camera.position.set(6.2, 12.2, focusZ + 8.2);
       camera.lookAt(0, 0, focusZ - 0.65);
 
-      const elapsedHazardSeconds = Math.max(
-        0,
-        (now - hazardClockStarted) / 1_000,
+      const visualTime = interpolatedSimulationTime(
+        game.time,
+        game.step,
+        Math.max(0, now - hazardClockStarted),
       );
-      const visualTime = game.terminal === null
-        ? game.time + Math.min(DECISION_SECONDS, elapsedHazardSeconds)
-        : game.time;
       updateHazardPositions(visualTime);
       updateRailWarningLights(visualTime);
 

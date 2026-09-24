@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "environmentVersion": 11,
+  "observationVersion": 4,
+  "observationSize": 517,
+  "plannerVersion": "receding-horizon-v2",
+  "plannerDepth": 2,
+  "seedPrefix": "imitation-test",
+  "episodes": 3,
+  "maxStepsPerEpisode": 5,
+  "samples": 15,
+  "actionOrder": [
+    "forward",
+    "backward",
+    "left",
+    "right",
+    "wait"
+  ],
+  "actionCounts": {
+    "forward": 12,
+    "left": 2,
+    "right": 1
+  },
+  "meanScore": 4.0,
+  "bestScore": 4.0,
+  "terminalReasons": {
+    "step-limit": 3
+  },
+  "meanSearchNodesPerDecision": 19.466666666666665,
+  "meanCacheHitsPerDecision": 9.866666666666667,
+  "dataset": {
+    "path": "dataset.npz",
+    "sha256": "2bcdfe47ca5f7a67131a03501bfdf1d900aa55f1f9c3cd639ec3e44f1e34e3e7"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "trainingMode": "expert-imitation-bptt-v1",
+  "bestEpoch": 1,
+  "epochsCompleted": 1,
+  "trainingCurve": [
+    {
+      "epoch": 1,
+      "trainLoss": 0.9596348106861115,
+      "trainAccuracy": 0.16666666666666666,
+      "validationAccuracy": 0.0,
+      "validationMacroAccuracy": 0.0,
+      "validationPerActionAccuracy": {
+        "forward": 0.0,
+        "backward": null,
+        "left": null,
+        "right": null,
+        "wait": null
+      },
+      "recurrentGain": 1.0005985498428345,
+      "timeConstant": 1.0
+    }
+  ],
+  "training": {
+    "accuracy": 0.16666666666666666,
+    "macroAccuracy": 0.3333333333333333,
+    "perActionAccuracy": {
+      "forward": 0.0,
+      "backward": null,
+      "left": 1.0,
+      "right": 0.0,
+      "wait": null
+    },
+    "samples": 12
+  },
+  "validation": {
+    "accuracy": 0.0,
+    "macroAccuracy": 0.0,
+    "perActionAccuracy": {
+      "forward": 0.0,
+      "backward": null,
+      "left": null,
+      "right": null,
+      "wait": null
+    },
+    "samples": 4
+  }
+}

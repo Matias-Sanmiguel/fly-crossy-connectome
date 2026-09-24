@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from .schema import Action, OBSERVATION_RADIUS, ObservationV1, flatten_observation
 
 
-WORLD_VERSION = 10
+WORLD_VERSION = 11
 WORLD_LAYOUT_VERSION = 6
 DECISION_SECONDS = 0.2
 WORLD_HALF_WIDTH = 5
@@ -429,119 +429,153 @@ def _advance_lane_transition(
     lane_for: Callable[[int], Lane],
     blocked_at: Callable[[int, float], bool] | None = None,
 ) -> _LaneTransition:
-    """Advance one action with the authoritative collision, carry, and bounds rules."""
+    # V11: apply the discrete action first, then advance traffic over the tick.
     start_position = position
     to_time = time + DECISION_SECONDS
     fly = position
     events: list[dict[str, object]] = []
-    starting_lane = lane_for(position.row)
     terminal: TerminalReason | None = None
 
-    if starting_lane.kind in ("road", "rail"):
+    attempted = _moved_position(position, action)
+    if action == Action.WAIT:
+        fly = attempted
+        events.append({"type": "waited", "position": fly})
+    else:
+        blocked_reason: str | None = None
+        if abs(attempted.column) > WORLD_HALF_WIDTH:
+            blocked_reason = "bounds"
+        elif blocked_at is not None and blocked_at(
+            attempted.row,
+            attempted.column,
+        ):
+            blocked_reason = "scenery"
+
+        if blocked_reason is not None:
+            fly = position
+            events.append(
+                {
+                    "type": "blocked",
+                    "action": action,
+                    "from": start_position,
+                    "attempted": attempted,
+                    "reason": blocked_reason,
+                }
+            )
+        else:
+            fly = attempted
+            events.append(
+                {
+                    "type": "moved",
+                    "action": action,
+                    "from": start_position,
+                    "to": fly,
+                }
+            )
+
+    destination_lane = lane_for(fly.row)
+
+    if destination_lane.kind == "river" and action == Action.WAIT:
+        support = next(
+            (
+                hazard
+                for hazard in destination_lane.hazards
+                if hazard.kind == "log"
+                and hazard_contains(
+                    destination_lane,
+                    hazard,
+                    position.column,
+                    time,
+                )
+            ),
+            None,
+        )
+        if support is not None:
+            displacement = (
+                (destination_lane.direction or 0)
+                * (destination_lane.speed or 0)
+                * DECISION_SECONDS
+            )
+            fly = GridPosition(
+                row=fly.row,
+                column=fly.column + displacement,
+            )
+            events.append(
+                {
+                    "type": "carried",
+                    "row": fly.row,
+                    "displacement": displacement,
+                }
+            )
+
+    if abs(fly.column) > WORLD_HALF_WIDTH:
+        terminal = "bounds"
+    elif destination_lane.kind == "river":
+        supported = any(
+            hazard.kind == "log"
+            and hazard_contains(
+                destination_lane,
+                hazard,
+                fly.column,
+                to_time,
+            )
+            for hazard in destination_lane.hazards
+        )
+        if not supported:
+            terminal = "water"
+    elif destination_lane.kind in ("road", "rail"):
         collision = next(
             (
                 hazard
-                for hazard in starting_lane.hazards
+                for hazard in destination_lane.hazards
                 if _hazard_sweeps_column(
-                    starting_lane, hazard, position.column, time, to_time
+                    destination_lane,
+                    hazard,
+                    fly.column,
+                    time,
+                    to_time,
                 )
             ),
             None,
         )
         if collision is not None:
-            terminal = _collision_reason(starting_lane, collision)
+            terminal = _collision_reason(destination_lane, collision)
 
-    if terminal is None:
-        attempted = _moved_position(position, action)
-        if action == Action.WAIT:
-            fly = attempted
-            events.append({"type": "waited", "position": fly})
-        else:
-            blocked_reason: str | None = None
-            if abs(attempted.column) > WORLD_HALF_WIDTH:
-                blocked_reason = "bounds"
-            elif blocked_at is not None and blocked_at(attempted.row, attempted.column):
-                blocked_reason = "scenery"
-
-            if blocked_reason is not None:
-                fly = position
-                events.append(
-                    {
-                        "type": "blocked",
-                        "action": action,
-                        "from": start_position,
-                        "attempted": attempted,
-                        "reason": blocked_reason,
-                    }
-                )
-            else:
-                fly = attempted
-                events.append(
-                    {"type": "moved", "action": action, "from": start_position, "to": fly}
-                )
-
-        destination_lane = lane_for(fly.row)
-        if destination_lane.kind == "river" and action == Action.WAIT:
-            support = next(
-                (
-                    hazard
-                    for hazard in destination_lane.hazards
-                    if hazard.kind == "log"
-                    and hazard_contains(
-                        destination_lane, hazard, position.column, time
-                    )
-                ),
-                None,
+    if terminal is None and destination_lane.kind == "rail":
+        warning_end = to_time + TRAIN_WARNING_SECONDS
+        approaching = any(
+            hazard.kind == "train"
+            and _hazard_sweeps_column(
+                destination_lane,
+                hazard,
+                fly.column,
+                to_time,
+                warning_end,
             )
-            if support is not None:
-                displacement = (
-                    (destination_lane.direction or 0)
-                    * (destination_lane.speed or 0)
-                    * DECISION_SECONDS
-                )
-                fly = GridPosition(row=fly.row, column=fly.column + displacement)
-                events.append(
-                    {"type": "carried", "row": fly.row, "displacement": displacement}
-                )
-
-        if abs(fly.column) > WORLD_HALF_WIDTH:
-            terminal = "bounds"
-        elif destination_lane.kind == "river":
-            supported = any(
-                hazard.kind == "log"
-                and hazard_contains(destination_lane, hazard, fly.column, to_time)
-                for hazard in destination_lane.hazards
+            for hazard in destination_lane.hazards
+        )
+        if approaching:
+            events.append(
+                {
+                    "type": "train-warning",
+                    "row": destination_lane.row,
+                }
             )
-            if not supported:
-                terminal = "water"
-        elif destination_lane.kind in ("road", "rail"):
-            collision = next(
-                (
-                    hazard
-                    for hazard in destination_lane.hazards
-                    if hazard_contains(destination_lane, hazard, fly.column, to_time)
-                ),
-                None,
-            )
-            if collision is not None:
-                terminal = _collision_reason(destination_lane, collision)
-
-        if terminal is None and destination_lane.kind == "rail":
-            warning_end = to_time + TRAIN_WARNING_SECONDS
-            approaching = any(
-                hazard.kind == "train"
-                and _hazard_sweeps_column(
-                    destination_lane, hazard, fly.column, to_time, warning_end
-                )
-                for hazard in destination_lane.hazards
-            )
-            if approaching:
-                events.append({"type": "train-warning", "row": destination_lane.row})
 
     if terminal is not None:
-        events.append({"type": "terminal", "reason": terminal, "position": fly})
-    return _LaneTransition(fly=fly, time=to_time, terminal=terminal, events=events)
+        events.append(
+            {
+                "type": "terminal",
+                "reason": terminal,
+                "position": fly,
+            }
+        )
 
+    return _LaneTransition(
+        fly=fly,
+        time=to_time,
+        terminal=terminal,
+        events=events,
+    )
 
 def _decision_time_after_steps(steps: int) -> float:
     time = 0.0
