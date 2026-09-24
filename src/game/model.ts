@@ -48,6 +48,7 @@ export type FixedGraphNetwork = {
   recurrentWeights: number[];
   recurrentGain: number;
   timeConstant: number;
+  internalSteps?: number;
   /** Row-major [action, node]. */
   actorWeights: number[];
   actorBias: number[];
@@ -249,6 +250,13 @@ function parseFixedGraphNetwork(
     ? value.interfaceMode
     : undefined;
   const controllerV2 = interfaceMode === 'controller-v2';
+  const settledPopulation = interfaceMode === 'population-settled';
+  const internalSteps = value.internalSteps === undefined
+    ? 1
+    : requirePositiveInteger(value.internalSteps, 'Fixed graph internalSteps');
+  if (settledPopulation && internalSteps !== 2) {
+    throw Error('Settled population policies must use exactly two internal steps.');
+  }
   if (controllerV2) {
     if (typeof value.safetyGain !== 'number' || !Number.isFinite(value.safetyGain)
       || value.safetyGain <= 0
@@ -274,6 +282,7 @@ function parseFixedGraphNetwork(
     recurrentWeights: requireFiniteArray(value.recurrentWeights, edgeCount, 'Fixed graph recurrent weights'),
     recurrentGain: value.recurrentGain,
     timeConstant: value.timeConstant,
+    ...(internalSteps !== 1 ? { internalSteps } : {}),
     actorWeights: requireFiniteArray(
       value.actorWeights,
       POLICY_ACTIONS.length * nodeCount,
@@ -431,24 +440,34 @@ export function runFixedGraphNetwork(
   if (hidden.length !== nodeCount || !hidden.every(Number.isFinite)) {
     throw Error(`Fixed graph hidden state must contain ${nodeCount} finite values.`);
   }
-  const recurrent = Array(nodeCount).fill(0) as number[];
-  for (let edge = 0; edge < network.recurrentWeights.length; edge += 1) {
-    recurrent[network.recurrentTarget[edge]!]! += (
-      network.recurrentWeights[edge]! * hidden[network.recurrentSource[edge]!]!
-    );
-  }
-  const activity = Array.from({ length: nodeCount }, (_, node) => {
-    let sensory = 0;
+  const sensory = Array.from({ length: nodeCount }, (_, node) => {
+    let value = 0;
     const offset = node * network.inputSize;
     for (let index = 0; index < network.inputSize; index += 1) {
-      sensory += network.sensoryWeights[offset + index]! * input[index]!;
+      value += network.sensoryWeights[offset + index]! * input[index]!;
     }
-    const candidate = activate(
-      sensory + network.recurrentGain * recurrent[node]!,
-      network.activation,
-    );
-    return hidden[node]! + network.timeConstant * (candidate - hidden[node]!);
+    return value;
   });
+
+  const internalSteps = network.internalSteps ?? 1;
+  let activity = [...hidden];
+
+  for (let internalStep = 0; internalStep < internalSteps; internalStep += 1) {
+    const recurrent = Array(nodeCount).fill(0) as number[];
+    for (let edge = 0; edge < network.recurrentWeights.length; edge += 1) {
+      recurrent[network.recurrentTarget[edge]!]! += (
+        network.recurrentWeights[edge]! * activity[network.recurrentSource[edge]!]!
+      );
+    }
+    const previous = activity;
+    activity = Array.from({ length: nodeCount }, (_, node) => {
+      const candidate = activate(
+        sensory[node]! + network.recurrentGain * recurrent[node]!,
+        network.activation,
+      );
+      return previous[node]! + network.timeConstant * (candidate - previous[node]!);
+    });
+  }
   const baseLogits = Array.from({ length: POLICY_ACTIONS.length }, (_, action) => {
     let value = network.actorBias[action]!;
     const offset = action * nodeCount;

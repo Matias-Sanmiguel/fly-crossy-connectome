@@ -155,6 +155,53 @@ class PopulationFixedGraphPolicy(nn.Module):
     def normalized_activity(activity: Tensor) -> Tensor:
         return FixedGraphPolicy.normalized_activity(activity)
 
+
+class SettledPopulationFixedGraphPolicy(PopulationFixedGraphPolicy):
+    # Current ObservationV4 remains clamped on the sensory population while
+    # activity advances twice through the fixed MaleCNS topology.
+    INTERNAL_STEPS = 2
+
+    def forward(
+        self,
+        observation: Tensor,
+        hidden: Tensor,
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        if observation.ndim != 2 or observation.shape[1] != self.sensory.in_features:
+            raise ValueError(
+                "Settled population observation has an incompatible shape."
+            )
+        if hidden.shape != (observation.shape[0], self.graph.node_count):
+            raise ValueError(
+                "Settled population hidden state has an incompatible shape."
+            )
+
+        sensory_drive = self.sensory(observation)
+        injected = torch.zeros_like(hidden)
+        injected = torch.index_copy(
+            injected,
+            1,
+            self.sensory_indices,
+            sensory_drive,
+        )
+
+        activity = hidden
+        recurrent_gain = torch.clamp(self.recurrent_gain, min=0.0)
+        time_constant = torch.clamp(self.time_constant, min=1e-4, max=1.0)
+
+        for _ in range(self.INTERNAL_STEPS):
+            recurrent = torch.sparse.mm(self.adjacency, activity.T).T
+            candidate = torch.tanh(
+                injected + recurrent_gain * recurrent
+            )
+            activity = activity + time_constant * (candidate - activity)
+
+        readout_activity = activity.index_select(1, self.readout_indices)
+        return (
+            self.actor(readout_activity),
+            self.critic(readout_activity).squeeze(-1),
+            activity,
+        )
+
 class TrafficAwarePopulationPolicy(PopulationFixedGraphPolicy):
     """Controller V2: recurrent connectome plus learned per-action safety heads."""
 

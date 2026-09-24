@@ -215,6 +215,7 @@ def validate_checkpoint(
             "legacy",
             "population",
             "population-wide-predictive",
+            "population-settled",
             "controller-v2",
             "nested",
             "nested-gated",
@@ -222,7 +223,7 @@ def validate_checkpoint(
         ):
             raise ValueError(
                 "Checkpoint connectome interface must be legacy, population, "
-                "population-wide-predictive, controller-v2, nested, nested-gated, "
+                "population-wide-predictive, population-settled, controller-v2, nested, nested-gated, "
                 "or nested-feedback."
             )
 

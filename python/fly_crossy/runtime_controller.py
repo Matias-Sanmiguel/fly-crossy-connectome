@@ -13,6 +13,7 @@ from fly_crossy.models import (
     GatedNestedPopulationFixedGraphPolicy,
     NestedPopulationFixedGraphPolicy,
     PopulationFixedGraphPolicy,
+    SettledPopulationFixedGraphPolicy,
     TrafficAwarePopulationPolicy,
 )
 from fly_crossy.protocol import Action, Observation
@@ -104,6 +105,12 @@ class ConnectomeActionSelector:
             model = NestedPopulationFixedGraphPolicy(
                 graph,
                 core_graph,
+                checkpoint.observation_size,
+                checkpoint.actions,
+            )
+        elif checkpoint.connectome_interface == "population-settled":
+            model = SettledPopulationFixedGraphPolicy(
+                graph,
                 checkpoint.observation_size,
                 checkpoint.actions,
             )

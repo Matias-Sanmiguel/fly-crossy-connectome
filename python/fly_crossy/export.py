@@ -250,6 +250,7 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
         elif checkpoint_metadata.connectome_interface in (
             "population",
             "population-wide-predictive",
+            "population-settled",
         ):
             model = _load_population_fixed_graph_policy(
                 graph,
@@ -341,6 +342,8 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
                 interface_mode = "nested"
             else:
                 interface_mode = "population"
+            if checkpoint_metadata.connectome_interface == "population-settled":
+                interface_mode = "population-settled"
         else:
             sensory_weights = model.sensory.weight
             actor_weights = model.actor.weight
@@ -386,6 +389,11 @@ def export_policy(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
             "timeConstant": time_constant,
             "actorWeights": _finite_row_major(actor_weights, "actor weights"),
             "actorBias": _finite_row_major(model.actor.bias, "actor bias"),
+            **(
+                {"internalSteps": 2}
+                if checkpoint_metadata.connectome_interface == "population-settled"
+                else {}
+            ),
         }
         if isinstance(model, TrafficAwarePopulationPolicy):
             risk_weights = torch.zeros(
