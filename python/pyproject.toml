@@ -23,3 +23,9 @@ test = ["httpx==0.28.1", "pytest>=8.0"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fly_crossy*"]
+exclude = ["datasets*", "runs*", "tests*"]
+namespaces = false

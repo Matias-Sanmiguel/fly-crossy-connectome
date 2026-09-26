@@ -4,6 +4,7 @@ from .substrate import MaleCNSV2Substrate
 from .core import FrozenMaleCNSCore, FrozenMaleCNSState
 from .vision_geometry import VisualGeometry
 from .vision_frontend import FrozenVisualFrontEnd, VisualState
+from .crossy_camera import render_crossy_neural_frame
 
 __all__ = [
     "MaleCNSV2Substrate",
@@ -12,4 +13,5 @@ __all__ = [
     "VisualGeometry",
     "FrozenVisualFrontEnd",
     "VisualState",
+    "render_crossy_neural_frame",
 ]

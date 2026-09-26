@@ -1,0 +1,791 @@
+{
+  "version": 1,
+  "preferenceVersion": "malecns-crossy-v2-preference-distill-1",
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-preference-r1.pt",
+  "initialCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-r0.pt",
+  "frozenSystem": {
+    "camera": true,
+    "visualFrontend": true,
+    "MaleCNS": true,
+    "globalGain": {
+      "target": 0.95,
+      "baseGainAtW0One": 114.84757776694082,
+      "w0": 0.008271833141555903,
+      "estimatedGain": 0.95
+    }
+  },
+  "teacher": {
+    "plannerVersion": "receding-horizon-v2",
+    "depth": 4,
+    "role": "offline only",
+    "allFiveRootActionValuesPreserved": true,
+    "oneHotPlannerImitation": false
+  },
+  "datasets": {
+    "trainSamples": 8114,
+    "validationSamples": 1600,
+    "daggerStudentStatesIncluded": true,
+    "trainArtifact": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\preference-r1-train.npz",
+    "validationArtifact": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\preference-r1-validation.npz"
+  },
+  "loss": {
+    "acceptableSet": 1.0,
+    "pairwiseRanking": 0.5,
+    "immediateFatalMass": 1.0,
+    "primaryAcceptableDimensions": [
+      "alive_at_depth",
+      "score_gain",
+      "row_gain"
+    ],
+    "secondaryPreferenceDimensions": [
+      "mobility",
+      "forward_safe",
+      "centering"
+    ]
+  },
+  "initialValidation": {
+    "samples": 1600,
+    "acceptableSetAccuracy": 0.911875,
+    "immediateSafeRate": 0.97375,
+    "immediateFatalRate": 0.026249999999999996,
+    "exactBestAccuracy": 0.865625,
+    "pairwiseAgreement": 0.6546714349575324,
+    "predictedActions": {
+      "forward": 1191,
+      "backward": 9,
+      "left": 180,
+      "right": 189,
+      "wait": 31
+    }
+  },
+  "finalValidation": {
+    "samples": 1600,
+    "acceptableSetAccuracy": 0.928125,
+    "immediateSafeRate": 0.985625,
+    "immediateFatalRate": 0.014375000000000027,
+    "exactBestAccuracy": 0.864375,
+    "pairwiseAgreement": 0.863507673968112,
+    "predictedActions": {
+      "forward": 1174,
+      "backward": 1,
+      "left": 197,
+      "right": 199,
+      "wait": 29
+    }
+  },
+  "initialDev": {
+    "episodes": 12,
+    "maxSteps": 160,
+    "meanScore": 26.416666666666668,
+    "medianScore": 24.0,
+    "bestScore": 76.0,
+    "meanLength": 35.0,
+    "reachedStepLimit": 0,
+    "terminalReasons": {
+      "vehicle": 12
+    },
+    "actions": {
+      "forward": 319,
+      "left": 50,
+      "right": 47,
+      "wait": 4
+    }
+  },
+  "bestEpoch": 24,
+  "bestDev": {
+    "episodes": 12,
+    "maxSteps": 160,
+    "meanScore": 41.083333333333336,
+    "medianScore": 47.0,
+    "bestScore": 84.0,
+    "meanLength": 57.25,
+    "reachedStepLimit": 0,
+    "terminalReasons": {
+      "train": 1,
+      "vehicle": 9,
+      "water": 2
+    },
+    "actions": {
+      "forward": 497,
+      "left": 95,
+      "right": 84,
+      "wait": 11
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.5347124710679054,
+      "setLoss": 0.2953999871388078,
+      "pairLoss": 0.39092391543090343,
+      "fatalMass": 0.043850528745679185,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.91125,
+        "immediateSafeRate": 0.980625,
+        "immediateFatalRate": 0.01937500000000003,
+        "exactBestAccuracy": 0.845625,
+        "pairwiseAgreement": 0.8408582923558338,
+        "predictedActions": {
+          "forward": 1149,
+          "backward": 0,
+          "left": 209,
+          "right": 225,
+          "wait": 17
+        }
+      },
+      "dev": {
+        "episodes": 12,
+        "maxSteps": 160,
+        "meanScore": 19.0,
+        "medianScore": 13.0,
+        "bestScore": 57.0,
+        "meanLength": 26.666666666666668,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 10,
+          "water": 1
+        },
+        "actions": {
+          "forward": 233,
+          "left": 32,
+          "right": 51,
+          "wait": 4
+        }
+      }
+    },
+    {
+      "epoch": 2,
+      "loss": 0.45400693407282233,
+      "setLoss": 0.25308300368487835,
+      "pairLoss": 0.3284141654148698,
+      "fatalMass": 0.03671684804430697,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.90625,
+        "immediateSafeRate": 0.97875,
+        "immediateFatalRate": 0.02124999999999999,
+        "exactBestAccuracy": 0.841875,
+        "pairwiseAgreement": 0.8419758605274922,
+        "predictedActions": {
+          "forward": 1149,
+          "backward": 0,
+          "left": 247,
+          "right": 191,
+          "wait": 13
+        }
+      }
+    },
+    {
+      "epoch": 3,
+      "loss": 0.4186863941140473,
+      "setLoss": 0.23141513345763087,
+      "pairLoss": 0.308639103313908,
+      "fatalMass": 0.03295170843193773,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.91875,
+        "immediateSafeRate": 0.98375,
+        "immediateFatalRate": 0.016249999999999987,
+        "exactBestAccuracy": 0.85125,
+        "pairwiseAgreement": 0.8439874832364774,
+        "predictedActions": {
+          "forward": 1166,
+          "backward": 0,
+          "left": 161,
+          "right": 248,
+          "wait": 25
+        }
+      }
+    },
+    {
+      "epoch": 4,
+      "loss": 0.4015918653458357,
+      "setLoss": 0.22125700232572854,
+      "pairLoss": 0.29895322513766587,
+      "fatalMass": 0.030858252590405755,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.9125,
+        "immediateSafeRate": 0.983125,
+        "immediateFatalRate": 0.016874999999999973,
+        "exactBestAccuracy": 0.83875,
+        "pairwiseAgreement": 0.8486067650126657,
+        "predictedActions": {
+          "forward": 1144,
+          "backward": 0,
+          "left": 181,
+          "right": 235,
+          "wait": 40
+        }
+      },
+      "dev": {
+        "episodes": 12,
+        "maxSteps": 160,
+        "meanScore": 37.583333333333336,
+        "medianScore": 39.0,
+        "bestScore": 100.0,
+        "meanLength": 62.083333333333336,
+        "reachedStepLimit": 2,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 7,
+          "water": 1
+        },
+        "actions": {
+          "forward": 454,
+          "left": 175,
+          "right": 94,
+          "wait": 22
+        }
+      }
+    },
+    {
+      "epoch": 5,
+      "loss": 0.3739887960255146,
+      "setLoss": 0.20381830469705164,
+      "pairLoss": 0.2851777384057641,
+      "fatalMass": 0.027581621005083434,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.914375,
+        "immediateSafeRate": 0.9825,
+        "immediateFatalRate": 0.01749999999999996,
+        "exactBestAccuracy": 0.85125,
+        "pairwiseAgreement": 0.8454030695872449,
+        "predictedActions": {
+          "forward": 1148,
+          "backward": 1,
+          "left": 226,
+          "right": 206,
+          "wait": 19
+        }
+      }
+    },
+    {
+      "epoch": 6,
+      "loss": 0.35150034772232175,
+      "setLoss": 0.18983851629309356,
+      "pairLoss": 0.2744539703708142,
+      "fatalMass": 0.024434848033706658,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.90875,
+        "immediateSafeRate": 0.980625,
+        "immediateFatalRate": 0.01937500000000003,
+        "exactBestAccuracy": 0.845625,
+        "pairwiseAgreement": 0.850618387721651,
+        "predictedActions": {
+          "forward": 1180,
+          "backward": 0,
+          "left": 159,
+          "right": 218,
+          "wait": 43
+        }
+      }
+    },
+    {
+      "epoch": 7,
+      "loss": 0.3368064814712852,
+      "setLoss": 0.17958501540124416,
+      "pairLoss": 0.26820541988126934,
+      "fatalMass": 0.023118758370401338,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.91875,
+        "immediateSafeRate": 0.984375,
+        "immediateFatalRate": 0.015625,
+        "exactBestAccuracy": 0.8525,
+        "pairwiseAgreement": 0.8485322604678885,
+        "predictedActions": {
+          "forward": 1158,
+          "backward": 0,
+          "left": 173,
+          "right": 252,
+          "wait": 17
+        }
+      }
+    },
+    {
+      "epoch": 8,
+      "loss": 0.3174167813267559,
+      "setLoss": 0.16716634982731193,
+      "pairLoss": 0.2585405476856977,
+      "fatalMass": 0.020980160057661124,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.9,
+        "immediateSafeRate": 0.9825,
+        "immediateFatalRate": 0.01749999999999996,
+        "exactBestAccuracy": 0.848125,
+        "pairwiseAgreement": 0.8459246014006855,
+        "predictedActions": {
+          "forward": 1157,
+          "backward": 6,
+          "left": 216,
+          "right": 201,
+          "wait": 20
+        }
+      },
+      "dev": {
+        "episodes": 12,
+        "maxSteps": 160,
+        "meanScore": 26.5,
+        "medianScore": 22.0,
+        "bestScore": 70.0,
+        "meanLength": 42.916666666666664,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 9,
+          "water": 2
+        },
+        "actions": {
+          "forward": 318,
+          "left": 124,
+          "right": 65,
+          "wait": 8
+        }
+      }
+    },
+    {
+      "epoch": 9,
+      "loss": 0.3136835938785225,
+      "setLoss": 0.16569961421191692,
+      "pairLoss": 0.25576688232831657,
+      "fatalMass": 0.02010053727281047,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.9225,
+        "immediateSafeRate": 0.980625,
+        "immediateFatalRate": 0.01937500000000003,
+        "exactBestAccuracy": 0.86875,
+        "pairwiseAgreement": 0.852555505885859,
+        "predictedActions": {
+          "forward": 1200,
+          "backward": 0,
+          "left": 145,
+          "right": 233,
+          "wait": 22
+        }
+      }
+    },
+    {
+      "epoch": 10,
+      "loss": 0.2858548476360738,
+      "setLoss": 0.14633865701034665,
+      "pairLoss": 0.24383518914692104,
+      "fatalMass": 0.017598594495211728,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.92375,
+        "immediateSafeRate": 0.98625,
+        "immediateFatalRate": 0.01375000000000004,
+        "exactBestAccuracy": 0.8625,
+        "pairwiseAgreement": 0.8505438831768738,
+        "predictedActions": {
+          "forward": 1171,
+          "backward": 0,
+          "left": 205,
+          "right": 212,
+          "wait": 12
+        }
+      }
+    },
+    {
+      "epoch": 11,
+      "loss": 0.26955043128691614,
+      "setLoss": 0.13580498134251684,
+      "pairLoss": 0.2359009855426848,
+      "fatalMass": 0.01579495861005853,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.915625,
+        "immediateSafeRate": 0.98375,
+        "immediateFatalRate": 0.016249999999999987,
+        "exactBestAccuracy": 0.849375,
+        "pairwiseAgreement": 0.8532260467888542,
+        "predictedActions": {
+          "forward": 1164,
+          "backward": 0,
+          "left": 156,
+          "right": 260,
+          "wait": 20
+        }
+      }
+    },
+    {
+      "epoch": 12,
+      "loss": 0.2509898184798658,
+      "setLoss": 0.12277805455960333,
+      "pairLoss": 0.22816718579269946,
+      "fatalMass": 0.014128170932963258,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.916875,
+        "immediateSafeRate": 0.985625,
+        "immediateFatalRate": 0.014375000000000027,
+        "exactBestAccuracy": 0.854375,
+        "pairwiseAgreement": 0.8521084786171956,
+        "predictedActions": {
+          "forward": 1176,
+          "backward": 1,
+          "left": 176,
+          "right": 216,
+          "wait": 31
+        }
+      },
+      "dev": {
+        "episodes": 12,
+        "maxSteps": 160,
+        "meanScore": 27.75,
+        "medianScore": 25.0,
+        "bestScore": 77.0,
+        "meanLength": 51.0,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 7,
+          "water": 2
+        },
+        "actions": {
+          "forward": 341,
+          "left": 185,
+          "right": 80,
+          "wait": 6
+        }
+      }
+    },
+    {
+      "epoch": 13,
+      "loss": 0.24319917638786137,
+      "setLoss": 0.12093919375911355,
+      "pairLoss": 0.22010888042859733,
+      "fatalMass": 0.012205540195282083,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.924375,
+        "immediateSafeRate": 0.98875,
+        "immediateFatalRate": 0.011249999999999982,
+        "exactBestAccuracy": 0.8525,
+        "pairwiseAgreement": 0.8556101922217255,
+        "predictedActions": {
+          "forward": 1163,
+          "backward": 1,
+          "left": 162,
+          "right": 224,
+          "wait": 50
+        }
+      }
+    },
+    {
+      "epoch": 14,
+      "loss": 0.2305429836269468,
+      "setLoss": 0.11070389556698501,
+      "pairLoss": 0.21612107940018177,
+      "fatalMass": 0.011778547439462272,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.92,
+        "immediateSafeRate": 0.985,
+        "immediateFatalRate": 0.015000000000000013,
+        "exactBestAccuracy": 0.86125,
+        "pairwiseAgreement": 0.8576218149307108,
+        "predictedActions": {
+          "forward": 1194,
+          "backward": 0,
+          "left": 176,
+          "right": 181,
+          "wait": 49
+        }
+      }
+    },
+    {
+      "epoch": 15,
+      "loss": 0.21904046996496618,
+      "setLoss": 0.10268972092308104,
+      "pairLoss": 0.21086075180210173,
+      "fatalMass": 0.010920373111730441,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.921875,
+        "immediateSafeRate": 0.9825,
+        "immediateFatalRate": 0.01749999999999996,
+        "exactBestAccuracy": 0.870625,
+        "pairwiseAgreement": 0.8607510058113544,
+        "predictedActions": {
+          "forward": 1199,
+          "backward": 1,
+          "left": 135,
+          "right": 242,
+          "wait": 23
+        }
+      }
+    },
+    {
+      "epoch": 16,
+      "loss": 0.21261842153035104,
+      "setLoss": 0.09760161640588194,
+      "pairLoss": 0.2088912706822157,
+      "fatalMass": 0.010571169874310726,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.921875,
+        "immediateSafeRate": 0.983125,
+        "immediateFatalRate": 0.016874999999999973,
+        "exactBestAccuracy": 0.859375,
+        "pairwiseAgreement": 0.8605274921770228,
+        "predictedActions": {
+          "forward": 1168,
+          "backward": 1,
+          "left": 219,
+          "right": 185,
+          "wait": 27
+        }
+      },
+      "dev": {
+        "episodes": 12,
+        "maxSteps": 160,
+        "meanScore": 30.25,
+        "medianScore": 18.0,
+        "bestScore": 84.0,
+        "meanLength": 44.083333333333336,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 9,
+          "water": 2
+        },
+        "actions": {
+          "backward": 1,
+          "forward": 366,
+          "left": 87,
+          "right": 59,
+          "wait": 16
+        }
+      }
+    },
+    {
+      "epoch": 17,
+      "loss": 0.19928278541192412,
+      "setLoss": 0.09098695032298565,
+      "pairLoss": 0.1993640004657209,
+      "fatalMass": 0.008613836173026357,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.924375,
+        "immediateSafeRate": 0.985625,
+        "immediateFatalRate": 0.014375000000000027,
+        "exactBestAccuracy": 0.8625,
+        "pairwiseAgreement": 0.8567277603933839,
+        "predictedActions": {
+          "forward": 1181,
+          "backward": 0,
+          "left": 209,
+          "right": 175,
+          "wait": 35
+        }
+      }
+    },
+    {
+      "epoch": 18,
+      "loss": 0.1885017566382885,
+      "setLoss": 0.0841108420281671,
+      "pairLoss": 0.19314048835076392,
+      "fatalMass": 0.007820670869477908,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.925,
+        "immediateSafeRate": 0.9825,
+        "immediateFatalRate": 0.01749999999999996,
+        "exactBestAccuracy": 0.865,
+        "pairwiseAgreement": 0.8606019967218,
+        "predictedActions": {
+          "forward": 1173,
+          "backward": 0,
+          "left": 176,
+          "right": 227,
+          "wait": 24
+        }
+      }
+    },
+    {
+      "epoch": 19,
+      "loss": 0.17525657056830823,
+      "setLoss": 0.07513807254144922,
+      "pairLoss": 0.1870117480866611,
+      "fatalMass": 0.006612623148612329,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.92875,
+        "immediateSafeRate": 0.988125,
+        "immediateFatalRate": 0.011874999999999969,
+        "exactBestAccuracy": 0.874375,
+        "pairwiseAgreement": 0.862837133065117,
+        "predictedActions": {
+          "forward": 1177,
+          "backward": 0,
+          "left": 173,
+          "right": 232,
+          "wait": 18
+        }
+      }
+    },
+    {
+      "epoch": 20,
+      "loss": 0.16519768396392465,
+      "setLoss": 0.06828100886195898,
+      "pairLoss": 0.182250892277807,
+      "fatalMass": 0.00579122883209493,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.925,
+        "immediateSafeRate": 0.98625,
+        "immediateFatalRate": 0.01375000000000004,
+        "exactBestAccuracy": 0.861875,
+        "pairwiseAgreement": 0.8585158694680376,
+        "predictedActions": {
+          "forward": 1169,
+          "backward": 0,
+          "left": 188,
+          "right": 214,
+          "wait": 29
+        }
+      },
+      "dev": {
+        "episodes": 12,
+        "maxSteps": 160,
+        "meanScore": 34.666666666666664,
+        "medianScore": 24.0,
+        "bestScore": 94.0,
+        "meanLength": 62.166666666666664,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 7,
+          "water": 2
+        },
+        "actions": {
+          "forward": 452,
+          "left": 185,
+          "right": 95,
+          "wait": 14
+        }
+      }
+    },
+    {
+      "epoch": 21,
+      "loss": 0.16570977109950036,
+      "setLoss": 0.06896705395774916,
+      "pairLoss": 0.1807277953485027,
+      "fatalMass": 0.006378818656230578,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.916875,
+        "immediateSafeRate": 0.986875,
+        "immediateFatalRate": 0.013125000000000053,
+        "exactBestAccuracy": 0.85375,
+        "pairwiseAgreement": 0.8588138876471465,
+        "predictedActions": {
+          "forward": 1151,
+          "backward": 2,
+          "left": 227,
+          "right": 203,
+          "wait": 17
+        }
+      }
+    },
+    {
+      "epoch": 22,
+      "loss": 0.15930479299277067,
+      "setLoss": 0.06663131495588459,
+      "pairLoss": 0.17509637586772442,
+      "fatalMass": 0.005125290298337859,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.923125,
+        "immediateSafeRate": 0.985,
+        "immediateFatalRate": 0.015000000000000013,
+        "exactBestAccuracy": 0.85625,
+        "pairwiseAgreement": 0.8617940694382358,
+        "predictedActions": {
+          "forward": 1180,
+          "backward": 0,
+          "left": 170,
+          "right": 209,
+          "wait": 41
+        }
+      }
+    },
+    {
+      "epoch": 23,
+      "loss": 0.14985272858757526,
+      "setLoss": 0.06021083195810206,
+      "pairLoss": 0.16952481283806264,
+      "fatalMass": 0.00487949079615646,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.9275,
+        "immediateSafeRate": 0.985,
+        "immediateFatalRate": 0.015000000000000013,
+        "exactBestAccuracy": 0.871875,
+        "pairwiseAgreement": 0.8630606466994487,
+        "predictedActions": {
+          "forward": 1186,
+          "backward": 0,
+          "left": 194,
+          "right": 195,
+          "wait": 25
+        }
+      }
+    },
+    {
+      "epoch": 24,
+      "loss": 0.13753125618677586,
+      "setLoss": 0.05193656592746265,
+      "pairLoss": 0.16328431037254632,
+      "fatalMass": 0.003952536351789604,
+      "validation": {
+        "samples": 1600,
+        "acceptableSetAccuracy": 0.928125,
+        "immediateSafeRate": 0.985625,
+        "immediateFatalRate": 0.014375000000000027,
+        "exactBestAccuracy": 0.864375,
+        "pairwiseAgreement": 0.863507673968112,
+        "predictedActions": {
+          "forward": 1174,
+          "backward": 1,
+          "left": 197,
+          "right": 199,
+          "wait": 29
+        }
+      },
+      "dev": {
+        "episodes": 12,
+        "maxSteps": 160,
+        "meanScore": 41.083333333333336,
+        "medianScore": 47.0,
+        "bestScore": 84.0,
+        "meanLength": 57.25,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 9,
+          "water": 2
+        },
+        "actions": {
+          "forward": 497,
+          "left": 95,
+          "right": 84,
+          "wait": 11
+        }
+      }
+    }
+  ],
+  "timing": {
+    "collectionSeconds": 405.9559363,
+    "trainingSeconds": 174.05133460000002
+  },
+  "nextStep": "Run existing decoder_eval with decoder-preference-r1.pt. Stop after the 50-seed closed-loop result."
+}

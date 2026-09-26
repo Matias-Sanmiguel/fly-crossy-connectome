@@ -1,0 +1,284 @@
+{
+  "version": 1,
+  "purpose": "Bounded DAgger R1 diagnosis only. R0 argmax drives every real step; planner depth-4 only labels the same pre-action states offline.",
+  "plannerVersion": "receding-horizon-v2",
+  "plannerDepth": 4,
+  "controller": "MaleCNS-V2-decoder-R0-argmax",
+  "architectureFrozen": {
+    "camera": true,
+    "visualFrontend": true,
+    "MaleCNS": true,
+    "globalGain": {
+      "target": 0.95,
+      "baseGainAtW0One": 114.84757762445565,
+      "w0": 0.008271833151818318,
+      "estimatedGain": 0.9499999999999998
+    },
+    "decoderArchitecture": "21022 -> 256 -> 5"
+  },
+  "collection": {
+    "episodes": 120,
+    "maxSteps": 120,
+    "seedPrefix": "malecns-v2-dagger-r1",
+    "elapsedSeconds": 156.43239750000066,
+    "samplesPerSecond": 19.139257902123422
+  },
+  "dataset": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\dagger-r1-student-states.npz",
+  "summary": {
+    "samples": 2994,
+    "episodes": 120,
+    "meanScore": 17.241666666666667,
+    "medianScore": 14.0,
+    "bestScore": 68.0,
+    "meanLength": 24.95,
+    "terminalReasons": {
+      "train": 10,
+      "vehicle": 89,
+      "water": 21
+    },
+    "studentActionCounts": {
+      "forward": 2183,
+      "backward": 3,
+      "left": 444,
+      "right": 306,
+      "wait": 58
+    },
+    "expertActionCounts": {
+      "forward": 2057,
+      "backward": 27,
+      "left": 495,
+      "right": 374,
+      "wait": 41
+    },
+    "disagreementRate": 0.18570474281897129,
+    "criticalErrors": 120,
+    "criticalErrorRate": 0.04008016032064128,
+    "criticalErrorsByStudentTerminal": {
+      "vehicle": 89,
+      "train": 10,
+      "water": 21,
+      "bounds": 0
+    },
+    "studentImmediateTerminalActions": 120,
+    "expertImmediateTerminalActions": 0,
+    "agreementByExpertAction": {
+      "forward": {
+        "support": 2057,
+        "agreement": 0.9747204666990763
+      },
+      "backward": {
+        "support": 27,
+        "agreement": 0.037037037037037035
+      },
+      "left": {
+        "support": 495,
+        "agreement": 0.5151515151515151
+      },
+      "right": {
+        "support": 374,
+        "agreement": 0.446524064171123
+      },
+      "wait": {
+        "support": 41,
+        "agreement": 0.24390243902439024
+      },
+      "coreMacroAgreement": 0.5450746212615262
+    },
+    "confusionExpertRowsStudentColumns": {
+      "forward": {
+        "forward": 2005,
+        "backward": 1,
+        "left": 26,
+        "right": 11,
+        "wait": 14
+      },
+      "backward": {
+        "forward": 16,
+        "backward": 1,
+        "left": 8,
+        "right": 2,
+        "wait": 0
+      },
+      "left": {
+        "forward": 112,
+        "backward": 0,
+        "left": 255,
+        "right": 113,
+        "wait": 15
+      },
+      "right": {
+        "forward": 44,
+        "backward": 1,
+        "left": 143,
+        "right": 167,
+        "wait": 19
+      },
+      "wait": {
+        "forward": 6,
+        "backward": 0,
+        "left": 12,
+        "right": 13,
+        "wait": 10
+      }
+    },
+    "currentLane": {
+      "grass": {
+        "support": 1577,
+        "disagreementRate": 0.2289156626506024,
+        "criticalErrors": 36
+      },
+      "road": {
+        "support": 1134,
+        "disagreementRate": 0.13139329805996472,
+        "criticalErrors": 69
+      },
+      "rail": {
+        "support": 201,
+        "disagreementRate": 0.07960199004975124,
+        "criticalErrors": 0
+      },
+      "river": {
+        "support": 82,
+        "disagreementRate": 0.36585365853658536,
+        "criticalErrors": 15
+      }
+    },
+    "studentDestinationLane": {
+      "grass": {
+        "support": 1458,
+        "disagreementRate": 0.22085048010973937,
+        "criticalErrors": 0
+      },
+      "road": {
+        "support": 1222,
+        "disagreementRate": 0.13993453355155483,
+        "criticalErrors": 89
+      },
+      "rail": {
+        "support": 211,
+        "disagreementRate": 0.10426540284360189,
+        "criticalErrors": 10
+      },
+      "river": {
+        "support": 103,
+        "disagreementRate": 0.39805825242718446,
+        "criticalErrors": 21
+      }
+    },
+    "preDeathWindows": {
+      "vehicle": {
+        "1": {
+          "samples": 89,
+          "disagreementRate": 1.0,
+          "criticalErrors": 89,
+          "meanMaxProbability": 0.6296768188476562
+        },
+        "3": {
+          "samples": 267,
+          "disagreementRate": 0.5168539325842697,
+          "criticalErrors": 89,
+          "meanMaxProbability": 0.7459753751754761
+        },
+        "5": {
+          "samples": 439,
+          "disagreementRate": 0.3690205011389522,
+          "criticalErrors": 89,
+          "meanMaxProbability": 0.7762156128883362
+        }
+      },
+      "train": {
+        "1": {
+          "samples": 10,
+          "disagreementRate": 1.0,
+          "criticalErrors": 10,
+          "meanMaxProbability": 0.6049522161483765
+        },
+        "3": {
+          "samples": 30,
+          "disagreementRate": 0.5333333333333333,
+          "criticalErrors": 10,
+          "meanMaxProbability": 0.6785072684288025
+        },
+        "5": {
+          "samples": 46,
+          "disagreementRate": 0.41304347826086957,
+          "criticalErrors": 10,
+          "meanMaxProbability": 0.6827957034111023
+        }
+      },
+      "water": {
+        "1": {
+          "samples": 21,
+          "disagreementRate": 1.0,
+          "criticalErrors": 21,
+          "meanMaxProbability": 0.6471560597419739
+        },
+        "3": {
+          "samples": 63,
+          "disagreementRate": 0.6984126984126984,
+          "criticalErrors": 21,
+          "meanMaxProbability": 0.6681342720985413
+        },
+        "5": {
+          "samples": 104,
+          "disagreementRate": 0.47115384615384615,
+          "criticalErrors": 21,
+          "meanMaxProbability": 0.6983680725097656
+        }
+      },
+      "bounds": {
+        "1": {
+          "samples": 0,
+          "disagreementRate": null,
+          "criticalErrors": 0,
+          "meanMaxProbability": null
+        },
+        "3": {
+          "samples": 0,
+          "disagreementRate": null,
+          "criticalErrors": 0,
+          "meanMaxProbability": null
+        },
+        "5": {
+          "samples": 0,
+          "disagreementRate": null,
+          "criticalErrors": 0,
+          "meanMaxProbability": null
+        }
+      }
+    },
+    "confidence": {
+      "agreement": {
+        "support": 2438,
+        "meanMaxProbability": 0.8298167586326599,
+        "meanProbabilityMargin": 0.7336605787277222,
+        "meanEntropy": 0.579372763633728
+      },
+      "disagreement": {
+        "support": 556,
+        "meanMaxProbability": 0.6168889403343201,
+        "meanProbabilityMargin": 0.37664464116096497,
+        "meanEntropy": 0.9672845005989075
+      },
+      "criticalError": {
+        "support": 120,
+        "meanMaxProbability": 0.6306753158569336,
+        "meanProbabilityMargin": 0.4142592251300812,
+        "meanEntropy": 0.9654094576835632
+      }
+    },
+    "baselineValidationComparison": {
+      "baselineValidationAccuracy": 0.8675,
+      "baselineValidationCoreMacro": 0.6424198717948717,
+      "onPolicyCoreMacroAgreement": 0.5450746212615262,
+      "perActionAgreementDelta": {
+        "forward": 0.008887133365742983,
+        "backward": null,
+        "left": -0.07619463869463872,
+        "right": -0.12847593582887695,
+        "wait": -0.19359756097560976
+      }
+    }
+  },
+  "nextStepPolicy": "Do not train from this command. Inspect disagreement, fatal critical errors, per-action agreement, lane breakdown and pre-death windows first. At most one decoder DAgger fine-tune round is allowed afterward."
+}

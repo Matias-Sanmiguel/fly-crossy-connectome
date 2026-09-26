@@ -1,0 +1,11 @@
+MaleCNS V2 perspective camera fix
+
+Fixes two independent issues:
+1. The prior pytest guards searched raw source text and falsely matched words in docstrings.
+2. More importantly, the triangle rasterizer rejected negative-screen-area triangles even
+   though barycentric weights were already normalized by signed area. This caused most lane
+   ground surfaces to disappear while some 3-D box faces still rendered.
+
+The gate now requires actual pixels of road/rail/river base colors, preventing this false PASS.
+
+Extract from the REPOSITORY ROOT, not from the python subdirectory.

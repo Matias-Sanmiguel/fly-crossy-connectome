@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "purpose": "Deterministic argmax audit on the exact same final seeds, bypassing survival-first mode selection.",
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-preference-r1.pt",
+  "seedPrefix": "malecns-v2-decoder-final",
+  "frozenSystem": {
+    "camera": true,
+    "visualFrontend": true,
+    "MaleCNS": true,
+    "globalGain": {
+      "target": 0.95,
+      "baseGainAtW0One": 114.84757719108488,
+      "w0": 0.008271833183031608,
+      "estimatedGain": 0.95
+    }
+  },
+  "finalArgmax": {
+    "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+    "mode": "argmax",
+    "episodes": 50,
+    "maxSteps": 200,
+    "meanScore": 27.92,
+    "medianScore": 20.0,
+    "bestScore": 80.0,
+    "meanLength": 38.36,
+    "reachedStepLimit": 0,
+    "terminalReasons": {
+      "train": 4,
+      "vehicle": 38,
+      "water": 8
+    },
+    "actions": {
+      "forward": 1402,
+      "left": 256,
+      "right": 232,
+      "wait": 28
+    },
+    "meanInferenceMs": 40.93955735145293
+  },
+  "plannerReference": {
+    "controller": "planner-reference-depth4",
+    "episodes": 50,
+    "maxSteps": 200,
+    "meanScore": 135.24,
+    "medianScore": 139.0,
+    "bestScore": 160.0,
+    "meanLength": 198.9,
+    "reachedStepLimit": 48,
+    "terminalReasons": {
+      "vehicle": 2
+    },
+    "actions": {
+      "backward": 37,
+      "forward": 6978,
+      "left": 1482,
+      "right": 1205,
+      "wait": 243
+    }
+  },
+  "relativeToPlanner": {
+    "meanScoreRatio": 0.2064477965099083,
+    "medianScoreRatio": 0.14388489208633093,
+    "meanLengthRatio": 0.1928607340372046,
+    "stepLimitRatio": 0.0
+  },
+  "gates": {
+    "meanScoreAtLeast70PercentOfPlanner": false,
+    "medianScoreAtLeast65PercentOfPlanner": false,
+    "meanLengthAtLeast60PercentOfPlanner": false,
+    "stepLimitAtLeast50PercentOfPlanner": false,
+    "neuralInferenceUnder100ms": true
+  },
+  "productionWeightsChanged": false
+}

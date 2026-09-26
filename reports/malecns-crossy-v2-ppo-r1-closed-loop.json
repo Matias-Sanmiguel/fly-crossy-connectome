@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-ppo-r1.pt",
+  "selectionSeedPrefix": "malecns-v2-decoder-selection",
+  "finalSeedPrefix": "malecns-v2-decoder-final",
+  "selection": {
+    "argmax": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "argmax",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 24.9375,
+      "medianScore": 26.0,
+      "bestScore": 52.0,
+      "meanLength": 80.25,
+      "reachedStepLimit": 4,
+      "terminalReasons": {
+        "train": 1,
+        "vehicle": 7,
+        "water": 4
+      },
+      "actions": {
+        "forward": 597,
+        "left": 361,
+        "right": 325,
+        "wait": 1
+      },
+      "meanInferenceMs": 41.07278434579106
+    },
+    "sample:0.8": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "sample:0.8",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 16.0,
+      "medianScore": 17.0,
+      "bestScore": 32.0,
+      "meanLength": 47.0625,
+      "reachedStepLimit": 0,
+      "terminalReasons": {
+        "vehicle": 13,
+        "water": 3
+      },
+      "actions": {
+        "backward": 7,
+        "forward": 291,
+        "left": 246,
+        "right": 199,
+        "wait": 10
+      },
+      "meanInferenceMs": 41.12514010626876
+    },
+    "sample:1.0": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "sample:1.0",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 27.25,
+      "medianScore": 17.0,
+      "bestScore": 66.0,
+      "meanLength": 73.0625,
+      "reachedStepLimit": 3,
+      "terminalReasons": {
+        "train": 1,
+        "vehicle": 8,
+        "water": 4
+      },
+      "actions": {
+        "backward": 17,
+        "forward": 478,
+        "left": 334,
+        "right": 306,
+        "wait": 34
+      },
+      "meanInferenceMs": 40.45477690340064
+    },
+    "sample:1.25": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "sample:1.25",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 15.8125,
+      "medianScore": 12.0,
+      "bestScore": 52.0,
+      "meanLength": 46.375,
+      "reachedStepLimit": 0,
+      "terminalReasons": {
+        "train": 1,
+        "vehicle": 13,
+        "water": 2
+      },
+      "actions": {
+        "backward": 25,
+        "forward": 278,
+        "left": 217,
+        "right": 191,
+        "wait": 31
+      },
+      "meanInferenceMs": 39.116102021492196
+    }
+  },
+  "selectedMode": "argmax",
+  "final": {
+    "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+    "mode": "argmax",
+    "episodes": 50,
+    "maxSteps": 200,
+    "meanScore": 20.0,
+    "medianScore": 17.0,
+    "bestScore": 56.0,
+    "meanLength": 51.5,
+    "reachedStepLimit": 2,
+    "terminalReasons": {
+      "train": 6,
+      "vehicle": 28,
+      "water": 14
+    },
+    "actions": {
+      "forward": 1277,
+      "left": 718,
+      "right": 577,
+      "wait": 3
+    },
+    "meanInferenceMs": 39.691221087373336
+  },
+  "plannerReference": {
+    "controller": "planner-reference-depth4",
+    "episodes": 50,
+    "maxSteps": 200,
+    "meanScore": 135.24,
+    "medianScore": 139.0,
+    "bestScore": 160.0,
+    "meanLength": 198.9,
+    "reachedStepLimit": 48,
+    "terminalReasons": {
+      "vehicle": 2
+    },
+    "actions": {
+      "backward": 37,
+      "forward": 6978,
+      "left": 1482,
+      "right": 1205,
+      "wait": 243
+    }
+  },
+  "relativeToPlanner": {
+    "meanScoreRatio": 0.1478852410529429,
+    "medianScoreRatio": 0.1223021582733813,
+    "meanLengthRatio": 0.2589240824534942,
+    "stepLimitRatio": 0.041666666666666664
+  },
+  "gates": {
+    "meanScoreAtLeast70PercentOfPlanner": false,
+    "medianScoreAtLeast65PercentOfPlanner": false,
+    "meanLengthAtLeast60PercentOfPlanner": false,
+    "stepLimitAtLeast50PercentOfPlanner": false,
+    "neuralInferenceUnder100ms": true
+  }
+}

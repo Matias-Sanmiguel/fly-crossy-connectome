@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-preference-r1.pt",
+  "selectionSeedPrefix": "malecns-v2-decoder-selection",
+  "finalSeedPrefix": "malecns-v2-decoder-final",
+  "selection": {
+    "argmax": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "argmax",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 29.125,
+      "medianScore": 25.0,
+      "bestScore": 63.0,
+      "meanLength": 43.75,
+      "reachedStepLimit": 0,
+      "terminalReasons": {
+        "vehicle": 12,
+        "water": 4
+      },
+      "actions": {
+        "forward": 468,
+        "left": 152,
+        "right": 66,
+        "wait": 14
+      },
+      "meanInferenceMs": 40.74032728571443
+    },
+    "sample:0.8": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "sample:0.8",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 25.0,
+      "medianScore": 24.0,
+      "bestScore": 53.0,
+      "meanLength": 34.3125,
+      "reachedStepLimit": 0,
+      "terminalReasons": {
+        "train": 1,
+        "vehicle": 15
+      },
+      "actions": {
+        "forward": 402,
+        "left": 76,
+        "right": 56,
+        "wait": 15
+      },
+      "meanInferenceMs": 39.667632969029455
+    },
+    "sample:1.0": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "sample:1.0",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 25.3125,
+      "medianScore": 20.0,
+      "bestScore": 83.0,
+      "meanLength": 44.4375,
+      "reachedStepLimit": 1,
+      "terminalReasons": {
+        "train": 1,
+        "vehicle": 11,
+        "water": 3
+      },
+      "actions": {
+        "backward": 3,
+        "forward": 417,
+        "left": 191,
+        "right": 73,
+        "wait": 27
+      },
+      "meanInferenceMs": 40.21878677918483
+    },
+    "sample:1.25": {
+      "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+      "mode": "sample:1.25",
+      "episodes": 16,
+      "maxSteps": 160,
+      "meanScore": 25.875,
+      "medianScore": 24.0,
+      "bestScore": 63.0,
+      "meanLength": 36.1875,
+      "reachedStepLimit": 0,
+      "terminalReasons": {
+        "vehicle": 14,
+        "water": 2
+      },
+      "actions": {
+        "backward": 4,
+        "forward": 421,
+        "left": 70,
+        "right": 68,
+        "wait": 16
+      },
+      "meanInferenceMs": 39.200212262520225
+    }
+  },
+  "selectedMode": "sample:1.0",
+  "final": {
+    "controller": "MaleCNS-V2-frozen-brain-plus-256-decoder",
+    "mode": "sample:1.0",
+    "episodes": 50,
+    "maxSteps": 200,
+    "meanScore": 27.96,
+    "medianScore": 22.0,
+    "bestScore": 83.0,
+    "meanLength": 41.3,
+    "reachedStepLimit": 0,
+    "terminalReasons": {
+      "train": 3,
+      "vehicle": 37,
+      "water": 10
+    },
+    "actions": {
+      "backward": 5,
+      "forward": 1417,
+      "left": 296,
+      "right": 272,
+      "wait": 75
+    },
+    "meanInferenceMs": 41.347132154965585
+  },
+  "plannerReference": {
+    "controller": "planner-reference-depth4",
+    "episodes": 50,
+    "maxSteps": 200,
+    "meanScore": 135.24,
+    "medianScore": 139.0,
+    "bestScore": 160.0,
+    "meanLength": 198.9,
+    "reachedStepLimit": 48,
+    "terminalReasons": {
+      "vehicle": 2
+    },
+    "actions": {
+      "backward": 37,
+      "forward": 6978,
+      "left": 1482,
+      "right": 1205,
+      "wait": 243
+    }
+  },
+  "relativeToPlanner": {
+    "meanScoreRatio": 0.20674356699201418,
+    "medianScoreRatio": 0.15827338129496402,
+    "meanLengthRatio": 0.20764203117144292,
+    "stepLimitRatio": 0.0
+  },
+  "gates": {
+    "meanScoreAtLeast70PercentOfPlanner": false,
+    "medianScoreAtLeast65PercentOfPlanner": false,
+    "meanLengthAtLeast60PercentOfPlanner": false,
+    "stepLimitAtLeast50PercentOfPlanner": false,
+    "neuralInferenceUnder100ms": true
+  }
+}

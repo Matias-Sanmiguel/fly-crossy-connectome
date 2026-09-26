@@ -1,0 +1,1242 @@
+{
+  "version": 1,
+  "ppoVersion": "malecns-crossy-v2-ppo-readout-1",
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-ppo-r1.pt",
+  "initialCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-r0.pt",
+  "frozenSystem": {
+    "camera": true,
+    "visualFrontend": true,
+    "MaleCNS": true,
+    "globalGain": {
+      "target": 0.95,
+      "baseGainAtW0One": 114.84757747100555,
+      "w0": 0.008271833162870477,
+      "estimatedGain": 0.95
+    }
+  },
+  "plannerUsedForTraining": false,
+  "budget": {
+    "updates": 60,
+    "rolloutSteps": 1024,
+    "environmentSteps": 61440
+  },
+  "baselineDev": {
+    "episodes": 16,
+    "maxSteps": 160,
+    "meanScore": 23.8125,
+    "medianScore": 22.0,
+    "bestScore": 59.0,
+    "meanLength": 35.625,
+    "reachedStepLimit": 0,
+    "terminalReasons": {
+      "train": 1,
+      "vehicle": 13,
+      "water": 2
+    },
+    "actions": {
+      "backward": 5,
+      "forward": 390,
+      "left": 79,
+      "right": 81,
+      "wait": 15
+    }
+  },
+  "bestUpdate": 50,
+  "bestDev": {
+    "episodes": 16,
+    "maxSteps": 160,
+    "meanScore": 24.8125,
+    "medianScore": 17.0,
+    "bestScore": 69.0,
+    "meanLength": 77.875,
+    "reachedStepLimit": 3,
+    "terminalReasons": {
+      "train": 1,
+      "vehicle": 9,
+      "water": 3
+    },
+    "actions": {
+      "forward": 482,
+      "left": 401,
+      "right": 361,
+      "wait": 2
+    }
+  },
+  "trainingEpisodesCompleted": 1447,
+  "trainingEpisodeSummary": {
+    "meanReturn": 0.4174706288873536,
+    "meanScore": 18.581202487906012,
+    "meanLength": 42.4077401520387,
+    "terminalReasons": {
+      "bounds": 4,
+      "step_limit": 8,
+      "train": 142,
+      "vehicle": 1010,
+      "water": 283
+    }
+  },
+  "updates": [
+    {
+      "update": 1,
+      "environmentSteps": 1024,
+      "rolloutReward": 25.739999999999977,
+      "rolloutEpisodesCompleted": 32,
+      "rolloutDeaths": {
+        "bounds": 1,
+        "train": 4,
+        "vehicle": 22,
+        "water": 5
+      },
+      "actorLoss": 0.021417772811320093,
+      "criticLoss": 6.87425094180637,
+      "entropy": 0.6459296743075053,
+      "approxKl": 0.012094354256987572,
+      "clipFraction": 0.12760416666666666,
+      "earlyStoppedForKl": true,
+      "dev": {
+        "episodes": 16,
+        "maxSteps": 160,
+        "meanScore": 21.9375,
+        "medianScore": 18.0,
+        "bestScore": 59.0,
+        "meanLength": 46.75,
+        "reachedStepLimit": 2,
+        "terminalReasons": {
+          "train": 3,
+          "vehicle": 8,
+          "water": 3
+        },
+        "actions": {
+          "forward": 596,
+          "left": 75,
+          "right": 71,
+          "wait": 6
+        }
+      }
+    },
+    {
+      "update": 2,
+      "environmentSteps": 2048,
+      "rolloutReward": 7.109999999999974,
+      "rolloutEpisodesCompleted": 34,
+      "rolloutDeaths": {
+        "train": 5,
+        "vehicle": 25,
+        "water": 4
+      },
+      "actorLoss": 0.009224720299243927,
+      "criticLoss": 6.8205506801605225,
+      "entropy": 0.638277792930603,
+      "approxKl": 0.011303773988038302,
+      "clipFraction": 0.07421875,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 3,
+      "environmentSteps": 3072,
+      "rolloutReward": -13.520000000000008,
+      "rolloutEpisodesCompleted": 37,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 25,
+        "water": 8
+      },
+      "actorLoss": -0.003657383947736687,
+      "criticLoss": 6.303000873989529,
+      "entropy": 0.6421206030580733,
+      "approxKl": 0.01012873957451019,
+      "clipFraction": 0.09244791666666667,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 4,
+      "environmentSteps": 4096,
+      "rolloutReward": -5.050000000000014,
+      "rolloutEpisodesCompleted": 34,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 23,
+        "water": 9
+      },
+      "actorLoss": -0.0003863705787807703,
+      "criticLoss": 5.59612508614858,
+      "entropy": 0.5983049521843592,
+      "approxKl": 0.01057416406304886,
+      "clipFraction": 0.06705729166666667,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 5,
+      "environmentSteps": 5120,
+      "rolloutReward": -16.51000000000006,
+      "rolloutEpisodesCompleted": 33,
+      "rolloutDeaths": {
+        "vehicle": 27,
+        "water": 6
+      },
+      "actorLoss": 0.038008250296115875,
+      "criticLoss": 5.253113269805908,
+      "entropy": 0.5922055959701538,
+      "approxKl": 0.014894303493201732,
+      "clipFraction": 0.04375,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 6,
+      "environmentSteps": 6144,
+      "rolloutReward": 9.150000000000048,
+      "rolloutEpisodesCompleted": 30,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 22,
+        "water": 6
+      },
+      "actorLoss": -0.010146836563944817,
+      "criticLoss": 4.8856103897094725,
+      "entropy": 0.5610162119070689,
+      "approxKl": 0.011173740805437168,
+      "clipFraction": 0.071875,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 7,
+      "environmentSteps": 7168,
+      "rolloutReward": 22.229999999999933,
+      "rolloutEpisodesCompleted": 28,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 23,
+        "water": 3
+      },
+      "actorLoss": -0.021503380409652186,
+      "criticLoss": 5.222411632537842,
+      "entropy": 0.548986533957143,
+      "approxKl": 0.007986550324506337,
+      "clipFraction": 0.09349798387096774,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 8,
+      "environmentSteps": 8192,
+      "rolloutReward": 47.790000000000035,
+      "rolloutEpisodesCompleted": 26,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 21,
+        "water": 2
+      },
+      "actorLoss": -0.00511894547022306,
+      "criticLoss": 6.293459305396447,
+      "entropy": 0.5701083128268902,
+      "approxKl": 0.007130982640844125,
+      "clipFraction": 0.07151442307692307,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 9,
+      "environmentSteps": 9216,
+      "rolloutReward": 28.04999999999973,
+      "rolloutEpisodesCompleted": 30,
+      "rolloutDeaths": {
+        "vehicle": 20,
+        "water": 10
+      },
+      "actorLoss": 0.001014736227013848,
+      "criticLoss": 5.864697326313365,
+      "entropy": 0.5434667793187228,
+      "approxKl": 0.008808540772985329,
+      "clipFraction": 0.04616477272727273,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 10,
+      "environmentSteps": 10240,
+      "rolloutReward": 35.7800000000002,
+      "rolloutEpisodesCompleted": 31,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 25,
+        "water": 5
+      },
+      "actorLoss": -0.018301346028844517,
+      "criticLoss": 6.28661568959554,
+      "entropy": 0.5445511500040691,
+      "approxKl": 0.011116509263714155,
+      "clipFraction": 0.090625,
+      "earlyStoppedForKl": true,
+      "dev": {
+        "episodes": 16,
+        "maxSteps": 160,
+        "meanScore": 21.125,
+        "medianScore": 20.0,
+        "bestScore": 67.0,
+        "meanLength": 47.4375,
+        "reachedStepLimit": 2,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 11,
+          "water": 2
+        },
+        "actions": {
+          "backward": 3,
+          "forward": 517,
+          "left": 131,
+          "right": 92,
+          "wait": 16
+        }
+      }
+    },
+    {
+      "update": 11,
+      "environmentSteps": 11264,
+      "rolloutReward": 27.689999999999724,
+      "rolloutEpisodesCompleted": 22,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 17,
+        "water": 4
+      },
+      "actorLoss": -0.004819491987719256,
+      "criticLoss": 5.36296095567591,
+      "entropy": 0.581331894678228,
+      "approxKl": 0.0039892424007549,
+      "clipFraction": 0.07169117647058823,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 12,
+      "environmentSteps": 12288,
+      "rolloutReward": 26.20999999999993,
+      "rolloutEpisodesCompleted": 19,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 10,
+        "water": 5
+      },
+      "actorLoss": 0.02502119466662407,
+      "criticLoss": 4.864018535614013,
+      "entropy": 0.588229238986969,
+      "approxKl": 0.0048582017421722416,
+      "clipFraction": 0.04375,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 13,
+      "environmentSteps": 13312,
+      "rolloutReward": 90.34000000000076,
+      "rolloutEpisodesCompleted": 17,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 12,
+        "water": 4
+      },
+      "actorLoss": -0.02315779641503468,
+      "criticLoss": 5.049377232789993,
+      "entropy": 0.5681234877556562,
+      "approxKl": 0.005207807291299105,
+      "clipFraction": 0.099853515625,
+      "earlyStoppedForKl": false
+    },
+    {
+      "update": 14,
+      "environmentSteps": 14336,
+      "rolloutReward": 11.60999999999995,
+      "rolloutEpisodesCompleted": 28,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 22,
+        "water": 2
+      },
+      "actorLoss": -0.0052403748035430905,
+      "criticLoss": 6.703832213083903,
+      "entropy": 0.5912570317586263,
+      "approxKl": 0.010770638938993216,
+      "clipFraction": 0.09322916666666667,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 15,
+      "environmentSteps": 15360,
+      "rolloutReward": 0.12999999999995815,
+      "rolloutEpisodesCompleted": 34,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 22,
+        "water": 8
+      },
+      "actorLoss": -0.011179309620178844,
+      "criticLoss": 5.796036494405646,
+      "entropy": 0.538370165385698,
+      "approxKl": 0.010716197007384739,
+      "clipFraction": 0.07154605263157894,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 16,
+      "environmentSteps": 16384,
+      "rolloutReward": -10.34000000000035,
+      "rolloutEpisodesCompleted": 31,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 24,
+        "water": 6
+      },
+      "actorLoss": -0.0019007977098226547,
+      "criticLoss": 4.8632760298879525,
+      "entropy": 0.6072780740888495,
+      "approxKl": 0.004953616494803052,
+      "clipFraction": 0.06743421052631579,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 17,
+      "environmentSteps": 17408,
+      "rolloutReward": -8.839999999999963,
+      "rolloutEpisodesCompleted": 30,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 18,
+        "water": 8
+      },
+      "actorLoss": -0.011609602098663649,
+      "criticLoss": 4.198638151089351,
+      "entropy": 0.6139652406175932,
+      "approxKl": 0.008826218196190894,
+      "clipFraction": 0.0908203125,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 18,
+      "environmentSteps": 18432,
+      "rolloutReward": 20.609999999999655,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 16,
+        "water": 3
+      },
+      "actorLoss": 0.0019251203962734767,
+      "criticLoss": 4.488367625645229,
+      "entropy": 0.6495801551001412,
+      "approxKl": 0.010301120712288789,
+      "clipFraction": 0.056919642857142856,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 19,
+      "environmentSteps": 19456,
+      "rolloutReward": 2.230000000000038,
+      "rolloutEpisodesCompleted": 29,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 21,
+        "water": 5
+      },
+      "actorLoss": 0.015018279918215492,
+      "criticLoss": 4.766403978521174,
+      "entropy": 0.6362772150473162,
+      "approxKl": 0.006969100118360736,
+      "clipFraction": 0.07173295454545454,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 20,
+      "environmentSteps": 20480,
+      "rolloutReward": 7.969999999999942,
+      "rolloutEpisodesCompleted": 20,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 14,
+        "water": 4
+      },
+      "actorLoss": -0.007467131058757122,
+      "criticLoss": 4.1736935285421515,
+      "entropy": 0.6961385928667508,
+      "approxKl": 0.00870610515658672,
+      "clipFraction": 0.07271634615384616,
+      "earlyStoppedForKl": true,
+      "dev": {
+        "episodes": 16,
+        "maxSteps": 160,
+        "meanScore": 15.8125,
+        "medianScore": 14.0,
+        "bestScore": 61.0,
+        "meanLength": 35.0,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 5,
+          "vehicle": 9,
+          "water": 2
+        },
+        "actions": {
+          "backward": 2,
+          "forward": 392,
+          "left": 107,
+          "right": 58,
+          "wait": 1
+        }
+      }
+    },
+    {
+      "update": 21,
+      "environmentSteps": 21504,
+      "rolloutReward": 21.259999999999838,
+      "rolloutEpisodesCompleted": 28,
+      "rolloutDeaths": {
+        "train": 5,
+        "vehicle": 19,
+        "water": 4
+      },
+      "actorLoss": -0.013543077822153768,
+      "criticLoss": 6.043895026048024,
+      "entropy": 0.5961080491542816,
+      "approxKl": 0.010246564381911108,
+      "clipFraction": 0.09895833333333333,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 22,
+      "environmentSteps": 22528,
+      "rolloutReward": 34.94999999999979,
+      "rolloutEpisodesCompleted": 19,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 10,
+        "water": 8
+      },
+      "actorLoss": -0.009334821836091578,
+      "criticLoss": 3.8798709213733673,
+      "entropy": 0.6892309114336967,
+      "approxKl": 0.007290990150067955,
+      "clipFraction": 0.0986328125,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 23,
+      "environmentSteps": 23552,
+      "rolloutReward": -42.11999999999961,
+      "rolloutEpisodesCompleted": 32,
+      "rolloutDeaths": {
+        "train": 5,
+        "vehicle": 23,
+        "water": 4
+      },
+      "actorLoss": -0.01392636721332868,
+      "criticLoss": 4.317610494295756,
+      "entropy": 0.6734608968098958,
+      "approxKl": 0.009125059020395081,
+      "clipFraction": 0.09661458333333334,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 24,
+      "environmentSteps": 24576,
+      "rolloutReward": -10.369999999999951,
+      "rolloutEpisodesCompleted": 20,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 15,
+        "water": 1
+      },
+      "actorLoss": 0.012096534144471992,
+      "criticLoss": 3.3186645724556665,
+      "entropy": 0.7407029271125793,
+      "approxKl": 0.008883959613740444,
+      "clipFraction": 0.041193181818181816,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 25,
+      "environmentSteps": 25600,
+      "rolloutReward": -15.049999999999795,
+      "rolloutEpisodesCompleted": 32,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 22,
+        "water": 9
+      },
+      "actorLoss": -0.013464679675442832,
+      "criticLoss": 4.560824309076581,
+      "entropy": 0.6203177869319916,
+      "approxKl": 0.01042663149668702,
+      "clipFraction": 0.08537946428571429,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 26,
+      "environmentSteps": 26624,
+      "rolloutReward": 24.299999999999994,
+      "rolloutEpisodesCompleted": 22,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 16,
+        "water": 5
+      },
+      "actorLoss": -0.005874272021982405,
+      "criticLoss": 3.6838199430041842,
+      "entropy": 0.6401648885673947,
+      "approxKl": 0.005682079638871882,
+      "clipFraction": 0.08116319444444445,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 27,
+      "environmentSteps": 27648,
+      "rolloutReward": 23.64999999999995,
+      "rolloutEpisodesCompleted": 21,
+      "rolloutDeaths": {
+        "bounds": 1,
+        "train": 3,
+        "vehicle": 11,
+        "water": 6
+      },
+      "actorLoss": -0.0028272365840772786,
+      "criticLoss": 3.6148001750310264,
+      "entropy": 0.6489695360263189,
+      "approxKl": 0.011385016880619029,
+      "clipFraction": 0.046223958333333336,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 28,
+      "environmentSteps": 28672,
+      "rolloutReward": 8.009999999999726,
+      "rolloutEpisodesCompleted": 27,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 17,
+        "water": 9
+      },
+      "actorLoss": -0.02086399885592982,
+      "criticLoss": 4.488829389214516,
+      "entropy": 0.6285491790622473,
+      "approxKl": 0.002695013288757764,
+      "clipFraction": 0.1171875,
+      "earlyStoppedForKl": false
+    },
+    {
+      "update": 29,
+      "environmentSteps": 29696,
+      "rolloutReward": 29.350000000000392,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 17,
+        "water": 3
+      },
+      "actorLoss": -0.006957617277900378,
+      "criticLoss": 5.360016902287801,
+      "entropy": 0.6360098454687331,
+      "approxKl": 0.008410232969456248,
+      "clipFraction": 0.07899305555555555,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 30,
+      "environmentSteps": 30720,
+      "rolloutReward": 24.999999999999783,
+      "rolloutEpisodesCompleted": 24,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 18,
+        "water": 4
+      },
+      "actorLoss": -0.00815353107949098,
+      "criticLoss": 5.320390733083089,
+      "entropy": 0.6323747197786967,
+      "approxKl": 0.006362324083844821,
+      "clipFraction": 0.06302083333333333,
+      "earlyStoppedForKl": true,
+      "dev": {
+        "episodes": 16,
+        "maxSteps": 160,
+        "meanScore": 16.8125,
+        "medianScore": 10.0,
+        "bestScore": 70.0,
+        "meanLength": 37.625,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 4,
+          "vehicle": 10,
+          "water": 2
+        },
+        "actions": {
+          "forward": 391,
+          "left": 106,
+          "right": 104,
+          "wait": 1
+        }
+      }
+    },
+    {
+      "update": 31,
+      "environmentSteps": 31744,
+      "rolloutReward": 15.510000000000167,
+      "rolloutEpisodesCompleted": 27,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 15,
+        "water": 8
+      },
+      "actorLoss": -0.02129336230848965,
+      "criticLoss": 5.503490297417891,
+      "entropy": 0.6755429537672746,
+      "approxKl": 0.010368112719764835,
+      "clipFraction": 0.07730263157894737,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 32,
+      "environmentSteps": 32768,
+      "rolloutReward": 19.699999999999815,
+      "rolloutEpisodesCompleted": 28,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 22,
+        "water": 3
+      },
+      "actorLoss": -0.028122346227367718,
+      "criticLoss": 5.493234634399414,
+      "entropy": 0.661010260383288,
+      "approxKl": 0.010385887852559486,
+      "clipFraction": 0.060546875,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 33,
+      "environmentSteps": 33792,
+      "rolloutReward": 25.149999999999988,
+      "rolloutEpisodesCompleted": 20,
+      "rolloutDeaths": {
+        "vehicle": 17,
+        "water": 2
+      },
+      "actorLoss": 0.0003101582474568311,
+      "criticLoss": 4.423398466671214,
+      "entropy": 0.7230498054448296,
+      "approxKl": 0.008880303843932994,
+      "clipFraction": 0.08363970588235294,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 34,
+      "environmentSteps": 34816,
+      "rolloutReward": -1.2100000000001654,
+      "rolloutEpisodesCompleted": 28,
+      "rolloutDeaths": {
+        "train": 5,
+        "vehicle": 17,
+        "water": 6
+      },
+      "actorLoss": -0.012558827525936067,
+      "criticLoss": 5.84343746304512,
+      "entropy": 0.7005100697278976,
+      "approxKl": 0.008593840437242761,
+      "clipFraction": 0.06787109375,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 35,
+      "environmentSteps": 35840,
+      "rolloutReward": 22.969999999999814,
+      "rolloutEpisodesCompleted": 24,
+      "rolloutDeaths": {
+        "vehicle": 18,
+        "water": 6
+      },
+      "actorLoss": -0.011701141367666423,
+      "criticLoss": 4.897882848978043,
+      "entropy": 0.6512393802404404,
+      "approxKl": 0.009283758176025003,
+      "clipFraction": 0.0703125,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 36,
+      "environmentSteps": 36864,
+      "rolloutReward": 31.669999999999995,
+      "rolloutEpisodesCompleted": 21,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 13,
+        "water": 5
+      },
+      "actorLoss": -0.021468447964815868,
+      "criticLoss": 4.3261117821648005,
+      "entropy": 0.6990989020892552,
+      "approxKl": 0.006450051552660409,
+      "clipFraction": 0.09821428571428571,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 37,
+      "environmentSteps": 37888,
+      "rolloutReward": 36.89000000000091,
+      "rolloutEpisodesCompleted": 21,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 16,
+        "water": 3
+      },
+      "actorLoss": -0.0019985687206773195,
+      "criticLoss": 5.317513816496906,
+      "entropy": 0.6362709157607135,
+      "approxKl": 0.008051645585938412,
+      "clipFraction": 0.07490808823529412,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 38,
+      "environmentSteps": 38912,
+      "rolloutReward": 19.54999999999983,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 19,
+        "water": 2
+      },
+      "actorLoss": -0.024635192514820534,
+      "criticLoss": 5.852981957522306,
+      "entropy": 0.6295332150025801,
+      "approxKl": 0.005687250882725824,
+      "clipFraction": 0.061079545454545456,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 39,
+      "environmentSteps": 39936,
+      "rolloutReward": -30.95000000000015,
+      "rolloutEpisodesCompleted": 33,
+      "rolloutDeaths": {
+        "train": 6,
+        "vehicle": 20,
+        "water": 7
+      },
+      "actorLoss": -0.0007705910131335259,
+      "criticLoss": 6.134762573242187,
+      "entropy": 0.6309509634971618,
+      "approxKl": 0.0071547204628586766,
+      "clipFraction": 0.040625,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 40,
+      "environmentSteps": 40960,
+      "rolloutReward": -28.72000000000026,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 19,
+        "water": 2
+      },
+      "actorLoss": 0.010634129150555683,
+      "criticLoss": 4.582353738638071,
+      "entropy": 0.6630266492183392,
+      "approxKl": 0.005936910362484364,
+      "clipFraction": 0.07992788461538461,
+      "earlyStoppedForKl": true,
+      "dev": {
+        "episodes": 16,
+        "maxSteps": 160,
+        "meanScore": 19.75,
+        "medianScore": 19.0,
+        "bestScore": 47.0,
+        "meanLength": 57.75,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 5,
+          "vehicle": 8,
+          "water": 2
+        },
+        "actions": {
+          "forward": 552,
+          "left": 226,
+          "right": 145,
+          "wait": 1
+        }
+      }
+    },
+    {
+      "update": 41,
+      "environmentSteps": 41984,
+      "rolloutReward": 20.929999999999907,
+      "rolloutEpisodesCompleted": 16,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 11,
+        "water": 4
+      },
+      "actorLoss": 0.0009567664625744025,
+      "criticLoss": 3.458698829015096,
+      "entropy": 0.6606761068105698,
+      "approxKl": 0.0062764387888213,
+      "clipFraction": 0.068359375,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 42,
+      "environmentSteps": 43008,
+      "rolloutReward": 4.420000000000044,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 18,
+        "water": 4
+      },
+      "actorLoss": -0.00563870304647614,
+      "criticLoss": 4.175347384284525,
+      "entropy": 0.6755203429390403,
+      "approxKl": 0.004026870873263653,
+      "clipFraction": 0.058823529411764705,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 43,
+      "environmentSteps": 44032,
+      "rolloutReward": -20.17000000000019,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "bounds": 1,
+        "train": 5,
+        "vehicle": 13,
+        "water": 4
+      },
+      "actorLoss": 0.0005014890006610326,
+      "criticLoss": 3.391830257007054,
+      "entropy": 0.7288586028984615,
+      "approxKl": 0.007917303059782301,
+      "clipFraction": 0.06696428571428571,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 44,
+      "environmentSteps": 45056,
+      "rolloutReward": -0.42000000000012927,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 15,
+        "water": 4
+      },
+      "actorLoss": -0.007941579213365912,
+      "criticLoss": 3.6346385926008224,
+      "entropy": 0.7001321874558926,
+      "approxKl": 0.011450469988631085,
+      "clipFraction": 0.06787109375,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 45,
+      "environmentSteps": 46080,
+      "rolloutReward": -0.24999999999997435,
+      "rolloutEpisodesCompleted": 23,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 19,
+        "water": 2
+      },
+      "actorLoss": -0.0007879081448273999,
+      "criticLoss": 4.139481169836862,
+      "entropy": 0.643487138407571,
+      "approxKl": 0.00870038555668933,
+      "clipFraction": 0.056361607142857144,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 46,
+      "environmentSteps": 47104,
+      "rolloutReward": 13.540000000000036,
+      "rolloutEpisodesCompleted": 17,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 14,
+        "water": 2
+      },
+      "actorLoss": -0.0014485716819763184,
+      "criticLoss": 3.116036868095398,
+      "entropy": 0.691826456785202,
+      "approxKl": 0.006770362565293908,
+      "clipFraction": 0.0671875,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 47,
+      "environmentSteps": 48128,
+      "rolloutReward": 23.409999999999943,
+      "rolloutEpisodesCompleted": 15,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 9,
+        "water": 5
+      },
+      "actorLoss": 0.0064786911349404945,
+      "criticLoss": 3.3089252601970327,
+      "entropy": 0.6835268410769376,
+      "approxKl": 0.0065528638660907745,
+      "clipFraction": 0.056107954545454544,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 48,
+      "environmentSteps": 49152,
+      "rolloutReward": -1.449999999999938,
+      "rolloutEpisodesCompleted": 21,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 15,
+        "water": 3
+      },
+      "actorLoss": -0.02605961513472721,
+      "criticLoss": 3.302893452346325,
+      "entropy": 0.7040037102997303,
+      "approxKl": 0.008092591786407866,
+      "clipFraction": 0.12060546875,
+      "earlyStoppedForKl": false
+    },
+    {
+      "update": 49,
+      "environmentSteps": 50176,
+      "rolloutReward": -23.570000000000196,
+      "rolloutEpisodesCompleted": 19,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 12,
+        "water": 3
+      },
+      "actorLoss": -0.010167743638157844,
+      "criticLoss": 3.095105997721354,
+      "entropy": 0.7550624370574951,
+      "approxKl": 0.011137271113693715,
+      "clipFraction": 0.07864583333333333,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 50,
+      "environmentSteps": 51200,
+      "rolloutReward": 8.9900000000001,
+      "rolloutEpisodesCompleted": 18,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 9,
+        "water": 6
+      },
+      "actorLoss": -0.019499697412053745,
+      "criticLoss": 3.365412410100301,
+      "entropy": 0.6924374103546143,
+      "approxKl": 0.008601329382508993,
+      "clipFraction": 0.075,
+      "earlyStoppedForKl": true,
+      "dev": {
+        "episodes": 16,
+        "maxSteps": 160,
+        "meanScore": 24.8125,
+        "medianScore": 17.0,
+        "bestScore": 69.0,
+        "meanLength": 77.875,
+        "reachedStepLimit": 3,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 9,
+          "water": 3
+        },
+        "actions": {
+          "forward": 482,
+          "left": 401,
+          "right": 361,
+          "wait": 2
+        }
+      }
+    },
+    {
+      "update": 51,
+      "environmentSteps": 52224,
+      "rolloutReward": -5.129999999999936,
+      "rolloutEpisodesCompleted": 20,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 13,
+        "water": 5
+      },
+      "actorLoss": -0.009264909826657352,
+      "criticLoss": 3.3372881412506104,
+      "entropy": 0.7009097442907446,
+      "approxKl": 0.006999255322358187,
+      "clipFraction": 0.046875,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 52,
+      "environmentSteps": 53248,
+      "rolloutReward": -4.0199999999999045,
+      "rolloutEpisodesCompleted": 15,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 9,
+        "water": 4
+      },
+      "actorLoss": -0.007294980343431234,
+      "criticLoss": 2.9122660160064697,
+      "entropy": 0.7482522428035736,
+      "approxKl": 0.00791332105706845,
+      "clipFraction": 0.06696428571428571,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 53,
+      "environmentSteps": 54272,
+      "rolloutReward": 27.599999999999962,
+      "rolloutEpisodesCompleted": 19,
+      "rolloutDeaths": {
+        "train": 1,
+        "vehicle": 14,
+        "water": 4
+      },
+      "actorLoss": -0.02078871801495552,
+      "criticLoss": 3.5970465391874313,
+      "entropy": 0.6431464124470949,
+      "approxKl": 0.013330182657227851,
+      "clipFraction": 0.107177734375,
+      "earlyStoppedForKl": false
+    },
+    {
+      "update": 54,
+      "environmentSteps": 55296,
+      "rolloutReward": 9.330000000000037,
+      "rolloutEpisodesCompleted": 24,
+      "rolloutDeaths": {
+        "train": 4,
+        "vehicle": 13,
+        "water": 7
+      },
+      "actorLoss": -0.01987616316182539,
+      "criticLoss": 3.7995912581682205,
+      "entropy": 0.6224014665931463,
+      "approxKl": 0.006751205772161484,
+      "clipFraction": 0.099609375,
+      "earlyStoppedForKl": false
+    },
+    {
+      "update": 55,
+      "environmentSteps": 56320,
+      "rolloutReward": 17.0499999999996,
+      "rolloutEpisodesCompleted": 20,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 13,
+        "water": 5
+      },
+      "actorLoss": -0.012851400184445083,
+      "criticLoss": 4.039328530430794,
+      "entropy": 0.6593723744153976,
+      "approxKl": 0.005851361493114382,
+      "clipFraction": 0.08349609375,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 56,
+      "environmentSteps": 57344,
+      "rolloutReward": 28.750000000000462,
+      "rolloutEpisodesCompleted": 13,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 7,
+        "water": 3
+      },
+      "actorLoss": -0.013487970146040121,
+      "criticLoss": 3.6338893095652263,
+      "entropy": 0.6960808912913005,
+      "approxKl": 0.009774490042279165,
+      "clipFraction": 0.07447916666666667,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 57,
+      "environmentSteps": 58368,
+      "rolloutReward": -13.02999999999995,
+      "rolloutEpisodesCompleted": 18,
+      "rolloutDeaths": {
+        "bounds": 1,
+        "train": 1,
+        "vehicle": 12,
+        "water": 4
+      },
+      "actorLoss": 0.004292770102620125,
+      "criticLoss": 3.8452661275863647,
+      "entropy": 0.7593452274799347,
+      "approxKl": 0.007378895301371813,
+      "clipFraction": 0.03515625,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 58,
+      "environmentSteps": 59392,
+      "rolloutReward": -23.5800000000001,
+      "rolloutEpisodesCompleted": 22,
+      "rolloutDeaths": {
+        "train": 3,
+        "vehicle": 12,
+        "water": 7
+      },
+      "actorLoss": -0.014919564675758867,
+      "criticLoss": 3.5684334250057446,
+      "entropy": 0.7615992181441363,
+      "approxKl": 0.011606441399849513,
+      "clipFraction": 0.08363970588235294,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 59,
+      "environmentSteps": 60416,
+      "rolloutReward": 8.289999999999816,
+      "rolloutEpisodesCompleted": 19,
+      "rolloutDeaths": {
+        "vehicle": 16,
+        "water": 3
+      },
+      "actorLoss": -0.012781329452991486,
+      "criticLoss": 3.6614166498184204,
+      "entropy": 0.6706105257783618,
+      "approxKl": 0.006296077743172646,
+      "clipFraction": 0.05524553571428571,
+      "earlyStoppedForKl": true
+    },
+    {
+      "update": 60,
+      "environmentSteps": 61440,
+      "rolloutReward": 21.169999999999874,
+      "rolloutEpisodesCompleted": 15,
+      "rolloutDeaths": {
+        "train": 2,
+        "vehicle": 13
+      },
+      "actorLoss": -0.006416056686165658,
+      "criticLoss": 4.050626581365412,
+      "entropy": 0.6967673572626981,
+      "approxKl": 0.00913986119187691,
+      "clipFraction": 0.06463068181818182,
+      "earlyStoppedForKl": true,
+      "dev": {
+        "episodes": 16,
+        "maxSteps": 160,
+        "meanScore": 27.8125,
+        "medianScore": 26.0,
+        "bestScore": 68.0,
+        "meanLength": 76.375,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 12,
+          "water": 2
+        },
+        "actions": {
+          "forward": 511,
+          "left": 387,
+          "right": 319,
+          "wait": 5
+        }
+      }
+    }
+  ],
+  "elapsedSeconds": 2757.1662321000003,
+  "nextStep": "Run the existing decoder_eval with --checkpoint decoder-ppo-r1.pt. Do not perform another PPO run before the 50-seed closed-loop result is reviewed."
+}

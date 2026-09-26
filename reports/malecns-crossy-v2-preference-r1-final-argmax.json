@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "purpose": "Force argmax on the same final 50 seeds; no training.",
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\artifacts\\malecns-crossy-v2\\decoder-preference-r1.pt",
+  "final": {
+    "episodes": 50,
+    "maxSteps": 200,
+    "mode": "argmax-forced",
+    "seedPrefix": "malecns-v2-decoder-final",
+    "meanScore": 27.92,
+    "medianScore": 20.0,
+    "bestScore": 80.0,
+    "meanLength": 38.36,
+    "reachedStepLimit": 0,
+    "terminalReasons": {
+      "train": 4,
+      "vehicle": 38,
+      "water": 8
+    },
+    "actions": {
+      "forward": 1402,
+      "left": 256,
+      "right": 232,
+      "wait": 28
+    },
+    "meanInferenceMs": 40.5626194995504
+  }
+}

@@ -1,0 +1,2667 @@
+{
+  "version": 1,
+  "auditVersion": "malecns-crossy-v2-context-audit-1",
+  "purpose": "Discriminate missing short temporal context from missing motor/self-state context after the structural readout audit failed to support a broader MaleCNS readout.",
+  "productionWeightsChanged": false,
+  "protocol": {
+    "states": 2994,
+    "episodes": 120,
+    "folds": 5,
+    "splitUnit": "episode",
+    "brainProjection": "deterministic label-free CountSketch to 8192 channels; history lags use distinct fixed hashes and equalized sqrt contributor scaling",
+    "contextSlots": 32,
+    "totalInputWidth": 8224,
+    "probe": "8224 -> 256 GELU LayerNorm -> 5",
+    "history": "current plus up to previous 3 decision brain states (800 ms span)",
+    "efference": "previous 4 student actions, one-hot plus availability masks",
+    "lateralSelfState": "current fly column / world half width and absolute magnitude",
+    "sameExpertLabels": true,
+    "sameEpisodeGroupedFoldsForEveryCondition": true,
+    "sameCorrectionWeightingAsDaggerProbe": true
+  },
+  "results": {
+    "brain_now": {
+      "folds": [
+        {
+          "seed": 1211,
+          "bestEpoch": 10,
+          "validation": {
+            "samples": 652,
+            "accuracy": 0.754601226993865,
+            "macroAccuracySupported": 0.5272125626902745,
+            "coreMacroAccuracy": 0.6195420191523168,
+            "support": {
+              "forward": 435,
+              "backward": 19,
+              "left": 146,
+              "right": 44,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.903448275862069,
+              "backward": 0.15789473684210525,
+              "left": 0.4383561643835616,
+              "right": 0.6363636363636364,
+              "wait": 0.5
+            },
+            "predictedCounts": {
+              "forward": 418,
+              "backward": 19,
+              "left": 80,
+              "right": 105,
+              "wait": 30
+            },
+            "confusion": {
+              "forward": {
+                "forward": 393,
+                "backward": 8,
+                "left": 10,
+                "right": 19,
+                "wait": 5
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 3,
+                "left": 0,
+                "right": 16,
+                "wait": 0
+              },
+              "left": {
+                "forward": 19,
+                "backward": 8,
+                "left": 64,
+                "right": 39,
+                "wait": 16
+              },
+              "right": {
+                "forward": 5,
+                "backward": 0,
+                "left": 6,
+                "right": 28,
+                "wait": 5
+              },
+              "wait": {
+                "forward": 1,
+                "backward": 0,
+                "left": 0,
+                "right": 3,
+                "wait": 4
+              }
+            }
+          },
+          "disagreementSupport": 161,
+          "disagreementRecovery": 0.422360248447205,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.2916666666666667,
+          "fold": 0
+        },
+        {
+          "seed": 1312,
+          "bestEpoch": 7,
+          "validation": {
+            "samples": 726,
+            "accuracy": 0.7672176308539945,
+            "macroAccuracySupported": 0.439756629805916,
+            "coreMacroAccuracy": 0.549695787257395,
+            "support": {
+              "forward": 526,
+              "backward": 1,
+              "left": 97,
+              "right": 94,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.8821292775665399,
+              "backward": 0.0,
+              "left": 0.4948453608247423,
+              "right": 0.44680851063829785,
+              "wait": 0.375
+            },
+            "predictedCounts": {
+              "forward": 471,
+              "backward": 2,
+              "left": 101,
+              "right": 106,
+              "wait": 46
+            },
+            "confusion": {
+              "forward": {
+                "forward": 464,
+                "backward": 2,
+                "left": 24,
+                "right": 26,
+                "wait": 10
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 6,
+                "backward": 0,
+                "left": 48,
+                "right": 34,
+                "wait": 9
+              },
+              "right": {
+                "forward": 1,
+                "backward": 0,
+                "left": 27,
+                "right": 42,
+                "wait": 24
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 4,
+                "wait": 3
+              }
+            }
+          },
+          "disagreementSupport": 108,
+          "disagreementRecovery": 0.3611111111111111,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4583333333333333,
+          "fold": 1
+        },
+        {
+          "seed": 1413,
+          "bestEpoch": 6,
+          "validation": {
+            "samples": 458,
+            "accuracy": 0.7947598253275109,
+            "macroAccuracySupported": 0.5635585927244086,
+            "coreMacroAccuracy": 0.5635585927244086,
+            "support": {
+              "forward": 295,
+              "backward": 0,
+              "left": 83,
+              "right": 70,
+              "wait": 10
+            },
+            "perActionAccuracy": {
+              "forward": 0.9322033898305084,
+              "backward": null,
+              "left": 0.6506024096385542,
+              "right": 0.4714285714285714,
+              "wait": 0.2
+            },
+            "predictedCounts": {
+              "forward": 290,
+              "backward": 3,
+              "left": 95,
+              "right": 63,
+              "wait": 7
+            },
+            "confusion": {
+              "forward": {
+                "forward": 275,
+                "backward": 0,
+                "left": 8,
+                "right": 10,
+                "wait": 2
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 9,
+                "backward": 1,
+                "left": 54,
+                "right": 19,
+                "wait": 0
+              },
+              "right": {
+                "forward": 4,
+                "backward": 1,
+                "left": 29,
+                "right": 33,
+                "wait": 3
+              },
+              "wait": {
+                "forward": 2,
+                "backward": 1,
+                "left": 4,
+                "right": 1,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 97,
+          "disagreementRecovery": 0.4329896907216495,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4166666666666667,
+          "fold": 2
+        },
+        {
+          "seed": 1514,
+          "bestEpoch": 13,
+          "validation": {
+            "samples": 475,
+            "accuracy": 0.8063157894736842,
+            "macroAccuracySupported": 0.4810444282086074,
+            "coreMacroAccuracy": 0.6013055352607592,
+            "support": {
+              "forward": 330,
+              "backward": 7,
+              "left": 67,
+              "right": 65,
+              "wait": 6
+            },
+            "perActionAccuracy": {
+              "forward": 0.9242424242424242,
+              "backward": 0.0,
+              "left": 0.7014925373134329,
+              "right": 0.4461538461538462,
+              "wait": 0.3333333333333333
+            },
+            "predictedCounts": {
+              "forward": 321,
+              "backward": 0,
+              "left": 90,
+              "right": 55,
+              "wait": 9
+            },
+            "confusion": {
+              "forward": {
+                "forward": 305,
+                "backward": 0,
+                "left": 8,
+                "right": 13,
+                "wait": 4
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 5,
+                "right": 1,
+                "wait": 1
+              },
+              "left": {
+                "forward": 7,
+                "backward": 0,
+                "left": 47,
+                "right": 12,
+                "wait": 1
+              },
+              "right": {
+                "forward": 8,
+                "backward": 0,
+                "left": 27,
+                "right": 29,
+                "wait": 1
+              },
+              "wait": {
+                "forward": 1,
+                "backward": 0,
+                "left": 3,
+                "right": 0,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 89,
+          "disagreementRecovery": 0.42696629213483145,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.3333333333333333,
+          "fold": 3
+        },
+        {
+          "seed": 1615,
+          "bestEpoch": 16,
+          "validation": {
+            "samples": 683,
+            "accuracy": 0.7891654465592972,
+            "macroAccuracySupported": 0.5374907620023899,
+            "coreMacroAccuracy": 0.5374907620023899,
+            "support": {
+              "forward": 471,
+              "backward": 0,
+              "left": 102,
+              "right": 101,
+              "wait": 9
+            },
+            "perActionAccuracy": {
+              "forward": 0.9235668789808917,
+              "backward": null,
+              "left": 0.5784313725490197,
+              "right": 0.42574257425742573,
+              "wait": 0.2222222222222222
+            },
+            "predictedCounts": {
+              "forward": 456,
+              "backward": 1,
+              "left": 102,
+              "right": 98,
+              "wait": 26
+            },
+            "confusion": {
+              "forward": {
+                "forward": 435,
+                "backward": 0,
+                "left": 7,
+                "right": 26,
+                "wait": 3
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 10,
+                "backward": 0,
+                "left": 59,
+                "right": 25,
+                "wait": 8
+              },
+              "right": {
+                "forward": 11,
+                "backward": 1,
+                "left": 33,
+                "right": 43,
+                "wait": 13
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 3,
+                "right": 4,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 101,
+          "disagreementRecovery": 0.4752475247524752,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4583333333333333,
+          "fold": 4
+        }
+      ],
+      "oof": {
+        "samples": 2994,
+        "accuracy": 0.7798931195724783,
+        "macroAccuracySupported": 0.47113137373473873,
+        "coreMacroAccuracy": 0.5611364393906456,
+        "support": {
+          "forward": 2057,
+          "backward": 27,
+          "left": 495,
+          "right": 374,
+          "wait": 41
+        },
+        "perActionAccuracy": {
+          "forward": 0.9100631988332523,
+          "backward": 0.1111111111111111,
+          "left": 0.5494949494949495,
+          "right": 0.4679144385026738,
+          "wait": 0.3170731707317073
+        },
+        "predictedCounts": {
+          "forward": 1956,
+          "backward": 25,
+          "left": 468,
+          "right": 427,
+          "wait": 118
+        },
+        "confusion": {
+          "forward": {
+            "forward": 1872,
+            "backward": 10,
+            "left": 57,
+            "right": 94,
+            "wait": 24
+          },
+          "backward": {
+            "forward": 0,
+            "backward": 3,
+            "left": 6,
+            "right": 17,
+            "wait": 1
+          },
+          "left": {
+            "forward": 51,
+            "backward": 9,
+            "left": 272,
+            "right": 129,
+            "wait": 34
+          },
+          "right": {
+            "forward": 29,
+            "backward": 2,
+            "left": 122,
+            "right": 175,
+            "wait": 46
+          },
+          "wait": {
+            "forward": 4,
+            "backward": 1,
+            "left": 11,
+            "right": 12,
+            "wait": 13
+          }
+        }
+      },
+      "disagreementRecovery": 0.4226618705035971,
+      "criticalCorrection": 0.39166666666666666
+    },
+    "brain_history4": {
+      "folds": [
+        {
+          "seed": 2214,
+          "bestEpoch": 8,
+          "validation": {
+            "samples": 652,
+            "accuracy": 0.5904907975460123,
+            "macroAccuracySupported": 0.32207755400008586,
+            "coreMacroAccuracy": 0.4025969425001073,
+            "support": {
+              "forward": 435,
+              "backward": 19,
+              "left": 146,
+              "right": 44,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.6620689655172414,
+              "backward": 0.0,
+              "left": 0.6301369863013698,
+              "right": 0.06818181818181818,
+              "wait": 0.25
+            },
+            "predictedCounts": {
+              "forward": 370,
+              "backward": 0,
+              "left": 266,
+              "right": 11,
+              "wait": 5
+            },
+            "confusion": {
+              "forward": {
+                "forward": 288,
+                "backward": 0,
+                "left": 142,
+                "right": 5,
+                "wait": 0
+              },
+              "backward": {
+                "forward": 18,
+                "backward": 0,
+                "left": 1,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 49,
+                "backward": 0,
+                "left": 92,
+                "right": 3,
+                "wait": 2
+              },
+              "right": {
+                "forward": 14,
+                "backward": 0,
+                "left": 26,
+                "right": 3,
+                "wait": 1
+              },
+              "wait": {
+                "forward": 1,
+                "backward": 0,
+                "left": 5,
+                "right": 0,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 161,
+          "disagreementRecovery": 0.453416149068323,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5,
+          "fold": 0
+        },
+        {
+          "seed": 2315,
+          "bestEpoch": 16,
+          "validation": {
+            "samples": 726,
+            "accuracy": 0.6763085399449036,
+            "macroAccuracySupported": 0.3479477146696002,
+            "coreMacroAccuracy": 0.43493464333700027,
+            "support": {
+              "forward": 526,
+              "backward": 1,
+              "left": 97,
+              "right": 94,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.779467680608365,
+              "backward": 0.0,
+              "left": 0.4948453608247423,
+              "right": 0.3404255319148936,
+              "wait": 0.125
+            },
+            "predictedCounts": {
+              "forward": 441,
+              "backward": 0,
+              "left": 141,
+              "right": 124,
+              "wait": 20
+            },
+            "confusion": {
+              "forward": {
+                "forward": 410,
+                "backward": 0,
+                "left": 52,
+                "right": 61,
+                "wait": 3
+              },
+              "backward": {
+                "forward": 1,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 20,
+                "backward": 0,
+                "left": 48,
+                "right": 26,
+                "wait": 3
+              },
+              "right": {
+                "forward": 10,
+                "backward": 0,
+                "left": 39,
+                "right": 32,
+                "wait": 13
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 2,
+                "right": 5,
+                "wait": 1
+              }
+            }
+          },
+          "disagreementSupport": 108,
+          "disagreementRecovery": 0.4537037037037037,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5833333333333334,
+          "fold": 1
+        },
+        {
+          "seed": 2416,
+          "bestEpoch": 4,
+          "validation": {
+            "samples": 458,
+            "accuracy": 0.6462882096069869,
+            "macroAccuracySupported": 0.4341076169083112,
+            "coreMacroAccuracy": 0.4341076169083112,
+            "support": {
+              "forward": 295,
+              "backward": 0,
+              "left": 83,
+              "right": 70,
+              "wait": 10
+            },
+            "perActionAccuracy": {
+              "forward": 0.7593220338983051,
+              "backward": null,
+              "left": 0.27710843373493976,
+              "right": 0.7,
+              "wait": 0.0
+            },
+            "predictedCounts": {
+              "forward": 252,
+              "backward": 0,
+              "left": 48,
+              "right": 158,
+              "wait": 0
+            },
+            "confusion": {
+              "forward": {
+                "forward": 224,
+                "backward": 0,
+                "left": 15,
+                "right": 56,
+                "wait": 0
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 11,
+                "backward": 0,
+                "left": 23,
+                "right": 49,
+                "wait": 0
+              },
+              "right": {
+                "forward": 13,
+                "backward": 0,
+                "left": 8,
+                "right": 49,
+                "wait": 0
+              },
+              "wait": {
+                "forward": 4,
+                "backward": 0,
+                "left": 2,
+                "right": 4,
+                "wait": 0
+              }
+            }
+          },
+          "disagreementSupport": 97,
+          "disagreementRecovery": 0.4639175257731959,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5416666666666666,
+          "fold": 2
+        },
+        {
+          "seed": 2517,
+          "bestEpoch": 11,
+          "validation": {
+            "samples": 475,
+            "accuracy": 0.5536842105263158,
+            "macroAccuracySupported": 0.30047176703893125,
+            "coreMacroAccuracy": 0.37558970879866405,
+            "support": {
+              "forward": 330,
+              "backward": 7,
+              "left": 67,
+              "right": 65,
+              "wait": 6
+            },
+            "perActionAccuracy": {
+              "forward": 0.6606060606060606,
+              "backward": 0.0,
+              "left": 0.05970149253731343,
+              "right": 0.6153846153846154,
+              "wait": 0.16666666666666666
+            },
+            "predictedCounts": {
+              "forward": 244,
+              "backward": 3,
+              "left": 22,
+              "right": 201,
+              "wait": 5
+            },
+            "confusion": {
+              "forward": {
+                "forward": 218,
+                "backward": 0,
+                "left": 11,
+                "right": 101,
+                "wait": 0
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 6,
+                "wait": 0
+              },
+              "left": {
+                "forward": 12,
+                "backward": 1,
+                "left": 4,
+                "right": 49,
+                "wait": 1
+              },
+              "right": {
+                "forward": 14,
+                "backward": 2,
+                "left": 6,
+                "right": 40,
+                "wait": 3
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 5,
+                "wait": 1
+              }
+            }
+          },
+          "disagreementSupport": 89,
+          "disagreementRecovery": 0.3146067415730337,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5,
+          "fold": 3
+        },
+        {
+          "seed": 2618,
+          "bestEpoch": 16,
+          "validation": {
+            "samples": 683,
+            "accuracy": 0.6515373352855052,
+            "macroAccuracySupported": 0.40488242342405845,
+            "coreMacroAccuracy": 0.40488242342405845,
+            "support": {
+              "forward": 471,
+              "backward": 0,
+              "left": 102,
+              "right": 101,
+              "wait": 9
+            },
+            "perActionAccuracy": {
+              "forward": 0.7600849256900213,
+              "backward": null,
+              "left": 0.19607843137254902,
+              "right": 0.6633663366336634,
+              "wait": 0.0
+            },
+            "predictedCounts": {
+              "forward": 389,
+              "backward": 0,
+              "left": 86,
+              "right": 208,
+              "wait": 0
+            },
+            "confusion": {
+              "forward": {
+                "forward": 358,
+                "backward": 0,
+                "left": 47,
+                "right": 66,
+                "wait": 0
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 14,
+                "backward": 0,
+                "left": 20,
+                "right": 68,
+                "wait": 0
+              },
+              "right": {
+                "forward": 17,
+                "backward": 0,
+                "left": 17,
+                "right": 67,
+                "wait": 0
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 2,
+                "right": 7,
+                "wait": 0
+              }
+            }
+          },
+          "disagreementSupport": 101,
+          "disagreementRecovery": 0.43564356435643564,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5,
+          "fold": 4
+        }
+      ],
+      "oof": {
+        "samples": 2994,
+        "accuracy": 0.6279225116900468,
+        "macroAccuracySupported": 0.34285579151367596,
+        "coreMacroAccuracy": 0.428569739392095,
+        "support": {
+          "forward": 2057,
+          "backward": 27,
+          "left": 495,
+          "right": 374,
+          "wait": 41
+        },
+        "perActionAccuracy": {
+          "forward": 0.7282450170150705,
+          "backward": 0.0,
+          "left": 0.37777777777777777,
+          "right": 0.5106951871657754,
+          "wait": 0.0975609756097561
+        },
+        "predictedCounts": {
+          "forward": 1696,
+          "backward": 3,
+          "left": 563,
+          "right": 702,
+          "wait": 30
+        },
+        "confusion": {
+          "forward": {
+            "forward": 1498,
+            "backward": 0,
+            "left": 267,
+            "right": 289,
+            "wait": 3
+          },
+          "backward": {
+            "forward": 19,
+            "backward": 0,
+            "left": 2,
+            "right": 6,
+            "wait": 0
+          },
+          "left": {
+            "forward": 106,
+            "backward": 1,
+            "left": 187,
+            "right": 195,
+            "wait": 6
+          },
+          "right": {
+            "forward": 68,
+            "backward": 2,
+            "left": 96,
+            "right": 191,
+            "wait": 17
+          },
+          "wait": {
+            "forward": 5,
+            "backward": 0,
+            "left": 11,
+            "right": 21,
+            "wait": 4
+          }
+        }
+      },
+      "disagreementRecovery": 0.42985611510791366,
+      "criticalCorrection": 0.525
+    },
+    "brain_now_efference": {
+      "folds": [
+        {
+          "seed": 3217,
+          "bestEpoch": 4,
+          "validation": {
+            "samples": 652,
+            "accuracy": 0.7055214723926381,
+            "macroAccuracySupported": 0.4373254748715306,
+            "coreMacroAccuracy": 0.5466568435894132,
+            "support": {
+              "forward": 435,
+              "backward": 19,
+              "left": 146,
+              "right": 44,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.9218390804597701,
+              "backward": 0.0,
+              "left": 0.2534246575342466,
+              "right": 0.38636363636363635,
+              "wait": 0.625
+            },
+            "predictedCounts": {
+              "forward": 475,
+              "backward": 4,
+              "left": 61,
+              "right": 87,
+              "wait": 25
+            },
+            "confusion": {
+              "forward": {
+                "forward": 401,
+                "backward": 1,
+                "left": 13,
+                "right": 18,
+                "wait": 2
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 18,
+                "wait": 0
+              },
+              "left": {
+                "forward": 63,
+                "backward": 3,
+                "left": 37,
+                "right": 32,
+                "wait": 11
+              },
+              "right": {
+                "forward": 11,
+                "backward": 0,
+                "left": 9,
+                "right": 17,
+                "wait": 7
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 2,
+                "wait": 5
+              }
+            }
+          },
+          "disagreementSupport": 161,
+          "disagreementRecovery": 0.18633540372670807,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.375,
+          "fold": 0
+        },
+        {
+          "seed": 3318,
+          "bestEpoch": 14,
+          "validation": {
+            "samples": 726,
+            "accuracy": 0.8305785123966942,
+            "macroAccuracySupported": 0.4535965294904075,
+            "coreMacroAccuracy": 0.5669956618630094,
+            "support": {
+              "forward": 526,
+              "backward": 1,
+              "left": 97,
+              "right": 94,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.9486692015209125,
+              "backward": 0.0,
+              "left": 0.4948453608247423,
+              "right": 0.574468085106383,
+              "wait": 0.25
+            },
+            "predictedCounts": {
+              "forward": 514,
+              "backward": 1,
+              "left": 97,
+              "right": 107,
+              "wait": 7
+            },
+            "confusion": {
+              "forward": {
+                "forward": 499,
+                "backward": 1,
+                "left": 16,
+                "right": 9,
+                "wait": 1
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 9,
+                "backward": 0,
+                "left": 48,
+                "right": 39,
+                "wait": 1
+              },
+              "right": {
+                "forward": 6,
+                "backward": 0,
+                "left": 31,
+                "right": 54,
+                "wait": 3
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 5,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 108,
+          "disagreementRecovery": 0.3888888888888889,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5416666666666666,
+          "fold": 1
+        },
+        {
+          "seed": 3419,
+          "bestEpoch": 5,
+          "validation": {
+            "samples": 458,
+            "accuracy": 0.8013100436681223,
+            "macroAccuracySupported": 0.582227457043671,
+            "coreMacroAccuracy": 0.582227457043671,
+            "support": {
+              "forward": 295,
+              "backward": 0,
+              "left": 83,
+              "right": 70,
+              "wait": 10
+            },
+            "perActionAccuracy": {
+              "forward": 0.9559322033898305,
+              "backward": null,
+              "left": 0.5301204819277109,
+              "right": 0.5428571428571428,
+              "wait": 0.3
+            },
+            "predictedCounts": {
+              "forward": 299,
+              "backward": 4,
+              "left": 73,
+              "right": 71,
+              "wait": 11
+            },
+            "confusion": {
+              "forward": {
+                "forward": 282,
+                "backward": 0,
+                "left": 6,
+                "right": 7,
+                "wait": 0
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 9,
+                "backward": 2,
+                "left": 44,
+                "right": 24,
+                "wait": 4
+              },
+              "right": {
+                "forward": 6,
+                "backward": 1,
+                "left": 21,
+                "right": 38,
+                "wait": 4
+              },
+              "wait": {
+                "forward": 2,
+                "backward": 1,
+                "left": 2,
+                "right": 2,
+                "wait": 3
+              }
+            }
+          },
+          "disagreementSupport": 97,
+          "disagreementRecovery": 0.4639175257731959,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4166666666666667,
+          "fold": 2
+        },
+        {
+          "seed": 3520,
+          "bestEpoch": 6,
+          "validation": {
+            "samples": 475,
+            "accuracy": 0.7494736842105263,
+            "macroAccuracySupported": 0.4266165675120899,
+            "coreMacroAccuracy": 0.5332707093901123,
+            "support": {
+              "forward": 330,
+              "backward": 7,
+              "left": 67,
+              "right": 65,
+              "wait": 6
+            },
+            "perActionAccuracy": {
+              "forward": 0.8909090909090909,
+              "backward": 0.0,
+              "left": 0.4626865671641791,
+              "right": 0.4461538461538462,
+              "wait": 0.3333333333333333
+            },
+            "predictedCounts": {
+              "forward": 302,
+              "backward": 0,
+              "left": 78,
+              "right": 83,
+              "wait": 12
+            },
+            "confusion": {
+              "forward": {
+                "forward": 294,
+                "backward": 0,
+                "left": 15,
+                "right": 18,
+                "wait": 3
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 2,
+                "right": 5,
+                "wait": 0
+              },
+              "left": {
+                "forward": 5,
+                "backward": 0,
+                "left": 31,
+                "right": 28,
+                "wait": 3
+              },
+              "right": {
+                "forward": 3,
+                "backward": 0,
+                "left": 29,
+                "right": 29,
+                "wait": 4
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 3,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 89,
+          "disagreementRecovery": 0.4157303370786517,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4583333333333333,
+          "fold": 3
+        },
+        {
+          "seed": 3621,
+          "bestEpoch": 10,
+          "validation": {
+            "samples": 683,
+            "accuracy": 0.7891654465592972,
+            "macroAccuracySupported": 0.5370536960027963,
+            "coreMacroAccuracy": 0.5370536960027963,
+            "support": {
+              "forward": 471,
+              "backward": 0,
+              "left": 102,
+              "right": 101,
+              "wait": 9
+            },
+            "perActionAccuracy": {
+              "forward": 0.8959660297239915,
+              "backward": null,
+              "left": 0.7450980392156863,
+              "right": 0.39603960396039606,
+              "wait": 0.1111111111111111
+            },
+            "predictedCounts": {
+              "forward": 434,
+              "backward": 6,
+              "left": 143,
+              "right": 77,
+              "wait": 23
+            },
+            "confusion": {
+              "forward": {
+                "forward": 422,
+                "backward": 2,
+                "left": 20,
+                "right": 19,
+                "wait": 8
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 6,
+                "backward": 2,
+                "left": 76,
+                "right": 15,
+                "wait": 3
+              },
+              "right": {
+                "forward": 6,
+                "backward": 2,
+                "left": 42,
+                "right": 40,
+                "wait": 11
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 5,
+                "right": 3,
+                "wait": 1
+              }
+            }
+          },
+          "disagreementSupport": 101,
+          "disagreementRecovery": 0.42574257425742573,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.3333333333333333,
+          "fold": 4
+        }
+      ],
+      "oof": {
+        "samples": 2994,
+        "accuracy": 0.7765531062124249,
+        "macroAccuracySupported": 0.43849592837202067,
+        "coreMacroAccuracy": 0.5481199104650258,
+        "support": {
+          "forward": 2057,
+          "backward": 27,
+          "left": 495,
+          "right": 374,
+          "wait": 41
+        },
+        "perActionAccuracy": {
+          "forward": 0.9227029654837141,
+          "backward": 0.0,
+          "left": 0.4767676767676768,
+          "right": 0.47593582887700536,
+          "wait": 0.3170731707317073
+        },
+        "predictedCounts": {
+          "forward": 2024,
+          "backward": 15,
+          "left": 452,
+          "right": 425,
+          "wait": 78
+        },
+        "confusion": {
+          "forward": {
+            "forward": 1898,
+            "backward": 4,
+            "left": 70,
+            "right": 71,
+            "wait": 14
+          },
+          "backward": {
+            "forward": 0,
+            "backward": 0,
+            "left": 4,
+            "right": 23,
+            "wait": 0
+          },
+          "left": {
+            "forward": 92,
+            "backward": 7,
+            "left": 236,
+            "right": 138,
+            "wait": 22
+          },
+          "right": {
+            "forward": 32,
+            "backward": 3,
+            "left": 132,
+            "right": 178,
+            "wait": 29
+          },
+          "wait": {
+            "forward": 2,
+            "backward": 1,
+            "left": 10,
+            "right": 15,
+            "wait": 13
+          }
+        }
+      },
+      "disagreementRecovery": 0.35431654676258995,
+      "criticalCorrection": 0.425
+    },
+    "brain_now_efference_column": {
+      "folds": [
+        {
+          "seed": 4220,
+          "bestEpoch": 13,
+          "validation": {
+            "samples": 652,
+            "accuracy": 0.803680981595092,
+            "macroAccuracySupported": 0.5693137726869671,
+            "coreMacroAccuracy": 0.5800632684902879,
+            "support": {
+              "forward": 435,
+              "backward": 19,
+              "left": 146,
+              "right": 44,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.8781609195402299,
+              "backward": 0.5263157894736842,
+              "left": 0.7602739726027398,
+              "right": 0.4318181818181818,
+              "wait": 0.25
+            },
+            "predictedCounts": {
+              "forward": 392,
+              "backward": 22,
+              "left": 178,
+              "right": 49,
+              "wait": 11
+            },
+            "confusion": {
+              "forward": {
+                "forward": 382,
+                "backward": 8,
+                "left": 35,
+                "right": 9,
+                "wait": 1
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 10,
+                "left": 8,
+                "right": 1,
+                "wait": 0
+              },
+              "left": {
+                "forward": 8,
+                "backward": 4,
+                "left": 111,
+                "right": 16,
+                "wait": 7
+              },
+              "right": {
+                "forward": 1,
+                "backward": 0,
+                "left": 23,
+                "right": 19,
+                "wait": 1
+              },
+              "wait": {
+                "forward": 1,
+                "backward": 0,
+                "left": 1,
+                "right": 4,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 161,
+          "disagreementRecovery": 0.6211180124223602,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5,
+          "fold": 0
+        },
+        {
+          "seed": 4321,
+          "bestEpoch": 15,
+          "validation": {
+            "samples": 726,
+            "accuracy": 0.8388429752066116,
+            "macroAccuracySupported": 0.4660992713197561,
+            "coreMacroAccuracy": 0.5826240891496951,
+            "support": {
+              "forward": 526,
+              "backward": 1,
+              "left": 97,
+              "right": 94,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.9486692015209125,
+              "backward": 0.0,
+              "left": 0.5360824742268041,
+              "right": 0.5957446808510638,
+              "wait": 0.25
+            },
+            "predictedCounts": {
+              "forward": 512,
+              "backward": 0,
+              "left": 98,
+              "right": 110,
+              "wait": 6
+            },
+            "confusion": {
+              "forward": {
+                "forward": 499,
+                "backward": 0,
+                "left": 15,
+                "right": 11,
+                "wait": 1
+              },
+              "backward": {
+                "forward": 1,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 6,
+                "backward": 0,
+                "left": 52,
+                "right": 38,
+                "wait": 1
+              },
+              "right": {
+                "forward": 6,
+                "backward": 0,
+                "left": 30,
+                "right": 56,
+                "wait": 2
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 5,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 108,
+          "disagreementRecovery": 0.48148148148148145,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4583333333333333,
+          "fold": 1
+        },
+        {
+          "seed": 4422,
+          "bestEpoch": 15,
+          "validation": {
+            "samples": 458,
+            "accuracy": 0.8034934497816594,
+            "macroAccuracySupported": 0.5852395052364421,
+            "coreMacroAccuracy": 0.5852395052364421,
+            "support": {
+              "forward": 295,
+              "backward": 0,
+              "left": 83,
+              "right": 70,
+              "wait": 10
+            },
+            "perActionAccuracy": {
+              "forward": 0.9559322033898305,
+              "backward": null,
+              "left": 0.5421686746987951,
+              "right": 0.5428571428571428,
+              "wait": 0.3
+            },
+            "predictedCounts": {
+              "forward": 296,
+              "backward": 1,
+              "left": 78,
+              "right": 75,
+              "wait": 8
+            },
+            "confusion": {
+              "forward": {
+                "forward": 282,
+                "backward": 0,
+                "left": 6,
+                "right": 6,
+                "wait": 1
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 5,
+                "backward": 1,
+                "left": 45,
+                "right": 30,
+                "wait": 2
+              },
+              "right": {
+                "forward": 7,
+                "backward": 0,
+                "left": 23,
+                "right": 38,
+                "wait": 2
+              },
+              "wait": {
+                "forward": 2,
+                "backward": 0,
+                "left": 4,
+                "right": 1,
+                "wait": 3
+              }
+            }
+          },
+          "disagreementSupport": 97,
+          "disagreementRecovery": 0.4536082474226804,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.375,
+          "fold": 2
+        },
+        {
+          "seed": 4523,
+          "bestEpoch": 7,
+          "validation": {
+            "samples": 475,
+            "accuracy": 0.7936842105263158,
+            "macroAccuracySupported": 0.4602957241763212,
+            "coreMacroAccuracy": 0.5753696552204015,
+            "support": {
+              "forward": 330,
+              "backward": 7,
+              "left": 67,
+              "right": 65,
+              "wait": 6
+            },
+            "perActionAccuracy": {
+              "forward": 0.9272727272727272,
+              "backward": 0.0,
+              "left": 0.6716417910447762,
+              "right": 0.36923076923076925,
+              "wait": 0.3333333333333333
+            },
+            "predictedCounts": {
+              "forward": 324,
+              "backward": 0,
+              "left": 84,
+              "right": 62,
+              "wait": 5
+            },
+            "confusion": {
+              "forward": {
+                "forward": 306,
+                "backward": 0,
+                "left": 5,
+                "right": 16,
+                "wait": 3
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 2,
+                "right": 5,
+                "wait": 0
+              },
+              "left": {
+                "forward": 7,
+                "backward": 0,
+                "left": 45,
+                "right": 15,
+                "wait": 0
+              },
+              "right": {
+                "forward": 10,
+                "backward": 0,
+                "left": 31,
+                "right": 24,
+                "wait": 0
+              },
+              "wait": {
+                "forward": 1,
+                "backward": 0,
+                "left": 1,
+                "right": 2,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 89,
+          "disagreementRecovery": 0.449438202247191,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4583333333333333,
+          "fold": 3
+        },
+        {
+          "seed": 4624,
+          "bestEpoch": 8,
+          "validation": {
+            "samples": 683,
+            "accuracy": 0.7906295754026355,
+            "macroAccuracySupported": 0.5455324569549499,
+            "coreMacroAccuracy": 0.5455324569549499,
+            "support": {
+              "forward": 471,
+              "backward": 0,
+              "left": 102,
+              "right": 101,
+              "wait": 9
+            },
+            "perActionAccuracy": {
+              "forward": 0.9171974522292994,
+              "backward": null,
+              "left": 0.6862745098039216,
+              "right": 0.3564356435643564,
+              "wait": 0.2222222222222222
+            },
+            "predictedCounts": {
+              "forward": 449,
+              "backward": 0,
+              "left": 132,
+              "right": 71,
+              "wait": 31
+            },
+            "confusion": {
+              "forward": {
+                "forward": 432,
+                "backward": 0,
+                "left": 13,
+                "right": 17,
+                "wait": 9
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 10,
+                "backward": 0,
+                "left": 70,
+                "right": 16,
+                "wait": 6
+              },
+              "right": {
+                "forward": 7,
+                "backward": 0,
+                "left": 44,
+                "right": 36,
+                "wait": 14
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 5,
+                "right": 2,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 101,
+          "disagreementRecovery": 0.40594059405940597,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.3333333333333333,
+          "fold": 4
+        }
+      ],
+      "oof": {
+        "samples": 2994,
+        "accuracy": 0.8076152304609219,
+        "macroAccuracySupported": 0.5355833101678934,
+        "coreMacroAccuracy": 0.5768865451172742,
+        "support": {
+          "forward": 2057,
+          "backward": 27,
+          "left": 495,
+          "right": 374,
+          "wait": 41
+        },
+        "perActionAccuracy": {
+          "forward": 0.924161400097229,
+          "backward": 0.37037037037037035,
+          "left": 0.6525252525252525,
+          "right": 0.4625668449197861,
+          "wait": 0.2682926829268293
+        },
+        "predictedCounts": {
+          "forward": 1973,
+          "backward": 23,
+          "left": 570,
+          "right": 367,
+          "wait": 61
+        },
+        "confusion": {
+          "forward": {
+            "forward": 1901,
+            "backward": 8,
+            "left": 74,
+            "right": 59,
+            "wait": 15
+          },
+          "backward": {
+            "forward": 1,
+            "backward": 10,
+            "left": 10,
+            "right": 6,
+            "wait": 0
+          },
+          "left": {
+            "forward": 36,
+            "backward": 5,
+            "left": 323,
+            "right": 115,
+            "wait": 16
+          },
+          "right": {
+            "forward": 31,
+            "backward": 0,
+            "left": 151,
+            "right": 173,
+            "wait": 19
+          },
+          "wait": {
+            "forward": 4,
+            "backward": 0,
+            "left": 12,
+            "right": 14,
+            "wait": 11
+          }
+        }
+      },
+      "disagreementRecovery": 0.4982014388489209,
+      "criticalCorrection": 0.425
+    },
+    "brain_history4_efference_column": {
+      "folds": [
+        {
+          "seed": 5223,
+          "bestEpoch": 12,
+          "validation": {
+            "samples": 652,
+            "accuracy": 0.598159509202454,
+            "macroAccuracySupported": 0.3629165056326133,
+            "coreMacroAccuracy": 0.45364563204076663,
+            "support": {
+              "forward": 435,
+              "backward": 19,
+              "left": 146,
+              "right": 44,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.8229885057471265,
+              "backward": 0.0,
+              "left": 0.1506849315068493,
+              "right": 0.09090909090909091,
+              "wait": 0.75
+            },
+            "predictedCounts": {
+              "forward": 451,
+              "backward": 0,
+              "left": 52,
+              "right": 19,
+              "wait": 130
+            },
+            "confusion": {
+              "forward": {
+                "forward": 358,
+                "backward": 0,
+                "left": 18,
+                "right": 12,
+                "wait": 47
+              },
+              "backward": {
+                "forward": 17,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 2
+              },
+              "left": {
+                "forward": 62,
+                "backward": 0,
+                "left": 22,
+                "right": 1,
+                "wait": 61
+              },
+              "right": {
+                "forward": 14,
+                "backward": 0,
+                "left": 12,
+                "right": 4,
+                "wait": 14
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 2,
+                "wait": 6
+              }
+            }
+          },
+          "disagreementSupport": 161,
+          "disagreementRecovery": 0.11180124223602485,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.20833333333333334,
+          "fold": 0
+        },
+        {
+          "seed": 5324,
+          "bestEpoch": 1,
+          "validation": {
+            "samples": 726,
+            "accuracy": 0.6170798898071626,
+            "macroAccuracySupported": 0.3082649370275818,
+            "coreMacroAccuracy": 0.38533117128447725,
+            "support": {
+              "forward": 526,
+              "backward": 1,
+              "left": 97,
+              "right": 94,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.6977186311787072,
+              "backward": 0.0,
+              "left": 0.5670103092783505,
+              "right": 0.2765957446808511,
+              "wait": 0.0
+            },
+            "predictedCounts": {
+              "forward": 396,
+              "backward": 0,
+              "left": 243,
+              "right": 87,
+              "wait": 0
+            },
+            "confusion": {
+              "forward": {
+                "forward": 367,
+                "backward": 0,
+                "left": 124,
+                "right": 35,
+                "wait": 0
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 1,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 20,
+                "backward": 0,
+                "left": 55,
+                "right": 22,
+                "wait": 0
+              },
+              "right": {
+                "forward": 8,
+                "backward": 0,
+                "left": 60,
+                "right": 26,
+                "wait": 0
+              },
+              "wait": {
+                "forward": 1,
+                "backward": 0,
+                "left": 3,
+                "right": 4,
+                "wait": 0
+              }
+            }
+          },
+          "disagreementSupport": 108,
+          "disagreementRecovery": 0.39814814814814814,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4583333333333333,
+          "fold": 1
+        },
+        {
+          "seed": 5425,
+          "bestEpoch": 8,
+          "validation": {
+            "samples": 458,
+            "accuracy": 0.7139737991266376,
+            "macroAccuracySupported": 0.49686542781294674,
+            "coreMacroAccuracy": 0.49686542781294674,
+            "support": {
+              "forward": 295,
+              "backward": 0,
+              "left": 83,
+              "right": 70,
+              "wait": 10
+            },
+            "perActionAccuracy": {
+              "forward": 0.8983050847457628,
+              "backward": null,
+              "left": 0.2891566265060241,
+              "right": 0.5,
+              "wait": 0.3
+            },
+            "predictedCounts": {
+              "forward": 309,
+              "backward": 6,
+              "left": 49,
+              "right": 89,
+              "wait": 5
+            },
+            "confusion": {
+              "forward": {
+                "forward": 265,
+                "backward": 3,
+                "left": 10,
+                "right": 16,
+                "wait": 1
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 22,
+                "backward": 0,
+                "left": 24,
+                "right": 36,
+                "wait": 1
+              },
+              "right": {
+                "forward": 18,
+                "backward": 3,
+                "left": 14,
+                "right": 35,
+                "wait": 0
+              },
+              "wait": {
+                "forward": 4,
+                "backward": 0,
+                "left": 1,
+                "right": 2,
+                "wait": 3
+              }
+            }
+          },
+          "disagreementSupport": 97,
+          "disagreementRecovery": 0.4020618556701031,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.5,
+          "fold": 2
+        },
+        {
+          "seed": 5526,
+          "bestEpoch": 15,
+          "validation": {
+            "samples": 475,
+            "accuracy": 0.6652631578947369,
+            "macroAccuracySupported": 0.3891653620011829,
+            "coreMacroAccuracy": 0.4864567025014786,
+            "support": {
+              "forward": 330,
+              "backward": 7,
+              "left": 67,
+              "right": 65,
+              "wait": 6
+            },
+            "perActionAccuracy": {
+              "forward": 0.8242424242424242,
+              "backward": 0.0,
+              "left": 0.29850746268656714,
+              "right": 0.3230769230769231,
+              "wait": 0.5
+            },
+            "predictedCounts": {
+              "forward": 308,
+              "backward": 1,
+              "left": 66,
+              "right": 94,
+              "wait": 6
+            },
+            "confusion": {
+              "forward": {
+                "forward": 272,
+                "backward": 0,
+                "left": 18,
+                "right": 39,
+                "wait": 1
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 4,
+                "right": 3,
+                "wait": 0
+              },
+              "left": {
+                "forward": 15,
+                "backward": 1,
+                "left": 20,
+                "right": 30,
+                "wait": 1
+              },
+              "right": {
+                "forward": 20,
+                "backward": 0,
+                "left": 23,
+                "right": 21,
+                "wait": 1
+              },
+              "wait": {
+                "forward": 1,
+                "backward": 0,
+                "left": 1,
+                "right": 1,
+                "wait": 3
+              }
+            }
+          },
+          "disagreementSupport": 89,
+          "disagreementRecovery": 0.25842696629213485,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.3333333333333333,
+          "fold": 3
+        },
+        {
+          "seed": 5627,
+          "bestEpoch": 14,
+          "validation": {
+            "samples": 683,
+            "accuracy": 0.7306002928257687,
+            "macroAccuracySupported": 0.4220724667071428,
+            "coreMacroAccuracy": 0.4220724667071428,
+            "support": {
+              "forward": 471,
+              "backward": 0,
+              "left": 102,
+              "right": 101,
+              "wait": 9
+            },
+            "perActionAccuracy": {
+              "forward": 0.9150743099787686,
+              "backward": null,
+              "left": 0.12745098039215685,
+              "right": 0.5346534653465347,
+              "wait": 0.1111111111111111
+            },
+            "predictedCounts": {
+              "forward": 485,
+              "backward": 7,
+              "left": 25,
+              "right": 152,
+              "wait": 14
+            },
+            "confusion": {
+              "forward": {
+                "forward": 431,
+                "backward": 2,
+                "left": 5,
+                "right": 31,
+                "wait": 2
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 24,
+                "backward": 1,
+                "left": 13,
+                "right": 61,
+                "wait": 3
+              },
+              "right": {
+                "forward": 28,
+                "backward": 4,
+                "left": 7,
+                "right": 54,
+                "wait": 8
+              },
+              "wait": {
+                "forward": 2,
+                "backward": 0,
+                "left": 0,
+                "right": 6,
+                "wait": 1
+              }
+            }
+          },
+          "disagreementSupport": 101,
+          "disagreementRecovery": 0.3564356435643564,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.2916666666666667,
+          "fold": 4
+        }
+      ],
+      "oof": {
+        "samples": 2994,
+        "accuracy": 0.6613226452905812,
+        "macroAccuracySupported": 0.3570310118268903,
+        "coreMacroAccuracy": 0.44628876478361285,
+        "support": {
+          "forward": 2057,
+          "backward": 27,
+          "left": 495,
+          "right": 374,
+          "wait": 41
+        },
+        "perActionAccuracy": {
+          "forward": 0.8230432668935342,
+          "backward": 0.0,
+          "left": 0.27070707070707073,
+          "right": 0.37433155080213903,
+          "wait": 0.3170731707317073
+        },
+        "predictedCounts": {
+          "forward": 1949,
+          "backward": 14,
+          "left": 435,
+          "right": 441,
+          "wait": 155
+        },
+        "confusion": {
+          "forward": {
+            "forward": 1693,
+            "backward": 5,
+            "left": 175,
+            "right": 133,
+            "wait": 51
+          },
+          "backward": {
+            "forward": 17,
+            "backward": 0,
+            "left": 5,
+            "right": 3,
+            "wait": 2
+          },
+          "left": {
+            "forward": 143,
+            "backward": 2,
+            "left": 134,
+            "right": 150,
+            "wait": 66
+          },
+          "right": {
+            "forward": 88,
+            "backward": 7,
+            "left": 116,
+            "right": 140,
+            "wait": 23
+          },
+          "wait": {
+            "forward": 8,
+            "backward": 0,
+            "left": 5,
+            "right": 15,
+            "wait": 13
+          }
+        }
+      },
+      "disagreementRecovery": 0.28597122302158273,
+      "criticalCorrection": 0.35833333333333334
+    },
+    "context_only_efference_column": {
+      "folds": [
+        {
+          "seed": 6226,
+          "bestEpoch": 4,
+          "validation": {
+            "samples": 652,
+            "accuracy": 0.5966257668711656,
+            "macroAccuracySupported": 0.25607885658665064,
+            "coreMacroAccuracy": 0.32009857073331327,
+            "support": {
+              "forward": 435,
+              "backward": 19,
+              "left": 146,
+              "right": 44,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.8390804597701149,
+              "backward": 0.0,
+              "left": 0.08904109589041095,
+              "right": 0.22727272727272727,
+              "wait": 0.125
+            },
+            "predictedCounts": {
+              "forward": 525,
+              "backward": 0,
+              "left": 50,
+              "right": 70,
+              "wait": 7
+            },
+            "confusion": {
+              "forward": {
+                "forward": 365,
+                "backward": 0,
+                "left": 23,
+                "right": 43,
+                "wait": 4
+              },
+              "backward": {
+                "forward": 16,
+                "backward": 0,
+                "left": 3,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 116,
+                "backward": 0,
+                "left": 13,
+                "right": 15,
+                "wait": 2
+              },
+              "right": {
+                "forward": 25,
+                "backward": 0,
+                "left": 9,
+                "right": 10,
+                "wait": 0
+              },
+              "wait": {
+                "forward": 3,
+                "backward": 0,
+                "left": 2,
+                "right": 2,
+                "wait": 1
+              }
+            }
+          },
+          "disagreementSupport": 161,
+          "disagreementRecovery": 0.13043478260869565,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.3333333333333333,
+          "fold": 0
+        },
+        {
+          "seed": 6327,
+          "bestEpoch": 2,
+          "validation": {
+            "samples": 726,
+            "accuracy": 0.384297520661157,
+            "macroAccuracySupported": 0.258799604175754,
+            "coreMacroAccuracy": 0.3234995052196925,
+            "support": {
+              "forward": 526,
+              "backward": 1,
+              "left": 97,
+              "right": 94,
+              "wait": 8
+            },
+            "perActionAccuracy": {
+              "forward": 0.38593155893536124,
+              "backward": 0.0,
+              "left": 0.4639175257731959,
+              "right": 0.3191489361702128,
+              "wait": 0.125
+            },
+            "predictedCounts": {
+              "forward": 240,
+              "backward": 11,
+              "left": 331,
+              "right": 131,
+              "wait": 13
+            },
+            "confusion": {
+              "forward": {
+                "forward": 203,
+                "backward": 9,
+                "left": 240,
+                "right": 66,
+                "wait": 8
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 1,
+                "wait": 0
+              },
+              "left": {
+                "forward": 16,
+                "backward": 2,
+                "left": 45,
+                "right": 32,
+                "wait": 2
+              },
+              "right": {
+                "forward": 21,
+                "backward": 0,
+                "left": 41,
+                "right": 30,
+                "wait": 2
+              },
+              "wait": {
+                "forward": 0,
+                "backward": 0,
+                "left": 5,
+                "right": 2,
+                "wait": 1
+              }
+            }
+          },
+          "disagreementSupport": 108,
+          "disagreementRecovery": 0.42592592592592593,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.375,
+          "fold": 1
+        },
+        {
+          "seed": 6428,
+          "bestEpoch": 2,
+          "validation": {
+            "samples": 458,
+            "accuracy": 0.5,
+            "macroAccuracySupported": 0.3228485370051635,
+            "coreMacroAccuracy": 0.3228485370051635,
+            "support": {
+              "forward": 295,
+              "backward": 0,
+              "left": 83,
+              "right": 70,
+              "wait": 10
+            },
+            "perActionAccuracy": {
+              "forward": 0.6,
+              "backward": null,
+              "left": 0.27710843373493976,
+              "right": 0.4142857142857143,
+              "wait": 0.0
+            },
+            "predictedCounts": {
+              "forward": 225,
+              "backward": 5,
+              "left": 87,
+              "right": 137,
+              "wait": 4
+            },
+            "confusion": {
+              "forward": {
+                "forward": 177,
+                "backward": 3,
+                "left": 45,
+                "right": 68,
+                "wait": 2
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 25,
+                "backward": 1,
+                "left": 23,
+                "right": 34,
+                "wait": 0
+              },
+              "right": {
+                "forward": 21,
+                "backward": 1,
+                "left": 17,
+                "right": 29,
+                "wait": 2
+              },
+              "wait": {
+                "forward": 2,
+                "backward": 0,
+                "left": 2,
+                "right": 6,
+                "wait": 0
+              }
+            }
+          },
+          "disagreementSupport": 97,
+          "disagreementRecovery": 0.30927835051546393,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.375,
+          "fold": 2
+        },
+        {
+          "seed": 6529,
+          "bestEpoch": 1,
+          "validation": {
+            "samples": 475,
+            "accuracy": 0.5347368421052632,
+            "macroAccuracySupported": 0.35804812103319567,
+            "coreMacroAccuracy": 0.3761315798629231,
+            "support": {
+              "forward": 330,
+              "backward": 7,
+              "left": 67,
+              "right": 65,
+              "wait": 6
+            },
+            "perActionAccuracy": {
+              "forward": 0.6545454545454545,
+              "backward": 0.2857142857142857,
+              "left": 0.208955223880597,
+              "right": 0.3076923076923077,
+              "wait": 0.3333333333333333
+            },
+            "predictedCounts": {
+              "forward": 266,
+              "backward": 12,
+              "left": 104,
+              "right": 82,
+              "wait": 11
+            },
+            "confusion": {
+              "forward": {
+                "forward": 216,
+                "backward": 5,
+                "left": 71,
+                "right": 33,
+                "wait": 5
+              },
+              "backward": {
+                "forward": 2,
+                "backward": 2,
+                "left": 1,
+                "right": 2,
+                "wait": 0
+              },
+              "left": {
+                "forward": 21,
+                "backward": 4,
+                "left": 14,
+                "right": 27,
+                "wait": 1
+              },
+              "right": {
+                "forward": 24,
+                "backward": 1,
+                "left": 17,
+                "right": 20,
+                "wait": 3
+              },
+              "wait": {
+                "forward": 3,
+                "backward": 0,
+                "left": 1,
+                "right": 0,
+                "wait": 2
+              }
+            }
+          },
+          "disagreementSupport": 89,
+          "disagreementRecovery": 0.30337078651685395,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.4166666666666667,
+          "fold": 3
+        },
+        {
+          "seed": 6630,
+          "bestEpoch": 5,
+          "validation": {
+            "samples": 683,
+            "accuracy": 0.5344070278184481,
+            "macroAccuracySupported": 0.3156799475376537,
+            "coreMacroAccuracy": 0.3156799475376537,
+            "support": {
+              "forward": 471,
+              "backward": 0,
+              "left": 102,
+              "right": 101,
+              "wait": 9
+            },
+            "perActionAccuracy": {
+              "forward": 0.6687898089171974,
+              "backward": null,
+              "left": 0.23529411764705882,
+              "right": 0.24752475247524752,
+              "wait": 0.1111111111111111
+            },
+            "predictedCounts": {
+              "forward": 407,
+              "backward": 63,
+              "left": 103,
+              "right": 96,
+              "wait": 14
+            },
+            "confusion": {
+              "forward": {
+                "forward": 315,
+                "backward": 47,
+                "left": 56,
+                "right": 45,
+                "wait": 8
+              },
+              "backward": {
+                "forward": 0,
+                "backward": 0,
+                "left": 0,
+                "right": 0,
+                "wait": 0
+              },
+              "left": {
+                "forward": 43,
+                "backward": 9,
+                "left": 24,
+                "right": 25,
+                "wait": 1
+              },
+              "right": {
+                "forward": 46,
+                "backward": 6,
+                "left": 20,
+                "right": 25,
+                "wait": 4
+              },
+              "wait": {
+                "forward": 3,
+                "backward": 1,
+                "left": 3,
+                "right": 1,
+                "wait": 1
+              }
+            }
+          },
+          "disagreementSupport": 101,
+          "disagreementRecovery": 0.31683168316831684,
+          "criticalSupport": 24,
+          "criticalCorrection": 0.2916666666666667,
+          "fold": 4
+        }
+      ],
+      "oof": {
+        "samples": 2994,
+        "accuracy": 0.5063460253841016,
+        "macroAccuracySupported": 0.2723126047659764,
+        "coreMacroAccuracy": 0.321872237438952,
+        "support": {
+          "forward": 2057,
+          "backward": 27,
+          "left": 495,
+          "right": 374,
+          "wait": 41
+        },
+        "perActionAccuracy": {
+          "forward": 0.6203208556149733,
+          "backward": 0.07407407407407407,
+          "left": 0.2404040404040404,
+          "right": 0.3048128342245989,
+          "wait": 0.12195121951219512
+        },
+        "predictedCounts": {
+          "forward": 1663,
+          "backward": 91,
+          "left": 675,
+          "right": 516,
+          "wait": 49
+        },
+        "confusion": {
+          "forward": {
+            "forward": 1276,
+            "backward": 64,
+            "left": 435,
+            "right": 255,
+            "wait": 27
+          },
+          "backward": {
+            "forward": 18,
+            "backward": 2,
+            "left": 4,
+            "right": 3,
+            "wait": 0
+          },
+          "left": {
+            "forward": 221,
+            "backward": 16,
+            "left": 119,
+            "right": 133,
+            "wait": 6
+          },
+          "right": {
+            "forward": 137,
+            "backward": 8,
+            "left": 104,
+            "right": 114,
+            "wait": 11
+          },
+          "wait": {
+            "forward": 11,
+            "backward": 1,
+            "left": 13,
+            "right": 11,
+            "wait": 5
+          }
+        }
+      },
+      "disagreementRecovery": 0.2805755395683453,
+      "criticalCorrection": 0.35833333333333334
+    }
+  },
+  "interpretation": {
+    "baseline": {
+      "coreMacro": 0.5611364393906456,
+      "disagreementRecovery": 0.4226618705035971,
+      "criticalCorrection": 0.39166666666666666
+    },
+    "gainsVsBrainNow": {
+      "brain_history4": {
+        "coreMacro": -0.13256669999855064,
+        "disagreementRecovery": 0.0071942446043165575,
+        "criticalCorrection": 0.13333333333333336
+      },
+      "brain_now_efference": {
+        "coreMacro": -0.013016528925619775,
+        "disagreementRecovery": -0.06834532374100716,
+        "criticalCorrection": 0.033333333333333326
+      },
+      "brain_now_efference_column": {
+        "coreMacro": 0.015750105726628605,
+        "disagreementRecovery": 0.07553956834532377,
+        "criticalCorrection": 0.033333333333333326
+      },
+      "brain_history4_efference_column": {
+        "coreMacro": -0.11484767460703277,
+        "disagreementRecovery": -0.13669064748201437,
+        "criticalCorrection": -0.033333333333333326
+      }
+    },
+    "diagnosis": "context_hypothesis_not_supported",
+    "strongContextEvidence": false,
+    "rule": "Strong context evidence requires >= +0.08 OOF coreMacro and >= +0.08 on disagreement recovery or fatal critical correction, versus the same compressed brain-now baseline. If no condition reaches that, do not add context to production yet; move upstream to camera/retina sufficiency."
+  },
+  "elapsedSeconds": 25.536719099996844
+}
