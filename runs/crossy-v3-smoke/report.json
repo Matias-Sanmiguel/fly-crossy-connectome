@@ -1,0 +1,82 @@
+{
+  "recipe": "fly-self-driving-style-full-connectome-bc-dagger",
+  "graph": {
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "training": {
+    "demoEpisodes": 4,
+    "noise": 0.15,
+    "window": 16,
+    "batch": 4,
+    "cloneSteps": 2,
+    "learningRate": 0.04,
+    "daggerRounds": 0,
+    "daggerStepsPerRound": 500,
+    "trainableParameters": 25728319,
+    "stateReset": "episode start only",
+    "graphUpdatesPerDecision": 4
+  },
+  "evaluation": {
+    "clone": [
+      {
+        "episodes": 20,
+        "maxSteps": 20,
+        "meanScore": 0.55,
+        "medianScore": 0.0,
+        "bestScore": 4.0,
+        "meanLength": 18.45,
+        "reachedStepLimit": 18,
+        "terminalReasons": {
+          "vehicle": 2
+        },
+        "actions": {
+          "backward": 3,
+          "forward": 11,
+          "left": 200,
+          "right": 155
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 20,
+        "meanScore": 0.35,
+        "medianScore": 0.0,
+        "bestScore": 3.0,
+        "meanLength": 17.65,
+        "reachedStepLimit": 16,
+        "terminalReasons": {
+          "vehicle": 4
+        },
+        "actions": {
+          "backward": 8,
+          "forward": 7,
+          "left": 178,
+          "right": 160
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 20,
+        "meanScore": 0.4,
+        "medianScore": 0.0,
+        "bestScore": 2.0,
+        "meanLength": 18.45,
+        "reachedStepLimit": 18,
+        "terminalReasons": {
+          "vehicle": 2
+        },
+        "actions": {
+          "backward": 7,
+          "forward": 9,
+          "left": 246,
+          "right": 107
+        }
+      }
+    ]
+  },
+  "elapsedSeconds": 40.081266700000015,
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v3-smoke\\checkpoint.pt"
+}

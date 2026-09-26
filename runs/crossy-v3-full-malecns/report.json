@@ -1,0 +1,252 @@
+{
+  "recipe": "fly-self-driving-style-full-connectome-bc-dagger",
+  "graph": {
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "training": {
+    "demoEpisodes": 60,
+    "noise": 0.15,
+    "window": 16,
+    "batch": 4,
+    "cloneSteps": 1200,
+    "learningRate": 0.04,
+    "daggerRounds": 3,
+    "daggerStepsPerRound": 500,
+    "trainableParameters": 25728319,
+    "stateReset": "episode start only",
+    "graphUpdatesPerDecision": 4
+  },
+  "evaluation": {
+    "clone": [
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 6.45,
+        "medianScore": 5.0,
+        "bestScore": 18.0,
+        "meanLength": 28.35,
+        "reachedStepLimit": 2,
+        "terminalReasons": {
+          "train": 4,
+          "vehicle": 14
+        },
+        "actions": {
+          "forward": 563,
+          "left": 4
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 6.35,
+        "medianScore": 5.0,
+        "bestScore": 15.0,
+        "meanLength": 17.3,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 17,
+          "water": 1
+        },
+        "actions": {
+          "forward": 342,
+          "left": 4
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 6.6,
+        "medianScore": 6.0,
+        "bestScore": 15.0,
+        "meanLength": 17.45,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 4,
+          "vehicle": 15
+        },
+        "actions": {
+          "forward": 341,
+          "left": 8
+        }
+      }
+    ],
+    "dagger1": [
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 7.65,
+        "medianScore": 6.0,
+        "bestScore": 24.0,
+        "meanLength": 14.35,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 17,
+          "water": 1
+        },
+        "actions": {
+          "forward": 261,
+          "left": 22,
+          "right": 4
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 6.85,
+        "medianScore": 5.0,
+        "bestScore": 17.0,
+        "meanLength": 18.15,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 16,
+          "water": 1
+        },
+        "actions": {
+          "forward": 161,
+          "left": 12,
+          "right": 190
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 7.75,
+        "medianScore": 7.0,
+        "bestScore": 17.0,
+        "meanLength": 9.4,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 3,
+          "vehicle": 17
+        },
+        "actions": {
+          "forward": 160,
+          "left": 28
+        }
+      }
+    ],
+    "dagger2": [
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 7.9,
+        "medianScore": 6.0,
+        "bestScore": 25.0,
+        "meanLength": 20.75,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 16,
+          "water": 1
+        },
+        "actions": {
+          "forward": 211,
+          "left": 25,
+          "right": 179
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 7.8,
+        "medianScore": 6.0,
+        "bestScore": 17.0,
+        "meanLength": 19.0,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 16,
+          "water": 1
+        },
+        "actions": {
+          "forward": 171,
+          "left": 15,
+          "right": 194
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 8.0,
+        "medianScore": 7.0,
+        "bestScore": 17.0,
+        "meanLength": 11.4,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 19
+        },
+        "actions": {
+          "forward": 186,
+          "left": 35,
+          "right": 7
+        }
+      }
+    ],
+    "dagger3": [
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 7.85,
+        "medianScore": 6.0,
+        "bestScore": 25.0,
+        "meanLength": 10.65,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 17,
+          "water": 1
+        },
+        "actions": {
+          "forward": 188,
+          "left": 18,
+          "right": 7
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 7.0,
+        "medianScore": 6.0,
+        "bestScore": 15.0,
+        "meanLength": 17.65,
+        "reachedStepLimit": 1,
+        "terminalReasons": {
+          "train": 1,
+          "vehicle": 17,
+          "water": 1
+        },
+        "actions": {
+          "forward": 149,
+          "left": 10,
+          "right": 194
+        }
+      },
+      {
+        "episodes": 20,
+        "maxSteps": 200,
+        "meanScore": 6.4,
+        "medianScore": 6.0,
+        "bestScore": 15.0,
+        "meanLength": 7.5,
+        "reachedStepLimit": 0,
+        "terminalReasons": {
+          "train": 3,
+          "vehicle": 17
+        },
+        "actions": {
+          "forward": 133,
+          "left": 17
+        }
+      }
+    ]
+  },
+  "elapsedSeconds": 13082.352263100001,
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v3-full-malecns\\checkpoint.pt"
+}

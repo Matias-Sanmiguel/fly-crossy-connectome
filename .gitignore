@@ -31,3 +31,7 @@ Thumbs.db
 # Generated neural artifacts and datasets
 artifacts/
 python/datasets/
+
+runs/**/*.pt
+
+runs/**/*.pt
