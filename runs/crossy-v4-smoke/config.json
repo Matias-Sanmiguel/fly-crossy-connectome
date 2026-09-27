@@ -1,0 +1,36 @@
+{
+  "version": "crossy-v4-expo-specialist-1",
+  "seed": "crossy-v4-expo:0006",
+  "rngSeed": 404,
+  "plannerDepth": 4,
+  "sensor": {
+    "width": 48,
+    "height": 24,
+    "channels": 3,
+    "features": 3456,
+    "allRgbFeaturesCoveredAtLeastOnce": true
+  },
+  "training": {
+    "demoEpisodes": 2,
+    "demoSteps": 16,
+    "exploration": 0.15,
+    "cloneEpochs": 1,
+    "daggerRounds": 0,
+    "daggerEpisodes": 24,
+    "daggerEpochs": 2,
+    "window": 16,
+    "batch": 2,
+    "learningRate": 0.02,
+    "semanticWeight": 0.2,
+    "rewardUsed": false,
+    "stateReset": "episode-start-only"
+  },
+  "architecture": {
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708,
+    "MaleCNSTrainableParameters": 25728319,
+    "trainingOnlyAuxParameters": 24106
+  }
+}

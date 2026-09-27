@@ -1,0 +1,3632 @@
+{
+  "version": "crossy-v4-recovery-dagger-1",
+  "sourceCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-expo-specialist\\best.pt",
+  "metadata": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "config": {
+    "seed": "crossy-v4-expo:0006",
+    "rngSeed": 505,
+    "plannerDepth": 4,
+    "maxSteps": 200,
+    "anchorEpisodes": 12,
+    "perturbEpisodes": 16,
+    "onpolicyEpisodes": 12,
+    "rounds": 4,
+    "decoderEpochs": 100,
+    "decoderLearningRate": 0.01,
+    "decoderBatch": 1024,
+    "perturbProbability": 0.18,
+    "recoveryHorizon": 5,
+    "MaleCNSRetrained": false
+  },
+  "frozenMaleCNS": true,
+  "trainableDecoderParameters": 3545,
+  "anchorCollection": [
+    {
+      "mode": "teacher",
+      "phaseOffset": 1.0205075606175766,
+      "initialColumn": -1,
+      "frames": 200,
+      "score": 125.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 1,
+        "forward": 126,
+        "left": 37,
+        "right": 31,
+        "wait": 5
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.02091042122119995,
+      "initialColumn": 1,
+      "frames": 200,
+      "score": 126.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "forward": 126,
+        "left": 39,
+        "right": 25,
+        "wait": 10
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 1.1990650446093643,
+      "initialColumn": -1,
+      "frames": 200,
+      "score": 124.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "forward": 124,
+        "left": 47,
+        "right": 27,
+        "wait": 2
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.612136052944496,
+      "initialColumn": 1,
+      "frames": 200,
+      "score": 124.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "forward": 124,
+        "left": 41,
+        "right": 31,
+        "wait": 4
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.09395355833818542,
+      "initialColumn": -1,
+      "frames": 200,
+      "score": 124.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 1,
+        "forward": 128,
+        "left": 38,
+        "right": 31,
+        "wait": 2
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.9671284058924233,
+      "initialColumn": -1,
+      "frames": 200,
+      "score": 139.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "forward": 141,
+        "left": 29,
+        "right": 24,
+        "wait": 6
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.8115666570942304,
+      "initialColumn": -2,
+      "frames": 200,
+      "score": 125.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "forward": 125,
+        "left": 39,
+        "right": 32,
+        "wait": 4
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 1.169727503687725,
+      "initialColumn": 2,
+      "frames": 200,
+      "score": 125.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 1,
+        "forward": 127,
+        "left": 37,
+        "right": 32,
+        "wait": 3
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.6893782068415735,
+      "initialColumn": 1,
+      "frames": 200,
+      "score": 124.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 1,
+        "forward": 128,
+        "left": 38,
+        "right": 32,
+        "wait": 1
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.3546741277001152,
+      "initialColumn": -1,
+      "frames": 200,
+      "score": 139.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "forward": 141,
+        "left": 31,
+        "right": 24,
+        "wait": 4
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 1.0162430788122205,
+      "initialColumn": 1,
+      "frames": 200,
+      "score": 126.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 2,
+        "forward": 127,
+        "left": 35,
+        "right": 32,
+        "wait": 4
+      }
+    },
+    {
+      "mode": "teacher",
+      "phaseOffset": 0.7848905380947082,
+      "initialColumn": 0,
+      "frames": 200,
+      "score": 124.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 0,
+      "recoveryFrames": 0,
+      "unacceptableBehavior": 0,
+      "unsafeBehavior": 0,
+      "actions": {
+        "forward": 124,
+        "left": 47,
+        "right": 26,
+        "wait": 3
+      }
+    }
+  ],
+  "perturbCollection": [
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.44283240790360323,
+      "initialColumn": 2,
+      "frames": 200,
+      "score": 118.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 18,
+      "recoveryFrames": 90,
+      "unacceptableBehavior": 14,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 6,
+        "forward": 124,
+        "left": 30,
+        "right": 27,
+        "wait": 13
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.9959863606044396,
+      "initialColumn": 1,
+      "frames": 200,
+      "score": 122.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 20,
+      "recoveryFrames": 100,
+      "unacceptableBehavior": 16,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 8,
+        "forward": 130,
+        "left": 28,
+        "right": 22,
+        "wait": 12
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.036738197969075466,
+      "initialColumn": -1,
+      "frames": 200,
+      "score": 117.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 20,
+      "recoveryFrames": 100,
+      "unacceptableBehavior": 17,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 9,
+        "forward": 126,
+        "left": 28,
+        "right": 24,
+        "wait": 13
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.016886441783766016,
+      "initialColumn": -2,
+      "frames": 200,
+      "score": 103.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 21,
+      "recoveryFrames": 105,
+      "unacceptableBehavior": 17,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 9,
+        "forward": 112,
+        "left": 43,
+        "right": 30,
+        "wait": 6
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.5156389946245962,
+      "initialColumn": 0,
+      "frames": 66,
+      "score": 43.0,
+      "terminalReason": "vehicle",
+      "reachedStepLimit": false,
+      "perturbations": 6,
+      "recoveryFrames": 30,
+      "unacceptableBehavior": 6,
+      "unsafeBehavior": 1,
+      "actions": {
+        "backward": 4,
+        "forward": 47,
+        "left": 10,
+        "right": 4,
+        "wait": 1
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.2876044272472398,
+      "initialColumn": -2,
+      "frames": 200,
+      "score": 122.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 20,
+      "recoveryFrames": 97,
+      "unacceptableBehavior": 16,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 6,
+        "forward": 130,
+        "left": 29,
+        "right": 25,
+        "wait": 10
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.6871580113437399,
+      "initialColumn": 1,
+      "frames": 200,
+      "score": 117.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 20,
+      "recoveryFrames": 97,
+      "unacceptableBehavior": 17,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 8,
+        "forward": 125,
+        "left": 31,
+        "right": 28,
+        "wait": 8
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.6764984133321166,
+      "initialColumn": 0,
+      "frames": 200,
+      "score": 120.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 18,
+      "recoveryFrames": 90,
+      "unacceptableBehavior": 15,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 6,
+        "forward": 126,
+        "left": 35,
+        "right": 27,
+        "wait": 6
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.8321871953408885,
+      "initialColumn": 0,
+      "frames": 200,
+      "score": 122.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 19,
+      "recoveryFrames": 95,
+      "unacceptableBehavior": 18,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 3,
+        "forward": 125,
+        "left": 31,
+        "right": 27,
+        "wait": 14
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 1.1312668892657762,
+      "initialColumn": -1,
+      "frames": 200,
+      "score": 121.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 19,
+      "recoveryFrames": 95,
+      "unacceptableBehavior": 16,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 9,
+        "forward": 130,
+        "left": 29,
+        "right": 25,
+        "wait": 7
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.25747560681878134,
+      "initialColumn": -2,
+      "frames": 200,
+      "score": 103.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 21,
+      "recoveryFrames": 100,
+      "unacceptableBehavior": 17,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 9,
+        "forward": 112,
+        "left": 37,
+        "right": 31,
+        "wait": 11
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.8297452198730694,
+      "initialColumn": 2,
+      "frames": 200,
+      "score": 120.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 17,
+      "recoveryFrames": 85,
+      "unacceptableBehavior": 14,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 8,
+        "forward": 128,
+        "left": 32,
+        "right": 25,
+        "wait": 7
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.12586633545988282,
+      "initialColumn": 0,
+      "frames": 200,
+      "score": 117.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 18,
+      "recoveryFrames": 87,
+      "unacceptableBehavior": 14,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 4,
+        "forward": 122,
+        "left": 31,
+        "right": 27,
+        "wait": 16
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 1.0170540007797306,
+      "initialColumn": 1,
+      "frames": 200,
+      "score": 125.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 17,
+      "recoveryFrames": 85,
+      "unacceptableBehavior": 16,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 3,
+        "forward": 131,
+        "left": 27,
+        "right": 27,
+        "wait": 12
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.5868350729955367,
+      "initialColumn": 2,
+      "frames": 200,
+      "score": 122.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 15,
+      "recoveryFrames": 72,
+      "unacceptableBehavior": 13,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 5,
+        "forward": 127,
+        "left": 32,
+        "right": 29,
+        "wait": 7
+      }
+    },
+    {
+      "mode": "perturb",
+      "phaseOffset": 0.016380510372671787,
+      "initialColumn": 2,
+      "frames": 200,
+      "score": 119.0,
+      "terminalReason": null,
+      "reachedStepLimit": true,
+      "perturbations": 17,
+      "recoveryFrames": 85,
+      "unacceptableBehavior": 13,
+      "unsafeBehavior": 0,
+      "actions": {
+        "backward": 4,
+        "forward": 123,
+        "left": 31,
+        "right": 32,
+        "wait": 10
+      }
+    }
+  ],
+  "semanticProbe": {
+    "train": {
+      "train": {
+        "frames": 2400,
+        "currentLaneAccuracy": 0.8891666666666667,
+        "nextLaneAccuracy": 0.9058333333333334,
+        "supportAccuracy": 0.9891666666666666,
+        "trafficMse": 0.11657486110925674,
+        "overallMse": 0.09789642691612244
+      },
+      "firstLoss": 0.3378409445285797,
+      "lastLoss": 0.0979708880186081
+    },
+    "heldoutExactTeacherTrajectory": {
+      "frames": 200,
+      "currentLaneAccuracy": 0.87,
+      "nextLaneAccuracy": 0.935,
+      "supportAccuracy": 0.99,
+      "trafficMse": 0.11237232387065887,
+      "overallMse": 0.09484390914440155
+    }
+  },
+  "exactTeacherCollection": {
+    "mode": "teacher",
+    "phaseOffset": 0.0,
+    "initialColumn": 0,
+    "frames": 200,
+    "score": 124.0,
+    "terminalReason": null,
+    "reachedStepLimit": true,
+    "perturbations": 0,
+    "recoveryFrames": 0,
+    "unacceptableBehavior": 0,
+    "unsafeBehavior": 0,
+    "actions": {
+      "forward": 124,
+      "left": 44,
+      "right": 29,
+      "wait": 3
+    }
+  },
+  "initial": {
+    "training": {
+      "epochs": 100,
+      "learningRate": 0.01,
+      "batchSize": 1024,
+      "firstLoss": 1.175066610177358,
+      "lastLoss": 0.9686349531014761,
+      "weights": {
+        "samples": 5466,
+        "bestActionCounts": {
+          "forward": 3652,
+          "backward": 15,
+          "left": 937,
+          "right": 729,
+          "wait": 133
+        },
+        "classWeights": {
+          "forward": 0.75,
+          "backward": 2.5,
+          "left": 1.1,
+          "right": 1.224576856455427,
+          "wait": 2.5
+        },
+        "sourceCounts": {
+          "perturb": 3066,
+          "teacher": 2400
+        },
+        "recoveryFrames": 1413,
+        "unacceptableBehaviorFrames": 239,
+        "unsafeBehaviorFrames": 1,
+        "meanWeight": 1.4694921970367432,
+        "maxWeight": 7.799999713897705
+      }
+    },
+    "teacherForcedExact": {
+      "frames": 200,
+      "exactActionRate": 0.61,
+      "acceptableActionRate": 0.805,
+      "immediateSafeActionRate": 0.92,
+      "actions": {
+        "forward": 117,
+        "left": 20,
+        "right": 27,
+        "wait": 36
+      }
+    },
+    "closedLoop": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 5,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "wait": 1
+        }
+      },
+      "robust": {
+        "episodes": 21,
+        "reachedStepLimit": 0,
+        "meanScore": 9.238095238095237,
+        "medianScore": 6.0,
+        "terminalReasons": {
+          "train": 2,
+          "vehicle": 9,
+          "water": 10
+        },
+        "actions": {
+          "forward": 207,
+          "left": 49,
+          "right": 24,
+          "wait": 5
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 5,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "steps": 24,
+          "score": 19.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 19,
+            "left": 3,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 1,
+          "steps": 19,
+          "score": 14.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "left": 3,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": -1,
+          "steps": 6,
+          "score": 4.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "left": 2
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 1,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": -1,
+          "steps": 11,
+          "score": 6.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 5
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 0,
+          "steps": 9,
+          "score": 7.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 2,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 17,
+          "score": 7.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 12,
+            "left": 3,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 1,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": -1,
+          "steps": 56,
+          "score": 38.0,
+          "reachedStepLimit": false,
+          "terminalReason": "train",
+          "actions": {
+            "forward": 39,
+            "left": 7,
+            "right": 10
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 0,
+          "steps": 56,
+          "score": 38.0,
+          "reachedStepLimit": false,
+          "terminalReason": "train",
+          "actions": {
+            "forward": 39,
+            "left": 8,
+            "right": 9
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 1,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": -1,
+          "steps": 14,
+          "score": 14.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 0,
+          "steps": 15,
+          "score": 7.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 13,
+            "left": 2
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "left": 2
+          }
+        }
+      ]
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "collection": [
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 5,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.0334976659086899,
+          "initialColumn": -2,
+          "frames": 8,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1,
+            "right": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.41468291970671084,
+          "initialColumn": -2,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.8296397264672996,
+          "initialColumn": 1,
+          "frames": 4,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.12551508512045975,
+          "initialColumn": 2,
+          "frames": 19,
+          "score": 14.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 3,
+            "wait": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.548704536617774,
+          "initialColumn": -1,
+          "frames": 10,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 4
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.05214238526532857,
+          "initialColumn": -1,
+          "frames": 4,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.8561258658825541,
+          "initialColumn": -2,
+          "frames": 10,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 4
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.21338249440299942,
+          "initialColumn": 1,
+          "frames": 19,
+          "score": 14.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 5,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 3,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.37857072544223913,
+          "initialColumn": 0,
+          "frames": 4,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.4601647780388341,
+          "initialColumn": 0,
+          "frames": 4,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.7385384869545956,
+          "initialColumn": 1,
+          "frames": 4,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        }
+      ],
+      "studentSemanticProbe": {
+        "frames": 96,
+        "currentLaneAccuracy": 0.8541666666666666,
+        "nextLaneAccuracy": 0.7395833333333334,
+        "supportAccuracy": 0.8854166666666666,
+        "trafficMse": 0.06928946822881699,
+        "overallMse": 0.0741080567240715
+      },
+      "replaySamples": 5562,
+      "training": {
+        "epochs": 100,
+        "learningRate": 0.01,
+        "batchSize": 1024,
+        "firstLoss": 1.1846794883410137,
+        "lastLoss": 0.9973582327365875,
+        "weights": {
+          "samples": 5562,
+          "bestActionCounts": {
+            "forward": 3720,
+            "backward": 15,
+            "left": 948,
+            "right": 742,
+            "wait": 137
+          },
+          "classWeights": {
+            "forward": 0.75,
+            "backward": 2.5,
+            "left": 1.1,
+            "right": 1.2244147069776126,
+            "wait": 2.5
+          },
+          "sourceCounts": {
+            "onpolicy": 96,
+            "perturb": 3066,
+            "teacher": 2400
+          },
+          "recoveryFrames": 1413,
+          "unacceptableBehaviorFrames": 272,
+          "unsafeBehaviorFrames": 13,
+          "meanWeight": 1.4995800256729126,
+          "maxWeight": 12.0
+        }
+      },
+      "teacherForcedExact": {
+        "frames": 200,
+        "exactActionRate": 0.625,
+        "acceptableActionRate": 0.82,
+        "immediateSafeActionRate": 0.92,
+        "actions": {
+          "forward": 115,
+          "left": 18,
+          "right": 33,
+          "wait": 34
+        }
+      },
+      "closedLoop": {
+        "exactExpo": {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 41,
+          "score": 29.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 29,
+            "left": 8,
+            "right": 2,
+            "wait": 2
+          }
+        },
+        "robust": {
+          "episodes": 21,
+          "reachedStepLimit": 0,
+          "meanScore": 10.619047619047619,
+          "medianScore": 7.0,
+          "terminalReasons": {
+            "train": 1,
+            "vehicle": 13,
+            "water": 7
+          },
+          "actions": {
+            "forward": 234,
+            "left": 47,
+            "right": 36,
+            "wait": 20
+          }
+        },
+        "perVariant": [
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": -1,
+            "steps": 20,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 2,
+              "right": 2,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 41,
+            "score": 29.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 29,
+              "left": 8,
+              "right": 2,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 1,
+            "steps": 20,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 3,
+              "right": 1,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": -1,
+            "steps": 19,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 2,
+              "right": 2,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 0,
+            "steps": 19,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 2,
+              "right": 1,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 1,
+            "steps": 19,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 3,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": -1,
+            "steps": 10,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 7,
+              "left": 1,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 0,
+            "steps": 18,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 2,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 1,
+            "steps": 4,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 1
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": -1,
+            "steps": 18,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 12,
+              "left": 3,
+              "right": 2,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 1,
+            "steps": 10,
+            "score": 6.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "right": 3,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": -1,
+            "steps": 16,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 1,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 0,
+            "steps": 17,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 12,
+              "left": 3,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 1,
+            "steps": 5,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": -1,
+            "steps": 56,
+            "score": 38.0,
+            "reachedStepLimit": false,
+            "terminalReason": "train",
+            "actions": {
+              "forward": 39,
+              "left": 6,
+              "right": 11
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 0,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 1,
+            "steps": 4,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 1
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": -1,
+            "steps": 8,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 0,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 1,
+            "steps": 16,
+            "score": 6.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "left": 3,
+              "right": 2,
+              "wait": 5
+            }
+          }
+        ]
+      },
+      "selected": true
+    },
+    {
+      "round": 2,
+      "collection": [
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 41,
+          "score": 29.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 29,
+            "left": 8,
+            "right": 2,
+            "wait": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.100608447705234,
+          "initialColumn": -2,
+          "frames": 16,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 7,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 1,
+            "right": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.0795623555371148,
+          "initialColumn": 1,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 7,
+            "right": 1,
+            "wait": 3
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.836807444579268,
+          "initialColumn": -2,
+          "frames": 62,
+          "score": 42.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 14,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 42,
+            "left": 7,
+            "right": 13
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.8132802128604758,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 1,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.064267126202012,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 1,
+            "right": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.1372445452872748,
+          "initialColumn": 1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.7720943652271924,
+          "initialColumn": -1,
+          "frames": 18,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 9,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 12,
+            "left": 3,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.7408690528660172,
+          "initialColumn": -1,
+          "frames": 18,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 9,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 12,
+            "left": 3,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.13308943677945212,
+          "initialColumn": -1,
+          "frames": 19,
+          "score": 14.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 2,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.08372939529328986,
+          "initialColumn": 2,
+          "frames": 6,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.3846752201578391,
+          "initialColumn": -2,
+          "frames": 18,
+          "score": 14.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 1,
+            "right": 2,
+            "wait": 1
+          }
+        }
+      ],
+      "studentSemanticProbe": {
+        "frames": 226,
+        "currentLaneAccuracy": 0.7654867256637168,
+        "nextLaneAccuracy": 0.7831858407079646,
+        "supportAccuracy": 0.911504424778761,
+        "trafficMse": 0.08704610913991928,
+        "overallMse": 0.08598197251558304
+      },
+      "replaySamples": 5788,
+      "training": {
+        "epochs": 100,
+        "learningRate": 0.01,
+        "batchSize": 1024,
+        "firstLoss": 1.242315689722697,
+        "lastLoss": 1.0619351466496785,
+        "weights": {
+          "samples": 5788,
+          "bestActionCounts": {
+            "forward": 3871,
+            "backward": 15,
+            "left": 1003,
+            "right": 757,
+            "wait": 142
+          },
+          "classWeights": {
+            "forward": 0.75,
+            "backward": 2.5,
+            "left": 1.1,
+            "right": 1.2366059144216328,
+            "wait": 2.5
+          },
+          "sourceCounts": {
+            "onpolicy": 322,
+            "perturb": 3066,
+            "teacher": 2400
+          },
+          "recoveryFrames": 1413,
+          "unacceptableBehaviorFrames": 331,
+          "unsafeBehaviorFrames": 25,
+          "meanWeight": 1.5431779623031616,
+          "maxWeight": 12.0
+        }
+      },
+      "teacherForcedExact": {
+        "frames": 200,
+        "exactActionRate": 0.6,
+        "acceptableActionRate": 0.81,
+        "immediateSafeActionRate": 0.925,
+        "actions": {
+          "forward": 111,
+          "left": 23,
+          "right": 28,
+          "wait": 38
+        }
+      },
+      "closedLoop": {
+        "exactExpo": {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 7,
+          "score": 4.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "left": 3
+          }
+        },
+        "robust": {
+          "episodes": 21,
+          "reachedStepLimit": 0,
+          "meanScore": 7.809523809523809,
+          "medianScore": 4.0,
+          "terminalReasons": {
+            "vehicle": 6,
+            "water": 15
+          },
+          "actions": {
+            "forward": 169,
+            "left": 55,
+            "right": 32,
+            "wait": 13
+          }
+        },
+        "perVariant": [
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": -1,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 3
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 3
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 1,
+            "steps": 41,
+            "score": 29.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 29,
+              "left": 8,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": -1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 0,
+            "steps": 40,
+            "score": 21.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 21,
+              "left": 6,
+              "right": 11,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 1,
+            "steps": 25,
+            "score": 22.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 22,
+              "left": 2,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": -1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 0,
+            "steps": 39,
+            "score": 21.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 21,
+              "left": 6,
+              "right": 11,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": -1,
+            "steps": 10,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 6
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": -1,
+            "steps": 9,
+            "score": 6.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "left": 2,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 0,
+            "steps": 17,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 12,
+              "left": 3,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 1,
+            "steps": 5,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": -1,
+            "steps": 8,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 0,
+            "steps": 9,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 3,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 1,
+            "steps": 5,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": -1,
+            "steps": 8,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 0,
+            "steps": 6,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 3
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2
+            }
+          }
+        ]
+      },
+      "selected": false
+    },
+    {
+      "round": 3,
+      "collection": [
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 41,
+          "score": 29.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 29,
+            "left": 8,
+            "right": 2,
+            "wait": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.9348042372633918,
+          "initialColumn": 2,
+          "frames": 5,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 19,
+          "score": 14.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 2,
+            "right": 1,
+            "wait": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.164536978131778,
+          "initialColumn": -1,
+          "frames": 8,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 2,
+            "right": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.5753522660261496,
+          "initialColumn": 2,
+          "frames": 6,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.590606133080987,
+          "initialColumn": 1,
+          "frames": 10,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 1,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "right": 3,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.4655729189084562,
+          "initialColumn": -2,
+          "frames": 38,
+          "score": 29.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 29,
+            "left": 6,
+            "right": 3
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.5621295317661494,
+          "initialColumn": 0,
+          "frames": 3,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 1,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.909083072530665,
+          "initialColumn": -2,
+          "frames": 7,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.5555194459033258,
+          "initialColumn": 1,
+          "frames": 10,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 1,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "right": 3,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.41375642103898896,
+          "initialColumn": 1,
+          "frames": 6,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.9195270772699337,
+          "initialColumn": -1,
+          "frames": 62,
+          "score": 41.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 14,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 41,
+            "left": 8,
+            "right": 13
+          }
+        }
+      ],
+      "studentSemanticProbe": {
+        "frames": 215,
+        "currentLaneAccuracy": 0.7441860465116279,
+        "nextLaneAccuracy": 0.7441860465116279,
+        "supportAccuracy": 0.8837209302325582,
+        "trafficMse": 0.09338609129190445,
+        "overallMse": 0.09286534041166306
+      },
+      "replaySamples": 6003,
+      "training": {
+        "epochs": 100,
+        "learningRate": 0.01,
+        "batchSize": 1024,
+        "firstLoss": 1.2487181425094604,
+        "lastLoss": 1.078258176644643,
+        "weights": {
+          "samples": 6003,
+          "bestActionCounts": {
+            "forward": 4023,
+            "backward": 15,
+            "left": 1041,
+            "right": 775,
+            "wait": 149
+          },
+          "classWeights": {
+            "forward": 0.75,
+            "backward": 2.5,
+            "left": 1.1,
+            "right": 1.2446530803089593,
+            "wait": 2.5
+          },
+          "sourceCounts": {
+            "onpolicy": 537,
+            "perturb": 3066,
+            "teacher": 2400
+          },
+          "recoveryFrames": 1413,
+          "unacceptableBehaviorFrames": 371,
+          "unsafeBehaviorFrames": 37,
+          "meanWeight": 1.5755035877227783,
+          "maxWeight": 12.0
+        }
+      },
+      "teacherForcedExact": {
+        "frames": 200,
+        "exactActionRate": 0.61,
+        "acceptableActionRate": 0.82,
+        "immediateSafeActionRate": 0.93,
+        "actions": {
+          "forward": 112,
+          "left": 21,
+          "right": 28,
+          "wait": 39
+        }
+      },
+      "closedLoop": {
+        "exactExpo": {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 16,
+          "score": 4.0,
+          "reachedStepLimit": false,
+          "terminalReason": "bounds",
+          "actions": {
+            "forward": 4,
+            "left": 1,
+            "wait": 11
+          }
+        },
+        "robust": {
+          "episodes": 21,
+          "reachedStepLimit": 0,
+          "meanScore": 7.904761904761905,
+          "medianScore": 4.0,
+          "terminalReasons": {
+            "bounds": 1,
+            "vehicle": 10,
+            "water": 10
+          },
+          "actions": {
+            "forward": 182,
+            "left": 32,
+            "right": 18,
+            "wait": 43
+          }
+        },
+        "perVariant": [
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": -1,
+            "steps": 9,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 7,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 16,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "bounds",
+            "actions": {
+              "forward": 4,
+              "left": 1,
+              "wait": 11
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 1,
+            "steps": 15,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1,
+              "wait": 10
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": -1,
+            "steps": 42,
+            "score": 29.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 29,
+              "left": 7,
+              "right": 3,
+              "wait": 3
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 0,
+            "steps": 20,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 13,
+              "left": 3,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 1,
+            "steps": 25,
+            "score": 22.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 22,
+              "left": 2,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": -1,
+            "steps": 4,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 0,
+            "steps": 18,
+            "score": 14.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 14,
+              "left": 1,
+              "wait": 3
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": -1,
+            "steps": 10,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 7,
+              "left": 1,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": -1,
+            "steps": 17,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 12,
+              "left": 2,
+              "right": 1,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 0,
+            "steps": 17,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 12,
+              "left": 3,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 1,
+            "steps": 5,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": -1,
+            "steps": 34,
+            "score": 19.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 19,
+              "left": 9,
+              "right": 6
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 1,
+            "steps": 5,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": -1,
+            "steps": 10,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 7,
+              "left": 1,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 1,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "wait": 1
+            }
+          }
+        ]
+      },
+      "selected": false
+    },
+    {
+      "round": 4,
+      "collection": [
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 41,
+          "score": 29.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 29,
+            "left": 8,
+            "right": 2,
+            "wait": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.5745698486049792,
+          "initialColumn": 2,
+          "frames": 6,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.1698541496597923,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 2,
+            "right": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.70002556883602,
+          "initialColumn": -2,
+          "frames": 9,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 3,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.1181088651565743,
+          "initialColumn": -2,
+          "frames": 16,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 7,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 1,
+            "right": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.1279266144727181,
+          "initialColumn": 0,
+          "frames": 19,
+          "score": 14.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 4,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 14,
+            "left": 2,
+            "right": 1,
+            "wait": 2
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 1.1366637987530028,
+          "initialColumn": 2,
+          "frames": 14,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 6,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1,
+            "wait": 7
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.9652771691259865,
+          "initialColumn": 1,
+          "frames": 4,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 1,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3,
+            "left": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.44046768957763754,
+          "initialColumn": 0,
+          "frames": 64,
+          "score": 42.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 15,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 42,
+            "left": 8,
+            "right": 13,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.11498703422764475,
+          "initialColumn": 2,
+          "frames": 6,
+          "score": 4.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 2,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.7001875464121002,
+          "initialColumn": 0,
+          "frames": 3,
+          "score": 3.0,
+          "terminalReason": "water",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 1,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 3
+          }
+        },
+        {
+          "mode": "onpolicy",
+          "phaseOffset": 0.45852402548008603,
+          "initialColumn": 0,
+          "frames": 64,
+          "score": 42.0,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "perturbations": 0,
+          "recoveryFrames": 0,
+          "unacceptableBehavior": 15,
+          "unsafeBehavior": 1,
+          "actions": {
+            "forward": 42,
+            "left": 8,
+            "right": 13,
+            "wait": 1
+          }
+        }
+      ],
+      "studentSemanticProbe": {
+        "frames": 253,
+        "currentLaneAccuracy": 0.8063241106719368,
+        "nextLaneAccuracy": 0.8142292490118577,
+        "supportAccuracy": 0.9288537549407114,
+        "trafficMse": 0.09495225548744202,
+        "overallMse": 0.09045284986495972
+      },
+      "replaySamples": 6256,
+      "training": {
+        "epochs": 100,
+        "learningRate": 0.01,
+        "batchSize": 1024,
+        "firstLoss": 1.2686113459723336,
+        "lastLoss": 1.0981603179659163,
+        "weights": {
+          "samples": 6256,
+          "bestActionCounts": {
+            "forward": 4186,
+            "backward": 15,
+            "left": 1102,
+            "right": 800,
+            "wait": 153
+          },
+          "classWeights": {
+            "forward": 0.75,
+            "backward": 2.5,
+            "left": 1.1,
+            "right": 1.2505998560690785,
+            "wait": 2.5
+          },
+          "sourceCounts": {
+            "onpolicy": 790,
+            "perturb": 3066,
+            "teacher": 2400
+          },
+          "recoveryFrames": 1413,
+          "unacceptableBehaviorFrames": 434,
+          "unsafeBehaviorFrames": 49,
+          "meanWeight": 1.6157201528549194,
+          "maxWeight": 12.0
+        }
+      },
+      "teacherForcedExact": {
+        "frames": 200,
+        "exactActionRate": 0.615,
+        "acceptableActionRate": 0.82,
+        "immediateSafeActionRate": 0.93,
+        "actions": {
+          "forward": 110,
+          "left": 24,
+          "right": 36,
+          "wait": 30
+        }
+      },
+      "closedLoop": {
+        "exactExpo": {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 200,
+          "score": 26.0,
+          "reachedStepLimit": true,
+          "terminalReason": null,
+          "actions": {
+            "forward": 188,
+            "left": 9,
+            "right": 3
+          }
+        },
+        "robust": {
+          "episodes": 21,
+          "reachedStepLimit": 3,
+          "meanScore": 8.666666666666666,
+          "medianScore": 4.0,
+          "terminalReasons": {
+            "vehicle": 3,
+            "water": 15
+          },
+          "actions": {
+            "forward": 675,
+            "left": 56,
+            "right": 39,
+            "wait": 19
+          }
+        },
+        "perVariant": [
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": -1,
+            "steps": 200,
+            "score": 26.0,
+            "reachedStepLimit": true,
+            "terminalReason": null,
+            "actions": {
+              "forward": 188,
+              "left": 8,
+              "right": 3,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 200,
+            "score": 26.0,
+            "reachedStepLimit": true,
+            "terminalReason": null,
+            "actions": {
+              "forward": 188,
+              "left": 9,
+              "right": 3
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 1,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": -1,
+            "steps": 200,
+            "score": 26.0,
+            "reachedStepLimit": true,
+            "terminalReason": null,
+            "actions": {
+              "forward": 189,
+              "left": 8,
+              "right": 3
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 0,
+            "steps": 6,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 1,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 1,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 1,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": -1,
+            "steps": 10,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 7,
+              "left": 1,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 0,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 1,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 1,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": -1,
+            "steps": 18,
+            "score": 7.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 13,
+              "left": 3,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 0,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": -1,
+            "steps": 5,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 0,
+            "steps": 7,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 1,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 1,
+            "steps": 12,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 5,
+              "right": 2,
+              "wait": 2
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": -1,
+            "steps": 6,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 0,
+            "steps": 8,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "right": 1,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 1,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": -1,
+            "steps": 8,
+            "score": 4.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "left": 2,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 0,
+            "steps": 6,
+            "score": 3.0,
+            "reachedStepLimit": false,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "right": 2,
+              "wait": 1
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 1,
+            "steps": 58,
+            "score": 35.0,
+            "reachedStepLimit": false,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 35,
+              "left": 12,
+              "right": 8,
+              "wait": 3
+            }
+          }
+        ]
+      },
+      "selected": true
+    }
+  ],
+  "selectedStage": "recovery-round-4",
+  "selectedTeacherForcedExact": {
+    "frames": 200,
+    "exactActionRate": 0.615,
+    "acceptableActionRate": 0.82,
+    "immediateSafeActionRate": 0.93,
+    "actions": {
+      "forward": 110,
+      "left": 24,
+      "right": 36,
+      "wait": 30
+    }
+  },
+  "selectedClosedLoop": {
+    "exactExpo": {
+      "phaseOffset": 0.0,
+      "initialColumn": 0,
+      "steps": 200,
+      "score": 26.0,
+      "reachedStepLimit": true,
+      "terminalReason": null,
+      "actions": {
+        "forward": 188,
+        "left": 9,
+        "right": 3
+      }
+    },
+    "robust": {
+      "episodes": 21,
+      "reachedStepLimit": 3,
+      "meanScore": 8.666666666666666,
+      "medianScore": 4.0,
+      "terminalReasons": {
+        "vehicle": 3,
+        "water": 15
+      },
+      "actions": {
+        "forward": 675,
+        "left": 56,
+        "right": 39,
+        "wait": 19
+      }
+    },
+    "perVariant": [
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": -1,
+        "steps": 200,
+        "score": 26.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "actions": {
+          "forward": 188,
+          "left": 8,
+          "right": 3,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 200,
+        "score": 26.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "actions": {
+          "forward": 188,
+          "left": 9,
+          "right": 3
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "left": 1,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": -1,
+        "steps": 200,
+        "score": 26.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "actions": {
+          "forward": 189,
+          "left": 8,
+          "right": 3
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 0,
+        "steps": 6,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "left": 1,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": -1,
+        "steps": 10,
+        "score": 7.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 7,
+          "left": 1,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 0,
+        "steps": 7,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "right": 1,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "left": 1,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": -1,
+        "steps": 18,
+        "score": 7.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 13,
+          "left": 3,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 0,
+        "steps": 6,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": -1,
+        "steps": 5,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 0,
+        "steps": 7,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "left": 1,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 1,
+        "steps": 12,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 5,
+          "right": 2,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": -1,
+        "steps": 6,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 0,
+        "steps": 8,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "left": 2,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": -1,
+        "steps": 8,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "left": 2,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 0,
+        "steps": 6,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 2,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 1,
+        "steps": 58,
+        "score": 35.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 35,
+          "left": 12,
+          "right": 8,
+          "wait": 3
+        }
+      }
+    ]
+  },
+  "bestDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-recovery-dagger\\best_decoder.pt",
+  "elapsedSeconds": 303.0226588999999,
+  "interpretation": "MaleCNS remained frozen. Improvement therefore comes only from a small motor readout trained on off-trajectory recovery states. Compare teacher-forced action quality, student-state semantic probe quality and closed-loop survival to decide whether recovery/readout is sufficient or the sensory/core representation fails off-policy."
+}

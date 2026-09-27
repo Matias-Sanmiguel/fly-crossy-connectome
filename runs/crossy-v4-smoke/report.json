@@ -1,0 +1,391 @@
+{
+  "version": "crossy-v4-expo-specialist-1",
+  "seed": "crossy-v4-expo:0006",
+  "teacherGate": {
+    "maxSteps": 20,
+    "checks": [
+      {
+        "seed": "crossy-v4-expo:0006",
+        "depth": 4,
+        "timeOffset": 0.0,
+        "maxSteps": 20,
+        "steps": 20,
+        "score": 16.0,
+        "finalRow": 16,
+        "finalColumn": -1.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "actions": {
+          "forward": 16,
+          "left": 2,
+          "right": 1,
+          "wait": 1
+        },
+        "distinctActions": 4,
+        "nonForwardActions": 4,
+        "laneVisits": {
+          "grass": 10,
+          "river": 2,
+          "road": 8
+        },
+        "meanSearchNodesPerDecision": 104.15,
+        "meanCacheHitsPerDecision": 101.1,
+        "trace": null
+      }
+    ]
+  },
+  "config": {
+    "version": "crossy-v4-expo-specialist-1",
+    "seed": "crossy-v4-expo:0006",
+    "rngSeed": 404,
+    "plannerDepth": 4,
+    "sensor": {
+      "width": 48,
+      "height": 24,
+      "channels": 3,
+      "features": 3456,
+      "allRgbFeaturesCoveredAtLeastOnce": true
+    },
+    "training": {
+      "demoEpisodes": 2,
+      "demoSteps": 16,
+      "exploration": 0.15,
+      "cloneEpochs": 1,
+      "daggerRounds": 0,
+      "daggerEpisodes": 24,
+      "daggerEpochs": 2,
+      "window": 16,
+      "batch": 2,
+      "learningRate": 0.02,
+      "semanticWeight": 0.2,
+      "rewardUsed": false,
+      "stateReset": "episode-start-only"
+    },
+    "architecture": {
+      "neurons": 165122,
+      "edges": 25563197,
+      "sensory": 4114,
+      "motor": 708,
+      "MaleCNSTrainableParameters": 25728319,
+      "trainingOnlyAuxParameters": 24106
+    }
+  },
+  "baseline": {
+    "exactExpo": {
+      "phaseOffset": 0.0,
+      "initialColumn": 0,
+      "steps": 8,
+      "score": 6.0,
+      "reachedStepLimit": false,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 6,
+        "wait": 2
+      }
+    },
+    "robust": {
+      "episodes": 3,
+      "reachedStepLimit": 0,
+      "meanScore": 4.0,
+      "medianScore": 3.0,
+      "terminalReasons": {
+        "vehicle": 1,
+        "water": 2
+      },
+      "actions": {
+        "forward": 12,
+        "wait": 4
+      }
+    },
+    "perVariant": [
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 8,
+        "score": 6.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 0,
+        "steps": 4,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 0,
+        "steps": 4,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "wait": 1
+        }
+      }
+    ]
+  },
+  "stages": {
+    "baseline": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 8,
+        "score": 6.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "wait": 2
+        }
+      },
+      "robust": {
+        "episodes": 3,
+        "reachedStepLimit": 0,
+        "meanScore": 4.0,
+        "medianScore": 3.0,
+        "terminalReasons": {
+          "vehicle": 1,
+          "water": 2
+        },
+        "actions": {
+          "forward": 12,
+          "wait": 4
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 8,
+          "score": 6.0,
+          "reachedStepLimit": false,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 4,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 1
+          }
+        }
+      ]
+    },
+    "clone": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 20,
+        "score": 1.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "actions": {
+          "forward": 1,
+          "right": 11,
+          "wait": 8
+        }
+      },
+      "robust": {
+        "episodes": 3,
+        "reachedStepLimit": 1,
+        "meanScore": 2.6666666666666665,
+        "medianScore": 3.0,
+        "terminalReasons": {
+          "bounds": 1,
+          "water": 1
+        },
+        "actions": {
+          "forward": 8,
+          "right": 17,
+          "wait": 16
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 20,
+          "score": 1.0,
+          "reachedStepLimit": true,
+          "terminalReason": null,
+          "actions": {
+            "forward": 1,
+            "right": 11,
+            "wait": 8
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 13,
+          "score": 3.0,
+          "reachedStepLimit": false,
+          "terminalReason": "bounds",
+          "actions": {
+            "forward": 3,
+            "right": 6,
+            "wait": 4
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 8,
+          "score": 4.0,
+          "reachedStepLimit": false,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 4
+          }
+        }
+      ]
+    }
+  },
+  "selectedStage": "clone",
+  "selected": {
+    "exactExpo": {
+      "phaseOffset": 0.0,
+      "initialColumn": 0,
+      "steps": 20,
+      "score": 1.0,
+      "reachedStepLimit": true,
+      "terminalReason": null,
+      "actions": {
+        "forward": 1,
+        "right": 11,
+        "wait": 8
+      }
+    },
+    "robust": {
+      "episodes": 3,
+      "reachedStepLimit": 1,
+      "meanScore": 2.6666666666666665,
+      "medianScore": 3.0,
+      "terminalReasons": {
+        "bounds": 1,
+        "water": 1
+      },
+      "actions": {
+        "forward": 8,
+        "right": 17,
+        "wait": 16
+      }
+    },
+    "perVariant": [
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 20,
+        "score": 1.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "actions": {
+          "forward": 1,
+          "right": 11,
+          "wait": 8
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 0,
+        "steps": 13,
+        "score": 3.0,
+        "reachedStepLimit": false,
+        "terminalReason": "bounds",
+        "actions": {
+          "forward": 3,
+          "right": 6,
+          "wait": 4
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 0,
+        "steps": 8,
+        "score": 4.0,
+        "reachedStepLimit": false,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 4
+        }
+      }
+    ]
+  },
+  "dataset": {
+    "episodes": 2,
+    "samples": 32,
+    "sources": {
+      "teacher": 2
+    },
+    "weights": {
+      "bestActionCounts": {
+        "forward": 23,
+        "backward": 0,
+        "left": 2,
+        "right": 6,
+        "wait": 1
+      },
+      "classWeights": {
+        "forward": 0.75,
+        "backward": 2.5298221281347035,
+        "left": 1.7888543819998317,
+        "right": 1.25,
+        "wait": 3.0
+      },
+      "samples": 32,
+      "meanWeight": 1.1091639995574951,
+      "maxWeight": 3.6000001430511475
+    }
+  },
+  "history": [
+    {
+      "update": 1,
+      "stage": "clone-e1",
+      "loss": 1.7914201021194458,
+      "preferenceLoss": 1.7023804187774658,
+      "setLoss": 1.2160056829452515,
+      "pairLoss": 0.6910718083381653,
+      "fatalMass": 0.1408388912677765,
+      "semanticLoss": 0.44519832730293274,
+      "validFrames": 32
+    }
+  ],
+  "elapsedSeconds": 6.981985099999292,
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-smoke\\best.pt",
+  "productionPath": "48x24 RGB camera -> measured MaleCNS -> fixed motor readout -> action",
+  "trainingOnlyPrivilege": "Planner preferences, authoritative safety labels and semantic auxiliary targets are never available at inference."
+}
