@@ -28,7 +28,51 @@ export interface Controller {
   subscribeFailure?(listener: (error: Error) => void): () => void;
 }
 
-export const BUNDLED_CONNECTOME_POLICY_PATH: string | null = null;
+export const BUNDLED_CONNECTOME_POLICY_PATH = 'models/reduced-connectome-policy-v6.json';
+
+const LEGACY_OBSERVATION_VERSION = 1;
+const LEGACY_OBSERVATION_INPUT_SIZE = 370;
+
+/**
+ * Preserve the released v6 controller while the v11 replacement is trained.
+ * Blockers did not exist in ObservationV1, so they remain unknown to the
+ * historical policy. Motion is rescaled back to v6's speed/3 convention.
+ */
+function encodeLegacyObservationV1(observation: ObservationV1): number[] {
+  const cellValues = observation.cells.flat();
+  const cells = cellValues.map((value) => (value === 8 ? 0 : value) / 7);
+  const motion = observation.motion.flatMap((row, rowIndex) => (
+    row.flatMap(([direction, normalizedSpeed], columnIndex) => {
+      const cell = observation.cells[rowIndex]?.[columnIndex] ?? 0;
+      const currentScale = cell === 6 ? 12 : 5;
+      return [direction, Math.min(1, (normalizedSpeed * currentScale) / 3)];
+    })
+  ));
+  const previousAction = POLICY_ACTIONS.map(
+    (action) => Number(observation.previousAction === action),
+  );
+  const encoded = [
+    ...cells,
+    ...motion,
+    observation.support,
+    ...previousAction,
+    observation.edgeDistance,
+  ];
+  if (encoded.length !== LEGACY_OBSERVATION_INPUT_SIZE || !encoded.every(Number.isFinite)) {
+    throw Error(`Legacy observation must encode to ${LEGACY_OBSERVATION_INPUT_SIZE} finite values.`);
+  }
+  return encoded;
+}
+
+function supportsObservation(policy: ExportedPolicyV1): boolean {
+  return (
+    policy.observationVersion === OBSERVATION_VERSION
+    && policy.network.inputSize === OBSERVATION_INPUT_SIZE
+  ) || (
+    policy.observationVersion === LEGACY_OBSERVATION_VERSION
+    && policy.network.inputSize === LEGACY_OBSERVATION_INPUT_SIZE
+  );
+}
 
 export function parseBundledConnectomePolicy(
   value: unknown,
@@ -38,11 +82,8 @@ export function parseBundledConnectomePolicy(
   if (policy.network.kind !== 'fixed-graph' || policy.activityBodyIds.length === 0) {
     throw Error('Bundled autoplay policy must provide mapped reduced-connectome activity.');
   }
-  if (policy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
-    throw Error('Bundled autoplay policy input shape does not match ObservationV4.');
-  }
-  if (policy.observationVersion !== OBSERVATION_VERSION) {
-    throw Error('Bundled autoplay policy observation version does not match the current environment.');
+  if (!supportsObservation(policy)) {
+    throw Error('Bundled autoplay policy does not match ObservationV4 or the released v6 adapter.');
   }
   return policy;
 }
@@ -116,7 +157,7 @@ export function createDensePolicyController(policy: ExportedPolicyV1): Controlle
   if (policy.network.kind !== 'dense') throw Error('Dense controller requires a dense policy.');
   const { network } = policy;
   if (network.inputSize !== OBSERVATION_INPUT_SIZE) {
-    throw Error('Dense policy input shape does not match ObservationV1.');
+    throw Error('Dense policy input shape does not match ObservationV4.');
   }
   return {
     id: policy.source.name,
@@ -150,8 +191,8 @@ export function createFixedGraphPolicyController(policy: ExportedPolicyV1): Cont
     throw Error('Connectome controller requires a fixed graph policy.');
   }
   const { network } = policy;
-  if (network.inputSize !== OBSERVATION_INPUT_SIZE) {
-    throw Error('Fixed graph policy input shape does not match ObservationV1.');
+  if (!supportsObservation(policy)) {
+    throw Error('Fixed graph policy input shape does not match a supported observation contract.');
   }
   let hidden = Array(network.bodyIds.length).fill(0) as number[];
   return {
@@ -161,7 +202,10 @@ export function createFixedGraphPolicyController(policy: ExportedPolicyV1): Cont
     source: policy.source,
     async decide(observation, signal) {
       throwIfAborted(signal);
-      const result = runFixedGraphNetwork(network, encodeObservation(observation), hidden);
+      const encoded = policy.observationVersion === LEGACY_OBSERVATION_VERSION
+        ? encodeLegacyObservationV1(observation)
+        : encodeObservation(observation);
+      const result = runFixedGraphNetwork(network, encoded, hidden);
       throwIfAborted(signal);
       hidden = result.activity;
       let selected = 0;

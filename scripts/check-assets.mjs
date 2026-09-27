@@ -250,6 +250,14 @@ async function verifyConnectomeAssets() {
     throw new Error('Asset checksum mismatch: connectome/graph.json');
   }
 
+  const capacityManifest = JSON.parse(
+    await readFile(new URL('data/connectome-1k/manifest.json', publicRoot), 'utf8'),
+  );
+  const capacityBytes = await readFile(new URL('data/connectome-1k/graph.json', publicRoot));
+  if (digest(capacityBytes) !== capacityManifest.graphSha256) {
+    throw new Error('Asset checksum mismatch: connectome-1k/graph.json');
+  }
+
   const notice = await readFile(new URL('data/connectome/NOTICE.md', publicRoot), 'utf8');
   const protocolPath = 'docs/experiments/reduced-connectome-v1.md';
   if (!notice.includes(protocolPath)) {

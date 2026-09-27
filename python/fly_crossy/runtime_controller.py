@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import cast
+from typing import Sequence, cast
 
+import numpy as np
 import torch
 
 from fly_crossy.checkpoint import validate_checkpoint
@@ -21,6 +22,38 @@ from fly_crossy.schema import (
     ACTION_ORDER,
     OBSERVATION_INPUT_SIZE,
 )
+
+
+LEGACY_OBSERVATION_INPUT_SIZE = 370
+
+
+def adapt_current_observation_to_v1(values: Sequence[float]) -> tuple[float, ...]:
+    """Project encoded ObservationV4 onto the released ObservationV1 contract."""
+    current = np.asarray(values, dtype=np.float32)
+    if current.shape != (OBSERVATION_INPUT_SIZE,) or not np.isfinite(current).all():
+        raise ValueError(
+            f"Current observation must contain {OBSERVATION_INPUT_SIZE} finite values."
+        )
+
+    raw_cells = np.rint(current[:121] * 8).astype(np.int16)
+    legacy_cells = np.where(raw_cells == 8, 0.0, raw_cells / 7.0)
+    current_motion = current[121:363].reshape(121, 2)
+    legacy_motion = current_motion.copy()
+    speed_scale = np.where(raw_cells == 6, 12.0, 5.0)
+    legacy_motion[:, 1] = np.minimum(
+        1.0,
+        current_motion[:, 1] * speed_scale / 3.0,
+    )
+    legacy = np.concatenate(
+        (
+            legacy_cells,
+            legacy_motion.reshape(-1),
+            current[484:491],
+        )
+    ).astype(np.float32, copy=False)
+    if legacy.shape != (LEGACY_OBSERVATION_INPUT_SIZE,):
+        raise RuntimeError("Legacy observation adapter produced an invalid shape.")
+    return tuple(float(value) for value in legacy)
 
 
 class ConnectomeActionSelector:
@@ -144,6 +177,7 @@ class ConnectomeActionSelector:
         model.eval()
 
         self._model = model
+        self._observation_size = checkpoint.observation_size
 
         self._hidden = torch.zeros(
             1,
@@ -207,8 +241,15 @@ class ConnectomeActionSelector:
             self._hidden.zero_()
             self._episode_id = observation.episode_id
 
+        encoded = observation.observation
+        if (
+            self._observation_size == LEGACY_OBSERVATION_INPUT_SIZE
+            and len(encoded) == OBSERVATION_INPUT_SIZE
+        ):
+            encoded = adapt_current_observation_to_v1(encoded)
+
         values = torch.tensor(
-            observation.observation,
+            encoded,
             dtype=torch.float32,
             device=self._device,
         ).unsqueeze(0)

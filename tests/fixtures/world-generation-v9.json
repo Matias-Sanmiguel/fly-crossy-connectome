@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "environmentVersion": 10,
+  "environmentVersion": 11,
   "cases": [
     {
       "seed": "solvability-probe-87",

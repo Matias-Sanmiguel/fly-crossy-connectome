@@ -22,9 +22,6 @@ coverage
 
 /python/.venv
 /python/runs
-/release
-/data
-
 /docs
 /tests
 /python/tests

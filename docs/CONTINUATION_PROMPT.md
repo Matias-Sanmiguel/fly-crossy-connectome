@@ -10,13 +10,14 @@ development snapshot. Do not restart or replace the existing architecture.
 First read, in this order:
 
 1. `README.md`
-2. `docs/HANDOFF.md`
-3. `docs/superpowers/specs/2026-09-14-multiscale-biomechanical-keyboard-design.md`
-4. all four plans under `docs/superpowers/plans/` whose names begin with
+2. `docs/ACTIVE_CONTEXT.md`
+3. `docs/HANDOFF.md`
+4. `docs/superpowers/specs/2026-09-14-multiscale-biomechanical-keyboard-design.md`
+5. all four plans under `docs/superpowers/plans/` whose names begin with
    `2026-09-14-multiscale`, `2026-09-14-biomechanical`, or
    `2026-09-14-browser`
-5. `.superpowers/sdd/2026-09-14-multiscale-runtime-protocol/progress.md`
-6. `.superpowers/sdd/2026-09-14-biomechanical-keyboard/progress.md`
+6. `.superpowers/sdd/2026-09-14-multiscale-runtime-protocol/progress.md`
+7. `.superpowers/sdd/2026-09-14-biomechanical-keyboard/progress.md`
 
 Goal: finish the existing 3D Crossy Road/Frogger browser experience played
 autonomously by a simulated fly. Preserve the refreshed Kenney scene and shared
@@ -56,12 +57,12 @@ Work in this order:
 1. Read the implementation before changing it: `BiomechanicalWorld`, the
    protocol-v2 session/server bridge, and causal physics tests already exist.
    Do not recreate or bypass them.
-2. Add native streaming for real snapshots, contact evidence, motor phase,
-   metrics, and non-empty neural frames. Keep generation/revision guards and
-   add end-to-end tests through the browser station.
-3. Package the verified runtime manifest, 80-neuron checkpoint, calibration,
-   FlyBody model, and cached assets into the default CPU Docker path. Preserve
-   fail-closed startup and the current health/WebSocket smoke.
+2. Preserve the existing real controller neural keyframes and packaged CPU
+   Docker runtime. Add native streaming for snapshots, contact evidence, motor
+   phase, force/travel, and metrics, with end-to-end browser-station tests.
+3. Train and evaluate a controller natively on environment v11. Until that
+   release exists, keep the current environment-v6 compatibility adapter and
+   its explicit UI/scientific labels.
 4. Implement and train the five independent neural controllers exactly as the
    neural plan specifies, with deterministic manifests, validation, evaluation,
    and honest UI labels.

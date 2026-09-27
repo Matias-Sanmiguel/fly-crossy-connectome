@@ -299,29 +299,32 @@
       "action": "forward",
       "expected": {
         "beforeObservationSha256": "f9d76abccb118602b0a720251bb64b9052fae657294cd30d211a4bb506ed08bd",
-        "afterObservationSha256": "e9c084997aa9eadc941c75f845a493174d494531257c9fbc698fdbd8c93651b6",
-        "reward": -5.01,
+        "afterObservationSha256": "4e3a690d010403c4f06a3de12c4e2b0d9e23341974267b836b9041d91e17dd80",
+        "reward": 0.33999999999999997,
         "fly": {
-          "row": 3,
+          "row": 4,
           "column": 0
         },
         "step": 1,
         "time": 0.2,
-        "score": 3,
-        "terminalReason": "vehicle",
+        "score": 4,
+        "terminalReason": null,
         "previousAction": "forward",
         "events": [
           {
-            "type": "terminal",
-            "reason": "vehicle",
-            "position": {
+            "type": "moved",
+            "action": "forward",
+            "from": {
               "row": 3,
+              "column": 0
+            },
+            "to": {
+              "row": 4,
               "column": 0
             }
           }
         ],
         "laneRows": [
-          -5,
           -4,
           -3,
           -2,
@@ -344,7 +347,8 @@
           15,
           16,
           17,
-          18
+          18,
+          19
         ]
       }
     },
@@ -483,6 +487,13 @@
         "previousAction": "wait",
         "events": [
           {
+            "type": "waited",
+            "position": {
+              "row": 3,
+              "column": 0
+            }
+          },
+          {
             "type": "terminal",
             "reason": "train",
             "position": {
@@ -607,5 +618,5 @@
       }
     }
   ],
-  "environmentVersion": 10
+  "environmentVersion": 11
 }
