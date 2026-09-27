@@ -78,6 +78,48 @@ def test_gated_nested_80_matches_old_nested_80() -> None:
     assert torch.allclose(gated_value, old_value, atol=1e-6)
 
 
+@pytest.mark.parametrize(
+    "model_type",
+    (NestedPopulationFixedGraphPolicy, GatedNestedPopulationFixedGraphPolicy),
+)
+@pytest.mark.parametrize("variant", ("80", "1k"))
+def test_nested_direct_sensory_drive_matches_observation_forward(
+    model_type: type[NestedPopulationFixedGraphPolicy],
+    variant: str,
+) -> None:
+    core = load_reduced_graph_variant("80")
+    graph = load_reduced_graph_variant(variant)
+    torch.manual_seed(20260927)
+    model = model_type(graph, core, OBSERVATION_INPUT_SIZE, len(ACTION_ORDER))
+    observation = torch.randn(3, OBSERVATION_INPUT_SIZE)
+    hidden = torch.randn(3, graph.node_count)
+
+    expected = model(observation, hidden)
+    actual = model.forward_sensory_drive(model.sensory(observation), hidden)
+
+    for actual_tensor, expected_tensor in zip(actual, expected, strict=True):
+        assert torch.allclose(actual_tensor, expected_tensor, atol=1e-7)
+
+
+def test_nested_direct_sensory_drive_rejects_incompatible_shapes() -> None:
+    graph = load_reduced_graph_variant("80")
+    model = GatedNestedPopulationFixedGraphPolicy(
+        graph, graph, OBSERVATION_INPUT_SIZE, len(ACTION_ORDER)
+    )
+    sensory_count = len(model.sensory_indices)
+
+    with pytest.raises(ValueError, match="sensory drive"):
+        model.forward_sensory_drive(
+            torch.zeros(2, sensory_count + 1),
+            torch.zeros(2, graph.node_count),
+        )
+    with pytest.raises(ValueError, match="hidden state"):
+        model.forward_sensory_drive(
+            torch.zeros(2, sensory_count),
+            torch.zeros(2, graph.node_count + 1),
+        )
+
+
 def test_gated_nested_tiny_runs_round_trip_for_80_and_1k(tmp_path: Path) -> None:
     for variant, expected_nodes in (("80", 80), ("1k", 1000)):
         output = tmp_path / f"nested-gated-{variant}"

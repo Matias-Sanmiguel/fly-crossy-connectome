@@ -407,10 +407,20 @@ class NestedPopulationFixedGraphPolicy(nn.Module):
     ) -> tuple[Tensor, Tensor, Tensor]:
         if observation.ndim != 2 or observation.shape[1] != self.sensory.in_features:
             raise ValueError("Nested fixed graph observation has an incompatible shape.")
-        if hidden.shape != (observation.shape[0], self.graph.node_count):
+        sensory_drive = self.sensory(observation)
+        return self.forward_sensory_drive(sensory_drive, hidden)
+
+    def forward_sensory_drive(
+        self, sensory_drive: Tensor, hidden: Tensor
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        expected_sensory = (hidden.shape[0], len(self.sensory_indices))
+        if sensory_drive.shape != expected_sensory:
+            raise ValueError(
+                "Nested fixed graph sensory drive has an incompatible shape."
+            )
+        if hidden.shape != (sensory_drive.shape[0], self.graph.node_count):
             raise ValueError("Nested fixed graph hidden state has an incompatible shape.")
 
-        sensory_drive = self.sensory(observation)
         injected = torch.zeros_like(hidden)
         injected = torch.index_copy(
             injected, 1, self.sensory_indices, sensory_drive
@@ -501,12 +511,22 @@ class GatedNestedPopulationFixedGraphPolicy(NestedPopulationFixedGraphPolicy):
             raise ValueError(
                 "Gated nested fixed graph observation has an incompatible shape."
             )
-        if hidden.shape != (observation.shape[0], self.graph.node_count):
+        sensory_drive = self.sensory(observation)
+        return self.forward_sensory_drive(sensory_drive, hidden)
+
+    def forward_sensory_drive(
+        self, sensory_drive: Tensor, hidden: Tensor
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        expected_sensory = (hidden.shape[0], len(self.sensory_indices))
+        if sensory_drive.shape != expected_sensory:
+            raise ValueError(
+                "Gated nested fixed graph sensory drive has an incompatible shape."
+            )
+        if hidden.shape != (sensory_drive.shape[0], self.graph.node_count):
             raise ValueError(
                 "Gated nested fixed graph hidden state has an incompatible shape."
             )
 
-        sensory_drive = self.sensory(observation)
         injected = torch.zeros_like(hidden)
         injected = torch.index_copy(
             injected, 1, self.sensory_indices, sensory_drive
