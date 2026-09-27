@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
@@ -45,4 +46,14 @@ test('historical eval-v1 policy remains byte-identical to its preserved public v
   const bundled = JSON.parse(await readFile(bundledUrl, 'utf8'));
   assert.equal(bundled.network.kind, 'fixed-graph');
   assert.equal(bundled.activityBodyIds.length, 80);
+});
+
+test('experimental V7 training does not modify tracked release evidence', () => {
+  const changed = execFileSync(
+    'git',
+    ['diff', '--name-only', 'HEAD', '--', 'release/'],
+    { cwd: new URL('../', import.meta.url), encoding: 'utf8' },
+  ).trim();
+
+  assert.equal(changed, '');
 });

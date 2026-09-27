@@ -31,6 +31,25 @@ The 1,000-neuron graph and V5 sensory/core experiments are research artifacts,
 not released playable controllers. Independent 1,000, 5,000, 20,000, and
 124,289-neuron modes remain unfinished and disabled in the biomechanical UI.
 
+V7 is the current experimental native-v11 training path. It uses a privileged
+ObservationV4 teacher only for labels and an RGB-only local-retina connectome
+student for actions and displayed activity. It does not change runtime
+authority. Generated runs live under ignored `runs/crossy-v7-*/` directories.
+
+```sh
+cd python
+python -m fly_crossy.v7.curriculum --profile smoke --out ../runs/crossy-v7-smoke --device cpu
+python -m fly_crossy.v7.curriculum --profile 80 --out ../runs/crossy-v7-80-local --device cpu --time-budget-seconds 3600
+python -m fly_crossy.v7.curriculum --profile 80 --out ../runs/crossy-v7-80-local --device cpu --resume
+python -m fly_crossy.v7.curriculum --profile 1k --out ../runs/crossy-v7-1k-local --device cpu --predecessor-report ../runs/crossy-v7-80-local/report.json
+python -m fly_crossy.v7.curriculum --profile full --out ../runs/crossy-v7-full-local --device cpu --flyhard-root /path/to/flyhard --predecessor-report ../runs/crossy-v7-1k-local/report.json
+```
+
+CPU is the fallback on every profile; CUDA requires `--device cuda` and a
+working NVIDIA runtime. Minimum free disk is 2 GiB for smoke/80, 5 GiB for 1k,
+and 15 GiB for full. Read `decision.nextAction` in `report.json`; only
+`promote` authorizes the next population, while smoke is contract-only.
+
 ## Runtime chain
 
 Normal browser mode autoplays locally with the released 80-neuron graph and
@@ -69,6 +88,7 @@ cd python && python -m pytest tests -q
 docker compose build simulation web
 docker compose up --wait
 bash scripts/docker-smoke.sh
+bash scripts/v7-training-smoke.sh
 docker compose down
 ```
 

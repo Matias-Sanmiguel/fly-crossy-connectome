@@ -34,3 +34,4 @@ artifacts/
 python/datasets/
 
 runs/**/*.pt
+runs/crossy-v7-*/

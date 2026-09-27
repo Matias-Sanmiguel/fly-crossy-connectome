@@ -107,6 +107,37 @@ CPU is the required default and the runtime can resolve GPU requests back to
 CPU when fallback is allowed. The CUDA profile still requires validation on an
 NVIDIA host.
 
+## Experimental V7 visual training
+
+V7 trains a privileged ObservationV4 teacher and distills it into an RGB-only
+measured-connectome student. It is experimental: the released 80-neuron
+environment-v6 compatibility controller remains authoritative until a separate
+runtime-integration review approves a V7 checkpoint.
+
+Run the CPU contract smoke, then a meaningful 80-neuron run:
+
+```sh
+bash scripts/v7-training-smoke.sh
+cd python
+python -m fly_crossy.v7.curriculum --profile smoke --out ../runs/crossy-v7-smoke --device cpu
+python -m fly_crossy.v7.curriculum --profile 80 --out ../runs/crossy-v7-80-local --device cpu --time-budget-seconds 3600
+python -m fly_crossy.v7.curriculum --profile 80 --out ../runs/crossy-v7-80-local --device cpu --resume
+```
+
+Larger populations are locked behind the preceding report:
+
+```sh
+python -m fly_crossy.v7.curriculum --profile 1k --out ../runs/crossy-v7-1k-local --device cpu --predecessor-report ../runs/crossy-v7-80-local/report.json
+python -m fly_crossy.v7.curriculum --profile full --out ../runs/crossy-v7-full-local --device cpu --flyhard-root /path/to/flyhard --predecessor-report ../runs/crossy-v7-1k-local/report.json
+```
+
+Use `--device cpu` as the universal fallback. `--device cuda` is available only
+when PyTorch detects a working NVIDIA CUDA runtime. Preflight requires 2 GiB
+free for smoke/80, 5 GiB for 1k, and 15 GiB for full. Each ignored run directory
+keeps `best.pt`, resumable `latest.pt`, `dataset-manifest.json`, and
+`report.json`. The report's `decision.nextAction` is `promote`, `continue`, or
+`reject`; smoke is always `contractOnly` and can never promote.
+
 ## Current contracts
 
 - Environment: v11.
@@ -142,6 +173,7 @@ npm test
 npm run check:assets
 npm run build
 cd python && python -m pytest tests -q
+bash scripts/v7-training-smoke.sh
 ```
 
 For release-quality Python evidence, use the hash-locked Python 3.12 CPU image.
