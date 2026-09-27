@@ -23,10 +23,11 @@ def test_action_order_matches_browser_policy_contract() -> None:
     )
 
 
-def test_flatten_observation_v3_matches_browser_encoding_order() -> None:
+def test_flatten_observation_v4_matches_browser_encoding_order() -> None:
     cells = [[0 for _ in range(11)] for _ in range(11)]
     motion = [[[0.0, 0.0] for _ in range(11)] for _ in range(11)]
     hazard_offset = [[0.0 for _ in range(11)] for _ in range(11)]
+    traffic = [[0.0, 0.0, 1.0, 1.0, 1.0] for _ in range(5)]
     cells[0][0] = 8
     motion[0][0] = [-1.0, 1.0 / 3.0]
     hazard_offset[0][0] = 0.25
@@ -38,12 +39,13 @@ def test_flatten_observation_v3_matches_browser_encoding_order() -> None:
         previous_action=Action.LEFT,
         edge_distance=0.4,
         signed_column=-0.6,
+        traffic=traffic,
     )
 
     encoded = flatten_observation(observation)
 
-    assert OBSERVATION_VERSION == 3
-    assert observation.version == 3
+    assert OBSERVATION_VERSION == 4
+    assert observation.version == 4
     assert OBSERVATION_INPUT_SIZE == 517
     assert encoded.shape == (517,)
     assert encoded.dtype == np.float32
@@ -58,6 +60,7 @@ def test_flatten_observation_v3_matches_browser_encoding_order() -> None:
     )
     assert encoded[490] == pytest.approx(0.4)
     assert encoded[491] == pytest.approx(-0.6)
+    assert encoded[492:].tolist() == pytest.approx([value for row in traffic for value in row])
 
 
 def test_flatten_observation_rejects_wrong_shape_or_nonfinite_values() -> None:
@@ -71,6 +74,7 @@ def test_flatten_observation_rejects_wrong_shape_or_nonfinite_values() -> None:
         previous_action=Action.WAIT,
         edge_distance=1.0,
         signed_column=0.0,
+        traffic=[[0.0, 0.0, 1.0, 1.0, 1.0] for _ in range(5)],
     )
     nonfinite = ObservationV1(
         cells=[[0 for _ in range(11)] for _ in range(11)],
@@ -80,6 +84,7 @@ def test_flatten_observation_rejects_wrong_shape_or_nonfinite_values() -> None:
         previous_action=Action.WAIT,
         edge_distance=1.0,
         signed_column=float("nan"),
+        traffic=[[0.0, 0.0, 1.0, 1.0, 1.0] for _ in range(5)],
     )
 
     with pytest.raises(ValueError, match="517 finite values"):

@@ -53,7 +53,7 @@ test('a vehicle crossing the fly between decisions causes a swept collision', ()
   assert.ok(result.events.some((event) => event.type === 'terminal' && event.reason === 'vehicle'));
 });
 
-test('moving off a road cannot evade a vehicle sweeping the starting cell', () => {
+test('moving off a road escapes traffic that reaches the vacated cell later', () => {
   const initial = stateWith({
     lanes: [
       lane(3, 'road', {
@@ -68,11 +68,11 @@ test('moving off a road cannot evade a vehicle sweeping the starting cell', () =
 
   const result = stepGame(initial, 'forward');
 
-  assert.equal(result.state.terminal, 'vehicle');
-  assert.deepEqual(result.state.fly, initial.fly, 'impact occurs before movement');
+  assert.equal(result.state.terminal, null);
+  assert.deepEqual(result.state.fly, { row: 4, column: 0 });
 });
 
-test('moving onto a road is safe when the vehicle passed before arrival', () => {
+test('moving onto a road is hit when traffic sweeps the destination cell', () => {
   const initial = stateWith({
     fly: { row: 2, column: 0 },
     lanes: [
@@ -88,7 +88,7 @@ test('moving onto a road is safe when the vehicle passed before arrival', () => 
 
   const result = stepGame(initial, 'forward');
 
-  assert.equal(result.state.terminal, null);
+  assert.equal(result.state.terminal, 'vehicle');
   assert.deepEqual(result.state.fly, { row: 3, column: 0 });
 });
 

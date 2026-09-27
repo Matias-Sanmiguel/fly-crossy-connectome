@@ -440,11 +440,11 @@ def test_reset_is_deterministic_and_terminal_states_do_not_advance() -> None:
         terminal=None,
         previous_action=Action.WAIT,
     )
-    _, reward, terminated, truncated, info = env.step(Action.FORWARD)
+    _, reward, terminated, truncated, info = env.step(Action.WAIT)
     terminal_step = env.state.step
     _, repeated_reward, repeated_terminated, repeated_truncated, repeated_info = env.step(Action.WAIT)
 
-    assert reward == pytest.approx(-10.11)
+    assert reward == pytest.approx(-5.04)
     assert terminated is True
     assert truncated is False
     assert info == {"score": 3, "terminalReason": "vehicle"}

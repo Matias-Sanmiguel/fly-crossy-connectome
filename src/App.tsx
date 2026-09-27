@@ -104,7 +104,7 @@ export function App() {
     if (!atlas) throw Error('Wait for the measured MaleCNS atlas to load.');
     const nextPolicy = parsePolicy(value, atlas.visibleIds);
     if (nextPolicy.network.inputSize !== OBSERVATION_INPUT_SIZE) {
-      throw Error('Policy input shape does not match ObservationV3.');
+      throw Error('Policy input shape does not match ObservationV4.');
     }
     if (nextPolicy.observationVersion !== OBSERVATION_VERSION) {
       throw Error('Policy observation version does not match the current environment.');
@@ -172,7 +172,9 @@ export function App() {
             { value: 'scripted', label: 'Scripted control' },
             {
               value: 'model',
-              label: `Loaded ${policy?.network.kind === 'fixed-graph' ? 'connectome' : 'dense'} policy`,
+              label: policy?.network.kind === 'fixed-graph'
+                ? '80-neuron connectome · v6 compatibility'
+                : 'Loaded dense policy',
               disabled: !policy,
             },
           ]}

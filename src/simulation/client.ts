@@ -429,7 +429,14 @@ export function createSimulationClient(
         }
         awaitingReset = false;
         pendingObservation = null;
+        awaitingKeyframe = false;
+        activityRevision = null;
+        neuralActivity = new Map();
+        neuralAssembly = null;
         completedIntentions.length = 0;
+        for (const listener of activityListeners) {
+          listener({ revision: 0, simulationTime: message.simulationTime, updates: [] });
+        }
         setState({ phase: 'ready', error: null });
         break;
       case 'paused':

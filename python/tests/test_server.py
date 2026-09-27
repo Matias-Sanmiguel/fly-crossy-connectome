@@ -25,6 +25,7 @@ from fly_crossy.server import (
     app,
     create_app,
     load_verified_artifact_registry,
+    SessionController,
     SessionSender,
 )
 
@@ -285,6 +286,145 @@ def test_socket_answers_keyframe_request_with_an_honest_empty_keyframe(
     }
     assert paused["type"] == "paused"
     assert paused["sequence"] == 2
+
+
+def test_socket_streams_real_controller_activity_after_each_decision(
+    artifact_manifest: Path,
+) -> None:
+    activity_app = create_app(
+        artifact_manifest=artifact_manifest,
+        action_selector=lambda _: "wait",
+        neural_activity_provider=lambda: ((101, 0.25), (102, 0.0), (103, 0.75)),
+    )
+
+    with TestClient(activity_app) as activity_client:
+        with activity_client.websocket_connect(
+            "/api/simulation",
+            headers=SAME_ORIGIN,
+        ) as socket:
+            socket.send_json(hello())
+            socket.send_json(configure())
+            socket.receive_json()
+            socket.send_json(observation())
+            neural = socket.receive_json()
+            intention = socket.receive_json()
+            result = socket.receive_json()
+
+    assert neural["type"] == "neural_keyframe"
+    assert neural["revision"] == 1
+    assert neural["updates"] == [
+        {"neuronId": 101, "value": 0.25},
+        {"neuronId": 103, "value": 0.75},
+    ]
+    assert intention["type"] == "intention"
+    assert result["type"] == "action_result"
+
+
+def test_socket_streams_an_empty_keyframe_when_controller_activity_is_all_zero(
+    artifact_manifest: Path,
+) -> None:
+    activity_app = create_app(
+        artifact_manifest=artifact_manifest,
+        action_selector=lambda _: "wait",
+        neural_activity_provider=lambda: ((101, 0.0), (102, 0.0)),
+    )
+
+    with TestClient(activity_app) as activity_client:
+        with activity_client.websocket_connect(
+            "/api/simulation",
+            headers=SAME_ORIGIN,
+        ) as socket:
+            socket.send_json(hello())
+            socket.send_json(configure())
+            socket.receive_json()
+            socket.send_json(observation())
+            neural = socket.receive_json()
+
+    assert neural["type"] == "neural_keyframe"
+    assert neural["revision"] == 1
+    assert neural["updates"] == []
+
+
+def test_controller_factory_isolated_per_websocket_session(
+    artifact_manifest: Path,
+) -> None:
+    created: list[int] = []
+
+    def controller_factory() -> SessionController:
+        identity = len(created) + 1
+        created.append(identity)
+        return SessionController(
+            select_action=lambda _: "wait",
+            neural_activity=lambda: ((identity, 0.5),),
+        )
+
+    isolated_app = create_app(
+        artifact_manifest=artifact_manifest,
+        controller_factory=controller_factory,
+    )
+
+    observed_neurons: list[int] = []
+    with TestClient(isolated_app) as isolated_client:
+        for suffix in ("01", "02"):
+            with isolated_client.websocket_connect(
+                "/api/simulation",
+                headers=SAME_ORIGIN,
+            ) as socket:
+                socket.send_json({
+                    **hello(),
+                    "sessionId": f"s-000000{suffix}",
+                    "episodeId": f"e-000000{suffix}",
+                })
+                socket.send_json({
+                    **configure(),
+                    "sessionId": f"s-000000{suffix}",
+                    "episodeId": f"e-000000{suffix}",
+                })
+                socket.receive_json()
+                socket.send_json({
+                    **observation(),
+                    "sessionId": f"s-000000{suffix}",
+                    "episodeId": f"e-000000{suffix}",
+                })
+                neural = socket.receive_json()
+                observed_neurons.append(neural["updates"][0]["neuronId"])
+
+    assert created == [1, 2]
+    assert observed_neurons == [1, 2]
+
+
+def test_reset_resets_the_session_controller(artifact_manifest: Path) -> None:
+    reset_calls: list[None] = []
+    reset_app = create_app(
+        artifact_manifest=artifact_manifest,
+        controller_factory=lambda: SessionController(
+            select_action=lambda _: "wait",
+            neural_activity=lambda: (),
+            reset=lambda: reset_calls.append(None),
+        ),
+    )
+
+    with TestClient(reset_app) as reset_client:
+        with reset_client.websocket_connect(
+            "/api/simulation",
+            headers=SAME_ORIGIN,
+        ) as socket:
+            socket.send_json(hello())
+            socket.send_json(configure())
+            socket.receive_json()
+            socket.send_json({
+                "type": "reset",
+                "version": 2,
+                "sessionId": "s-00000001",
+                "episodeId": "e-00000002",
+                "sequence": 2,
+                "simulationTime": 2.0,
+                "seed": 9,
+            })
+            completed = socket.receive_json()
+
+    assert completed["type"] == "reset_complete"
+    assert reset_calls == [None]
 
 
 @pytest.mark.parametrize(

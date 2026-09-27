@@ -8,6 +8,7 @@ services:
     environment:
       FLY_BACKEND: cpu
       FLY_DATA_ROOT: /data
+      FLYGYM_ASSET_CACHE_DIR: /data/flygym_assets
     volumes:
       - fly-data:/data
     healthcheck:

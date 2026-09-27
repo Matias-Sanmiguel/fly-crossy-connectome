@@ -25,6 +25,8 @@ CHECKPOINT_PATH = (
 def observation(
     episode_id: str,
     game_step: int,
+    *,
+    input_size: int = 370,
 ) -> Observation:
     return Observation.model_construct(
         type="observation",
@@ -34,7 +36,7 @@ def observation(
         sequence=game_step + 1,
         simulation_time=float(game_step),
         game_step=game_step,
-        observation=[0.0] * 370,
+        observation=[0.0] * input_size,
         reward=0.0,
     )
 
@@ -97,3 +99,26 @@ def test_real_80_neuron_checkpoint_runs_deterministically() -> None:
         first_activity,
         abs=1e-7,
     )
+
+
+def test_released_v6_controller_accepts_current_v11_observations_via_adapter() -> None:
+    checkpoint = (
+        REPOSITORY_ROOT
+        / "release"
+        / "eval-v6"
+        / "training"
+        / "connectome"
+        / "checkpoint.pt"
+    )
+    controller = ConnectomeActionSelector(
+        checkpoint,
+        expected_environment_version=6,
+    )
+
+    first = controller(observation("e-current01", 0, input_size=517))
+    first_activity = controller.activity
+    reset = controller(observation("e-current02", 0, input_size=517))
+
+    assert first in {"forward", "backward", "left", "right", "wait"}
+    assert reset == first
+    assert controller.activity == pytest.approx(first_activity, abs=1e-7)

@@ -137,18 +137,27 @@ test('fixed graph controller persists recurrence and resets simulated activity',
   assert.deepEqual((await controller.decide(observation, signal())).activity, first.activity);
 });
 
-test('historical v6 bundled policy is rejected by the current ObservationV4 contract', async () => {
+test('bundled v6 connectome drives the v11 game through the explicit legacy adapter', async () => {
   const raw = JSON.parse(await readFile(
     new URL('../public/models/reduced-connectome-policy-v6.json', import.meta.url),
     'utf8',
   ));
   const visibleIds = new Set(raw.activityBodyIds);
 
-  assert.equal(controllerRuntime.BUNDLED_CONNECTOME_POLICY_PATH, null);
-  assert.throws(
-    () => controllerRuntime.parseBundledConnectomePolicy(raw, visibleIds),
-    /observation version|input shape/i,
+  assert.equal(
+    controllerRuntime.BUNDLED_CONNECTOME_POLICY_PATH,
+    'models/reduced-connectome-policy-v6.json',
   );
+  const policy = controllerRuntime.parseBundledConnectomePolicy(raw, visibleIds);
+  const decision = await createFixedGraphPolicyController(policy).decide(
+    observe(createGame('legacy-v6-adapter')),
+    signal(),
+  );
+
+  assert.ok(policy.source.normalization.includes('ObservationV1'));
+  assert.ok(['forward', 'backward', 'left', 'right', 'wait'].includes(decision.action));
+  assert.equal(decision.activity.length, 80);
+  assert.ok(decision.activity.every(([, value]) => value >= 0 && value <= 1));
 });
 
 

@@ -7,8 +7,6 @@ import hashlib
 import json
 import logging
 import re
-from fly_crossy.biomechanics.motor import MotorIntention
-from fly_crossy.biomechanics.world import BiomechanicalWorld
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,6 +18,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
 from fly_crossy.backend import BackendStatus, BackendUnavailable, resolve_backend
+from fly_crossy.biomechanics.motor import MotorIntention
+from fly_crossy.biomechanics.world import BiomechanicalWorld
 from fly_crossy.protocol import (
     BackendPreference,
     MAX_FRAME_BYTES,
@@ -68,11 +68,33 @@ _DEVELOPMENT_ORIGINS = frozenset(
 )
 
 ActionSelector = Callable[[Observation], Action]
+NeuralActivityProvider = Callable[[], Sequence[tuple[int, float]]]
 WorldFactory = Callable[[], BiomechanicalWorld]
 
 
 def _safe_wait_selector(_: Observation) -> Action:
     return "wait"
+
+
+def _empty_neural_activity() -> Sequence[tuple[int, float]]:
+    return ()
+
+
+def _no_op_reset() -> None:
+    return None
+
+
+@dataclass(frozen=True, slots=True)
+class SessionController:
+    """Controller callbacks whose recurrent state belongs to one socket."""
+
+    select_action: ActionSelector
+    neural_activity: NeuralActivityProvider = _empty_neural_activity
+    reset: Callable[[], None] = _no_op_reset
+
+
+ControllerFactory = Callable[[], SessionController]
+
 
 class FrameFault(Exception):
     """A bounded WebSocket frame that is safe to reject publicly."""
@@ -176,6 +198,7 @@ class SessionSender:
     websocket: WebSocket
     session: SimulationSession
     sequence: int = 0
+    neural_revision: int = 0
 
     async def send(self, message: ServerMessage) -> None:
         sequenced = message.model_copy(update={"sequence": self.sequence})
@@ -228,6 +251,8 @@ def create_app(
     allowed_origins: frozenset[str] = _DEVELOPMENT_ORIGINS,
     backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
     action_selector: ActionSelector = _safe_wait_selector,
+    neural_activity_provider: NeuralActivityProvider = _empty_neural_activity,
+    controller_factory: ControllerFactory | None = None,
     world_factory: WorldFactory | None = None,
 ) -> FastAPI:
     """Create a service with explicit artifacts and browser-origin boundaries."""
@@ -263,6 +288,8 @@ def create_app(
             artifact_registry=artifact_registry,
             backend_resolver=backend_resolver,
             action_selector=action_selector,
+            neural_activity_provider=neural_activity_provider,
+            controller_factory=controller_factory,
             world_factory=world_factory,
         )
 
@@ -279,6 +306,8 @@ async def serve_session(
     artifact_registry: Mapping[int, _ArtifactIdentity] = _DEFAULT_ARTIFACT_REGISTRY,
     backend_resolver: Callable[[BackendPreference], BackendStatus] = resolve_backend,
     action_selector: ActionSelector = _safe_wait_selector,
+    neural_activity_provider: NeuralActivityProvider = _empty_neural_activity,
+    controller_factory: ControllerFactory | None = None,
     world_factory: WorldFactory | None = None,
 ) -> None:
     """Serve one connection; state transitions remain owned by SimulationSession."""
@@ -297,6 +326,11 @@ async def serve_session(
         )
         session_id = session.session_id
         sender = SessionSender(websocket, session)
+        controller = (
+            controller_factory()
+            if controller_factory is not None
+            else SessionController(action_selector, neural_activity_provider)
+        )
         world = world_factory() if world_factory is not None else None
 
         while True:
@@ -306,7 +340,7 @@ async def serve_session(
                 sender,
                 artifact_registry,
                 backend_resolver,
-                action_selector,
+                controller,
                 world,
             )
     except WebSocketDisconnect:
@@ -343,7 +377,7 @@ async def _apply_message(
     sender: SessionSender,
     artifact_registry: Mapping[int, _ArtifactIdentity],
     backend_resolver: Callable[[BackendPreference], BackendStatus],
-    action_selector: ActionSelector,
+    controller: SessionController,
     world: BiomechanicalWorld | None,
 ) -> None:
     session = sender.session
@@ -378,6 +412,8 @@ async def _apply_message(
         return
     if isinstance(message, Reset):
         session.reset(message)
+        sender.neural_revision = 0
+        controller.reset()
         if world is not None:
             world.reset()
         await sender.send(
@@ -415,11 +451,16 @@ async def _apply_message(
         return
     if isinstance(message, RequestKeyframe):
         session.request_keyframe(message)
+        updates = [
+            {"neuronId": neuron_id, "value": value}
+            for neuron_id, value in controller.neural_activity()
+            if value != 0
+        ]
         await sender.send_neural(
             "neural_keyframe",
-            revision=0,
+            revision=sender.neural_revision,
             simulation_time=message.simulation_time,
-            updates=[],
+            updates=updates,
         )
         return
 
@@ -429,7 +470,7 @@ async def _apply_message(
             "Unsupported simulation message.",
         )
 
-    action = action_selector(message)
+    action = controller.select_action(message)
 
     if action not in ("forward", "backward", "left", "right", "wait"):
         raise SessionFault(
@@ -438,12 +479,26 @@ async def _apply_message(
         )
 
     motor_phase = "neutral" if action == "wait" else "targeting"
-
     intention = session.accept_observation(
         message,
         action=action,
         motor_phase=motor_phase,
     )
+
+    neural_values = tuple(controller.neural_activity())
+    activity = [
+        {"neuronId": neuron_id, "value": value}
+        for neuron_id, value in neural_values
+        if value != 0
+    ]
+    if neural_values:
+        sender.neural_revision += 1
+        await sender.send_neural(
+            "neural_keyframe",
+            revision=sender.neural_revision,
+            simulation_time=message.simulation_time,
+            updates=activity,
+        )
 
     await sender.send(intention)
 

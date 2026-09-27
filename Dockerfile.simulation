@@ -28,9 +28,15 @@ RUN groupadd --gid "$APP_GID" fly \
 
 COPY --from=dependencies /opt/venv /opt/venv
 COPY --chown=10001:10001 python/fly_crossy /app/python/fly_crossy
+COPY --chown=10001:10001 runtime-artifacts-biomechanics.json /app/runtime-artifacts-biomechanics.json
+COPY --chown=10001:10001 configs/biomechanics-v1.json /app/configs/biomechanics-v1.json
+COPY --chown=10001:10001 data/manifests/flybody-v1.json /app/data/manifests/flybody-v1.json
+COPY --chown=10001:10001 data/calibration/keyboard-reach-v1.json /app/data/calibration/keyboard-reach-v1.json
+COPY --chown=10001:10001 public/data/connectome/graph.json /app/public/data/connectome/graph.json
+COPY --chown=10001:10001 release/eval-v6/training/connectome/checkpoint.pt /app/release/eval-v6/training/connectome/checkpoint.pt
 
 USER 10001:10001
 WORKDIR /app
 EXPOSE 8000
 
-CMD ["uvicorn", "fly_crossy.server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "fly_crossy.dev_server:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -376,6 +376,43 @@ test('client treats an empty one-chunk keyframe as clear activity', () => {
   client.close();
 });
 
+test('client accepts neural revisions restarted by a completed episode reset', () => {
+  const { client, sockets } = createHarness(
+    ['s-current1'],
+    ['e-current1', 'e-current2'],
+  );
+  const activity = [];
+  client.subscribeActivity((frame) => activity.push(frame));
+  client.configure({ population: 80, backend: 'cpu', seed: 7, speed: 1 });
+  sockets[0].open();
+  sockets[0].receive(ready());
+  sockets[0].receive({
+    type: 'neural_keyframe', ...envelope(1), revision: 7,
+    chunkIndex: 0, chunkCount: 1, updates: [{ neuronId: 3, value: 0.25 }],
+  });
+
+  client.reset({ seed: 9, simulationTime: 2 });
+  sockets[0].receive({
+    type: 'reset_complete',
+    ...envelope(2, { episodeId: 'e-current2', simulationTime: 2 }),
+  });
+  sockets[0].receive({
+    type: 'neural_keyframe',
+    ...envelope(3, { episodeId: 'e-current2', simulationTime: 3 }),
+    revision: 1,
+    chunkIndex: 0,
+    chunkCount: 1,
+    updates: [{ neuronId: 8, value: 0.75 }],
+  });
+
+  assert.deepEqual(activity.at(-1), {
+    revision: 1,
+    simulationTime: 3,
+    updates: [{ neuronId: 8, value: 0.75 }],
+  });
+  client.close();
+});
+
 test('client retains controlled error when keyframe recovery is backpressured during an action result', () => {
   const { client, sockets } = createHarness(['s-current1'], ['e-current1'], { maxQueue: 1 });
   sockets[0].open();

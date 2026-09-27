@@ -853,6 +853,7 @@ def traffic_radar(state: GameState) -> list[list[float]]:
     not only the playable +/-5 columns.
     """
     anchor_column = _js_round(state.fly.column)
+    lanes = {lane.row: lane for lane in state.lanes}
     result: list[list[float]] = []
     lane_encoding: dict[LaneKind, int] = {
         "grass": 1,
@@ -862,7 +863,10 @@ def traffic_radar(state: GameState) -> list[list[float]]:
     }
 
     for row_offset in range(TRAFFIC_RADAR_ROWS):
-        lane = _lane_for(state, state.fly.row + row_offset)
+        lane = lanes.get(state.fly.row + row_offset)
+        if lane is None:
+            result.append([0.0, 0.0, 1.0, 1.0, 1.0])
+            continue
         if lane.kind in ("road", "rail"):
             scale = 12.0 if lane.kind == "rail" else 5.0
             signed_speed = float(lane.direction or 0) * min(

@@ -59,7 +59,7 @@ def test_v11_preserves_v6_world_layout_fixture() -> None:
         ] == case["rows"]
 
 
-def test_observation_v3_has_signed_position_and_517_values() -> None:
+def test_observation_v4_has_signed_position_and_517_values() -> None:
     state = create_game("v11-position-contract")
     state = GameState(
         version=WORLD_VERSION,
@@ -81,10 +81,10 @@ def test_observation_v3_has_signed_position_and_517_values() -> None:
     assert observation.signed_column == pytest.approx(0.6)
     assert observation.edge_distance == pytest.approx(0.4)
     assert encoded.shape == (517,)
-    assert encoded[-1] == pytest.approx(0.6)
+    assert encoded[491] == pytest.approx(0.6)
 
 
-def test_observation_v3_exposes_continuous_hazard_offset() -> None:
+def test_observation_v4_exposes_continuous_hazard_offset() -> None:
     state = GameState(
         version=WORLD_VERSION,
         seed="v11-hazard-offset",
@@ -115,9 +115,9 @@ def test_observation_v3_exposes_continuous_hazard_offset() -> None:
     assert observation.motion[6][5] == pytest.approx([1.0, 0.2])
 
 
-def test_reward_v4_remains_unchanged_in_environment_v10() -> None:
+def test_reward_v5_remains_unchanged_in_environment_v11() -> None:
     waiting = step_game(create_game("v11-wait-cost"), Action.WAIT)
-    assert waiting.reward == pytest.approx(-0.11)
+    assert waiting.reward == pytest.approx(-0.04)
 
     carried_state = GameState(
         version=WORLD_VERSION,

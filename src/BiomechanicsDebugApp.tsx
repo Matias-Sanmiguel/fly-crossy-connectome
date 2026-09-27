@@ -87,7 +87,7 @@ export function BiomechanicsDebugApp() {
           status={`${runtimeStatus} · ${sceneStatus}`}
           controller="80"
           controllerOptions={[
-            { value: '80', label: '80 neurons · active' },
+            { value: '80', label: '80 neurons · v6 compatibility' },
             { value: '1000', label: '1,000 neurons · planned', disabled: true },
             { value: '5000', label: '5,000 neurons · planned', disabled: true },
             { value: '20000', label: '20,000 neurons · planned', disabled: true },

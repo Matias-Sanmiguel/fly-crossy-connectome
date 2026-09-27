@@ -8,7 +8,13 @@ const root = new URL('../', import.meta.url);
 test('generated Python output is not tracked', () => {
   const tracked = execFileSync(
     'git',
-    ['ls-files', 'python/.pytest-tmp/**', 'python/runs/**'],
+    [
+      'ls-files',
+      'python/.pytest-tmp/**',
+      'python/.pytest_tmp*/**',
+      'python/datasets/**',
+      'python/runs/**',
+    ],
     { cwd: root, encoding: 'utf8' },
   ).trim();
 
@@ -20,6 +26,8 @@ test('root ignore owns cross-language output', async () => {
 
   for (const pattern of [
     '.pytest-tmp/',
+    'python/.pytest_tmp*/',
+    'python/datasets/',
     'python/runs/',
     '*.py[cod]',
     '.ruff_cache/',

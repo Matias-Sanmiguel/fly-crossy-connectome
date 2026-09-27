@@ -9,6 +9,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .pytest-tmp/
+python/.pytest_tmp*/
 .ruff_cache/
 *.egg-info/
 .venv/
@@ -31,7 +32,5 @@ Thumbs.db
 # Generated neural artifacts and datasets
 artifacts/
 python/datasets/
-
-runs/**/*.pt
 
 runs/**/*.pt
