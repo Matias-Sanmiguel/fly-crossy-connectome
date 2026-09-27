@@ -40,5 +40,5 @@ export function GameScene({ state, events, onAssetStatus }: GameSceneProps) {
     renderer.current?.render(state, events);
   }, [state, events]);
 
-  return <div ref={host} className="three-viewport game-viewport" aria-label="Isometric fly crossing game" />;
+  return <div ref={host} className="three-viewport game-viewport" role="img" aria-label="Isometric fly crossing game" />;
 }

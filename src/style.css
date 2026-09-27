@@ -688,3 +688,555 @@ footer {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Expo presentation — isolated from the laboratory UI. */
+@font-face {
+  font-family: "Axiforma Expo";
+  src: url("/assets/expo/fonts/Axiforma-Book.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Axiforma Expo";
+  src: url("/assets/expo/fonts/Axiforma-Light.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Axiforma Expo";
+  src: url("/assets/expo/fonts/Axiforma-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Axiforma Expo";
+  src: url("/assets/expo/fonts/Axiforma-Black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Axiforma Expo";
+  src: url("/assets/expo/fonts/Axiforma-ExtraBold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.expo-page {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  overflow: hidden;
+  background: #2033ff;
+  color: #fff;
+  font-family: "Axiforma Expo", Arial, sans-serif;
+}
+
+.expo-frame {
+  position: relative;
+  width: min(100vw, 160svh);
+  aspect-ratio: 16 / 10;
+  container-type: inline-size;
+  overflow: hidden;
+  background: #2033ff;
+}
+
+.expo-header {
+  position: relative;
+  height: 11.8056cqw;
+  padding: 1.5278cqw 2.8472cqw 0 3.75cqw;
+}
+
+.expo-title {
+  position: absolute;
+  top: 1.6667cqw;
+  left: 3.75cqw;
+  margin: 0;
+  color: #fff;
+  font-family: "Axiforma Expo", Arial, sans-serif;
+  font-size: 4.4444cqw;
+  font-weight: 800;
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.expo-title span { color: #b3ff3b; }
+
+.expo-subtitle {
+  position: absolute;
+  top: 8.3333cqw;
+  left: 3.75cqw;
+  width: 60.9028cqw;
+  height: 3.0556cqw;
+  margin: 0;
+  font-size: 1.6667cqw;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1;
+}
+
+.expo-logo-crop {
+  position: absolute;
+  top: 2.8472cqw;
+  right: 2.8472cqw;
+  width: 17.7083cqw;
+  height: 7.2478cqw;
+  overflow: visible;
+}
+
+.expo-logo-crop img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.expo-dashboard {
+  display: grid;
+  grid-template-columns: 661fr 637fr;
+  gap: 3.2639cqw;
+  height: 48.0556cqw;
+  padding: 0 2.8472cqw 0 3.75cqw;
+}
+
+.expo-left-column {
+  display: grid;
+  grid-template-rows: 482fr 186fr;
+  gap: 1.6667cqw;
+  min-width: 0;
+  min-height: 0;
+}
+
+.expo-right-column {
+  display: grid;
+  grid-template-rows: 294fr 170fr 192fr;
+  gap: 1.25cqw;
+  min-width: 0;
+  min-height: 0;
+}
+
+.expo-game-card,
+.expo-brain-card,
+.expo-video-card,
+.expo-keyboard-card,
+.expo-action-card {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 1.3889cqw;
+}
+
+.expo-game-card { background: #0f1715; }
+
+.expo-game-card .game-viewport { bottom: 0; }
+
+.expo-game-card .game-viewport::after { display: none; }
+
+.expo-score {
+  position: absolute;
+  z-index: 4;
+  top: 0.9028cqw;
+  left: 1.7361cqw;
+  color: #fff;
+  font-size: 3.3333cqw;
+  font-weight: 900;
+  letter-spacing: normal;
+  line-height: normal;
+  text-shadow: 0.1389cqw 0.1389cqw 0 #000;
+}
+
+.expo-record {
+  position: absolute;
+  z-index: 4;
+  bottom: 0.9722cqw;
+  left: 0.9722cqw;
+  width: 13.8889cqw;
+  height: 3.125cqw;
+  border-radius: 1.1111cqw;
+  background: #fff;
+}
+
+.expo-record-label,
+.expo-record-value {
+  position: absolute;
+  line-height: normal;
+}
+
+.expo-record-label {
+  top: 0.5556cqw;
+  left: 0.7639cqw;
+  color: #1e1e1e;
+  font-size: 1.3889cqw;
+  font-weight: 800;
+}
+
+.expo-record-value {
+  top: 0.2083cqw;
+  left: 10.625cqw;
+  color: #fff;
+  font-size: 1.6667cqw;
+  font-weight: 900;
+  text-shadow: 0.1389cqw 0.1389cqw 0 #2033ff;
+}
+
+.expo-explanation { color: #fff; }
+
+.expo-explanation h2 {
+  margin: 0;
+  font-size: 1.6667cqw;
+  font-weight: 700;
+  letter-spacing: normal;
+  line-height: 1;
+}
+
+.expo-explanation p {
+  max-width: 45.9028cqw;
+  margin: 0.625cqw 0 0;
+  font-size: 1.3889cqw;
+  font-weight: 300;
+  letter-spacing: normal;
+  line-height: 1.25;
+}
+
+.expo-brain-card { background: #1e1e1e; }
+
+.expo-brain-legend {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  font-size: 0.8333cqw;
+  font-weight: 300;
+  letter-spacing: normal;
+  line-height: 1;
+}
+
+.expo-brain-legend span {
+  position: absolute;
+  top: 1.3194cqw;
+  display: grid;
+  grid-template-columns: 0.625cqw 1fr;
+  gap: 0.9028cqw;
+  align-items: start;
+}
+
+.expo-legend-anatomy { left: 2.0139cqw; width: 9.2cqw; white-space: nowrap; }
+.expo-legend-activity { left: 16.3889cqw; width: 10.1389cqw; }
+
+.expo-brain-legend i {
+  position: relative;
+  display: block;
+  width: 0.625cqw;
+  height: 0.625cqw;
+}
+
+.expo-brain-legend i img {
+  position: absolute;
+  top: -0.4931cqw;
+  left: -0.4931cqw;
+  display: block;
+  width: 1.6111cqw;
+  height: 1.6111cqw;
+}
+
+.expo-brain-visual {
+  position: absolute;
+  top: 4.6528cqw;
+  left: 0.7639cqw;
+  width: 26.3889cqw;
+  height: 14.2361cqw;
+}
+
+.expo-brain-visual .brain-view-controls,
+.expo-brain-visual .brain-legend { display: none; }
+
+.expo-brain-visual .brain-viewport { background: transparent; }
+
+.expo-brain-stats {
+  position: absolute;
+  top: 3.05cqw;
+  left: 29.6528cqw;
+  display: grid;
+  grid-template-rows: 4.6528cqw 4.7917cqw 4.7917cqw;
+  width: 12cqw;
+  margin: 0;
+}
+
+.expo-brain-stats > div + div { margin-top: 0; }
+
+.expo-brain-stats dt {
+  color: #fff;
+  font-size: 2.2222cqw;
+  font-weight: 800;
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.expo-brain-stats dd {
+  margin: -0.6944cqw 0 0;
+  color: #fff;
+  font-size: 1.1111cqw;
+  font-weight: 300;
+  letter-spacing: normal;
+  line-height: normal;
+  width: 13cqw;
+  white-space: nowrap;
+}
+
+.expo-media-row {
+  display: grid;
+  grid-template-columns: 303fr 319fr;
+  gap: 1.0417cqw;
+  min-width: 0;
+  min-height: 0;
+}
+
+.expo-video-card { background: #151515; }
+
+.expo-video-card video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.expo-keyboard-card { border-radius: 0; }
+
+.expo-keyboard-viewport {
+  position: absolute;
+  inset: 0;
+}
+
+.expo-keyboard-viewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.expo-media-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgb(255 255 255 / 72%);
+  font-size: 0.8333cqw;
+  font-weight: 700;
+}
+
+.expo-action-card {
+  display: block;
+  padding: 0;
+  background: rgb(30 30 30 / 30%);
+}
+
+.expo-action-metrics {
+  position: absolute;
+  inset: 0;
+}
+
+.expo-action-metrics div { min-width: 0; }
+
+.expo-action-current,
+.expo-step-current,
+.expo-motor-status { position: absolute; inset: 0; }
+
+.expo-action-metrics span,
+.expo-motor-status span {
+  position: absolute;
+  color: #fff;
+  font-size: 1.1111cqw;
+  font-weight: 300;
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.expo-action-metrics strong {
+  position: absolute;
+  color: #b3ff3b;
+  font-size: 2.2222cqw;
+  font-weight: 800;
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.expo-action-current > i,
+.expo-step-current > i,
+.expo-motor-status > i {
+  position: absolute;
+  width: 0.3472cqw;
+  height: 0.9722cqw;
+  border-radius: 0.2083cqw;
+  background: #b3ff3b;
+}
+
+.expo-action-current > i { top: 1.3889cqw; left: 2.0139cqw; }
+.expo-action-current span { top: 1.1111cqw; left: 3.0556cqw; }
+.expo-action-current strong { top: 2.9167cqw; left: 5.2778cqw; }
+.expo-step-current > i { top: 1.3889cqw; left: 19.0972cqw; }
+.expo-step-current span { top: 1.1111cqw; left: 20.1389cqw; }
+.expo-step-current strong { top: 2.9167cqw; left: 19.0972cqw; }
+.expo-motor-status > i { top: 6.9444cqw; left: 2.0139cqw; }
+.expo-motor-status span { top: 6.6667cqw; left: 3.0556cqw; }
+
+.expo-action-arrow {
+  position: absolute;
+  top: 3.75cqw;
+  left: 1.875cqw;
+  width: 2.2222cqw;
+  height: 1.7361cqw;
+  transform-origin: center;
+}
+
+.expo-action-arrow-forward { transform: rotate(-90deg); }
+.expo-action-arrow-backward { transform: rotate(90deg); }
+.expo-action-arrow-left { transform: rotate(180deg); }
+.expo-action-arrow-right { transform: rotate(0); }
+.expo-action-arrow-wait { opacity: 0.25; }
+
+.expo-config-card {
+  position: absolute;
+  top: 0.9722cqw;
+  right: 1.0417cqw;
+  width: 16.0417cqw;
+  height: 11.3889cqw;
+  border-radius: 0.8333cqw;
+  background: #d9d9d9;
+  color: #000;
+}
+
+.expo-config-card p {
+  position: absolute;
+  top: 3.1944cqw;
+  left: 1.6667cqw;
+  margin: 0;
+  color: #000;
+  font-size: 1.1111cqw;
+  font-weight: 300;
+  line-height: normal;
+}
+
+.expo-error {
+  position: absolute;
+  z-index: 10;
+  right: 2.8472cqw;
+  bottom: 1cqw;
+  max-width: 44cqw;
+  margin: 0;
+  padding: 0.55cqw 0.8cqw;
+  border-radius: 0.5cqw;
+  background: #fff;
+  color: #aa1515;
+  font-size: 0.6944cqw;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .expo-page { display: block; overflow: visible; }
+
+  .expo-frame {
+    width: 100%;
+    min-height: 100svh;
+    aspect-ratio: auto;
+    overflow: visible;
+  }
+
+  .expo-header {
+    height: 150px;
+    padding: 0;
+  }
+
+  .expo-title { top: 24px; left: 20px; font-size: clamp(42px, 12vw, 64px); }
+  .expo-subtitle { top: 88px; left: 20px; width: calc(100% - 40px); height: auto; font-size: clamp(16px, 4.4vw, 24px); }
+
+  .expo-logo-crop {
+    top: 18px;
+    right: 20px;
+    width: 150px;
+    height: 66px;
+  }
+
+  .expo-dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+    height: auto;
+    padding: 0 20px 30px;
+  }
+
+  .expo-left-column,
+  .expo-right-column {
+    grid-template-rows: auto;
+    gap: 18px;
+  }
+
+  .expo-game-card { aspect-ratio: 661 / 482; border-radius: 16px; }
+  .expo-score { top: 12px; left: 18px; font-size: 42px; }
+  .expo-record { bottom: 12px; left: 12px; width: 150px; height: 38px; border-radius: 12px; }
+  .expo-record-label { top: 8px; left: 11px; font-size: 16px; }
+  .expo-record-value { top: 3px; left: 112px; font-size: 21px; }
+  .expo-explanation h2 { font-size: 22px; }
+  .expo-explanation p { max-width: none; margin-top: 8px; font-size: 17px; }
+  .expo-brain-card { height: 300px; border-radius: 16px; }
+  .expo-brain-legend { font-size: 10px; }
+  .expo-brain-legend span { top: 16px; grid-template-columns: 8px 1fr; gap: 9px; }
+  .expo-legend-anatomy { left: 18px; width: 125px; }
+  .expo-legend-activity { left: 175px; width: 150px; }
+  .expo-brain-legend i { width: 8px; height: 8px; }
+  .expo-brain-legend i img { top: -6px; left: -6px; width: 20px; height: 20px; }
+  .expo-brain-visual { top: 56px; bottom: 14px; left: 8px; width: 62%; }
+  .expo-brain-stats { top: 60px; right: 16px; width: 31%; }
+  .expo-brain-stats > div + div { margin-top: 12px; }
+  .expo-brain-stats dt { font-size: 24px; }
+  .expo-brain-stats dd { margin-top: 5px; font-size: 12px; }
+  .expo-media-row { grid-template-columns: 1fr; gap: 18px; }
+  .expo-video-card,
+  .expo-keyboard-card { aspect-ratio: 16 / 9; border-radius: 16px; }
+  .expo-media-status { font-size: 12px; }
+
+  .expo-action-card { height: 260px; border-radius: 16px; }
+  .expo-action-metrics span,
+  .expo-motor-status span { font-size: 12px; }
+  .expo-action-metrics strong { font-size: 26px; }
+  .expo-action-current > i { top: 24px; left: 20px; }
+  .expo-action-current span { top: 20px; left: 35px; }
+  .expo-action-current strong { top: 52px; left: 68px; }
+  .expo-step-current > i { top: 24px; left: 210px; }
+  .expo-step-current span { top: 20px; left: 225px; }
+  .expo-step-current strong { top: 52px; left: 210px; }
+  .expo-motor-status > i { top: 103px; left: 20px; }
+  .expo-motor-status span { top: 99px; left: 35px; }
+  .expo-action-current > i,
+  .expo-step-current > i,
+  .expo-motor-status > i { width: 5px; height: 14px; border-radius: 3px; }
+  .expo-action-arrow { top: 56px; left: 20px; width: 32px; height: 25px; }
+  .expo-config-card { top: 130px; right: 14px; left: 14px; width: auto; height: 116px; border-radius: 12px; }
+  .expo-config-card p { top: 25px; left: 24px; font-size: 14px; }
+  .expo-error { position: fixed; right: 12px; bottom: 12px; max-width: calc(100vw - 24px); padding: 8px 10px; font-size: 11px; }
+}
+
+@media (max-width: 620px) {
+  .expo-logo-crop { width: 108px; height: 50px; }
+  .expo-header { height: 142px; }
+  .expo-title { max-width: 70%; font-size: 38px; }
+  .expo-subtitle { top: 78px; max-width: 72%; font-size: 15px; line-height: 1.35; }
+}
