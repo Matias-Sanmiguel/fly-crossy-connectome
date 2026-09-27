@@ -1,0 +1,1915 @@
+{
+  "version": "crossy-v4-recurrent-state-drift-audit-1",
+  "sourceCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-expo-specialist\\best.pt",
+  "sourceDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-exact-seed-branch-curriculum\\best_decoder.pt",
+  "metadata": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "decoderMetadata": {
+    "stage": "branch-stage-1-through-50",
+    "architecture": "mlp64",
+    "motorDim": 708,
+    "metrics": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        }
+      },
+      "robust": {
+        "episodes": 21,
+        "successes": 0,
+        "reachedStepLimit": 0,
+        "progressQualified": 0,
+        "stalled": 0,
+        "meanScore": 16.095238095238095,
+        "medianScore": 7.0,
+        "terminalReasons": {
+          "vehicle": 14,
+          "water": 7
+        },
+        "actions": {
+          "forward": 381,
+          "left": 48,
+          "right": 17,
+          "wait": 26
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "steps": 45,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 9,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 3,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "steps": 53,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 1,
+          "steps": 7,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": -1,
+          "steps": 43,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 7,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 52,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": -1,
+          "steps": 12,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 5,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 0,
+          "steps": 3,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 0,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": -1,
+          "steps": 17,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 3,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 32,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 4
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 1,
+          "steps": 18,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": -1,
+          "steps": 16,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 12,
+            "left": 2,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 0,
+          "steps": 15,
+          "score": 14.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.1411290322580645,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": -1,
+          "steps": 15,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 13,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 0,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 2
+          }
+        }
+      ]
+    },
+    "config": {
+      "seed": "crossy-v4-expo:0006",
+      "rngSeed": 707,
+      "plannerDepth": 4,
+      "maxSteps": 200,
+      "stageEnds": [
+        50,
+        100,
+        150,
+        200
+      ],
+      "rootStride": 1,
+      "branchesPerRoot": 2,
+      "branchHorizon": 12,
+      "epochsPerStage": 80,
+      "decoderLearningRate": 0.003,
+      "decoderBatch": 1024,
+      "progressLossWeight": 1.0,
+      "minimumTeacherFraction": 0.8,
+      "teacherScore": 124.0,
+      "minimumProgressScore": 99.2,
+      "effectiveStallSteps": 12,
+      "MaleCNSRetrained": false,
+      "startingDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-recovery-dagger-v2\\best_decoder.pt",
+      "selectionRule": "exact real-progress success -> exact score -> robust successes -> robust score"
+    }
+  },
+  "config": {
+    "seed": "crossy-v4-expo:0006",
+    "plannerDepth": 4,
+    "maxSteps": 200,
+    "stallSteps": 12,
+    "minimumTeacherFraction": 0.8,
+    "teacherScore": 124.0,
+    "minimumProgressScore": 99.2,
+    "modes": [
+      {
+        "name": "stateful",
+        "historyFrames": null
+      },
+      {
+        "name": "reset",
+        "historyFrames": 1
+      },
+      {
+        "name": "short4",
+        "historyFrames": 4
+      },
+      {
+        "name": "short8",
+        "historyFrames": 8
+      },
+      {
+        "name": "short16",
+        "historyFrames": 16
+      }
+    ],
+    "MaleCNSRetrained": false,
+    "decoderRetrained": false
+  },
+  "teacherReference": {
+    "behavior": "teacher",
+    "frames": 200,
+    "steps": 200,
+    "score": 124.0,
+    "terminalReason": null,
+    "stalled": false,
+    "maxNoProgressStreak": 9,
+    "actions": {
+      "forward": 124,
+      "left": 44,
+      "right": 29,
+      "wait": 3
+    }
+  },
+  "teacherSameFrames": {
+    "stateful": {
+      "historyFrames": null,
+      "metrics": {
+        "frames": 200,
+        "exactActionRate": 0.725,
+        "acceptableActionRate": 0.89,
+        "immediateSafeActionRate": 0.935,
+        "progressOpportunityFrames": 124,
+        "progressChoiceRate": 0.9516129032258065,
+        "actions": {
+          "forward": 131,
+          "left": 21,
+          "right": 43,
+          "wait": 5
+        },
+        "firstUnacceptable": {
+          "decision": 15,
+          "gameStep": 15,
+          "score": 12.0,
+          "row": 12,
+          "column": 0.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 25,
+          "gameStep": 25,
+          "score": 21.0,
+          "row": 21,
+          "column": -1.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left",
+            "right",
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 66,
+            "frames": 66,
+            "exactActionRate": 0.8787878787878788,
+            "acceptableActionRate": 0.9393939393939394,
+            "immediateSafeActionRate": 0.9696969696969697,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 66,
+            "endExclusive": 133,
+            "frames": 67,
+            "exactActionRate": 0.6417910447761194,
+            "acceptableActionRate": 0.835820895522388,
+            "immediateSafeActionRate": 0.8955223880597015,
+            "progressChoiceRate": 0.9411764705882353
+          },
+          "late": {
+            "start": 133,
+            "endExclusive": 200,
+            "frames": 67,
+            "exactActionRate": 0.6567164179104478,
+            "acceptableActionRate": 0.8955223880597015,
+            "immediateSafeActionRate": 0.9402985074626866,
+            "progressChoiceRate": 0.8947368421052632
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.8877350091934204,
+          "p10CosineToStateful": 0.5061485767364502,
+          "meanRelativeL2ToStateful": 0.0
+        },
+        "actionAgreementWithStateful": 1.0
+      }
+    },
+    "reset": {
+      "historyFrames": 1,
+      "metrics": {
+        "frames": 200,
+        "exactActionRate": 0.62,
+        "acceptableActionRate": 0.775,
+        "immediateSafeActionRate": 0.825,
+        "progressOpportunityFrames": 124,
+        "progressChoiceRate": 0.9919354838709677,
+        "actions": {
+          "forward": 159,
+          "wait": 41
+        },
+        "firstUnacceptable": {
+          "decision": 7,
+          "gameStep": 7,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "wait",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 7,
+          "gameStep": 7,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "wait",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 66,
+            "frames": 66,
+            "exactActionRate": 0.7878787878787878,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 0.8484848484848485,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 66,
+            "endExclusive": 133,
+            "frames": 67,
+            "exactActionRate": 0.4925373134328358,
+            "acceptableActionRate": 0.7313432835820896,
+            "immediateSafeActionRate": 0.8059701492537313,
+            "progressChoiceRate": 0.9705882352941176
+          },
+          "late": {
+            "start": 133,
+            "endExclusive": 200,
+            "frames": 67,
+            "exactActionRate": 0.582089552238806,
+            "acceptableActionRate": 0.7611940298507462,
+            "immediateSafeActionRate": 0.8208955223880597,
+            "progressChoiceRate": 1.0
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.024940380826592445,
+          "p10CosineToStateful": 0.008620200678706169,
+          "meanRelativeL2ToStateful": 0.9793426394462585
+        },
+        "actionAgreementWithStateful": 0.67
+      }
+    },
+    "short4": {
+      "historyFrames": 4,
+      "metrics": {
+        "frames": 200,
+        "exactActionRate": 0.565,
+        "acceptableActionRate": 0.755,
+        "immediateSafeActionRate": 0.935,
+        "progressOpportunityFrames": 124,
+        "progressChoiceRate": 0.7338709677419355,
+        "actions": {
+          "forward": 100,
+          "left": 25,
+          "right": 27,
+          "wait": 48
+        },
+        "firstUnacceptable": {
+          "decision": 8,
+          "gameStep": 8,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "forward",
+          "predictedAction": "wait",
+          "acceptableActions": [
+            "forward"
+          ],
+          "safeActions": [
+            "forward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 71,
+          "gameStep": 71,
+          "score": 55.0,
+          "row": 55,
+          "column": -5.0,
+          "teacherAction": "right",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "right"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 66,
+            "frames": 66,
+            "exactActionRate": 0.803030303030303,
+            "acceptableActionRate": 0.8636363636363636,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 0.8846153846153846
+          },
+          "middle": {
+            "start": 66,
+            "endExclusive": 133,
+            "frames": 67,
+            "exactActionRate": 0.417910447761194,
+            "acceptableActionRate": 0.6865671641791045,
+            "immediateSafeActionRate": 0.8656716417910447,
+            "progressChoiceRate": 0.6470588235294118
+          },
+          "late": {
+            "start": 133,
+            "endExclusive": 200,
+            "frames": 67,
+            "exactActionRate": 0.47761194029850745,
+            "acceptableActionRate": 0.7164179104477612,
+            "immediateSafeActionRate": 0.9402985074626866,
+            "progressChoiceRate": 0.6052631578947368
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.5983999371528625,
+          "p10CosineToStateful": 0.13449451327323914,
+          "meanRelativeL2ToStateful": 0.7478450536727905
+        },
+        "actionAgreementWithStateful": 0.725
+      }
+    },
+    "short8": {
+      "historyFrames": 8,
+      "metrics": {
+        "frames": 200,
+        "exactActionRate": 0.68,
+        "acceptableActionRate": 0.86,
+        "immediateSafeActionRate": 0.94,
+        "progressOpportunityFrames": 124,
+        "progressChoiceRate": 0.8951612903225806,
+        "actions": {
+          "forward": 121,
+          "left": 24,
+          "right": 34,
+          "wait": 21
+        },
+        "firstUnacceptable": {
+          "decision": 25,
+          "gameStep": 25,
+          "score": 21.0,
+          "row": 21,
+          "column": -1.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left",
+            "right",
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 25,
+          "gameStep": 25,
+          "score": 21.0,
+          "row": 21,
+          "column": -1.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left",
+            "right",
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 66,
+            "frames": 66,
+            "exactActionRate": 0.8939393939393939,
+            "acceptableActionRate": 0.9545454545454546,
+            "immediateSafeActionRate": 0.9696969696969697,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 66,
+            "endExclusive": 133,
+            "frames": 67,
+            "exactActionRate": 0.5970149253731343,
+            "acceptableActionRate": 0.8208955223880597,
+            "immediateSafeActionRate": 0.8955223880597015,
+            "progressChoiceRate": 0.9117647058823529
+          },
+          "late": {
+            "start": 133,
+            "endExclusive": 200,
+            "frames": 67,
+            "exactActionRate": 0.5522388059701493,
+            "acceptableActionRate": 0.8059701492537313,
+            "immediateSafeActionRate": 0.9552238805970149,
+            "progressChoiceRate": 0.7368421052631579
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.7861364483833313,
+          "p10CosineToStateful": 0.30480629205703735,
+          "meanRelativeL2ToStateful": 0.39877334237098694
+        },
+        "actionAgreementWithStateful": 0.875
+      }
+    },
+    "short16": {
+      "historyFrames": 16,
+      "metrics": {
+        "frames": 200,
+        "exactActionRate": 0.705,
+        "acceptableActionRate": 0.87,
+        "immediateSafeActionRate": 0.93,
+        "progressOpportunityFrames": 124,
+        "progressChoiceRate": 0.9193548387096774,
+        "actions": {
+          "forward": 127,
+          "left": 22,
+          "right": 43,
+          "wait": 8
+        },
+        "firstUnacceptable": {
+          "decision": 15,
+          "gameStep": 15,
+          "score": 12.0,
+          "row": 12,
+          "column": 0.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 25,
+          "gameStep": 25,
+          "score": 21.0,
+          "row": 21,
+          "column": -1.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left",
+            "right",
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 66,
+            "frames": 66,
+            "exactActionRate": 0.8787878787878788,
+            "acceptableActionRate": 0.9393939393939394,
+            "immediateSafeActionRate": 0.9696969696969697,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 66,
+            "endExclusive": 133,
+            "frames": 67,
+            "exactActionRate": 0.6417910447761194,
+            "acceptableActionRate": 0.835820895522388,
+            "immediateSafeActionRate": 0.8955223880597015,
+            "progressChoiceRate": 0.9411764705882353
+          },
+          "late": {
+            "start": 133,
+            "endExclusive": 200,
+            "frames": 67,
+            "exactActionRate": 0.5970149253731343,
+            "acceptableActionRate": 0.835820895522388,
+            "immediateSafeActionRate": 0.9253731343283582,
+            "progressChoiceRate": 0.7894736842105263
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.875226616859436,
+          "p10CosineToStateful": 0.4480087161064148,
+          "meanRelativeL2ToStateful": 0.08112470805644989
+        },
+        "actionAgreementWithStateful": 0.98
+      }
+    }
+  },
+  "studentStatefulReference": {
+    "behavior": "stateful-student",
+    "frames": 54,
+    "steps": 54,
+    "score": 40.0,
+    "terminalReason": "vehicle",
+    "stalled": false,
+    "maxNoProgressStreak": 7,
+    "actions": {
+      "forward": 46,
+      "left": 2,
+      "right": 3,
+      "wait": 3
+    }
+  },
+  "studentSameFrames": {
+    "stateful": {
+      "historyFrames": null,
+      "metrics": {
+        "frames": 54,
+        "exactActionRate": 0.8148148148148148,
+        "acceptableActionRate": 0.8518518518518519,
+        "immediateSafeActionRate": 0.9814814814814815,
+        "progressOpportunityFrames": 38,
+        "progressChoiceRate": 1.0,
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        },
+        "firstUnacceptable": {
+          "decision": 15,
+          "gameStep": 15,
+          "score": 12.0,
+          "row": 12,
+          "column": 0.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 53,
+          "gameStep": 53,
+          "score": 39.0,
+          "row": 39,
+          "column": 1.0,
+          "teacherAction": "right",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "right"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 18,
+            "frames": 18,
+            "exactActionRate": 0.7222222222222222,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 18,
+            "endExclusive": 36,
+            "frames": 18,
+            "exactActionRate": 0.8333333333333334,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 36,
+            "endExclusive": 54,
+            "frames": 18,
+            "exactActionRate": 0.8888888888888888,
+            "acceptableActionRate": 0.8888888888888888,
+            "immediateSafeActionRate": 0.9444444444444444,
+            "progressChoiceRate": 1.0
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.8344314694404602,
+          "p10CosineToStateful": 0.3226194977760315,
+          "meanRelativeL2ToStateful": 0.0
+        },
+        "actionAgreementWithStateful": 1.0
+      }
+    },
+    "reset": {
+      "historyFrames": 1,
+      "metrics": {
+        "frames": 54,
+        "exactActionRate": 0.7037037037037037,
+        "acceptableActionRate": 0.7407407407407407,
+        "immediateSafeActionRate": 0.9074074074074074,
+        "progressOpportunityFrames": 38,
+        "progressChoiceRate": 1.0,
+        "actions": {
+          "forward": 51,
+          "wait": 3
+        },
+        "firstUnacceptable": {
+          "decision": 7,
+          "gameStep": 7,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "wait",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 7,
+          "gameStep": 7,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "wait",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 18,
+            "frames": 18,
+            "exactActionRate": 0.6666666666666666,
+            "acceptableActionRate": 0.7777777777777778,
+            "immediateSafeActionRate": 0.9444444444444444,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 18,
+            "endExclusive": 36,
+            "frames": 18,
+            "exactActionRate": 0.6111111111111112,
+            "acceptableActionRate": 0.6111111111111112,
+            "immediateSafeActionRate": 0.8888888888888888,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 36,
+            "endExclusive": 54,
+            "frames": 18,
+            "exactActionRate": 0.8333333333333334,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 0.8888888888888888,
+            "progressChoiceRate": 1.0
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.027235211804509163,
+          "p10CosineToStateful": 0.009570276364684105,
+          "meanRelativeL2ToStateful": 0.9641082882881165
+        },
+        "actionAgreementWithStateful": 0.8888888888888888
+      }
+    },
+    "short4": {
+      "historyFrames": 4,
+      "metrics": {
+        "frames": 54,
+        "exactActionRate": 0.7222222222222222,
+        "acceptableActionRate": 0.7962962962962963,
+        "immediateSafeActionRate": 1.0,
+        "progressOpportunityFrames": 38,
+        "progressChoiceRate": 0.9473684210526315,
+        "actions": {
+          "forward": 42,
+          "left": 1,
+          "right": 2,
+          "wait": 9
+        },
+        "firstUnacceptable": {
+          "decision": 8,
+          "gameStep": 8,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "forward",
+          "predictedAction": "wait",
+          "acceptableActions": [
+            "forward"
+          ],
+          "safeActions": [
+            "forward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": null,
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 18,
+            "frames": 18,
+            "exactActionRate": 0.6666666666666666,
+            "acceptableActionRate": 0.7777777777777778,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 0.9166666666666666
+          },
+          "middle": {
+            "start": 18,
+            "endExclusive": 36,
+            "frames": 18,
+            "exactActionRate": 0.6666666666666666,
+            "acceptableActionRate": 0.7777777777777778,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 0.9090909090909091
+          },
+          "late": {
+            "start": 36,
+            "endExclusive": 54,
+            "frames": 18,
+            "exactActionRate": 0.8333333333333334,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.659256637096405,
+          "p10CosineToStateful": 0.11734382808208466,
+          "meanRelativeL2ToStateful": 0.6384909749031067
+        },
+        "actionAgreementWithStateful": 0.8148148148148148
+      }
+    },
+    "short8": {
+      "historyFrames": 8,
+      "metrics": {
+        "frames": 54,
+        "exactActionRate": 0.8333333333333334,
+        "acceptableActionRate": 0.8888888888888888,
+        "immediateSafeActionRate": 0.9814814814814815,
+        "progressOpportunityFrames": 38,
+        "progressChoiceRate": 1.0,
+        "actions": {
+          "forward": 42,
+          "left": 2,
+          "right": 4,
+          "wait": 6
+        },
+        "firstUnacceptable": {
+          "decision": 16,
+          "gameStep": 16,
+          "score": 12.0,
+          "row": 12,
+          "column": 0.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left",
+            "right"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 53,
+          "gameStep": 53,
+          "score": 39.0,
+          "row": 39,
+          "column": 1.0,
+          "teacherAction": "right",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "right"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 18,
+            "frames": 18,
+            "exactActionRate": 0.7777777777777778,
+            "acceptableActionRate": 0.8888888888888888,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 18,
+            "endExclusive": 36,
+            "frames": 18,
+            "exactActionRate": 0.8888888888888888,
+            "acceptableActionRate": 0.9444444444444444,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 36,
+            "endExclusive": 54,
+            "frames": 18,
+            "exactActionRate": 0.8333333333333334,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 0.9444444444444444,
+            "progressChoiceRate": 1.0
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.778467059135437,
+          "p10CosineToStateful": 0.2461874783039093,
+          "meanRelativeL2ToStateful": 0.30215585231781006
+        },
+        "actionAgreementWithStateful": 0.8703703703703703
+      }
+    },
+    "short16": {
+      "historyFrames": 16,
+      "metrics": {
+        "frames": 54,
+        "exactActionRate": 0.8148148148148148,
+        "acceptableActionRate": 0.8518518518518519,
+        "immediateSafeActionRate": 0.9814814814814815,
+        "progressOpportunityFrames": 38,
+        "progressChoiceRate": 1.0,
+        "actions": {
+          "forward": 45,
+          "left": 1,
+          "right": 4,
+          "wait": 4
+        },
+        "firstUnacceptable": {
+          "decision": 15,
+          "gameStep": 15,
+          "score": 12.0,
+          "row": 12,
+          "column": 0.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 53,
+          "gameStep": 53,
+          "score": 39.0,
+          "row": 39,
+          "column": 1.0,
+          "teacherAction": "right",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "right"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 18,
+            "frames": 18,
+            "exactActionRate": 0.7222222222222222,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 18,
+            "endExclusive": 36,
+            "frames": 18,
+            "exactActionRate": 0.8333333333333334,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 36,
+            "endExclusive": 54,
+            "frames": 18,
+            "exactActionRate": 0.8888888888888888,
+            "acceptableActionRate": 0.8888888888888888,
+            "immediateSafeActionRate": 0.9444444444444444,
+            "progressChoiceRate": 1.0
+          }
+        },
+        "representation": {
+          "meanCosineToStateful": 0.8277462124824524,
+          "p10CosineToStateful": 0.3226194977760315,
+          "meanRelativeL2ToStateful": 0.048819705843925476
+        },
+        "actionAgreementWithStateful": 0.9629629629629629
+      }
+    }
+  },
+  "closedLoopByMode": {
+    "stateful": {
+      "mode": "stateful",
+      "historyFrames": null,
+      "steps": 54,
+      "score": 40.0,
+      "targetScore": 99.2,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 7,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 46,
+        "left": 2,
+        "right": 3,
+        "wait": 3
+      },
+      "decisionQuality": {
+        "frames": 54,
+        "exactActionRate": 0.8148148148148148,
+        "acceptableActionRate": 0.8518518518518519,
+        "immediateSafeActionRate": 0.9814814814814815,
+        "progressOpportunityFrames": 38,
+        "progressChoiceRate": 1.0,
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        },
+        "firstUnacceptable": {
+          "decision": 15,
+          "gameStep": 15,
+          "score": 12.0,
+          "row": 12,
+          "column": 0.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 53,
+          "gameStep": 53,
+          "score": 39.0,
+          "row": 39,
+          "column": 1.0,
+          "teacherAction": "right",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "right"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 18,
+            "frames": 18,
+            "exactActionRate": 0.7222222222222222,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 18,
+            "endExclusive": 36,
+            "frames": 18,
+            "exactActionRate": 0.8333333333333334,
+            "acceptableActionRate": 0.8333333333333334,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 36,
+            "endExclusive": 54,
+            "frames": 18,
+            "exactActionRate": 0.8888888888888888,
+            "acceptableActionRate": 0.8888888888888888,
+            "immediateSafeActionRate": 0.9444444444444444,
+            "progressChoiceRate": 1.0
+          }
+        }
+      }
+    },
+    "reset": {
+      "mode": "reset",
+      "historyFrames": 1,
+      "steps": 8,
+      "score": 6.0,
+      "targetScore": 99.2,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 2,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 6,
+        "wait": 2
+      },
+      "decisionQuality": {
+        "frames": 8,
+        "exactActionRate": 0.625,
+        "acceptableActionRate": 0.875,
+        "immediateSafeActionRate": 0.875,
+        "progressOpportunityFrames": 5,
+        "progressChoiceRate": 1.0,
+        "actions": {
+          "forward": 6,
+          "wait": 2
+        },
+        "firstUnacceptable": {
+          "decision": 7,
+          "gameStep": 7,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "wait",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 7,
+          "gameStep": 7,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "wait",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 2,
+            "frames": 2,
+            "exactActionRate": 1.0,
+            "acceptableActionRate": 1.0,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 2,
+            "endExclusive": 5,
+            "frames": 3,
+            "exactActionRate": 1.0,
+            "acceptableActionRate": 1.0,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 5,
+            "endExclusive": 8,
+            "frames": 3,
+            "exactActionRate": 0.0,
+            "acceptableActionRate": 0.6666666666666666,
+            "immediateSafeActionRate": 0.6666666666666666,
+            "progressChoiceRate": 1.0
+          }
+        }
+      }
+    },
+    "short4": {
+      "mode": "short4",
+      "historyFrames": 4,
+      "steps": 62,
+      "score": 41.0,
+      "targetScore": 99.2,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 10,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 41,
+        "left": 5,
+        "wait": 16
+      },
+      "decisionQuality": {
+        "frames": 62,
+        "exactActionRate": 0.6935483870967742,
+        "acceptableActionRate": 0.7580645161290323,
+        "immediateSafeActionRate": 0.9838709677419355,
+        "progressOpportunityFrames": 43,
+        "progressChoiceRate": 0.9069767441860465,
+        "actions": {
+          "forward": 41,
+          "left": 5,
+          "wait": 16
+        },
+        "firstUnacceptable": {
+          "decision": 8,
+          "gameStep": 8,
+          "score": 5.0,
+          "row": 5,
+          "column": 0.0,
+          "teacherAction": "forward",
+          "predictedAction": "wait",
+          "acceptableActions": [
+            "forward"
+          ],
+          "safeActions": [
+            "forward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 61,
+          "gameStep": 61,
+          "score": 40.0,
+          "row": 40,
+          "column": -5.0,
+          "teacherAction": "right",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "right"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 20,
+            "frames": 20,
+            "exactActionRate": 0.7,
+            "acceptableActionRate": 0.8,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 0.9230769230769231
+          },
+          "middle": {
+            "start": 20,
+            "endExclusive": 41,
+            "frames": 21,
+            "exactActionRate": 0.5714285714285714,
+            "acceptableActionRate": 0.6666666666666666,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 41,
+            "endExclusive": 62,
+            "frames": 21,
+            "exactActionRate": 0.8095238095238095,
+            "acceptableActionRate": 0.8095238095238095,
+            "immediateSafeActionRate": 0.9523809523809523,
+            "progressChoiceRate": 0.85
+          }
+        }
+      }
+    },
+    "short8": {
+      "mode": "short8",
+      "historyFrames": 8,
+      "steps": 26,
+      "score": 22.0,
+      "targetScore": 99.2,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 3,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 22,
+        "left": 1,
+        "wait": 3
+      },
+      "decisionQuality": {
+        "frames": 26,
+        "exactActionRate": 0.8846153846153846,
+        "acceptableActionRate": 0.9615384615384616,
+        "immediateSafeActionRate": 0.9615384615384616,
+        "progressOpportunityFrames": 21,
+        "progressChoiceRate": 1.0,
+        "actions": {
+          "forward": 22,
+          "left": 1,
+          "wait": 3
+        },
+        "firstUnacceptable": {
+          "decision": 25,
+          "gameStep": 25,
+          "score": 21.0,
+          "row": 21,
+          "column": -1.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left",
+            "right",
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 25,
+          "gameStep": 25,
+          "score": 21.0,
+          "row": 21,
+          "column": -1.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left",
+            "right",
+            "wait"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 8,
+            "frames": 8,
+            "exactActionRate": 0.75,
+            "acceptableActionRate": 1.0,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 8,
+            "endExclusive": 17,
+            "frames": 9,
+            "exactActionRate": 1.0,
+            "acceptableActionRate": 1.0,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 17,
+            "endExclusive": 26,
+            "frames": 9,
+            "exactActionRate": 0.8888888888888888,
+            "acceptableActionRate": 0.8888888888888888,
+            "immediateSafeActionRate": 0.8888888888888888,
+            "progressChoiceRate": 1.0
+          }
+        }
+      }
+    },
+    "short16": {
+      "mode": "short16",
+      "historyFrames": 16,
+      "steps": 62,
+      "score": 41.0,
+      "targetScore": 99.2,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 6,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 46,
+        "left": 8,
+        "right": 3,
+        "wait": 5
+      },
+      "decisionQuality": {
+        "frames": 62,
+        "exactActionRate": 0.7741935483870968,
+        "acceptableActionRate": 0.8225806451612904,
+        "immediateSafeActionRate": 0.9838709677419355,
+        "progressOpportunityFrames": 41,
+        "progressChoiceRate": 0.975609756097561,
+        "actions": {
+          "forward": 46,
+          "left": 8,
+          "right": 3,
+          "wait": 5
+        },
+        "firstUnacceptable": {
+          "decision": 15,
+          "gameStep": 15,
+          "score": 12.0,
+          "row": 12,
+          "column": 0.0,
+          "teacherAction": "left",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "left"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "firstUnsafe": {
+          "decision": 61,
+          "gameStep": 61,
+          "score": 40.0,
+          "row": 40,
+          "column": -5.0,
+          "teacherAction": "right",
+          "predictedAction": "forward",
+          "acceptableActions": [
+            "right"
+          ],
+          "safeActions": [
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ]
+        },
+        "segments": {
+          "early": {
+            "start": 0,
+            "endExclusive": 20,
+            "frames": 20,
+            "exactActionRate": 0.65,
+            "acceptableActionRate": 0.75,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "middle": {
+            "start": 20,
+            "endExclusive": 41,
+            "frames": 21,
+            "exactActionRate": 0.9047619047619048,
+            "acceptableActionRate": 0.9047619047619048,
+            "immediateSafeActionRate": 1.0,
+            "progressChoiceRate": 1.0
+          },
+          "late": {
+            "start": 41,
+            "endExclusive": 62,
+            "frames": 21,
+            "exactActionRate": 0.7619047619047619,
+            "acceptableActionRate": 0.8095238095238095,
+            "immediateSafeActionRate": 0.9523809523809523,
+            "progressChoiceRate": 0.9285714285714286
+          }
+        }
+      }
+    }
+  },
+  "interpretationHints": [
+    "A truncated-history mode helps somewhat, but not decisively; recurrent drift may contribute without being the only bottleneck."
+  ],
+  "elapsedSeconds": 57.808012999999846
+}
