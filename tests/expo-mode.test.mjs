@@ -35,6 +35,21 @@ test('expo keyboard maps actions to W-A-D and arrow pairs deterministically', ()
   assert.deepEqual(keyboardHighlightTargets('backward'), []);
 });
 
+test('expo brain uses a perceptible continuous rotation and the keyboard overlays only active keys', async () => {
+  const [expo, brain, keyboard] = await Promise.all([
+    read('src/ExpoApp.tsx'),
+    read('src/components/BrainScene.tsx'),
+    read('src/components/ExpoKeyboardScene.tsx'),
+  ]);
+
+  assert.match(expo, /orbitSpeed=\{\.06\}/);
+  assert.match(brain, /rotation\.y \+= dt \* orbitSpeed/);
+  assert.doesNotMatch(expo, /gentleMotion/);
+  assert.match(keyboard, /opacity:\s*0,/);
+  assert.match(keyboard, /selected \? 0\.94 : 0/);
+  assert.match(keyboard, /const scale = 0\.76 \/ size\.x/);
+});
+
 test('expo uses the supplied local media, model, brand, and fonts', async () => {
   const files = [
     ['public/assets/expo/fly-typing.mp4', 1_000_000],
@@ -53,6 +68,7 @@ test('expo uses the supplied local media, model, brand, and fonts', async () => 
     await access(new URL(path, root));
     assert.ok((await stat(new URL(path, root))).size > minimumBytes, path);
   }
+  assert.ok((await stat(new URL('public/assets/expo/keyboard.glb', root))).size < 2_000_000);
 
   const expo = await read('src/ExpoApp.tsx');
   assert.match(expo, /autoPlay muted loop playsInline/);

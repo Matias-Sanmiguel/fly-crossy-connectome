@@ -9,11 +9,13 @@ export function BrainScene({
   frame,
   activityMode = 'none',
   initialOrbit = true,
+  orbitSpeed = .12,
 }: {
   atlas: Atlas;
   frame: ActivityFrame | null;
   activityMode?: 'none' | 'model-output' | 'simulated-reduced-circuit';
   initialOrbit?: boolean;
+  orbitSpeed?: number;
 }) {
   const signal = useRef(frame);
   const orbit = useRef(initialOrbit);
@@ -129,7 +131,7 @@ export function BrainScene({
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const animate = (now: number) => {
       const dt = Math.min(.05,(now - previous) / 1000); previous = now;
-      if (orbit.current && !held && !reducedMotion.matches && !document.hidden) anatomy.rotation.y += dt * .12;
+      if (orbit.current && !held && !reducedMotion.matches && !document.hidden) anatomy.rotation.y += dt * orbitSpeed;
       if (!document.hidden) renderer.render(scene, camera);
       frame = requestAnimationFrame(animate);
     };

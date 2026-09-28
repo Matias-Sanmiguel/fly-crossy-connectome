@@ -128,7 +128,7 @@ export function ExpoApp() {
               </div>
               <div className="expo-brain-visual">
                 {atlas
-                  ? <BrainScene atlas={atlas} frame={activity.frame} activityMode={activity.kind} initialOrbit={false} />
+                  ? <BrainScene atlas={atlas} frame={activity.frame} activityMode={activity.kind} orbitSpeed={.06} />
                   : <span className="expo-media-status" role="status">Cargando cerebro</span>}
               </div>
               <dl className="expo-brain-stats">

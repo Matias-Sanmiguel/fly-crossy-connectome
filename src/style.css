@@ -863,6 +863,8 @@ footer {
   font-weight: 900;
   letter-spacing: normal;
   line-height: normal;
+  -webkit-text-stroke: 0.1389cqw #000;
+  paint-order: stroke fill;
   text-shadow: 0.1389cqw 0.1389cqw 0 #000;
 }
 
@@ -897,6 +899,8 @@ footer {
   color: #fff;
   font-size: 1.6667cqw;
   font-weight: 900;
+  -webkit-text-stroke: 0.0694cqw #2033ff;
+  paint-order: stroke fill;
   text-shadow: 0.1389cqw 0.1389cqw 0 #2033ff;
 }
 

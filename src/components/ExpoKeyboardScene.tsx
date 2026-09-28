@@ -7,12 +7,12 @@ import type { Action } from '../game/types.ts';
 import { asset } from '../lib/atlas.ts';
 
 const KEY_POSITIONS: Readonly<Record<KeyboardHighlightTarget, readonly [number, number]>> = {
-  w: [-0.112, -0.13],
-  a: [-0.153, -0.053],
-  d: [-0.067, -0.053],
-  'arrow-up': [0.413, 0.016],
-  'arrow-left': [0.374, 0.066],
-  'arrow-right': [0.452, 0.066],
+  w: [-0.303, -0.024],
+  a: [-0.346, 0.028],
+  d: [-0.253, 0.028],
+  'arrow-up': [0.246, 0.083],
+  'arrow-left': [0.212, 0.119],
+  'arrow-right': [0.279, 0.119],
 };
 
 export function ExpoKeyboardScene({ action }: { action: Action }) {
@@ -33,8 +33,8 @@ export function ExpoKeyboardScene({ action }: { action: Action }) {
     let disposed = false;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 10);
-    camera.position.set(0.23, 1.02, 0.45);
-    camera.lookAt(0.23, 0.025, -0.125);
+    camera.position.set(0, 0.78, 0.54);
+    camera.lookAt(0, 0.015, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -47,7 +47,7 @@ export function ExpoKeyboardScene({ action }: { action: Action }) {
     keyLight.position.set(-0.5, 1.2, 1);
     scene.add(keyLight);
 
-    const keyGeometry = new THREE.BoxGeometry(0.034, 0.009, 0.034);
+    const keyGeometry = new THREE.BoxGeometry(0.027, 0.007, 0.027);
     const keyMaterials = new Map<KeyboardHighlightTarget, THREE.MeshStandardMaterial>();
     for (const [target, [x, z]] of Object.entries(KEY_POSITIONS) as [KeyboardHighlightTarget, readonly [number, number]][]) {
       const material = new THREE.MeshStandardMaterial({
@@ -55,11 +55,12 @@ export function ExpoKeyboardScene({ action }: { action: Action }) {
         emissive: 0x2033ff,
         emissiveIntensity: 0.18,
         transparent: true,
-        opacity: 0.2,
+        opacity: 0,
+        depthWrite: false,
         roughness: 0.42,
       });
       const key = new THREE.Mesh(keyGeometry, material);
-      key.position.set(x, 0.124, z);
+      key.position.set(x, 0.045, z);
       scene.add(key);
       keyMaterials.set(target, material);
     }
@@ -72,7 +73,7 @@ export function ExpoKeyboardScene({ action }: { action: Action }) {
         material.color.setHex(selected ? 0xb3ff3b : 0x2033ff);
         material.emissive.setHex(selected ? 0xb3ff3b : 0x2033ff);
         material.emissiveIntensity = selected ? 0.8 : 0.18;
-        material.opacity = selected ? 0.94 : 0.2;
+        material.opacity = selected ? 0.94 : 0;
       }
       renderer.render(scene, camera);
     };
@@ -114,6 +115,12 @@ export function ExpoKeyboardScene({ action }: { action: Action }) {
           });
           object.material = materials.length === 1 ? materials[0]! : materials;
         });
+        const bounds = new THREE.Box3().setFromObject(gltf.scene);
+        const center = bounds.getCenter(new THREE.Vector3());
+        const size = bounds.getSize(new THREE.Vector3());
+        const scale = 0.76 / size.x;
+        gltf.scene.scale.setScalar(scale);
+        gltf.scene.position.set(-center.x * scale, -bounds.min.y * scale, -center.z * scale);
         scene.add(gltf.scene);
         setStatus('ready');
         render();
