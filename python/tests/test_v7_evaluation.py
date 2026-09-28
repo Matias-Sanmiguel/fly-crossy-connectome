@@ -198,13 +198,32 @@ class _WaitPolicy:
         return 0
 
 
+class _Gate:
+    def __init__(self, *, failed: bool = False) -> None:
+        self.failed = failed
+        self.resets = 0
+
+    def reset_episode(self) -> None:
+        self.resets += 1
+
+    def execute(self, requested_index: int):
+        from fly_crossy.v7.physical_gate import GatedAction
+
+        if self.failed and requested_index != 4:
+            return GatedAction(requested_index, 4, "failed", "contact-disabled")
+        outcome = "waited" if requested_index == 4 else "confirmed"
+        return GatedAction(requested_index, requested_index, outcome)
+
+
 def test_evaluate_policy_runs_closed_loop_and_labels_every_action() -> None:
     policy = _WaitPolicy()
+    gate = _Gate()
     episodes = evaluate_policy(
         policy,
         ("unit-v7-validation-000", "unit-v7-validation-001"),
         max_steps=2,
         planner_depth=1,
+        action_gate=gate,
     )
     assert policy.resets == 2
     assert tuple(episode.seed for episode in episodes) == (
@@ -212,3 +231,38 @@ def test_evaluate_policy_runs_closed_loop_and_labels_every_action() -> None:
         "unit-v7-validation-001",
     )
     assert all(episode.labelled_states == len(episode.actions) for episode in episodes)
+    assert all(episode.requested_actions == episode.actions for episode in episodes)
+    assert all(episode.effective_actions == episode.actions for episode in episodes)
+    assert all(episode.physical_confirmed == 2 for episode in episodes)
+
+
+def test_evaluation_reports_failed_physical_actions_as_effective_waits() -> None:
+    episodes = evaluate_policy(
+        _WaitPolicy(),
+        ("unit-v7-validation-physical-failure",),
+        max_steps=3,
+        planner_depth=1,
+        action_gate=_Gate(failed=True),
+    )
+    episode = episodes[0]
+    assert episode.requested_actions == (0, 0, 0)
+    assert episode.effective_actions == (4, 4, 4)
+    assert episode.physical_failed == 3
+    assert episode.physical_confirmed == 0
+    assert episode.physical_failures == ("contact-disabled",) * 3
+
+
+def test_physical_evaluation_remains_deterministic() -> None:
+    kwargs = {
+        "max_steps": 3,
+        "planner_depth": 1,
+        "action_gate": _Gate(),
+    }
+    first = evaluate_policy(
+        _WaitPolicy(), ("unit-v7-validation-deterministic",), **kwargs
+    )
+    kwargs["action_gate"] = _Gate()
+    second = evaluate_policy(
+        _WaitPolicy(), ("unit-v7-validation-deterministic",), **kwargs
+    )
+    assert first == second

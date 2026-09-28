@@ -13,6 +13,7 @@ from fly_crossy.v4.train_expo_specialist import resize_rgb
 
 from .contracts import ProfileName, profile_budget
 from .dataset import BehaviorPolicy
+from .physical_gate import ActionGate, BiomechanicalActionGate
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,6 +27,13 @@ class EpisodeMetrics:
     fatal_actions: int
     labelled_states: int
     actions: tuple[int, ...]
+    requested_actions: tuple[int, ...] = ()
+    effective_actions: tuple[int, ...] = ()
+    physical_outcomes: tuple[str, ...] = ()
+    physical_failures: tuple[str, ...] = ()
+    physical_confirmed: int = 0
+    physical_failed: int = 0
+    physical_waited: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,6 +46,9 @@ class AggregateMetrics:
     mean_survival_steps: float
     fatal_action_rate: float
     action_distribution: tuple[float, ...]
+    physical_confirmed: int = 0
+    physical_failed: int = 0
+    physical_waited: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +82,14 @@ def _validate_episodes(episodes: Sequence[EpisodeMetrics]) -> None:
             raise ValueError("episode score must be finite")
         if any(action < 0 or action >= len(ACTION_ORDER) for action in episode.actions):
             raise ValueError("episode contains an invalid action")
+        requested = episode.requested_actions or episode.actions
+        effective = episode.effective_actions or episode.actions
+        if len(requested) != len(episode.actions) or len(effective) != len(episode.actions):
+            raise ValueError("episode physical action histories must match actions")
+        if episode.physical_outcomes and len(episode.physical_outcomes) != len(episode.actions):
+            raise ValueError("episode physical outcomes must match actions")
+        if any(action < 0 or action >= len(ACTION_ORDER) for action in (*requested, *effective)):
+            raise ValueError("episode contains an invalid physical action")
 
 
 def aggregate_metrics(episodes: Sequence[EpisodeMetrics]) -> AggregateMetrics:
@@ -95,6 +114,9 @@ def aggregate_metrics(episodes: Sequence[EpisodeMetrics]) -> AggregateMetrics:
         mean_survival_steps=float(np.mean([episode.steps for episode in episodes])),
         fatal_action_rate=float(fatal / labelled) if labelled else 0.0,
         action_distribution=distribution,
+        physical_confirmed=sum(episode.physical_confirmed for episode in episodes),
+        physical_failed=sum(episode.physical_failed for episode in episodes),
+        physical_waited=sum(episode.physical_waited for episode in episodes),
     )
 
 
@@ -194,16 +216,22 @@ def evaluate_policy(
     *,
     max_steps: int,
     planner_depth: int,
+    action_gate: ActionGate | None = None,
 ) -> tuple[EpisodeMetrics, ...]:
     if not seeds or len(set(seeds)) != len(seeds):
         raise ValueError("evaluation seeds must be non-empty and unique")
     if max_steps <= 0 or planner_depth <= 0:
         raise ValueError("evaluation limits must be positive")
+    gate = action_gate or BiomechanicalActionGate()
     results: list[EpisodeMetrics] = []
     for seed in seeds:
         policy.reset()
+        gate.reset_episode()
         state = create_game(seed)
         actions: list[int] = []
+        effective_actions: list[int] = []
+        physical_outcomes: list[str] = []
+        physical_failures: list[str] = []
         fatal_actions = 0
         steps = 0
         while state.terminal is None and steps < max_steps:
@@ -219,7 +247,12 @@ def evaluate_policy(
                 raise ValueError("policy returned an invalid action")
             fatal_actions += int(not immediate_safe[action])
             actions.append(action)
-            state = step_game(state, ACTION_ORDER[action]).state
+            gated = gate.execute(action)
+            effective_actions.append(gated.effective_index)
+            physical_outcomes.append(gated.outcome)
+            if gated.outcome == "failed":
+                physical_failures.append(gated.failure_reason or "physical-action-failed")
+            state = step_game(state, ACTION_ORDER[gated.effective_index]).state
             steps += 1
         progress_qualified = float(state.score) > 0.0
         survived = state.terminal is None and steps == max_steps
@@ -234,6 +267,13 @@ def evaluate_policy(
                 fatal_actions=fatal_actions,
                 labelled_states=steps,
                 actions=tuple(actions),
+                requested_actions=tuple(actions),
+                effective_actions=tuple(effective_actions),
+                physical_outcomes=tuple(physical_outcomes),
+                physical_failures=tuple(physical_failures),
+                physical_confirmed=physical_outcomes.count("confirmed"),
+                physical_failed=physical_outcomes.count("failed"),
+                physical_waited=physical_outcomes.count("waited"),
             )
         )
     return tuple(results)

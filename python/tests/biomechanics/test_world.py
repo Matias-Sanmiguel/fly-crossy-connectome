@@ -12,6 +12,7 @@ from fly_crossy.biomechanics.world import (
     WorldActionResult,
     WorldSnapshot,
 )
+from fly_crossy.v7.physical_gate import BiomechanicalActionGate
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
@@ -86,11 +87,11 @@ def test_disabling_contact_evidence_can_never_emit_requested_direction() -> None
         contacts_enabled=False,
     )
 
-    result = world.run(MotorIntention("i-disabled1", "forward"), limit_seconds=1.6)
+    result = BiomechanicalActionGate(world).execute(0)
 
     assert result.outcome == "failed"
-    assert result.action == "wait"
-    assert result.requested_action == "forward"
+    assert result.effective_index == 4
+    assert result.requested_index == 0
 
 
 def test_one_intention_emits_exactly_one_terminal_result(

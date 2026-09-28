@@ -21,6 +21,7 @@ from fly_crossy.v2.preference_distill import (
 from fly_crossy.v4.train_expo_specialist import resize_rgb
 
 from .contracts import ACTION_NAMES, FRAME_SHAPE, OBSERVATION_SIZE
+from .physical_gate import ActionGate, BiomechanicalActionGate
 
 
 Partition = Literal["training", "validation", "final-test"]
@@ -134,6 +135,7 @@ def collect_labeled_episode(
     planner_depth: int,
     source: Source,
     behavior: BehaviorPolicy | None,
+    action_gate: ActionGate | None = None,
 ) -> TransitionDataset:
     if source not in _SOURCES:
         raise ValueError(f"invalid collection source: {source}")
@@ -141,6 +143,10 @@ def collect_labeled_episode(
         raise ValueError("teacher/student collection requires a behavior policy")
     if behavior is not None:
         behavior.reset()
+    gate = action_gate
+    if source == "student":
+        gate = gate or BiomechanicalActionGate()
+        gate.reset_episode()
 
     state = create_game(seed)
     rows: dict[str, list[object]] = {
@@ -189,7 +195,12 @@ def collect_labeled_episode(
         rows["episode_seed"].append(seed)
         rows["step_index"].append(step_index)
         rows["source"].append(source)
-        state = step_game(state, ACTION_ORDER[behavior_action]).state
+        effective_action = (
+            gate.execute(behavior_action).effective_index
+            if gate is not None
+            else behavior_action
+        )
+        state = step_game(state, ACTION_ORDER[effective_action]).state
 
     dataset = TransitionDataset(
         frames=np.asarray(rows["frames"], dtype=np.uint8),

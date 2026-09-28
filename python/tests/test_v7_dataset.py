@@ -14,6 +14,7 @@ from fly_crossy.v7.dataset import (
     load_dataset_shard,
     write_dataset_shard,
 )
+from fly_crossy.v7.physical_gate import GatedAction
 
 
 def _dataset(rows: int = 2, *, seed: str = "unit-v7-smoke-training-000") -> TransitionDataset:
@@ -125,6 +126,40 @@ def test_collection_is_deterministic_and_records_episode_identity() -> None:
     assert first.episode_seed.tolist() == ["unit-v7-smoke-training-007"] * len(first.frames)
     assert first.step_index.tolist() == list(range(len(first.frames)))
     assert first.source.tolist() == ["planner"] * len(first.frames)
+
+
+def test_student_closed_loop_collection_uses_physical_effective_actions() -> None:
+    class ForwardPolicy:
+        def reset(self) -> None:
+            pass
+
+        def act(self, state, frame, observation) -> int:
+            return 0
+
+    class FailedGate:
+        def __init__(self) -> None:
+            self.requested: list[int] = []
+
+        def reset_episode(self) -> None:
+            pass
+
+        def execute(self, requested_index: int) -> GatedAction:
+            self.requested.append(requested_index)
+            return GatedAction(requested_index, 4, "failed", "contact-disabled")
+
+    gate = FailedGate()
+    dataset = collect_labeled_episode(
+        "unit-v7-smoke-training-physical-gate",
+        max_steps=3,
+        planner_depth=1,
+        source="student",
+        behavior=ForwardPolicy(),
+        action_gate=gate,
+    )
+
+    assert dataset.behavior_action.tolist() == [0, 0, 0]
+    assert gate.requested == [0, 0, 0]
+    assert dataset.observations[1, 485:490].tolist() == [0.0, 0.0, 0.0, 0.0, 1.0]
 
 
 def test_concatenate_preserves_order_and_revalidates() -> None:

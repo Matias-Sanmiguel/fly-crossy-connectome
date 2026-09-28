@@ -19,6 +19,7 @@ from pydantic import ValidationError
 
 from fly_crossy.backend import BackendStatus, BackendUnavailable, resolve_backend
 from fly_crossy.biomechanics.motor import MotorIntention
+from fly_crossy.biomechanics.recovery import recover_world as _recover_world
 from fly_crossy.biomechanics.world import BiomechanicalWorld
 from fly_crossy.protocol import (
     BackendPreference,
@@ -549,49 +550,6 @@ async def _apply_message(
             world,
         )
         session.finish_recovery()
-
-def _recover_world(
-    world: BiomechanicalWorld,
-) -> None:
-    """Recover physically when possible, otherwise perform the required reset."""
-
-    for _ in range(1500):
-        if world.ready:
-            return
-
-        if world.requires_reset:
-            reason = world.failure_reason or "unknown"
-
-            logger.warning(
-                "Biomechanical recovery requires coordinated reset: %s",
-                reason,
-            )
-
-            world.reset()
-
-            if not world.ready:
-                raise RuntimeError(
-                    "Biomechanical reset failed to restore neutral state."
-                )
-
-            return
-
-        world.step()
-
-    # A recovery that never reached ready is not allowed to kill the
-    # WebSocket session. Reset is the explicit fail-safe boundary.
-    logger.warning(
-        "Biomechanical recovery exceeded server deadline; "
-        "performing coordinated reset."
-    )
-
-    world.reset()
-
-    if not world.ready:
-        raise RuntimeError(
-            "Biomechanical reset failed to restore neutral state."
-        )
-
 
 async def _receive_frame(websocket: WebSocket, max_bytes: int) -> str | bytes:
     frame = await websocket.receive()
