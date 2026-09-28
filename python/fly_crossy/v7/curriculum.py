@@ -33,7 +33,6 @@ from .evaluation import (
     evaluate_policy,
     robust_key,
 )
-from .physical_gate import BiomechanicalActionGate
 from .student import build_visual_student
 from .teacher import PrivilegedTeacher, fit_teacher_epoch, teacher_agreement
 from .training import attach_teacher_logits, fit_student_epoch, student_behavior
@@ -142,7 +141,6 @@ def _collect_partition(
     max_steps: int,
     source: str,
     behavior=None,
-    action_gate: BiomechanicalActionGate | None = None,
 ) -> TransitionDataset:
     combined = None
     for seed in seeds:
@@ -152,7 +150,6 @@ def _collect_partition(
             planner_depth=1,
             source=source,
             behavior=behavior,
-            action_gate=action_gate,
         )
         combined = episode if combined is None else combined.concatenate(episode)
     assert combined is not None
@@ -175,15 +172,6 @@ def _graph_hash(student: torch.nn.Module) -> str | None:
 
 def _episodes_json(episodes: tuple[EpisodeMetrics, ...]) -> list[dict[str, Any]]:
     return [asdict(episode) for episode in episodes]
-
-
-def _physical_summary(episodes: tuple[EpisodeMetrics, ...]) -> dict[str, int]:
-    metrics = aggregate_metrics(episodes)
-    return {
-        "confirmed": metrics.physical_confirmed,
-        "failed": metrics.physical_failed,
-        "waited": metrics.physical_waited,
-    }
 
 
 @torch.no_grad()
@@ -290,13 +278,11 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
         return report
 
     baseline = _ReleasedBaseline(config.device)
-    action_gate = BiomechanicalActionGate()
     baseline_validation = evaluate_policy(
         baseline,
         manifest.validation,
         max_steps=budget.max_steps,
         planner_depth=1,
-        action_gate=action_gate,
     )
     events.append("baseline")
     dataset = _collect_partition(
@@ -387,7 +373,6 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
                 manifest.validation,
                 max_steps=budget.max_steps,
                 planner_depth=1,
-                action_gate=action_gate,
             )
             if "validation" not in events:
                 events.append("validation")
@@ -436,7 +421,6 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
                     max_steps=budget.max_steps,
                     source="student",
                     behavior=student_behavior(student, device),
-                    action_gate=action_gate,
                 )
                 dataset = dataset.concatenate(dagger)
     except (KeyboardInterrupt, _TimeBudgetExpired, FloatingPointError) as error:
@@ -452,7 +436,6 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
             manifest.validation,
             max_steps=budget.max_steps,
             planner_depth=1,
-            action_gate=action_gate,
         )
     best = torch.load(config.output / "best.pt", map_location=device, weights_only=True)
     if best.get("teacher"):
@@ -464,7 +447,6 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
             manifest.final_test,
             max_steps=budget.max_steps,
             planner_depth=1,
-            action_gate=action_gate,
         )
         events.append("selected-final-test")
     else:
@@ -504,6 +486,10 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
             "teacher": "privileged-observation-v4",
             "labels": "planner",
         },
+        "actionExecution": {
+            "curriculum": "logical-step-game",
+            "runtimeAuthority": "biomechanical-gate",
+        },
         "seedManifestSha256": seed_hash,
         "datasetManifestSha256": dataset_hash,
         "trainableParameters": [
@@ -514,19 +500,10 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
         "validation": {
             "baseline": _episodes_json(baseline_validation),
             "candidate": _episodes_json(best_validation),
-            "physical": {
-                "baseline": _physical_summary(baseline_validation),
-                "candidate": _physical_summary(best_validation),
-            },
             "plannerAgreement": agreement,
             "teacherAgreement": teacher_validation_agreement,
         },
         "finalTest": _episodes_json(final_test),
-        "finalTestPhysical": (
-            _physical_summary(final_test)
-            if final_test
-            else {"confirmed": 0, "failed": 0, "waited": 0}
-        ),
         "decision": {
             "nextAction": next_action,
             "predicates": predicates,

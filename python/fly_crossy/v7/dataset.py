@@ -21,7 +21,7 @@ from fly_crossy.v2.preference_distill import (
 from fly_crossy.v4.train_expo_specialist import resize_rgb
 
 from .contracts import ACTION_NAMES, FRAME_SHAPE, OBSERVATION_SIZE
-from .physical_gate import ActionGate, BiomechanicalActionGate
+from .physical_gate import ActionGate
 
 
 Partition = Literal["training", "validation", "final-test"]
@@ -144,8 +144,7 @@ def collect_labeled_episode(
     if behavior is not None:
         behavior.reset()
     gate = action_gate
-    if source == "student":
-        gate = gate or BiomechanicalActionGate()
+    if gate is not None:
         gate.reset_episode()
 
     state = create_game(seed)

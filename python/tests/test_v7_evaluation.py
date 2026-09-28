@@ -236,6 +236,23 @@ def test_evaluate_policy_runs_closed_loop_and_labels_every_action() -> None:
     assert all(episode.physical_confirmed == 2 for episode in episodes)
 
 
+def test_evaluate_policy_defaults_to_logical_execution_without_physics() -> None:
+    episodes = evaluate_policy(
+        _WaitPolicy(),
+        ("unit-v7-validation-logical-default",),
+        max_steps=3,
+        planner_depth=1,
+    )
+    episode = episodes[0]
+    assert episode.requested_actions == episode.actions
+    assert episode.effective_actions == episode.actions
+    assert episode.physical_outcomes == ()
+    assert episode.physical_failures == ()
+    assert episode.physical_confirmed == 0
+    assert episode.physical_failed == 0
+    assert episode.physical_waited == 0
+
+
 def test_evaluation_reports_failed_physical_actions_as_effective_waits() -> None:
     episodes = evaluate_policy(
         _WaitPolicy(),

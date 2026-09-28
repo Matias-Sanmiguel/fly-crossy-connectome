@@ -3,6 +3,14 @@ set -euo pipefail
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 run_dir=$(mktemp -d)
+repo_mount="$repo_root"
+run_mount="$run_dir"
+
+if [[ "${MSYSTEM:-}" == MINGW* ]]; then
+  repo_mount=$(cygpath -m "$repo_root")
+  run_mount=$(cygpath -m "$run_dir")
+  export MSYS2_ARG_CONV_EXCL="*"
+fi
 chmod 0777 "$run_dir"
 started=$(date +%s)
 trap 'rm -rf -- "$run_dir"' EXIT
@@ -11,7 +19,7 @@ release_before=$(find "$repo_root/release" -type f -print0 | sort -z | xargs -0 
 
 docker run --rm \
   -v "$repo_root:/workspace:ro" \
-  -v "$run_dir:/run-v7" \
+  -v "$run_mount:/run-v7" \
   -w /workspace/python \
   -e PYTHONPATH=/workspace/python \
   stabilize-origin-main-simulation \
@@ -22,7 +30,7 @@ docker run --rm \
     --time-budget-seconds 180
 
 docker run --rm \
-  -v "$run_dir:/run-v7:ro" \
+  -v "$run_mount:/run-v7:ro" \
   stabilize-origin-main-simulation \
   python -c '
 import json, math, torch

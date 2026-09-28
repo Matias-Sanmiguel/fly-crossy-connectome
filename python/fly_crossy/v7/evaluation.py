@@ -13,7 +13,7 @@ from fly_crossy.v4.train_expo_specialist import resize_rgb
 
 from .contracts import ProfileName, profile_budget
 from .dataset import BehaviorPolicy
-from .physical_gate import ActionGate, BiomechanicalActionGate
+from .physical_gate import ActionGate
 
 
 @dataclass(frozen=True, slots=True)
@@ -222,11 +222,12 @@ def evaluate_policy(
         raise ValueError("evaluation seeds must be non-empty and unique")
     if max_steps <= 0 or planner_depth <= 0:
         raise ValueError("evaluation limits must be positive")
-    gate = action_gate or BiomechanicalActionGate()
+    gate = action_gate
     results: list[EpisodeMetrics] = []
     for seed in seeds:
         policy.reset()
-        gate.reset_episode()
+        if gate is not None:
+            gate.reset_episode()
         state = create_game(seed)
         actions: list[int] = []
         effective_actions: list[int] = []
@@ -247,12 +248,18 @@ def evaluate_policy(
                 raise ValueError("policy returned an invalid action")
             fatal_actions += int(not immediate_safe[action])
             actions.append(action)
-            gated = gate.execute(action)
-            effective_actions.append(gated.effective_index)
-            physical_outcomes.append(gated.outcome)
-            if gated.outcome == "failed":
-                physical_failures.append(gated.failure_reason or "physical-action-failed")
-            state = step_game(state, ACTION_ORDER[gated.effective_index]).state
+            if gate is None:
+                effective_action = action
+            else:
+                gated = gate.execute(action)
+                effective_action = gated.effective_index
+                physical_outcomes.append(gated.outcome)
+                if gated.outcome == "failed":
+                    physical_failures.append(
+                        gated.failure_reason or "physical-action-failed"
+                    )
+            effective_actions.append(effective_action)
+            state = step_game(state, ACTION_ORDER[effective_action]).state
             steps += 1
         progress_qualified = float(state.score) > 0.0
         survived = state.terminal is None and steps == max_steps

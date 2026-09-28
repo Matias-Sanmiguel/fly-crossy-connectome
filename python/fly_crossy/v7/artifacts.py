@@ -36,15 +36,63 @@ class CheckpointProvenance:
     completed_epoch: int
 
 
+def _windows_available_ram_bytes() -> int:
+    import ctypes
+
+    class MEMORYSTATUSEX(ctypes.Structure):
+        _fields_ = [
+            ("dwLength", ctypes.c_ulong),
+            ("dwMemoryLoad", ctypes.c_ulong),
+            ("ullTotalPhys", ctypes.c_ulonglong),
+            ("ullAvailPhys", ctypes.c_ulonglong),
+            ("ullTotalPageFile", ctypes.c_ulonglong),
+            ("ullAvailPageFile", ctypes.c_ulonglong),
+            ("ullTotalVirtual", ctypes.c_ulonglong),
+            ("ullAvailVirtual", ctypes.c_ulonglong),
+            ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+        ]
+
+    status = MEMORYSTATUSEX()
+    status.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    global_memory_status = kernel32.GlobalMemoryStatusEx
+    global_memory_status.argtypes = [ctypes.POINTER(MEMORYSTATUSEX)]
+    global_memory_status.restype = ctypes.c_int
+    if not global_memory_status(ctypes.byref(status)):
+        error = ctypes.get_last_error()
+        raise OSError(error, "GlobalMemoryStatusEx failed")
+    return int(status.ullAvailPhys)
+
+
 def _available_ram_bytes() -> int:
     meminfo = Path("/proc/meminfo")
     if meminfo.is_file():
         for line in meminfo.read_text(encoding="utf-8").splitlines():
             if line.startswith("MemAvailable:"):
                 return int(line.split()[1]) * 1024
-    pages = os.sysconf("SC_AVPHYS_PAGES")
-    page_size = os.sysconf("SC_PAGE_SIZE")
-    return int(pages * page_size)
+
+    if hasattr(os, "sysconf"):
+        try:
+            pages = os.sysconf("SC_AVPHYS_PAGES")
+            page_size = os.sysconf("SC_PAGE_SIZE")
+            return int(pages * page_size)
+        except (OSError, ValueError):
+            pass
+
+    if os.name == "nt":
+        return _windows_available_ram_bytes()
+
+    raise RuntimeError("unable to determine available physical memory")
+
+
+def _fsync_directory(path: Path) -> None:
+    if os.name != "posix":
+        return
+    directory_descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(directory_descriptor)
+    finally:
+        os.close(directory_descriptor)
 
 
 def preflight_resources(
@@ -93,7 +141,7 @@ def save_verified_checkpoint(
     temporary = Path(temporary_name)
     try:
         torch.save(dict(payload), temporary)
-        with temporary.open("rb") as handle:
+        with temporary.open("r+b") as handle:
             os.fsync(handle.fileno())
         loaded = torch.load(temporary, map_location="cpu", weights_only=True)
         if not isinstance(loaded, Mapping):
@@ -101,11 +149,7 @@ def save_verified_checkpoint(
         verify(loaded)
         digest = sha256_file(temporary)
         os.replace(temporary, path)
-        directory_descriptor = os.open(path.parent, os.O_RDONLY)
-        try:
-            os.fsync(directory_descriptor)
-        finally:
-            os.close(directory_descriptor)
+        _fsync_directory(path.parent)
         return digest
     finally:
         temporary.unlink(missing_ok=True)
