@@ -8,15 +8,19 @@ export function BrainScene({
   atlas,
   frame,
   activityMode = 'none',
+  initialOrbit = true,
+  orbitSpeed = .12,
 }: {
   atlas: Atlas;
   frame: ActivityFrame | null;
   activityMode?: 'none' | 'model-output' | 'simulated-reduced-circuit';
+  initialOrbit?: boolean;
+  orbitSpeed?: number;
 }) {
   const signal = useRef(frame);
-  const orbit = useRef(true);
+  const orbit = useRef(initialOrbit);
   const resetView = useRef<(() => void) | null>(null);
-  const [orbiting, setOrbiting] = useState(true);
+  const [orbiting, setOrbiting] = useState(initialOrbit);
   const repaint = useRef<(() => void) | null>(null);
   useEffect(() => { signal.current = frame; repaint.current?.(); }, [frame]);
   const host = useRef<HTMLDivElement>(null);
@@ -127,7 +131,7 @@ export function BrainScene({
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const animate = (now: number) => {
       const dt = Math.min(.05,(now - previous) / 1000); previous = now;
-      if (orbit.current && !held && !reducedMotion.matches && !document.hidden) anatomy.rotation.y += dt * .12;
+      if (orbit.current && !held && !reducedMotion.matches && !document.hidden) anatomy.rotation.y += dt * orbitSpeed;
       if (!document.hidden) renderer.render(scene, camera);
       frame = requestAnimationFrame(animate);
     };
@@ -152,7 +156,7 @@ export function BrainScene({
           ? 'Blue: measured anatomy · cyan/white: mapped model output [0, 1], not measured activity'
           : 'Blue: measured anatomy · cyan/white: simulated reduced-circuit activity [0, 1]'}
     </div>
-    <div ref={host} className="three-viewport brain-viewport" aria-label="MaleCNS brain soma atlas">
+    <div ref={host} className="three-viewport brain-viewport" role="img" aria-label="MaleCNS brain soma atlas">
       {state !== "ready" && <span className="neural-load" role="status">{state === "error" ? "Atlas unavailable" : "Loading anatomy"}</span>}
 
     </div>

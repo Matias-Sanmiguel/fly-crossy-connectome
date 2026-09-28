@@ -1,0 +1,2784 @@
+{
+  "version": "crossy-v4-critical-state-surgery-1",
+  "sourceCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-expo-specialist\\best.pt",
+  "sourceDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-exact-seed-branch-curriculum\\best_decoder.pt",
+  "metadata": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "decoderMetadata": {
+    "stage": "branch-stage-1-through-50",
+    "architecture": "mlp64",
+    "motorDim": 708,
+    "metrics": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        }
+      },
+      "robust": {
+        "episodes": 21,
+        "successes": 0,
+        "reachedStepLimit": 0,
+        "progressQualified": 0,
+        "stalled": 0,
+        "meanScore": 16.095238095238095,
+        "medianScore": 7.0,
+        "terminalReasons": {
+          "vehicle": 14,
+          "water": 7
+        },
+        "actions": {
+          "forward": 381,
+          "left": 48,
+          "right": 17,
+          "wait": 26
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "steps": 45,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 9,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 3,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "steps": 53,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 1,
+          "steps": 7,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": -1,
+          "steps": 43,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 7,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 52,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": -1,
+          "steps": 12,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 5,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 0,
+          "steps": 3,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 0,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": -1,
+          "steps": 17,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 3,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 32,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 4
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 1,
+          "steps": 18,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": -1,
+          "steps": 16,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 12,
+            "left": 2,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 0,
+          "steps": 15,
+          "score": 14.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.1411290322580645,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": -1,
+          "steps": 15,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 13,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 0,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 2
+          }
+        }
+      ]
+    },
+    "config": {
+      "seed": "crossy-v4-expo:0006",
+      "rngSeed": 707,
+      "plannerDepth": 4,
+      "maxSteps": 200,
+      "stageEnds": [
+        50,
+        100,
+        150,
+        200
+      ],
+      "rootStride": 1,
+      "branchesPerRoot": 2,
+      "branchHorizon": 12,
+      "epochsPerStage": 80,
+      "decoderLearningRate": 0.003,
+      "decoderBatch": 1024,
+      "progressLossWeight": 1.0,
+      "minimumTeacherFraction": 0.8,
+      "teacherScore": 124.0,
+      "minimumProgressScore": 99.2,
+      "effectiveStallSteps": 12,
+      "MaleCNSRetrained": false,
+      "startingDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-recovery-dagger-v2\\best_decoder.pt",
+      "selectionRule": "exact real-progress success -> exact score -> robust successes -> robust score"
+    }
+  },
+  "config": {
+    "seed": "crossy-v4-expo:0006",
+    "rngSeed": 909,
+    "plannerDepth": 4,
+    "maxSteps": 200,
+    "rounds": 8,
+    "correctionTail": 12,
+    "maxCorrectionStates": 8,
+    "teacherMargin": 16,
+    "nearestK": 8,
+    "minimumTeacherFraction": 0.8,
+    "teacherScore": 124.0,
+    "minimumProgressScore": 99.2,
+    "effectiveStallSteps": 12,
+    "minimumPrefixAgreement": 0.9,
+    "MaleCNSRetrained": false,
+    "decoderLayersTrainable": [
+      "residual.weight",
+      "residual.bias"
+    ],
+    "decoderTrainableParameters": 325,
+    "hardStopRule": "success => keep decoder; no exact-seed improvement => escalate to sensor/core; max rounds without success => escalate to sensor/core"
+  },
+  "frozenMaleCNS": true,
+  "teacherReference": {
+    "frames": 200,
+    "score": 124.0,
+    "terminalReason": null,
+    "reachedStepLimit": true,
+    "maxNoProgressStreak": 9,
+    "actions": {
+      "forward": 124,
+      "left": 44,
+      "right": 29,
+      "wait": 3
+    }
+  },
+  "baseline": {
+    "exactExpo": {
+      "phaseOffset": 0.0,
+      "initialColumn": 0,
+      "steps": 54,
+      "score": 40.0,
+      "targetScore": 99.2,
+      "scoreRatioToTarget": 0.4032258064516129,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 7,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 46,
+        "left": 2,
+        "right": 3,
+        "wait": 3
+      }
+    },
+    "robust": {
+      "episodes": 21,
+      "successes": 0,
+      "reachedStepLimit": 0,
+      "progressQualified": 0,
+      "stalled": 0,
+      "meanScore": 16.095238095238095,
+      "medianScore": 7.0,
+      "terminalReasons": {
+        "vehicle": 14,
+        "water": 7
+      },
+      "actions": {
+        "forward": 381,
+        "left": 48,
+        "right": 17,
+        "wait": 26
+      }
+    },
+    "perVariant": [
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": -1,
+        "steps": 45,
+        "score": 35.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.35282258064516125,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 35,
+          "left": 9,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 1,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 3,
+          "right": 3,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": -1,
+        "steps": 9,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 3
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 0,
+        "steps": 53,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 3
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": -1,
+        "steps": 43,
+        "score": 35.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.35282258064516125,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 35,
+          "left": 7,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 0,
+        "steps": 52,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": -1,
+        "steps": 12,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 5,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": -1,
+        "steps": 17,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 11,
+          "left": 3,
+          "right": 2,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 0,
+        "steps": 32,
+        "score": 28.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.282258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 28,
+          "left": 4
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 1,
+        "steps": 18,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 11,
+          "left": 4,
+          "wait": 3
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": -1,
+        "steps": 16,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 12,
+          "left": 2,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 0,
+        "steps": 15,
+        "score": 14.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.1411290322580645,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 14,
+          "left": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 1,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": -1,
+        "steps": 15,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 6,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 13,
+          "left": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 0,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 1,
+        "steps": 5,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "wait": 2
+        }
+      }
+    ]
+  },
+  "initialSeparability": {
+    "criticalIndex": 53,
+    "score": 39.0,
+    "row": 39,
+    "column": 1.0,
+    "targetAction": "right",
+    "badAction": "forward",
+    "decoderTargetMinusBadMargin": -4.844341278076172,
+    "decoderLogits": {
+      "forward": 2.6471078395843506,
+      "backward": -3.14050030708313,
+      "left": 1.9139882326126099,
+      "right": -2.197233200073242,
+      "wait": -0.36079180240631104
+    },
+    "nearestPreviousStudent": [
+      {
+        "source": "student-prefix",
+        "index": 52,
+        "score": 38.0,
+        "row": 38,
+        "column": 1.0,
+        "bestAction": "left",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "left"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.9199723102195465,
+        "l2": 0.2287974907077071
+      },
+      {
+        "source": "student-prefix",
+        "index": 44,
+        "score": 30.0,
+        "row": 30,
+        "column": 1.0,
+        "bestAction": "forward",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8864532454414806,
+        "l2": 0.2859337875863249
+      },
+      {
+        "source": "student-prefix",
+        "index": 45,
+        "score": 31.0,
+        "row": 31,
+        "column": 1.0,
+        "bestAction": "forward",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8821753841065,
+        "l2": 0.3116123368491192
+      },
+      {
+        "source": "student-prefix",
+        "index": 26,
+        "score": 16.0,
+        "row": 16,
+        "column": 1.0,
+        "bestAction": "forward",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8700057883872602,
+        "l2": 0.4770682896470103
+      },
+      {
+        "source": "student-prefix",
+        "index": 51,
+        "score": 37.0,
+        "row": 37,
+        "column": 1.0,
+        "bestAction": "forward",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8545801705051795,
+        "l2": 0.31805791057808697
+      },
+      {
+        "source": "student-prefix",
+        "index": 25,
+        "score": 15.0,
+        "row": 15,
+        "column": 1.0,
+        "bestAction": "forward",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8538766819605246,
+        "l2": 0.7087768401861504
+      },
+      {
+        "source": "student-prefix",
+        "index": 27,
+        "score": 17.0,
+        "row": 17,
+        "column": 1.0,
+        "bestAction": "forward",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "forward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8532726631050833,
+        "l2": 0.43069656884029545
+      },
+      {
+        "source": "student-prefix",
+        "index": 23,
+        "score": 13.0,
+        "row": 13,
+        "column": 1.0,
+        "bestAction": "forward",
+        "studentAction": "forward",
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.839257672787536,
+        "l2": 0.4847622466875364
+      }
+    ],
+    "nearestTeacher": [
+      {
+        "source": "teacher",
+        "index": 155,
+        "score": 102.0,
+        "row": 102,
+        "column": -4.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward",
+          "right"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.9503105826526788,
+        "l2": 0.18564795693663527
+      },
+      {
+        "source": "teacher",
+        "index": 154,
+        "score": 101.0,
+        "row": 101,
+        "column": -4.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.9368519882898045,
+        "l2": 0.21218459877503065
+      },
+      {
+        "source": "teacher",
+        "index": 153,
+        "score": 100.0,
+        "row": 100,
+        "column": -4.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward",
+          "right",
+          "wait"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.9321676796115003,
+        "l2": 0.23887613083733217
+      },
+      {
+        "source": "teacher",
+        "index": 39,
+        "score": 30.0,
+        "row": 30,
+        "column": 0.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.9237289640900573,
+        "l2": 0.36314764590843135
+      },
+      {
+        "source": "teacher",
+        "index": 40,
+        "score": 31.0,
+        "row": 31,
+        "column": 0.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.9055113415334911,
+        "l2": 0.27886513264740587
+      },
+      {
+        "source": "teacher",
+        "index": 30,
+        "score": 24.0,
+        "row": 24,
+        "column": -3.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward",
+          "left",
+          "wait"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "wait"
+        ],
+        "cosine": 0.9031113431340515,
+        "l2": 0.5313441461551731
+      },
+      {
+        "source": "teacher",
+        "index": 22,
+        "score": 18.0,
+        "row": 18,
+        "column": -1.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward",
+          "left"
+        ],
+        "safeActions": [
+          "forward",
+          "backward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8972140996085345,
+        "l2": 0.35775647072723543
+      },
+      {
+        "source": "teacher",
+        "index": 152,
+        "score": 99.0,
+        "row": 99,
+        "column": -4.0,
+        "bestAction": "forward",
+        "studentAction": null,
+        "acceptableActions": [
+          "forward"
+        ],
+        "safeActions": [
+          "forward",
+          "left",
+          "right",
+          "wait"
+        ],
+        "cosine": 0.8946048502916232,
+        "l2": 0.3252577345997322
+      }
+    ],
+    "nearestBadActionConflict": {
+      "source": "student-prefix",
+      "index": 44,
+      "score": 30.0,
+      "row": 30,
+      "column": 1.0,
+      "bestAction": "forward",
+      "studentAction": "forward",
+      "acceptableActions": [
+        "forward"
+      ],
+      "safeActions": [
+        "forward",
+        "backward",
+        "left",
+        "right",
+        "wait"
+      ],
+      "cosine": 0.8864532454414806,
+      "l2": 0.28593379259109497
+    },
+    "nearestTargetSupport": {
+      "source": "student-prefix",
+      "index": 51,
+      "score": 37.0,
+      "row": 37,
+      "column": 1.0,
+      "bestAction": "forward",
+      "studentAction": "forward",
+      "acceptableActions": [
+        "forward",
+        "backward",
+        "left",
+        "right",
+        "wait"
+      ],
+      "safeActions": [
+        "forward",
+        "backward",
+        "left",
+        "right",
+        "wait"
+      ],
+      "cosine": 0.8545801705051795,
+      "l2": 0.3180578947067261
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "before": {
+        "steps": 54,
+        "score": 40.0,
+        "terminalReason": "vehicle",
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "decisionQuality": {
+          "frames": 54,
+          "exactActionRate": 0.8148148148148148,
+          "acceptableActionRate": 0.8518518518518519,
+          "immediateSafeActionRate": 0.9814814814814815,
+          "progressOpportunityFrames": 38,
+          "progressChoiceRate": 1.0,
+          "firstUnacceptable": {
+            "decision": 15,
+            "gameStep": 15,
+            "score": 12.0,
+            "row": 12,
+            "column": 0.0,
+            "teacherAction": "left",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "left"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ]
+          },
+          "firstUnsafe": {
+            "decision": 53,
+            "gameStep": 53,
+            "score": 39.0,
+            "row": 39,
+            "column": 1.0,
+            "teacherAction": "right",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "right"
+            ],
+            "safeActions": [
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ]
+          },
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 3
+          }
+        }
+      },
+      "criticalKind": "first-unsafe",
+      "criticalIndex": 53,
+      "correctionIndices": [
+        52,
+        53
+      ],
+      "separability": {
+        "criticalIndex": 53,
+        "score": 39.0,
+        "row": 39,
+        "column": 1.0,
+        "targetAction": "right",
+        "badAction": "forward",
+        "decoderTargetMinusBadMargin": -4.844341278076172,
+        "decoderLogits": {
+          "forward": 2.6471078395843506,
+          "backward": -3.14050030708313,
+          "left": 1.9139882326126099,
+          "right": -2.197233200073242,
+          "wait": -0.36079180240631104
+        },
+        "nearestPreviousStudent": [
+          {
+            "source": "student-prefix",
+            "index": 52,
+            "score": 38.0,
+            "row": 38,
+            "column": 1.0,
+            "bestAction": "left",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "left"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.9199723102195465,
+            "l2": 0.2287974907077071
+          },
+          {
+            "source": "student-prefix",
+            "index": 44,
+            "score": 30.0,
+            "row": 30,
+            "column": 1.0,
+            "bestAction": "forward",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8864532454414806,
+            "l2": 0.2859337875863249
+          },
+          {
+            "source": "student-prefix",
+            "index": 45,
+            "score": 31.0,
+            "row": 31,
+            "column": 1.0,
+            "bestAction": "forward",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8821753841065,
+            "l2": 0.3116123368491192
+          },
+          {
+            "source": "student-prefix",
+            "index": 26,
+            "score": 16.0,
+            "row": 16,
+            "column": 1.0,
+            "bestAction": "forward",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8700057883872602,
+            "l2": 0.4770682896470103
+          },
+          {
+            "source": "student-prefix",
+            "index": 51,
+            "score": 37.0,
+            "row": 37,
+            "column": 1.0,
+            "bestAction": "forward",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8545801705051795,
+            "l2": 0.31805791057808697
+          },
+          {
+            "source": "student-prefix",
+            "index": 25,
+            "score": 15.0,
+            "row": 15,
+            "column": 1.0,
+            "bestAction": "forward",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8538766819605246,
+            "l2": 0.7087768401861504
+          },
+          {
+            "source": "student-prefix",
+            "index": 27,
+            "score": 17.0,
+            "row": 17,
+            "column": 1.0,
+            "bestAction": "forward",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "forward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8532726631050833,
+            "l2": 0.43069656884029545
+          },
+          {
+            "source": "student-prefix",
+            "index": 23,
+            "score": 13.0,
+            "row": 13,
+            "column": 1.0,
+            "bestAction": "forward",
+            "studentAction": "forward",
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.839257672787536,
+            "l2": 0.4847622466875364
+          }
+        ],
+        "nearestTeacher": [
+          {
+            "source": "teacher",
+            "index": 155,
+            "score": 102.0,
+            "row": 102,
+            "column": -4.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward",
+              "right"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.9503105826526788,
+            "l2": 0.18564795693663527
+          },
+          {
+            "source": "teacher",
+            "index": 154,
+            "score": 101.0,
+            "row": 101,
+            "column": -4.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.9368519882898045,
+            "l2": 0.21218459877503065
+          },
+          {
+            "source": "teacher",
+            "index": 153,
+            "score": 100.0,
+            "row": 100,
+            "column": -4.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward",
+              "right",
+              "wait"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.9321676796115003,
+            "l2": 0.23887613083733217
+          },
+          {
+            "source": "teacher",
+            "index": 39,
+            "score": 30.0,
+            "row": 30,
+            "column": 0.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.9237289640900573,
+            "l2": 0.36314764590843135
+          },
+          {
+            "source": "teacher",
+            "index": 40,
+            "score": 31.0,
+            "row": 31,
+            "column": 0.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.9055113415334911,
+            "l2": 0.27886513264740587
+          },
+          {
+            "source": "teacher",
+            "index": 30,
+            "score": 24.0,
+            "row": 24,
+            "column": -3.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward",
+              "left",
+              "wait"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "wait"
+            ],
+            "cosine": 0.9031113431340515,
+            "l2": 0.5313441461551731
+          },
+          {
+            "source": "teacher",
+            "index": 22,
+            "score": 18.0,
+            "row": 18,
+            "column": -1.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward",
+              "left"
+            ],
+            "safeActions": [
+              "forward",
+              "backward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8972140996085345,
+            "l2": 0.35775647072723543
+          },
+          {
+            "source": "teacher",
+            "index": 152,
+            "score": 99.0,
+            "row": 99,
+            "column": -4.0,
+            "bestAction": "forward",
+            "studentAction": null,
+            "acceptableActions": [
+              "forward"
+            ],
+            "safeActions": [
+              "forward",
+              "left",
+              "right",
+              "wait"
+            ],
+            "cosine": 0.8946048502916232,
+            "l2": 0.3252577345997322
+          }
+        ],
+        "nearestBadActionConflict": {
+          "source": "student-prefix",
+          "index": 44,
+          "score": 30.0,
+          "row": 30,
+          "column": 1.0,
+          "bestAction": "forward",
+          "studentAction": "forward",
+          "acceptableActions": [
+            "forward"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ],
+          "cosine": 0.8864532454414806,
+          "l2": 0.28593379259109497
+        },
+        "nearestTargetSupport": {
+          "source": "student-prefix",
+          "index": 51,
+          "score": 37.0,
+          "row": 37,
+          "column": 1.0,
+          "bestAction": "forward",
+          "studentAction": "forward",
+          "acceptableActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ],
+          "safeActions": [
+            "forward",
+            "backward",
+            "left",
+            "right",
+            "wait"
+          ],
+          "cosine": 0.8545801705051795,
+          "l2": 0.3180578947067261
+        }
+      },
+      "candidates": [
+        {
+          "recipe": {
+            "name": "conservative",
+            "learning_rate": 0.001,
+            "epochs": 140,
+            "margin": 1.0,
+            "margin_weight": 2.0,
+            "distill_weight": 20.0,
+            "parameter_weight": 0.25
+          },
+          "training": {
+            "recipe": {
+              "name": "conservative",
+              "learning_rate": 0.001,
+              "epochs": 140,
+              "margin": 1.0,
+              "margin_weight": 2.0,
+              "distill_weight": 20.0,
+              "parameter_weight": 0.25
+            },
+            "trainableParameters": 325,
+            "correctionIndices": [
+              52,
+              53
+            ],
+            "protectedStudentFrames": 52,
+            "protectedTeacherFrames": 69,
+            "prefixActionAgreementWithBase": 0.9622641801834106,
+            "criticalMarginsAfter": [
+              -5.865887641906738,
+              -0.7937818765640259
+            ],
+            "history": [
+              {
+                "epoch": 1,
+                "total": 20.41815948486328,
+                "preference": 7.65074348449707,
+                "margin": 6.3837080001831055,
+                "distill": 0.0,
+                "parameterDelta": 0.0
+              },
+              {
+                "epoch": 40,
+                "total": 17.182485580444336,
+                "preference": 6.195684432983398,
+                "margin": 5.082350730895996,
+                "distill": 0.04108908772468567,
+                "parameterDelta": 0.0012721470557153225
+              },
+              {
+                "epoch": 80,
+                "total": 15.24260139465332,
+                "preference": 5.00380802154541,
+                "margin": 3.9468274116516113,
+                "distill": 0.1171972006559372,
+                "parameterDelta": 0.0047770957462489605
+              },
+              {
+                "epoch": 120,
+                "total": 13.910829544067383,
+                "preference": 4.28543758392334,
+                "margin": 3.2459216117858887,
+                "distill": 0.15655924379825592,
+                "parameterDelta": 0.00945595558732748
+              },
+              {
+                "epoch": 140,
+                "total": 13.371919631958008,
+                "preference": 4.0201287269592285,
+                "margin": 2.9769628047943115,
+                "distill": 0.16973932087421417,
+                "parameterDelta": 0.012314542196691036
+              }
+            ]
+          },
+          "exactExpo": {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 8,
+            "score": 6.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.06048387096774193,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 2,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "wait": 2
+            }
+          },
+          "studentTrace": {
+            "steps": 8,
+            "score": 6.0,
+            "terminalReason": "vehicle",
+            "stalled": false,
+            "maxNoProgressStreak": 2,
+            "decisionQuality": {
+              "frames": 8,
+              "exactActionRate": 0.625,
+              "acceptableActionRate": 0.875,
+              "immediateSafeActionRate": 0.875,
+              "progressOpportunityFrames": 5,
+              "progressChoiceRate": 1.0,
+              "firstUnacceptable": {
+                "decision": 7,
+                "gameStep": 7,
+                "score": 5.0,
+                "row": 5,
+                "column": 0.0,
+                "teacherAction": "wait",
+                "studentAction": "forward",
+                "acceptableActions": [
+                  "wait"
+                ],
+                "safeActions": [
+                  "backward",
+                  "left",
+                  "right",
+                  "wait"
+                ]
+              },
+              "firstUnsafe": {
+                "decision": 7,
+                "gameStep": 7,
+                "score": 5.0,
+                "row": 5,
+                "column": 0.0,
+                "teacherAction": "wait",
+                "studentAction": "forward",
+                "acceptableActions": [
+                  "wait"
+                ],
+                "safeActions": [
+                  "backward",
+                  "left",
+                  "right",
+                  "wait"
+                ]
+              },
+              "actions": {
+                "forward": 6,
+                "wait": 2
+              }
+            }
+          },
+          "firstUnsafeDecision": 7,
+          "prefixPreserved": true,
+          "improvesCurrent": false
+        },
+        {
+          "recipe": {
+            "name": "balanced",
+            "learning_rate": 0.0015,
+            "epochs": 180,
+            "margin": 1.5,
+            "margin_weight": 3.0,
+            "distill_weight": 10.0,
+            "parameter_weight": 0.15
+          },
+          "training": {
+            "recipe": {
+              "name": "balanced",
+              "learning_rate": 0.0015,
+              "epochs": 180,
+              "margin": 1.5,
+              "margin_weight": 3.0,
+              "distill_weight": 10.0,
+              "parameter_weight": 0.15
+            },
+            "trainableParameters": 325,
+            "correctionIndices": [
+              52,
+              53
+            ],
+            "protectedStudentFrames": 52,
+            "protectedTeacherFrames": 69,
+            "prefixActionAgreementWithBase": 0.9622641801834106,
+            "criticalMarginsAfter": [
+              -4.749577045440674,
+              1.4920928478240967
+            ],
+            "history": [
+              {
+                "epoch": 1,
+                "total": 28.30186653137207,
+                "preference": 7.65074348449707,
+                "margin": 6.8837080001831055,
+                "distill": 0.0,
+                "parameterDelta": 0.0
+              },
+              {
+                "epoch": 40,
+                "total": 21.236867904663086,
+                "preference": 5.516544818878174,
+                "margin": 4.868110179901123,
+                "distill": 0.11155247688293457,
+                "parameterDelta": 0.0031333176884800196
+              },
+              {
+                "epoch": 80,
+                "total": 16.153573989868164,
+                "preference": 3.725923538208008,
+                "margin": 2.9845399856567383,
+                "distill": 0.34722214937210083,
+                "parameterDelta": 0.012066060677170753
+              },
+              {
+                "epoch": 120,
+                "total": 12.903301239013672,
+                "preference": 2.5217177867889404,
+                "margin": 1.4197698831558228,
+                "distill": 0.6118303537368774,
+                "parameterDelta": 0.026466595008969307
+              },
+              {
+                "epoch": 160,
+                "total": 11.762451171875,
+                "preference": 2.538086175918579,
+                "margin": 1.4389276504516602,
+                "distill": 0.4902926981449127,
+                "parameterDelta": 0.031039932742714882
+              },
+              {
+                "epoch": 180,
+                "total": 11.454508781433105,
+                "preference": 2.5194969177246094,
+                "margin": 1.4451179504394531,
+                "distill": 0.4594510793685913,
+                "parameterDelta": 0.03431623429059982
+              }
+            ]
+          },
+          "exactExpo": {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 8,
+            "score": 6.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.06048387096774193,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 2,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "wait": 2
+            }
+          },
+          "studentTrace": {
+            "steps": 8,
+            "score": 6.0,
+            "terminalReason": "vehicle",
+            "stalled": false,
+            "maxNoProgressStreak": 2,
+            "decisionQuality": {
+              "frames": 8,
+              "exactActionRate": 0.625,
+              "acceptableActionRate": 0.875,
+              "immediateSafeActionRate": 0.875,
+              "progressOpportunityFrames": 5,
+              "progressChoiceRate": 1.0,
+              "firstUnacceptable": {
+                "decision": 7,
+                "gameStep": 7,
+                "score": 5.0,
+                "row": 5,
+                "column": 0.0,
+                "teacherAction": "wait",
+                "studentAction": "forward",
+                "acceptableActions": [
+                  "wait"
+                ],
+                "safeActions": [
+                  "backward",
+                  "left",
+                  "right",
+                  "wait"
+                ]
+              },
+              "firstUnsafe": {
+                "decision": 7,
+                "gameStep": 7,
+                "score": 5.0,
+                "row": 5,
+                "column": 0.0,
+                "teacherAction": "wait",
+                "studentAction": "forward",
+                "acceptableActions": [
+                  "wait"
+                ],
+                "safeActions": [
+                  "backward",
+                  "left",
+                  "right",
+                  "wait"
+                ]
+              },
+              "actions": {
+                "forward": 6,
+                "wait": 2
+              }
+            }
+          },
+          "firstUnsafeDecision": 7,
+          "prefixPreserved": true,
+          "improvesCurrent": false
+        },
+        {
+          "recipe": {
+            "name": "focused",
+            "learning_rate": 0.002,
+            "epochs": 220,
+            "margin": 2.0,
+            "margin_weight": 4.0,
+            "distill_weight": 5.0,
+            "parameter_weight": 0.1
+          },
+          "training": {
+            "recipe": {
+              "name": "focused",
+              "learning_rate": 0.002,
+              "epochs": 220,
+              "margin": 2.0,
+              "margin_weight": 4.0,
+              "distill_weight": 5.0,
+              "parameter_weight": 0.1
+            },
+            "trainableParameters": 325,
+            "correctionIndices": [
+              52,
+              53
+            ],
+            "protectedStudentFrames": 52,
+            "protectedTeacherFrames": 69,
+            "prefixActionAgreementWithBase": 0.9433962106704712,
+            "criticalMarginsAfter": [
+              -3.239257335662842,
+              2.0285961627960205
+            ],
+            "history": [
+              {
+                "epoch": 1,
+                "total": 37.185577392578125,
+                "preference": 7.65074348449707,
+                "margin": 7.3837080001831055,
+                "distill": 0.0,
+                "parameterDelta": 0.0
+              },
+              {
+                "epoch": 40,
+                "total": 24.662012100219727,
+                "preference": 4.938965320587158,
+                "margin": 4.615455627441406,
+                "distill": 0.25211891531944275,
+                "parameterDelta": 0.00629783421754837
+              },
+              {
+                "epoch": 80,
+                "total": 14.59079647064209,
+                "preference": 2.7729480266571045,
+                "margin": 2.039080858230591,
+                "distill": 0.7318513989448547,
+                "parameterDelta": 0.02267821878194809
+              },
+              {
+                "epoch": 120,
+                "total": 11.474802017211914,
+                "preference": 2.2904717922210693,
+                "margin": 1.3255277872085571,
+                "distill": 0.7757364511489868,
+                "parameterDelta": 0.03536868467926979
+              },
+              {
+                "epoch": 160,
+                "total": 10.715299606323242,
+                "preference": 2.1950135231018066,
+                "margin": 1.276262879371643,
+                "distill": 0.6820820569992065,
+                "parameterDelta": 0.04823291674256325
+              },
+              {
+                "epoch": 200,
+                "total": 10.233813285827637,
+                "preference": 2.069117784500122,
+                "margin": 1.2295664548873901,
+                "distill": 0.6479937434196472,
+                "parameterDelta": 0.06461215764284134
+              },
+              {
+                "epoch": 220,
+                "total": 10.04858112335205,
+                "preference": 2.0216495990753174,
+                "margin": 1.2103666067123413,
+                "distill": 0.635611355304718,
+                "parameterDelta": 0.07408098876476288
+              }
+            ]
+          },
+          "exactExpo": {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 8,
+            "score": 6.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.06048387096774193,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 2,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "wait": 2
+            }
+          },
+          "studentTrace": {
+            "steps": 8,
+            "score": 6.0,
+            "terminalReason": "vehicle",
+            "stalled": false,
+            "maxNoProgressStreak": 2,
+            "decisionQuality": {
+              "frames": 8,
+              "exactActionRate": 0.625,
+              "acceptableActionRate": 0.875,
+              "immediateSafeActionRate": 0.875,
+              "progressOpportunityFrames": 5,
+              "progressChoiceRate": 1.0,
+              "firstUnacceptable": {
+                "decision": 7,
+                "gameStep": 7,
+                "score": 5.0,
+                "row": 5,
+                "column": 0.0,
+                "teacherAction": "wait",
+                "studentAction": "forward",
+                "acceptableActions": [
+                  "wait"
+                ],
+                "safeActions": [
+                  "backward",
+                  "left",
+                  "right",
+                  "wait"
+                ]
+              },
+              "firstUnsafe": {
+                "decision": 7,
+                "gameStep": 7,
+                "score": 5.0,
+                "row": 5,
+                "column": 0.0,
+                "teacherAction": "wait",
+                "studentAction": "forward",
+                "acceptableActions": [
+                  "wait"
+                ],
+                "safeActions": [
+                  "backward",
+                  "left",
+                  "right",
+                  "wait"
+                ]
+              },
+              "actions": {
+                "forward": 6,
+                "wait": 2
+              }
+            }
+          },
+          "firstUnsafeDecision": 7,
+          "prefixPreserved": true,
+          "improvesCurrent": false
+        }
+      ],
+      "accepted": false
+    }
+  ],
+  "selectedStage": "critical-surgery-baseline",
+  "selectedClosedLoop": {
+    "exactExpo": {
+      "phaseOffset": 0.0,
+      "initialColumn": 0,
+      "steps": 54,
+      "score": 40.0,
+      "targetScore": 99.2,
+      "scoreRatioToTarget": 0.4032258064516129,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 7,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 46,
+        "left": 2,
+        "right": 3,
+        "wait": 3
+      }
+    },
+    "robust": {
+      "episodes": 21,
+      "successes": 0,
+      "reachedStepLimit": 0,
+      "progressQualified": 0,
+      "stalled": 0,
+      "meanScore": 16.095238095238095,
+      "medianScore": 7.0,
+      "terminalReasons": {
+        "vehicle": 14,
+        "water": 7
+      },
+      "actions": {
+        "forward": 381,
+        "left": 48,
+        "right": 17,
+        "wait": 26
+      }
+    },
+    "perVariant": [
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": -1,
+        "steps": 45,
+        "score": 35.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.35282258064516125,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 35,
+          "left": 9,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 1,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 3,
+          "right": 3,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": -1,
+        "steps": 9,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 3
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 0,
+        "steps": 53,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 3
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": -1,
+        "steps": 43,
+        "score": 35.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.35282258064516125,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 35,
+          "left": 7,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 0,
+        "steps": 52,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": -1,
+        "steps": 12,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 5,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 2
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": -1,
+        "steps": 17,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 11,
+          "left": 3,
+          "right": 2,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 0,
+        "steps": 32,
+        "score": 28.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.282258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 28,
+          "left": 4
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 1,
+        "steps": 18,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 11,
+          "left": 4,
+          "wait": 3
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": -1,
+        "steps": 16,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 12,
+          "left": 2,
+          "right": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 0,
+        "steps": 15,
+        "score": 14.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.1411290322580645,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 14,
+          "left": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 1,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": -1,
+        "steps": 15,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 6,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 13,
+          "left": 1,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 0,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "wait": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 1,
+        "steps": 5,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "wait": 2
+        }
+      }
+    ]
+  },
+  "bestDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-critical-state-surgery\\best_decoder.pt",
+  "stopReason": "no-surgical-improvement",
+  "nextAction": "escalate-to-sensory-or-core-training",
+  "elapsedSeconds": 29.37672130000101,
+  "interpretation": "This is intentionally the final decoder-side diagnostic/intervention. MaleCNS remains frozen. Only 325 parameters in the existing MLP64 residual output layer may change, under prefix-logit distillation. If this cannot improve the deterministic expo seed, the report escalates directly to sensory/core work rather than asking for another readout audit."
+}

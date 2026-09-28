@@ -1,0 +1,3917 @@
+{
+  "version": "crossy-v6-structured-retina-core-1",
+  "sourceCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-expo-specialist\\best.pt",
+  "sourceDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-exact-seed-branch-curriculum\\best_decoder.pt",
+  "metadata": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "decoderMetadata": {
+    "stage": "branch-stage-1-through-50",
+    "architecture": "mlp64",
+    "motorDim": 708,
+    "metrics": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        }
+      },
+      "robust": {
+        "episodes": 21,
+        "successes": 0,
+        "reachedStepLimit": 0,
+        "progressQualified": 0,
+        "stalled": 0,
+        "meanScore": 16.095238095238095,
+        "medianScore": 7.0,
+        "terminalReasons": {
+          "vehicle": 14,
+          "water": 7
+        },
+        "actions": {
+          "forward": 381,
+          "left": 48,
+          "right": 17,
+          "wait": 26
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "steps": 45,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 9,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 3,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "steps": 53,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 1,
+          "steps": 7,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": -1,
+          "steps": 43,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 7,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 52,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": -1,
+          "steps": 12,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 5,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 0,
+          "steps": 3,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 0,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": -1,
+          "steps": 17,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 3,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 32,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 4
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 1,
+          "steps": 18,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": -1,
+          "steps": 16,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 12,
+            "left": 2,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 0,
+          "steps": 15,
+          "score": 14.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.1411290322580645,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": -1,
+          "steps": 15,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 13,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 0,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 2
+          }
+        }
+      ]
+    },
+    "config": {
+      "seed": "crossy-v4-expo:0006",
+      "rngSeed": 707,
+      "plannerDepth": 4,
+      "maxSteps": 200,
+      "stageEnds": [
+        50,
+        100,
+        150,
+        200
+      ],
+      "rootStride": 1,
+      "branchesPerRoot": 2,
+      "branchHorizon": 12,
+      "epochsPerStage": 80,
+      "decoderLearningRate": 0.003,
+      "decoderBatch": 1024,
+      "progressLossWeight": 1.0,
+      "minimumTeacherFraction": 0.8,
+      "teacherScore": 124.0,
+      "minimumProgressScore": 99.2,
+      "effectiveStallSteps": 12,
+      "MaleCNSRetrained": false,
+      "startingDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-recovery-dagger-v2\\best_decoder.pt",
+      "selectionRule": "exact real-progress success -> exact score -> robust successes -> robust score"
+    }
+  },
+  "config": {
+    "version": "crossy-v6-structured-retina-core-1",
+    "seed": "crossy-v4-expo:0006",
+    "rngSeed": 1201,
+    "maxSteps": 200,
+    "plannerDepth": 4,
+    "retina": {
+      "type": "shared-local-3x3",
+      "channels": 8,
+      "routing": "deterministic-position-major-even-spacing",
+      "globalPixelMixing": false,
+      "randomPixelRouting": false,
+      "channelCounts": [
+        516,
+        514,
+        514,
+        514,
+        514,
+        514,
+        514,
+        514
+      ]
+    },
+    "training": {
+      "retinaRounds": 4,
+      "hop1Rounds": 3,
+      "hop2Rounds": 3,
+      "retinaEpochs": 3,
+      "coreEpochs": 2,
+      "batch": 2,
+      "window": 16,
+      "retinaLearningRate": 0.001,
+      "hop1RetinaLearningRate": 0.0005,
+      "hop2RetinaLearningRate": 0.0003,
+      "hop1CoreLearningRate": 0.00015,
+      "hop2CoreLearningRate": 8e-05,
+      "distillWeight": 4.0,
+      "progressWeight": 0.75,
+      "trustWeight": 0.05
+    },
+    "teacherScore": 124.0,
+    "minimumProgressScore": 99.2,
+    "architectureMinimumScore": 60.0,
+    "decoderRetrained": false
+  },
+  "plasticity": {
+    "sensoryOutgoingEdges": 66533,
+    "sensoryPlusHop1OutgoingEdges": 2531883,
+    "firstHopNeurons": 25650,
+    "secondHopTargetNeurons": 111666,
+    "hop1LeakNeurons": 27104,
+    "hop2LeakNeurons": 111733
+  },
+  "teacherReference": {
+    "score": 124.0,
+    "targetScore": 99.2,
+    "maxNoProgressStreak": 9
+  },
+  "v5Reference": {
+    "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v5-sensory-core-adaptation\\best.pt",
+    "score": 41.0,
+    "metrics": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 62,
+        "score": 41.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4133064516129032,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 6,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 8,
+          "right": 3,
+          "wait": 5
+        }
+      },
+      "robust": {
+        "episodes": 21,
+        "successes": 0,
+        "reachedStepLimit": 0,
+        "progressQualified": 0,
+        "stalled": 0,
+        "meanScore": 18.333333333333332,
+        "medianScore": 14.0,
+        "terminalReasons": {
+          "vehicle": 15,
+          "water": 6
+        },
+        "actions": {
+          "forward": 405,
+          "left": 61,
+          "right": 8,
+          "wait": 34
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "steps": 45,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 9,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 62,
+          "score": 41.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4133064516129032,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 8,
+            "right": 3,
+            "wait": 5
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "steps": 36,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 5,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "steps": 61,
+          "score": 41.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4133064516129032,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 8,
+            "right": 3,
+            "wait": 4
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 1,
+          "steps": 7,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": -1,
+          "steps": 43,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 7,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 24,
+          "score": 22.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.2217741935483871,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 22,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": -1,
+          "steps": 33,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 0,
+          "steps": 33,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": -1,
+          "steps": 32,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 3,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 32,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 4
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 1,
+          "steps": 18,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": -1,
+          "steps": 15,
+          "score": 14.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.1411290322580645,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 0,
+          "steps": 15,
+          "score": 14.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.1411290322580645,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": -1,
+          "steps": 15,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 13,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 0,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 2
+          }
+        }
+      ]
+    }
+  },
+  "baseline": {
+    "exactExpo": {
+      "phaseOffset": 0.0,
+      "initialColumn": 0,
+      "steps": 6,
+      "score": 3.0,
+      "targetScore": 99.2,
+      "scoreRatioToTarget": 0.030241935483870965,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 3,
+      "terminalReason": "water",
+      "actions": {
+        "forward": 3,
+        "left": 2,
+        "right": 1
+      }
+    },
+    "robust": {
+      "episodes": 21,
+      "successes": 0,
+      "reachedStepLimit": 0,
+      "progressQualified": 0,
+      "stalled": 0,
+      "meanScore": 3.0,
+      "medianScore": 3.0,
+      "terminalReasons": {
+        "water": 21
+      },
+      "actions": {
+        "forward": 63,
+        "left": 13,
+        "right": 24
+      }
+    },
+    "perVariant": [
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": -1,
+        "steps": 6,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 6,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 1,
+        "steps": 5,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": -1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 0,
+        "steps": 5,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 3
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": -1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 0,
+        "steps": 8,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 3
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 4,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": -1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 4,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": -1,
+        "steps": 4,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 4,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": -1,
+        "steps": 4,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": -1,
+        "steps": 5,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 2,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      }
+    ]
+  },
+  "rounds": [
+    {
+      "globalRound": 1,
+      "phase": "retina-only",
+      "phaseRound": 1,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 2,
+            "right": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 5,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 8,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 3,
+            "left": 2,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "right": 2
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-only",
+        "epochs": 3,
+        "retinaLearningRate": 0.001,
+        "coreLearningRate": 0.0,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 0,
+        "effectivePlasticLeaks": 0,
+        "samples": 430,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 2.6179497752870833,
+            "preference": 2.1150990149804523,
+            "distill": 0.008273805500181197,
+            "trust": 4.729769602412099e-05
+          },
+          {
+            "epoch": 2,
+            "loss": 2.447306888444083,
+            "preference": 1.8213245847395487,
+            "distill": 0.07026451826095581,
+            "trust": 0.0001431626509916636
+          },
+          {
+            "epoch": 3,
+            "loss": 2.2006951506648744,
+            "preference": 1.669142413352217,
+            "distill": 0.044355039085660665,
+            "trust": 0.0002467857598925808
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 11,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 7,
+          "left": 1,
+          "right": 3
+        }
+      },
+      "accepted": true,
+      "acceptedClosedLoop": {
+        "exactExpo": {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 11,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        "robust": {
+          "episodes": 21,
+          "successes": 0,
+          "reachedStepLimit": 0,
+          "progressQualified": 0,
+          "stalled": 0,
+          "meanScore": 3.6666666666666665,
+          "medianScore": 3.0,
+          "terminalReasons": {
+            "vehicle": 3,
+            "water": 18
+          },
+          "actions": {
+            "forward": 77,
+            "left": 11,
+            "right": 17
+          }
+        },
+        "perVariant": [
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": -1,
+            "steps": 6,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 3,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 1,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 0,
+            "steps": 11,
+            "score": 7.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.07056451612903225,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 3,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 7,
+              "left": 1,
+              "right": 3
+            }
+          },
+          {
+            "phaseOffset": 0.0,
+            "initialColumn": 1,
+            "steps": 5,
+            "score": 4.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.04032258064516129,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 1,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": -1,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 0,
+            "steps": 7,
+            "score": 6.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.06048387096774193,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 1,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "left": 1
+            }
+          },
+          {
+            "phaseOffset": 0.2,
+            "initialColumn": 1,
+            "steps": 5,
+            "score": 4.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.04032258064516129,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 1,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": -1,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 0,
+            "steps": 7,
+            "score": 6.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.06048387096774193,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 1,
+            "terminalReason": "vehicle",
+            "actions": {
+              "forward": 6,
+              "left": 1
+            }
+          },
+          {
+            "phaseOffset": 0.4,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 3,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 2,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": -1,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.6,
+            "initialColumn": 1,
+            "steps": 7,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 4,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 2,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": -1,
+            "steps": 4,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 1,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 0.8,
+            "initialColumn": 1,
+            "steps": 7,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 4,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 2,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": -1,
+            "steps": 5,
+            "score": 4.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.04032258064516129,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 1,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 1.0,
+            "initialColumn": 1,
+            "steps": 6,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 3,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3,
+              "left": 1,
+              "right": 2
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": -1,
+            "steps": 5,
+            "score": 4.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.04032258064516129,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 1,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 4,
+              "right": 1
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 0,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          },
+          {
+            "phaseOffset": 1.2,
+            "initialColumn": 1,
+            "steps": 3,
+            "score": 3.0,
+            "targetScore": 99.2,
+            "scoreRatioToTarget": 0.030241935483870965,
+            "reachedStepLimit": false,
+            "progressQualified": false,
+            "success": false,
+            "stalled": false,
+            "maxNoProgressStreak": 0,
+            "terminalReason": "water",
+            "actions": {
+              "forward": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "globalRound": 2,
+      "phase": "retina-only",
+      "phaseRound": 2,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-only",
+        "epochs": 3,
+        "retinaLearningRate": 0.001,
+        "coreLearningRate": 0.0,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 0,
+        "effectivePlasticLeaks": 0,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 1.8989944841180528,
+            "preference": 1.556849597820214,
+            "distill": 0.0060298566215258075,
+            "trust": 8.248460980147293e-06
+          },
+          {
+            "epoch": 2,
+            "loss": 1.8062436282634735,
+            "preference": 1.5062865316867828,
+            "distill": 0.005067884223535657,
+            "trust": 5.564307463958228e-05
+          },
+          {
+            "epoch": 3,
+            "loss": 1.7044303587504797,
+            "preference": 1.4250912304435457,
+            "distill": 0.003530763355748994,
+            "trust": 0.00011876787773092343
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 6,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 3,
+      "phase": "retina-only",
+      "phaseRound": 3,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-only",
+        "epochs": 3,
+        "retinaLearningRate": 0.001,
+        "coreLearningRate": 0.0,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 0,
+        "effectivePlasticLeaks": 0,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 2.034441347633089,
+            "preference": 1.7117352059909277,
+            "distill": 0.0021422814937060203,
+            "trust": 2.2930373773988322e-05
+          },
+          {
+            "epoch": 2,
+            "loss": 1.8066684497254235,
+            "preference": 1.5066054686903954,
+            "distill": 0.00563699658960104,
+            "trust": 5.430285688947022e-05
+          },
+          {
+            "epoch": 3,
+            "loss": 1.701179380927767,
+            "preference": 1.4216157719492912,
+            "distill": 0.002032238125268902,
+            "trust": 9.838372274576354e-05
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 6,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 4,
+      "phase": "retina-only",
+      "phaseRound": 4,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-only",
+        "epochs": 3,
+        "retinaLearningRate": 0.001,
+        "coreLearningRate": 0.0,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 0,
+        "effectivePlasticLeaks": 0,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 1.8850827834435873,
+            "preference": 1.4673010941062654,
+            "distill": 0.007320967331900923,
+            "trust": 1.3323105280603289e-05
+          },
+          {
+            "epoch": 2,
+            "loss": 2.1987920701503754,
+            "preference": 1.7074687917317664,
+            "distill": 0.07543884896274124,
+            "trust": 6.670563548790856e-05
+          },
+          {
+            "epoch": 3,
+            "loss": 1.8068594421659196,
+            "preference": 1.4825884295361382,
+            "distill": 0.018513261606650695,
+            "trust": 0.00013164465105676624
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 12,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 5,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 1,
+          "right": 5
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 5,
+      "phase": "retina-hop1",
+      "phaseRound": 1,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-hop1",
+        "epochs": 2,
+        "retinaLearningRate": 0.0005,
+        "coreLearningRate": 0.00015,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 66533,
+        "effectivePlasticLeaks": 27104,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 1.9602210159812654,
+            "preference": 1.640743300318718,
+            "distill": 0.00944060713778429,
+            "trust": 2.957312605847814e-06
+          },
+          {
+            "epoch": 2,
+            "loss": 1.8085566929408483,
+            "preference": 1.5187583065458707,
+            "distill": 0.009958686174026557,
+            "trust": 8.672888400594405e-06
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 14,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 4,
+          "right": 1,
+          "wait": 3
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 6,
+      "phase": "retina-hop1",
+      "phaseRound": 2,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-hop1",
+        "epochs": 2,
+        "retinaLearningRate": 0.0005,
+        "coreLearningRate": 0.00015,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 66533,
+        "effectivePlasticLeaks": 27104,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 1.8861418281282698,
+            "preference": 1.5907092722398894,
+            "distill": 0.0033399683137592512,
+            "trust": 1.8048797331614099e-06
+          },
+          {
+            "epoch": 2,
+            "loss": 1.7583607115915842,
+            "preference": 1.4879706193293845,
+            "distill": 0.003452293774379151,
+            "trust": 7.932124861196956e-06
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 14,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 4,
+          "right": 1,
+          "wait": 3
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 7,
+      "phase": "retina-hop1",
+      "phaseRound": 3,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-hop1",
+        "epochs": 2,
+        "retinaLearningRate": 0.0005,
+        "coreLearningRate": 0.00015,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 66533,
+        "effectivePlasticLeaks": 27104,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 1.9127475880086422,
+            "preference": 1.5885372422635555,
+            "distill": 0.0011270258180502424,
+            "trust": 1.6348358879980651e-06
+          },
+          {
+            "epoch": 2,
+            "loss": 1.7932863852807455,
+            "preference": 1.5063940648521696,
+            "distill": 0.0021177862571286304,
+            "trust": 8.235329452028444e-06
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 11,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 7,
+          "left": 1,
+          "right": 3
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 8,
+      "phase": "retina-hop2",
+      "phaseRound": 1,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-hop2",
+        "epochs": 2,
+        "retinaLearningRate": 0.0003,
+        "coreLearningRate": 8e-05,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 2531883,
+        "effectivePlasticLeaks": 111733,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 2.0136734790035655,
+            "preference": 1.6726326665707998,
+            "distill": 0.017405891696449367,
+            "trust": 9.345844727956123e-07
+          },
+          {
+            "epoch": 2,
+            "loss": 1.8960072956979275,
+            "preference": 1.55482517182827,
+            "distill": 0.002671788213774562,
+            "trust": 2.2919884941074997e-06
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 13,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 6,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 3,
+          "right": 1,
+          "wait": 3
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 9,
+      "phase": "retina-hop2",
+      "phaseRound": 2,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-hop2",
+        "epochs": 2,
+        "retinaLearningRate": 0.0003,
+        "coreLearningRate": 8e-05,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 2531883,
+        "effectivePlasticLeaks": 111733,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 1.8031696932656425,
+            "preference": 1.521966009267739,
+            "distill": 0.001392844856992172,
+            "trust": 8.85087886410523e-07
+          },
+          {
+            "epoch": 2,
+            "loss": 1.8009383146251952,
+            "preference": 1.5219126354370798,
+            "distill": 0.0012977819548853273,
+            "trust": 3.867723616427351e-06
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 13,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 6,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 3,
+          "right": 1,
+          "wait": 3
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    },
+    {
+      "globalRound": 10,
+      "phase": "retina-hop2",
+      "phaseRound": 3,
+      "collection": [
+        {
+          "source": "teacher",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 44,
+            "right": 29,
+            "wait": 3
+          }
+        },
+        {
+          "source": "teacher",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 200,
+          "score": 124.0,
+          "terminalReason": null,
+          "fatalBehavior": 0,
+          "unacceptableBehavior": 0,
+          "actions": {
+            "forward": 124,
+            "left": 45,
+            "right": 28,
+            "wait": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "frames": 11,
+          "score": 7.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 3,
+          "actions": {
+            "forward": 7,
+            "left": 1,
+            "right": 3
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "frames": 7,
+          "score": 6.0,
+          "terminalReason": "vehicle",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 6,
+            "left": 1
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "frames": 6,
+          "score": 3.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 2,
+          "actions": {
+            "forward": 3,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "source": "student",
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "frames": 5,
+          "score": 4.0,
+          "terminalReason": "water",
+          "fatalBehavior": 1,
+          "unacceptableBehavior": 1,
+          "actions": {
+            "forward": 4,
+            "right": 1
+          }
+        }
+      ],
+      "training": {
+        "phase": "retina-hop2",
+        "epochs": 2,
+        "retinaLearningRate": 0.0003,
+        "coreLearningRate": 8e-05,
+        "distillWeight": 4.0,
+        "progressWeight": 0.75,
+        "trustWeight": 0.05,
+        "retinaParameters": 8452,
+        "effectivePlasticEdges": 2531883,
+        "effectivePlasticLeaks": 111733,
+        "samples": 436,
+        "sources": {
+          "student": 5,
+          "teacher": 2
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "loss": 1.9576685173170907,
+            "preference": 1.6609486948166574,
+            "distill": 0.011595257707373971,
+            "trust": 1.0591347860966493e-06
+          },
+          {
+            "epoch": 2,
+            "loss": 1.8357108788830894,
+            "preference": 1.4840589793665069,
+            "distill": 0.002506792445534042,
+            "trust": 3.279908412423538e-06
+          }
+        ]
+      },
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 13,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 6,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 3,
+          "right": 1,
+          "wait": 3
+        }
+      },
+      "accepted": false,
+      "acceptedClosedLoop": null
+    }
+  ],
+  "selectedStage": "retina-only-round-1",
+  "selectedClosedLoop": {
+    "exactExpo": {
+      "phaseOffset": 0.0,
+      "initialColumn": 0,
+      "steps": 11,
+      "score": 7.0,
+      "targetScore": 99.2,
+      "scoreRatioToTarget": 0.07056451612903225,
+      "reachedStepLimit": false,
+      "progressQualified": false,
+      "success": false,
+      "stalled": false,
+      "maxNoProgressStreak": 3,
+      "terminalReason": "vehicle",
+      "actions": {
+        "forward": 7,
+        "left": 1,
+        "right": 3
+      }
+    },
+    "robust": {
+      "episodes": 21,
+      "successes": 0,
+      "reachedStepLimit": 0,
+      "progressQualified": 0,
+      "stalled": 0,
+      "meanScore": 3.6666666666666665,
+      "medianScore": 3.0,
+      "terminalReasons": {
+        "vehicle": 3,
+        "water": 18
+      },
+      "actions": {
+        "forward": 77,
+        "left": 11,
+        "right": 17
+      }
+    },
+    "perVariant": [
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": -1,
+        "steps": 6,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 11,
+        "score": 7.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.07056451612903225,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 7,
+          "left": 1,
+          "right": 3
+        }
+      },
+      {
+        "phaseOffset": 0.0,
+        "initialColumn": 1,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": -1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 0,
+        "steps": 7,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 1
+        }
+      },
+      {
+        "phaseOffset": 0.2,
+        "initialColumn": 1,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": -1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 0,
+        "steps": 7,
+        "score": 6.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.06048387096774193,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 6,
+          "left": 1
+        }
+      },
+      {
+        "phaseOffset": 0.4,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": -1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.6,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 4,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": -1,
+        "steps": 4,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 0.8,
+        "initialColumn": 1,
+        "steps": 7,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 4,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 2,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": -1,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 1.0,
+        "initialColumn": 1,
+        "steps": 6,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 3,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3,
+          "left": 1,
+          "right": 2
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": -1,
+        "steps": 5,
+        "score": 4.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.04032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 1,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 4,
+          "right": 1
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 0,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      },
+      {
+        "phaseOffset": 1.2,
+        "initialColumn": 1,
+        "steps": 3,
+        "score": 3.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.030241935483870965,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 0,
+        "terminalReason": "water",
+        "actions": {
+          "forward": 3
+        }
+      }
+    ]
+  },
+  "bestCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v6-structured-retina-core\\best.pt",
+  "stopReason": "completed-v6-curriculum",
+  "nextAction": "reject-v6-structured-retina-topology-and-redesign",
+  "elapsedSeconds": 1475.7361247999997,
+  "interpretation": "V6 replaced random/global camera routing with a deterministic local structured retina. The MLP64 motor decoder stayed frozen. Core plasticity was progressively expanded from retina-only to measured sensory outgoing edges and then one additional hop."
+}

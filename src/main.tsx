@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import { App } from './App';
 import { BiomechanicsDebugApp } from './BiomechanicsDebugApp';
+import { ExpoApp } from './ExpoApp';
 
 import './style.css';
 
@@ -10,6 +11,7 @@ const biomechanicsDebug =
   new URLSearchParams(
     window.location.search,
   ).get('biomechanics') === '1';
+const expoMode = new URLSearchParams(window.location.search).get('expo') === '1';
 
 ReactDOM
   .createRoot(
@@ -17,7 +19,9 @@ ReactDOM
   )
   .render(
     <React.StrictMode>
-      {biomechanicsDebug
+      {expoMode
+        ? <ExpoApp />
+        : biomechanicsDebug
         ? <BiomechanicsDebugApp />
         : <App />}
     </React.StrictMode>,
