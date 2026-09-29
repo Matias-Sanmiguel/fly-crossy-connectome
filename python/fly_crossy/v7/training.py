@@ -17,12 +17,17 @@ from .student import StudentOutput
 from .teacher import PrivilegedTeacher
 
 
+PLANNER_SUPERVISION_WEIGHT = 0.75
+MAX_PLANNER_CLASS_WEIGHT = 4.0
+
+
 @dataclass(frozen=True, slots=True)
 class StudentLoss:
     total: Tensor
     distillation: Tensor
     preference: Tensor
     safety: Tensor
+    planner: Tensor
     trust: Tensor
 
 
@@ -33,6 +38,8 @@ class StudentBatch:
     immediate_safe: Tensor
     pair_sign: Tensor
     pair_weight: Tensor
+    best_action: Tensor
+    best_action_weight: Tensor
     teacher_logits: Tensor
     mask: Tensor
 
@@ -64,15 +71,26 @@ def _validate_batch(output: StudentOutput, batch: StudentBatch) -> Tensor:
         "immediate_safe": (rows, len(ACTION_NAMES)),
         "pair_sign": (rows, len(PAIR_INDEX)),
         "pair_weight": (rows, len(PAIR_INDEX)),
+        "best_action": (rows,),
+        "best_action_weight": (rows,),
         "teacher_logits": (rows, len(ACTION_NAMES)),
         "mask": (rows,),
     }
     for name, shape in expected.items():
         if tuple(getattr(batch, name).shape) != shape:
             raise ValueError(f"student batch {name} has an incompatible shape")
-    tensors = (output.logits, batch.teacher_logits, batch.pair_weight)
+    tensors = (
+        output.logits,
+        batch.teacher_logits,
+        batch.pair_weight,
+        batch.best_action_weight,
+    )
     if any(not torch.isfinite(value).all() for value in tensors):
         raise FloatingPointError("student loss input contains non-finite values")
+    if bool(((batch.best_action < 0) | (batch.best_action >= len(ACTION_NAMES))).any()):
+        raise ValueError("student batch best_action contains an invalid action")
+    if bool((batch.best_action_weight <= 0).any()):
+        raise ValueError("student batch best_action_weight must be positive")
     mask = batch.mask.bool()
     if not bool(mask.any()):
         raise ValueError("student batch mask must select at least one row")
@@ -125,18 +143,56 @@ def student_loss(
         torch.softmax(logits, dim=1)
         * (~batch.immediate_safe[mask].bool()).to(logits.dtype)
     ).sum(dim=1).mean()
-    total = distillation + preference + 2.0 * safety + 0.01 * trust_penalty
+    best_action = batch.best_action[mask].long()
+    best_action_weight = batch.best_action_weight[mask].to(logits.dtype)
+    planner = (
+        F.cross_entropy(logits, best_action, reduction="none") * best_action_weight
+    ).sum() / best_action_weight.sum().clamp_min(1e-6)
+    total = (
+        distillation
+        + preference
+        + 2.0 * safety
+        + PLANNER_SUPERVISION_WEIGHT * planner
+        + 0.01 * trust_penalty
+    )
     if not all(
         bool(torch.isfinite(value))
-        for value in (total, distillation, preference, safety, trust_penalty)
+        for value in (
+            total,
+            distillation,
+            preference,
+            safety,
+            planner,
+            trust_penalty,
+        )
     ):
         raise FloatingPointError("student loss is non-finite")
-    return StudentLoss(total, distillation, preference, safety, trust_penalty)
+    return StudentLoss(
+        total, distillation, preference, safety, planner, trust_penalty
+    )
+
+
+def _planner_row_weights(dataset: TransitionDataset) -> np.ndarray:
+    counts = np.bincount(dataset.best_action, minlength=len(ACTION_NAMES)).astype(
+        np.float64
+    )
+    present = counts > 0
+    class_weights = np.zeros(len(ACTION_NAMES), dtype=np.float64)
+    class_weights[present] = len(dataset.best_action) / (
+        present.sum() * counts[present]
+    )
+    class_weights[present] = np.clip(
+        class_weights[present], 0.25, MAX_PLANNER_CLASS_WEIGHT
+    )
+    row_weights = class_weights[dataset.best_action]
+    row_weights /= row_weights.mean()
+    return row_weights.astype(np.float32)
 
 
 def _batch_for_rows(
     dataset: TransitionDataset,
     teacher_logits: np.ndarray,
+    planner_row_weights: np.ndarray,
     rows: np.ndarray,
     device: torch.device,
 ) -> StudentBatch:
@@ -147,6 +203,10 @@ def _batch_for_rows(
         immediate_safe=torch.as_tensor(dataset.immediate_safe[rows], device=device),
         pair_sign=torch.as_tensor(dataset.pair_sign[rows], device=device),
         pair_weight=torch.as_tensor(dataset.pair_weight[rows], device=device),
+        best_action=torch.as_tensor(dataset.best_action[rows], device=device),
+        best_action_weight=torch.as_tensor(
+            planner_row_weights[rows], dtype=torch.float32, device=device
+        ),
         teacher_logits=torch.as_tensor(teacher_logits[rows], device=device),
         mask=torch.ones(len(rows), dtype=torch.bool, device=device),
     )
@@ -174,10 +234,14 @@ def fit_student_epoch(
         raise ValueError("student has no trainable parameters")
     device = parameters[0].device
     reference = [parameter.detach().clone() for parameter in parameters]
+    planner_row_weights = _planner_row_weights(dataset)
     rng = np.random.default_rng(seed)
     episode_names = np.unique(dataset.episode_seed)
     rng.shuffle(episode_names)
-    totals = {name: 0.0 for name in ("total", "distillation", "preference", "safety", "trust")}
+    totals = {
+        name: 0.0
+        for name in ("total", "distillation", "preference", "safety", "planner", "trust")
+    }
     samples = 0
     model.train()
     effective_window = min(window, batch_size)
@@ -203,7 +267,9 @@ def fit_student_epoch(
                 ),
                 next_recurrent_state=recurrent_state,
             )
-            batch = _batch_for_rows(dataset, teacher_logits, rows, device)
+            batch = _batch_for_rows(
+                dataset, teacher_logits, planner_row_weights, rows, device
+            )
             trust = torch.stack(
                 [
                     (parameter - original).square().mean()

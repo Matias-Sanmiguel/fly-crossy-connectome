@@ -135,6 +135,56 @@ def test_every_promotion_gate_is_authoritative(mutation: str, predicate: str) ->
         assert decision.next_action == "reject"
 
 
+def test_action_distribution_gate_rejects_missing_predecessor_actions() -> None:
+    predecessor_actions = (0,) * 34 + (2,) * 33 + (3,) * 33
+    candidate_actions = (0,) * 60 + (4,) * 40
+    predecessor = tuple(
+        replace(_episode(f"seed-{index}", 10.0), actions=predecessor_actions)
+        for index in range(3)
+    )
+    candidate = tuple(
+        replace(_episode(f"seed-{index}", 12.0), actions=candidate_actions)
+        for index in range(3)
+    )
+
+    decision = decide_promotion(
+        profile="80",
+        predecessor=predecessor,
+        candidate=candidate,
+        planner_agreement=0.95,
+        agreement_threshold=0.8,
+        final_test_passed=True,
+    )
+
+    assert max(aggregate_metrics(candidate).action_distribution) <= 0.85
+    assert not decision.predicates["actionDistributionHealthy"]
+    assert decision.next_action != "promote"
+
+
+def test_action_distribution_gate_rejects_single_action_dominance_above_85_percent() -> None:
+    predecessor_actions = (0,) * 34 + (2,) * 33 + (3,) * 33
+    candidate_actions = (0,) * 86 + (4,) * 14
+    predecessor = tuple(
+        replace(_episode(f"seed-{index}", 10.0), actions=predecessor_actions)
+        for index in range(3)
+    )
+    candidate = tuple(
+        replace(_episode(f"seed-{index}", 12.0), actions=candidate_actions)
+        for index in range(3)
+    )
+
+    decision = decide_promotion(
+        profile="80",
+        predecessor=predecessor,
+        candidate=candidate,
+        planner_agreement=0.95,
+        agreement_threshold=0.8,
+        final_test_passed=True,
+    )
+
+    assert not decision.predicates["actionDistributionHealthy"]
+
+
 def test_teacher_and_student_agreement_thresholds_can_be_expressed_exactly() -> None:
     predecessor = _suite([10.0] * 5)
     candidate = _suite([12.0] * 5)

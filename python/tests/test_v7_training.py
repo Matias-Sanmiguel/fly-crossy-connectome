@@ -11,6 +11,7 @@ from fly_crossy.v7.teacher import PrivilegedTeacher
 from fly_crossy.v7.training import (
     StudentBatch,
     attach_teacher_logits,
+    _planner_row_weights,
     fit_student_epoch,
     student_behavior,
     student_loss,
@@ -53,6 +54,8 @@ def _batch(rows: int = 3) -> StudentBatch:
         immediate_safe=torch.tensor([[True, True, True, True, False]] * rows),
         pair_sign=torch.tensor([[1, 1, 1, 1, 0, 0, 0, 0, 0, 0]] * rows),
         pair_weight=torch.tensor([[1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0]] * rows),
+        best_action=torch.zeros(rows, dtype=torch.long),
+        best_action_weight=torch.ones(rows),
         teacher_logits=torch.tensor([[2.0, 0.0, 0.0, 0.0, -1.0]] * rows),
         mask=torch.ones(rows, dtype=torch.bool),
     )
@@ -82,25 +85,45 @@ def test_student_loss_has_exact_weighted_components_and_temperature_two_kl() -> 
     assert loss.distillation > 0
     assert loss.preference > 0
     assert loss.safety > 0
+    assert loss.planner > 0
     assert loss.trust is trust
     assert torch.allclose(
         loss.total,
-        loss.distillation + loss.preference + 2.0 * loss.safety + 0.01 * trust,
+        loss.distillation
+        + loss.preference
+        + 2.0 * loss.safety
+        + 0.75 * loss.planner
+        + 0.01 * trust,
     )
 
 
-@pytest.mark.parametrize("field", ["teacher_logits", "pair_weight"])
+@pytest.mark.parametrize(
+    "field", ["teacher_logits", "pair_weight", "best_action_weight"]
+)
 def test_student_loss_rejects_nonfinite_inputs(field: str) -> None:
     batch = _batch()
-    getattr(batch, field)[0, 0] = torch.nan
+    getattr(batch, field).view(-1)[0] = torch.nan
     output = StudentOutput(torch.zeros(3, 5), torch.zeros(3, 2), torch.zeros(3, 2))
     with pytest.raises(FloatingPointError):
         student_loss(output, batch, trust_penalty=torch.tensor(0.0))
 
 
+def test_planner_row_weights_upweight_rare_best_actions() -> None:
+    dataset = _dataset(10)
+    dataset.best_action[:] = 0
+    dataset.best_action[-1] = 3
+
+    weights = _planner_row_weights(dataset)
+
+    assert weights.shape == (10,)
+    assert weights.dtype == np.float32
+    assert weights[-1] > weights[0]
+    assert weights.mean() == pytest.approx(1.0)
+
+
 def test_joint_update_changes_visual_dynamics_and_motor_but_not_topology() -> None:
     torch.manual_seed(12)
-    model = build_visual_student("1k", device=torch.device("cpu"))
+    model = build_visual_student("80", device=torch.device("cpu"))
     dataset = _dataset()
     teacher_logits = np.tile(
         np.asarray([[3.0, 0.0, -1.0, -2.0, -3.0]], dtype=np.float32),
@@ -136,7 +159,14 @@ def test_joint_update_changes_visual_dynamics_and_motor_but_not_topology() -> No
         seed=41,
     )
 
-    assert set(metrics) == {"total", "distillation", "preference", "safety", "trust"}
+    assert set(metrics) == {
+        "total",
+        "distillation",
+        "preference",
+        "safety",
+        "planner",
+        "trust",
+    }
     assert all(np.isfinite(value) for value in metrics.values())
     after = dict(model.named_parameters())
     assert all(not torch.equal(before[name], after[name].detach()) for name in tracked)

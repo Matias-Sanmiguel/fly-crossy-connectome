@@ -166,6 +166,20 @@ def paired_comparison(
     return PairedComparison(seeds, wins, ties, losses, wins / len(seeds))
 
 
+def _action_distribution_healthy(
+    predecessor: AggregateMetrics,
+    candidate: AggregateMetrics,
+) -> bool:
+    if max(candidate.action_distribution, default=0.0) > 0.85:
+        return False
+    for old_share, new_share in zip(
+        predecessor.action_distribution, candidate.action_distribution, strict=True
+    ):
+        if old_share >= 0.10 and new_share < 0.02:
+            return False
+    return True
+
+
 def decide_promotion(
     *,
     profile: ProfileName,
@@ -193,7 +207,7 @@ def decide_promotion(
         "pairedWinsAtLeast60Percent": paired.win_fraction >= 0.60,
         "successCountNoRegression": new.successes >= old.successes,
         "plannerAgreementPassed": planner_agreement >= agreement_threshold,
-        "actionDistributionHealthy": max(new.action_distribution, default=0.0) <= 0.90,
+        "actionDistributionHealthy": _action_distribution_healthy(old, new),
         "finalTestPassed": bool(final_test_passed),
     }
     reasons = tuple(name for name, passed in predicates.items() if not passed)

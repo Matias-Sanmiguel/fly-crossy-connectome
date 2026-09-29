@@ -175,6 +175,31 @@ def _episodes_json(episodes: tuple[EpisodeMetrics, ...]) -> list[dict[str, Any]]
 
 
 @torch.no_grad()
+def _student_best_action_agreement(
+    student: torch.nn.Module,
+    dataset: TransitionDataset,
+    device: torch.device,
+) -> float:
+    correct = 0
+    total = 0
+    student.eval()
+    for seed in np.unique(dataset.episode_seed):
+        rows = np.flatnonzero(dataset.episode_seed == seed)
+        rows = rows[np.argsort(dataset.step_index[rows])]
+        recurrent = student.zero_state(1, device=device)
+        for row in rows:
+            frame = torch.as_tensor(
+                dataset.frames[row : row + 1], dtype=torch.float32, device=device
+            ) / 255.0
+            output = student(frame, recurrent)
+            recurrent = output.next_recurrent_state
+            action = int(output.logits[0].argmax().item())
+            correct += int(action == int(dataset.best_action[row]))
+            total += 1
+    return correct / total
+
+
+@torch.no_grad()
 def _student_agreement(
     student: torch.nn.Module,
     dataset: TransitionDataset,
@@ -455,6 +480,9 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
         teacher, validation_dataset, device
     )
     agreement = _student_agreement(student, validation_dataset, device)
+    best_action_agreement = _student_best_action_agreement(
+        student, validation_dataset, device
+    )
     decision = decide_promotion(
         profile=config.profile,
         predecessor=baseline_validation,
@@ -501,7 +529,15 @@ def run_curriculum(config: CurriculumConfig) -> dict[str, Any]:
             "baseline": _episodes_json(baseline_validation),
             "candidate": _episodes_json(best_validation),
             "plannerAgreement": agreement,
+            "plannerBestActionAgreement": best_action_agreement,
             "teacherAgreement": teacher_validation_agreement,
+        },
+        "aggregateMetrics": {
+            "validationBaseline": asdict(aggregate_metrics(baseline_validation)),
+            "validationCandidate": asdict(aggregate_metrics(best_validation)),
+            "finalTest": (
+                asdict(aggregate_metrics(final_test)) if final_test else None
+            ),
         },
         "finalTest": _episodes_json(final_test),
         "decision": {
