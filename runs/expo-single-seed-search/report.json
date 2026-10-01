@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "purpose": "single-seed expo specialization seed search",
+  "checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\release\\eval-v6\\training\\connectome\\checkpoint.pt",
+  "checkpointEnvironmentVersion": 6,
+  "runtimeEnvironment": "current repository environment via V1 compatibility adapter",
+  "prefix": "expo-single-seed-2026",
+  "candidateCount": 128,
+  "baselineMaxSteps": 500,
+  "plannerDepth": 4,
+  "plannerMaxSteps": 1000,
+  "topCandidates": [
+    {
+      "seed": "expo-single-seed-2026:0104",
+      "baseline": {
+        "seed": "expo-single-seed-2026:0104",
+        "steps": 500,
+        "score": 72.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "maxNoProgressStreak": 251,
+        "actions": {
+          "backward": 1,
+          "forward": 80,
+          "left": 208,
+          "right": 200,
+          "wait": 11
+        }
+      },
+      "planner": {
+        "seed": "expo-single-seed-2026:0104",
+        "steps": 1000,
+        "score": 545.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "maxNoProgressStreak": 21,
+        "actions": {
+          "backward": 20,
+          "forward": 571,
+          "left": 193,
+          "right": 165,
+          "wait": 51
+        }
+      }
+    },
+    {
+      "seed": "expo-single-seed-2026:0082",
+      "baseline": {
+        "seed": "expo-single-seed-2026:0082",
+        "steps": 500,
+        "score": 86.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "maxNoProgressStreak": 269,
+        "actions": {
+          "forward": 96,
+          "left": 241,
+          "right": 158,
+          "wait": 5
+        }
+      },
+      "planner": {
+        "seed": "expo-single-seed-2026:0082",
+        "steps": 1000,
+        "score": 543.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "maxNoProgressStreak": 42,
+        "actions": {
+          "backward": 20,
+          "forward": 570,
+          "left": 211,
+          "right": 155,
+          "wait": 44
+        }
+      }
+    },
+    {
+      "seed": "expo-single-seed-2026:0062",
+      "baseline": {
+        "seed": "expo-single-seed-2026:0062",
+        "steps": 500,
+        "score": 104.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "maxNoProgressStreak": 141,
+        "actions": {
+          "backward": 9,
+          "forward": 107,
+          "left": 113,
+          "right": 265,
+          "wait": 6
+        }
+      },
+      "planner": {
+        "seed": "expo-single-seed-2026:0062",
+        "steps": 635,
+        "score": 372.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "maxNoProgressStreak": 12,
+        "actions": {
+          "backward": 3,
+          "forward": 377,
+          "left": 121,
+          "right": 114,
+          "wait": 20
+        }
+      }
+    },
+    {
+      "seed": "expo-single-seed-2026:0103",
+      "baseline": {
+        "seed": "expo-single-seed-2026:0103",
+        "steps": 500,
+        "score": 72.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "maxNoProgressStreak": 309,
+        "actions": {
+          "forward": 78,
+          "left": 192,
+          "right": 228,
+          "wait": 2
+        }
+      },
+      "planner": {
+        "seed": "expo-single-seed-2026:0103",
+        "steps": 560,
+        "score": 344.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "maxNoProgressStreak": 15,
+        "actions": {
+          "backward": 3,
+          "forward": 348,
+          "left": 91,
+          "right": 87,
+          "wait": 31
+        }
+      }
+    },
+    {
+      "seed": "expo-single-seed-2026:0006",
+      "baseline": {
+        "seed": "expo-single-seed-2026:0006",
+        "steps": 500,
+        "score": 93.0,
+        "reachedStepLimit": true,
+        "terminalReason": null,
+        "maxNoProgressStreak": 121,
+        "actions": {
+          "forward": 134,
+          "left": 285,
+          "right": 76,
+          "wait": 5
+        }
+      },
+      "planner": {
+        "seed": "expo-single-seed-2026:0006",
+        "steps": 351,
+        "score": 204.0,
+        "reachedStepLimit": false,
+        "terminalReason": "vehicle",
+        "maxNoProgressStreak": 26,
+        "actions": {
+          "backward": 7,
+          "forward": 213,
+          "left": 69,
+          "right": 52,
+          "wait": 10
+        }
+      }
+    }
+  ],
+  "chosen": {
+    "seed": "expo-single-seed-2026:0104",
+    "baseline": {
+      "seed": "expo-single-seed-2026:0104",
+      "steps": 500,
+      "score": 72.0,
+      "reachedStepLimit": true,
+      "terminalReason": null,
+      "maxNoProgressStreak": 251,
+      "actions": {
+        "backward": 1,
+        "forward": 80,
+        "left": 208,
+        "right": 200,
+        "wait": 11
+      }
+    },
+    "planner": {
+      "seed": "expo-single-seed-2026:0104",
+      "steps": 1000,
+      "score": 545.0,
+      "reachedStepLimit": true,
+      "terminalReason": null,
+      "maxNoProgressStreak": 21,
+      "actions": {
+        "backward": 20,
+        "forward": 571,
+        "left": 193,
+        "right": 165,
+        "wait": 51
+      }
+    }
+  },
+  "note": "These are fresh specialization seeds. Sealed release final-test seeds are not reused."
+}

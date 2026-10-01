@@ -1,0 +1,223 @@
+{
+  "version": "crossy-full-malecns-frontier-single-seed-1",
+  "seed": "crossy-v4-expo:0006",
+  "fullMaleCNS": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "baseline": {
+    "steps": 62,
+    "score": 41.0,
+    "row": 41,
+    "terminalReason": "vehicle",
+    "reachedStepLimit": false,
+    "progressRate": 0.6612903225806451,
+    "maxNoProgressStreak": 6,
+    "maxSamePositionStreak": 5,
+    "pingPongReturns": 1,
+    "pingPongRate": 0.016129032258064516,
+    "lateralReversals": 3,
+    "blockedActions": 5,
+    "blockedRate": 0.08064516129032258,
+    "actions": {
+      "forward": 46,
+      "left": 8,
+      "right": 3,
+      "wait": 5
+    }
+  },
+  "targets": [
+    80
+  ],
+  "stages": [
+    {
+      "target": 80,
+      "initial": {
+        "steps": 62,
+        "score": 41.0,
+        "row": 41,
+        "terminalReason": "vehicle",
+        "reachedStepLimit": false,
+        "progressRate": 0.6612903225806451,
+        "maxNoProgressStreak": 6,
+        "maxSamePositionStreak": 5,
+        "pingPongReturns": 1,
+        "pingPongRate": 0.016129032258064516,
+        "lateralReversals": 3,
+        "blockedActions": 5,
+        "blockedRate": 0.08064516129032258,
+        "actions": {
+          "forward": 46,
+          "left": 8,
+          "right": 3,
+          "wait": 5
+        }
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "phase": "sensory-only",
+          "studentCollection": {
+            "totalFrames": 62,
+            "segmentStart": 14,
+            "segmentFrames": 48,
+            "score": 41.0,
+            "row": 41,
+            "terminalReason": "vehicle",
+            "maxNoProgressStreak": 6,
+            "blockedActions": 5,
+            "actions": {
+              "forward": 46,
+              "left": 8,
+              "right": 3,
+              "wait": 5
+            },
+            "labelMethodsBeforeAstar": {
+              "planner-depth4": 46,
+              "trajectory": 2
+            },
+            "astarRelabels": [
+              {
+                "method": "astar",
+                "targetRecoveryRow": 44,
+                "searchLimit": 80,
+                "expansions": 19,
+                "globalStep": 61,
+                "studentAction": "forward",
+                "teacherAction": "right"
+              },
+              {
+                "method": "astar",
+                "targetRecoveryRow": 37,
+                "searchLimit": 80,
+                "expansions": 3,
+                "globalStep": 54,
+                "studentAction": "left",
+                "teacherAction": "forward"
+              },
+              {
+                "method": "astar",
+                "targetRecoveryRow": 30,
+                "searchLimit": 80,
+                "expansions": 4,
+                "globalStep": 45,
+                "studentAction": "wait",
+                "teacherAction": "left"
+              },
+              {
+                "method": "astar",
+                "targetRecoveryRow": 30,
+                "searchLimit": 80,
+                "expansions": 18,
+                "globalStep": 42,
+                "studentAction": "left",
+                "teacherAction": "right"
+              }
+            ],
+            "exactDisagreementsAfterRelabel": 12,
+            "unsafeStudentActions": 1
+          },
+          "teacherFrontier": {
+            "source": "verified-trajectory",
+            "start": 32,
+            "end": 80,
+            "frames": 48
+          },
+          "training": {
+            "phase": "sensory-only",
+            "epochs": 1,
+            "window": 16,
+            "adapterLearningRate": 0.0005,
+            "coreLearningRate": 0.0,
+            "exactWeight": 1.0,
+            "progressWeight": 0.75,
+            "distillWeight": 4.0,
+            "trustWeight": 0.05,
+            "segments": [
+              {
+                "name": "teacher-anchor",
+                "source": "teacher",
+                "frames": 32,
+                "weightMean": 0.4000000059604645,
+                "weightMax": 0.4000000059604645
+              },
+              {
+                "name": "teacher-frontier",
+                "source": "teacher",
+                "frames": 48,
+                "weightMean": 1.75,
+                "weightMax": 2.5
+              },
+              {
+                "name": "student-frontier",
+                "source": "student",
+                "frames": 48,
+                "weightMean": 3.5104167461395264,
+                "weightMax": 20.0
+              }
+            ],
+            "history": [
+              {
+                "epoch": 1,
+                "loss": 1.9921903610229492,
+                "preference": 1.019159622490406,
+                "exactCrossEntropy": 0.8035326264798641,
+                "progress": 0.1827482923399657,
+                "distill": 0.008109220769256353,
+                "trust": 9.269431693326169e-07
+              }
+            ]
+          },
+          "candidate": {
+            "steps": 8,
+            "score": 6.0,
+            "row": 6,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.75,
+            "maxNoProgressStreak": 2,
+            "maxSamePositionStreak": 2,
+            "pingPongReturns": 0,
+            "pingPongRate": 0.0,
+            "lateralReversals": 0,
+            "blockedActions": 0,
+            "blockedRate": 0.0,
+            "actions": {
+              "forward": 6,
+              "wait": 2
+            }
+          },
+          "improved": false,
+          "passed": false
+        }
+      ],
+      "passed": false,
+      "selected": {
+        "steps": 62,
+        "score": 41.0,
+        "row": 41,
+        "terminalReason": "vehicle",
+        "reachedStepLimit": false,
+        "progressRate": 0.6612903225806451,
+        "maxNoProgressStreak": 6,
+        "maxSamePositionStreak": 5,
+        "pingPongReturns": 1,
+        "pingPongRate": 0.016129032258064516,
+        "lateralReversals": 3,
+        "blockedActions": 5,
+        "blockedRate": 0.08064516129032258,
+        "actions": {
+          "forward": 46,
+          "left": 8,
+          "right": 3,
+          "wait": 5
+        }
+      }
+    }
+  ],
+  "currentTarget": 80
+}

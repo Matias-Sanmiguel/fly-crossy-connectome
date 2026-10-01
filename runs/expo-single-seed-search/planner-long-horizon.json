@@ -1,0 +1,17 @@
+{
+  "seed": "expo-single-seed-2026:0104",
+  "depth": 4,
+  "maxSteps": 5000,
+  "steps": 1020,
+  "score": 554.0,
+  "reachedStepLimit": false,
+  "terminalReason": "vehicle",
+  "maxNoProgressStreak": 21,
+  "actions": {
+    "backward": 20,
+    "forward": 580,
+    "left": 203,
+    "right": 166,
+    "wait": 51
+  }
+}

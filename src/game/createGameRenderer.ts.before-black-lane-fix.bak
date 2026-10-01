@@ -166,13 +166,6 @@ export function createGameRenderer(
     geometry: THREE.BufferGeometry = boxGeometry,
   ) => {
     const mesh = new THREE.InstancedMesh(geometry, material, maximum);
-    // These instance matrices are continuously rebuilt around the fly as the
-    // camera advances through an effectively unbounded world. Three.js can
-    // otherwise keep an old InstancedMesh bounding sphere and frustum-cull
-    // the whole lane/hazard batch once the run gets far from the origin.
-    // The pools are tiny and bounded, so disabling frustum culling here is
-    // both cheap and avoids disappearing/black lane surfaces on long replays.
-    mesh.frustumCulled = false;
     mesh.count = 0;
     scene.add(mesh);
     return mesh;

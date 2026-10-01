@@ -1,0 +1,2203 @@
+{
+  "version": "crossy-full-malecns-readout-frontier-nullspace-4",
+  "seed": "crossy-v4-expo:0006",
+  "fullMaleCNS": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "decoderMetadata": {
+    "stage": "branch-stage-1-through-50",
+    "architecture": "mlp64",
+    "motorDim": 708,
+    "metrics": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        }
+      },
+      "robust": {
+        "episodes": 21,
+        "successes": 0,
+        "reachedStepLimit": 0,
+        "progressQualified": 0,
+        "stalled": 0,
+        "meanScore": 16.095238095238095,
+        "medianScore": 7.0,
+        "terminalReasons": {
+          "vehicle": 14,
+          "water": 7
+        },
+        "actions": {
+          "forward": 381,
+          "left": 48,
+          "right": 17,
+          "wait": 26
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "steps": 45,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 9,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 3,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "steps": 53,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 1,
+          "steps": 7,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": -1,
+          "steps": 43,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 7,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 52,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": -1,
+          "steps": 12,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 5,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 0,
+          "steps": 3,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 0,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": -1,
+          "steps": 17,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 3,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 32,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 4
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 1,
+          "steps": 18,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": -1,
+          "steps": 16,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 12,
+            "left": 2,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 0,
+          "steps": 15,
+          "score": 14.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.1411290322580645,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": -1,
+          "steps": 15,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 13,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 0,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 2
+          }
+        }
+      ]
+    },
+    "config": {
+      "seed": "crossy-v4-expo:0006",
+      "rngSeed": 707,
+      "plannerDepth": 4,
+      "maxSteps": 200,
+      "stageEnds": [
+        50,
+        100,
+        150,
+        200
+      ],
+      "rootStride": 1,
+      "branchesPerRoot": 2,
+      "branchHorizon": 12,
+      "epochsPerStage": 80,
+      "decoderLearningRate": 0.003,
+      "decoderBatch": 1024,
+      "progressLossWeight": 1.0,
+      "minimumTeacherFraction": 0.8,
+      "teacherScore": 124.0,
+      "minimumProgressScore": 99.2,
+      "effectiveStallSteps": 12,
+      "MaleCNSRetrained": false,
+      "startingDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-recovery-dagger-v2\\best_decoder.pt",
+      "selectionRule": "exact real-progress success -> exact score -> robust successes -> robust score"
+    }
+  },
+  "sourceV5Checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-full-readout-nullspace-0006-250\\best.pt",
+  "sourceV5Stage": "readout-frontier-repair-1",
+  "config": {
+    "version": "crossy-full-malecns-readout-frontier-nullspace-4",
+    "seed": "crossy-v4-expo:0006",
+    "target": 250,
+    "maxRepairs": 64,
+    "maxBridgeRepairs": 4,
+    "bridgeMaxStall": 12,
+    "margin": 0.5,
+    "protectionRecent": 96,
+    "protectionAnchors": 64,
+    "protectionStrengths": [
+      1.0
+    ],
+    "alphas": [
+      0.9,
+      1.0,
+      1.1
+    ],
+    "fullMaleCNSActive": true,
+    "fullMaleCNSRetrained": false,
+    "readoutSurgery": "minimal regularized updates to existing decoder linear/residual output layers",
+    "selectionRule": "real score gains commit; bounded teacher-approved no-score bridges are tentative"
+  },
+  "baseline": {
+    "steps": 90,
+    "score": 56.0,
+    "row": 56,
+    "terminalReason": "vehicle",
+    "reachedStepLimit": false,
+    "progressRate": 0.6222222222222222,
+    "maxNoProgressStreak": 6,
+    "blockedActions": 5,
+    "pingPongReturns": 2,
+    "actions": {
+      "backward": 1,
+      "forward": 62,
+      "left": 12,
+      "right": 9,
+      "wait": 6
+    }
+  },
+  "repairs": [
+    {
+      "repair": 1,
+      "frontierStep": 89,
+      "frontierScore": 56.0,
+      "terminalReason": "vehicle",
+      "studentAction": "forward",
+      "teacherAction": "right",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 58,
+        "searchLimit": 80,
+        "expansions": 226
+      },
+      "protectedStates": 89,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 89,
+            "protectedRank": 89,
+            "nullspaceDimensionLowerBound": 684,
+            "margin": 0.5,
+            "frontierFeatureNorm": 4.22832559892637,
+            "nullspaceNoveltyNorm": 0.01896056704320055,
+            "nullspaceNoveltyRatio": 0.004484178571303709,
+            "denominator": 0.0003595031026102421,
+            "deltaNorm": 99.42398516487218,
+            "predictedTargetLogit": 1.1224548816680944,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 9.634526509927355e-11,
+            "predictedMeanProtectedLogitDrift": 8.246693714924598e-12,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 89,
+          "metrics": {
+            "steps": 92,
+            "score": 56.0,
+            "row": 56,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.6086956521739131,
+            "maxNoProgressStreak": 6,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 1,
+              "forward": 62,
+              "left": 12,
+              "right": 11,
+              "wait": 6
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": true
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 89,
+            "protectedRank": 89,
+            "nullspaceDimensionLowerBound": 684,
+            "margin": 0.5,
+            "frontierFeatureNorm": 4.22832559892637,
+            "nullspaceNoveltyNorm": 0.01896056704320055,
+            "nullspaceNoveltyRatio": 0.004484178571303709,
+            "denominator": 0.0003595031026102421,
+            "deltaNorm": 99.42398516487218,
+            "predictedTargetLogit": 1.1224548816680944,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 9.634526509927355e-11,
+            "predictedMeanProtectedLogitDrift": 8.246693714924598e-12,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 89,
+          "metrics": {
+            "steps": 92,
+            "score": 56.0,
+            "row": 56,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.6086956521739131,
+            "maxNoProgressStreak": 6,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 1,
+              "forward": 62,
+              "left": 12,
+              "right": 11,
+              "wait": 6
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": true
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 89,
+            "protectedRank": 89,
+            "nullspaceDimensionLowerBound": 684,
+            "margin": 0.5,
+            "frontierFeatureNorm": 4.22832559892637,
+            "nullspaceNoveltyNorm": 0.01896056704320055,
+            "nullspaceNoveltyRatio": 0.004484178571303709,
+            "denominator": 0.0003595031026102421,
+            "deltaNorm": 99.42398516487218,
+            "predictedTargetLogit": 1.1224548816680944,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 9.634526509927355e-11,
+            "predictedMeanProtectedLogitDrift": 8.246693714924598e-12,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 89,
+          "metrics": {
+            "steps": 92,
+            "score": 56.0,
+            "row": 56,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.6086956521739131,
+            "maxNoProgressStreak": 6,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 1,
+              "forward": 62,
+              "left": 12,
+              "right": 11,
+              "wait": 6
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": true
+        }
+      ],
+      "decision": "tentative-bridge",
+      "bridgeDepthAfter": 1,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 89,
+          "protectedRank": 89,
+          "nullspaceDimensionLowerBound": 684,
+          "margin": 0.5,
+          "frontierFeatureNorm": 4.22832559892637,
+          "nullspaceNoveltyNorm": 0.01896056704320055,
+          "nullspaceNoveltyRatio": 0.004484178571303709,
+          "denominator": 0.0003595031026102421,
+          "deltaNorm": 99.42398516487218,
+          "predictedTargetLogit": 1.1224548816680944,
+          "predictedWinner": "right",
+          "predictedMaxProtectedLogitDrift": 9.634526509927355e-11,
+          "predictedMeanProtectedLogitDrift": 8.246693714924598e-12,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 92,
+          "score": 56.0,
+          "row": 56,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.6086956521739131,
+          "maxNoProgressStreak": 6,
+          "blockedActions": 5,
+          "pingPongReturns": 2,
+          "actions": {
+            "backward": 1,
+            "forward": 62,
+            "left": 12,
+            "right": 11,
+            "wait": 6
+          }
+        }
+      }
+    },
+    {
+      "repair": 2,
+      "frontierStep": 91,
+      "frontierScore": 56.0,
+      "terminalReason": "vehicle",
+      "studentAction": "right",
+      "teacherAction": "backward",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 58,
+        "searchLimit": 80,
+        "expansions": 83
+      },
+      "protectedStates": 91,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 91,
+            "protectedRank": 91,
+            "nullspaceDimensionLowerBound": 682,
+            "margin": 0.5,
+            "frontierFeatureNorm": 6.441734523683032,
+            "nullspaceNoveltyNorm": 0.025687882171668012,
+            "nullspaceNoveltyRatio": 0.003987727540963778,
+            "denominator": 0.0006598672904599354,
+            "deltaNorm": 98.85869165733791,
+            "predictedTargetLogit": 1.0323321223259057,
+            "predictedWinner": "backward",
+            "predictedMaxProtectedLogitDrift": 4.448919010968666e-11,
+            "predictedMeanProtectedLogitDrift": 4.726881828566896e-12,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 91,
+          "metrics": {
+            "steps": 102,
+            "score": 56.0,
+            "row": 54,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5490196078431373,
+            "maxNoProgressStreak": 11,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 4,
+              "forward": 63,
+              "left": 12,
+              "right": 10,
+              "wait": 13
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": true
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 91,
+            "protectedRank": 91,
+            "nullspaceDimensionLowerBound": 682,
+            "margin": 0.5,
+            "frontierFeatureNorm": 6.441734523683032,
+            "nullspaceNoveltyNorm": 0.025687882171668012,
+            "nullspaceNoveltyRatio": 0.003987727540963778,
+            "denominator": 0.0006598672904599354,
+            "deltaNorm": 98.85869165733791,
+            "predictedTargetLogit": 1.0323321223259057,
+            "predictedWinner": "backward",
+            "predictedMaxProtectedLogitDrift": 4.448919010968666e-11,
+            "predictedMeanProtectedLogitDrift": 4.726881828566896e-12,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 91,
+          "metrics": {
+            "steps": 102,
+            "score": 56.0,
+            "row": 54,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5490196078431373,
+            "maxNoProgressStreak": 11,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 4,
+              "forward": 63,
+              "left": 12,
+              "right": 10,
+              "wait": 13
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": true
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 91,
+            "protectedRank": 91,
+            "nullspaceDimensionLowerBound": 682,
+            "margin": 0.5,
+            "frontierFeatureNorm": 6.441734523683032,
+            "nullspaceNoveltyNorm": 0.025687882171668012,
+            "nullspaceNoveltyRatio": 0.003987727540963778,
+            "denominator": 0.0006598672904599354,
+            "deltaNorm": 98.85869165733791,
+            "predictedTargetLogit": 1.0323321223259057,
+            "predictedWinner": "backward",
+            "predictedMaxProtectedLogitDrift": 4.448919010968666e-11,
+            "predictedMeanProtectedLogitDrift": 4.726881828566896e-12,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 91,
+          "metrics": {
+            "steps": 102,
+            "score": 56.0,
+            "row": 54,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5490196078431373,
+            "maxNoProgressStreak": 11,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 4,
+              "forward": 63,
+              "left": 12,
+              "right": 10,
+              "wait": 13
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": true
+        }
+      ],
+      "decision": "tentative-bridge",
+      "bridgeDepthAfter": 2,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 91,
+          "protectedRank": 91,
+          "nullspaceDimensionLowerBound": 682,
+          "margin": 0.5,
+          "frontierFeatureNorm": 6.441734523683032,
+          "nullspaceNoveltyNorm": 0.025687882171668012,
+          "nullspaceNoveltyRatio": 0.003987727540963778,
+          "denominator": 0.0006598672904599354,
+          "deltaNorm": 98.85869165733791,
+          "predictedTargetLogit": 1.0323321223259057,
+          "predictedWinner": "backward",
+          "predictedMaxProtectedLogitDrift": 4.448919010968666e-11,
+          "predictedMeanProtectedLogitDrift": 4.726881828566896e-12,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 102,
+          "score": 56.0,
+          "row": 54,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.5490196078431373,
+          "maxNoProgressStreak": 11,
+          "blockedActions": 5,
+          "pingPongReturns": 2,
+          "actions": {
+            "backward": 4,
+            "forward": 63,
+            "left": 12,
+            "right": 10,
+            "wait": 13
+          }
+        }
+      }
+    },
+    {
+      "repair": 3,
+      "frontierStep": 101,
+      "frontierScore": 56.0,
+      "terminalReason": "vehicle",
+      "studentAction": "backward",
+      "teacherAction": "wait",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 58,
+        "searchLimit": 80,
+        "expansions": 7
+      },
+      "protectedStates": 101,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 101,
+            "protectedRank": 101,
+            "nullspaceDimensionLowerBound": 672,
+            "margin": 0.5,
+            "frontierFeatureNorm": 7.403771654031045,
+            "nullspaceNoveltyNorm": 0.016661263127791523,
+            "nullspaceNoveltyRatio": 0.002250375066432547,
+            "denominator": 0.0002775976890614113,
+            "deltaNorm": 101.96982721850864,
+            "predictedTargetLogit": 1.8673773407936236,
+            "predictedWinner": "wait",
+            "predictedMaxProtectedLogitDrift": 3.115514790597018e-10,
+            "predictedMeanProtectedLogitDrift": 4.318938683037645e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 101,
+          "metrics": {
+            "steps": 119,
+            "score": 69.0,
+            "row": 69,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5798319327731093,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 3,
+              "forward": 77,
+              "left": 15,
+              "right": 10,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 101,
+            "protectedRank": 101,
+            "nullspaceDimensionLowerBound": 672,
+            "margin": 0.5,
+            "frontierFeatureNorm": 7.403771654031045,
+            "nullspaceNoveltyNorm": 0.016661263127791523,
+            "nullspaceNoveltyRatio": 0.002250375066432547,
+            "denominator": 0.0002775976890614113,
+            "deltaNorm": 101.96982721850864,
+            "predictedTargetLogit": 1.8673773407936236,
+            "predictedWinner": "wait",
+            "predictedMaxProtectedLogitDrift": 3.115514790597018e-10,
+            "predictedMeanProtectedLogitDrift": 4.318938683037645e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 101,
+          "metrics": {
+            "steps": 119,
+            "score": 69.0,
+            "row": 69,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5798319327731093,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 3,
+              "forward": 77,
+              "left": 15,
+              "right": 10,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 101,
+            "protectedRank": 101,
+            "nullspaceDimensionLowerBound": 672,
+            "margin": 0.5,
+            "frontierFeatureNorm": 7.403771654031045,
+            "nullspaceNoveltyNorm": 0.016661263127791523,
+            "nullspaceNoveltyRatio": 0.002250375066432547,
+            "denominator": 0.0002775976890614113,
+            "deltaNorm": 101.96982721850864,
+            "predictedTargetLogit": 1.8673773407936236,
+            "predictedWinner": "wait",
+            "predictedMaxProtectedLogitDrift": 3.115514790597018e-10,
+            "predictedMeanProtectedLogitDrift": 4.318938683037645e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 101,
+          "metrics": {
+            "steps": 119,
+            "score": 69.0,
+            "row": 69,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5798319327731093,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 3,
+              "forward": 77,
+              "left": 15,
+              "right": 10,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        }
+      ],
+      "decision": "commit-score-gain",
+      "bridgeDepthAfter": 0,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 101,
+          "protectedRank": 101,
+          "nullspaceDimensionLowerBound": 672,
+          "margin": 0.5,
+          "frontierFeatureNorm": 7.403771654031045,
+          "nullspaceNoveltyNorm": 0.016661263127791523,
+          "nullspaceNoveltyRatio": 0.002250375066432547,
+          "denominator": 0.0002775976890614113,
+          "deltaNorm": 101.96982721850864,
+          "predictedTargetLogit": 1.8673773407936236,
+          "predictedWinner": "wait",
+          "predictedMaxProtectedLogitDrift": 3.115514790597018e-10,
+          "predictedMeanProtectedLogitDrift": 4.318938683037645e-11,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 119,
+          "score": 69.0,
+          "row": 69,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.5798319327731093,
+          "maxNoProgressStreak": 12,
+          "blockedActions": 5,
+          "pingPongReturns": 2,
+          "actions": {
+            "backward": 3,
+            "forward": 77,
+            "left": 15,
+            "right": 10,
+            "wait": 14
+          }
+        }
+      }
+    },
+    {
+      "repair": 4,
+      "frontierStep": 118,
+      "frontierScore": 69.0,
+      "terminalReason": "vehicle",
+      "studentAction": "left",
+      "teacherAction": "right",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 72,
+        "searchLimit": 80,
+        "expansions": 12
+      },
+      "protectedStates": 118,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 118,
+            "protectedRank": 118,
+            "nullspaceDimensionLowerBound": 655,
+            "margin": 0.5,
+            "frontierFeatureNorm": 4.8903404763073235,
+            "nullspaceNoveltyNorm": 0.015380613812948706,
+            "nullspaceNoveltyRatio": 0.0031451008140362747,
+            "denominator": 0.00023656328122410647,
+            "deltaNorm": 141.2197192052798,
+            "predictedTargetLogit": 2.1221996694803247,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 3.8329592277897007e-10,
+            "predictedMeanProtectedLogitDrift": 5.037004639891687e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 118,
+          "metrics": {
+            "steps": 120,
+            "score": 70.0,
+            "row": 70,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5833333333333334,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 3,
+              "forward": 78,
+              "left": 14,
+              "right": 11,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 118,
+            "protectedRank": 118,
+            "nullspaceDimensionLowerBound": 655,
+            "margin": 0.5,
+            "frontierFeatureNorm": 4.8903404763073235,
+            "nullspaceNoveltyNorm": 0.015380613812948706,
+            "nullspaceNoveltyRatio": 0.0031451008140362747,
+            "denominator": 0.00023656328122410647,
+            "deltaNorm": 141.2197192052798,
+            "predictedTargetLogit": 2.1221996694803247,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 3.8329592277897007e-10,
+            "predictedMeanProtectedLogitDrift": 5.037004639891687e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 118,
+          "metrics": {
+            "steps": 120,
+            "score": 70.0,
+            "row": 70,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5833333333333334,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 3,
+              "forward": 78,
+              "left": 14,
+              "right": 11,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 118,
+            "protectedRank": 118,
+            "nullspaceDimensionLowerBound": 655,
+            "margin": 0.5,
+            "frontierFeatureNorm": 4.8903404763073235,
+            "nullspaceNoveltyNorm": 0.015380613812948706,
+            "nullspaceNoveltyRatio": 0.0031451008140362747,
+            "denominator": 0.00023656328122410647,
+            "deltaNorm": 141.2197192052798,
+            "predictedTargetLogit": 2.1221996694803247,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 3.8329592277897007e-10,
+            "predictedMeanProtectedLogitDrift": 5.037004639891687e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 118,
+          "metrics": {
+            "steps": 120,
+            "score": 70.0,
+            "row": 70,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5833333333333334,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 2,
+            "actions": {
+              "backward": 3,
+              "forward": 78,
+              "left": 14,
+              "right": 11,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        }
+      ],
+      "decision": "commit-score-gain",
+      "bridgeDepthAfter": 0,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 118,
+          "protectedRank": 118,
+          "nullspaceDimensionLowerBound": 655,
+          "margin": 0.5,
+          "frontierFeatureNorm": 4.8903404763073235,
+          "nullspaceNoveltyNorm": 0.015380613812948706,
+          "nullspaceNoveltyRatio": 0.0031451008140362747,
+          "denominator": 0.00023656328122410647,
+          "deltaNorm": 141.2197192052798,
+          "predictedTargetLogit": 2.1221996694803247,
+          "predictedWinner": "right",
+          "predictedMaxProtectedLogitDrift": 3.8329592277897007e-10,
+          "predictedMeanProtectedLogitDrift": 5.037004639891687e-11,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 120,
+          "score": 70.0,
+          "row": 70,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.5833333333333334,
+          "maxNoProgressStreak": 12,
+          "blockedActions": 5,
+          "pingPongReturns": 2,
+          "actions": {
+            "backward": 3,
+            "forward": 78,
+            "left": 14,
+            "right": 11,
+            "wait": 14
+          }
+        }
+      }
+    },
+    {
+      "repair": 5,
+      "frontierStep": 119,
+      "frontierScore": 70.0,
+      "terminalReason": "vehicle",
+      "studentAction": "forward",
+      "teacherAction": "right",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 72,
+        "searchLimit": 80,
+        "expansions": 6
+      },
+      "protectedStates": 119,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 119,
+            "protectedRank": 119,
+            "nullspaceDimensionLowerBound": 654,
+            "margin": 0.5,
+            "frontierFeatureNorm": 3.984867577768296,
+            "nullspaceNoveltyNorm": 0.013848379511170567,
+            "nullspaceNoveltyRatio": 0.003475242085441213,
+            "denominator": 0.00019177761506650377,
+            "deltaNorm": 113.27987548273886,
+            "predictedTargetLogit": 2.0346854329109227,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 9.776435216934942e-11,
+            "predictedMeanProtectedLogitDrift": 1.3058161088378362e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 119,
+          "metrics": {
+            "steps": 133,
+            "score": 78.0,
+            "row": 78,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5864661654135338,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 86,
+              "left": 16,
+              "right": 14,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 119,
+            "protectedRank": 119,
+            "nullspaceDimensionLowerBound": 654,
+            "margin": 0.5,
+            "frontierFeatureNorm": 3.984867577768296,
+            "nullspaceNoveltyNorm": 0.013848379511170567,
+            "nullspaceNoveltyRatio": 0.003475242085441213,
+            "denominator": 0.00019177761506650377,
+            "deltaNorm": 113.27987548273886,
+            "predictedTargetLogit": 2.0346854329109227,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 9.776435216934942e-11,
+            "predictedMeanProtectedLogitDrift": 1.3058161088378362e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 119,
+          "metrics": {
+            "steps": 133,
+            "score": 78.0,
+            "row": 78,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5864661654135338,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 86,
+              "left": 16,
+              "right": 14,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 119,
+            "protectedRank": 119,
+            "nullspaceDimensionLowerBound": 654,
+            "margin": 0.5,
+            "frontierFeatureNorm": 3.984867577768296,
+            "nullspaceNoveltyNorm": 0.013848379511170567,
+            "nullspaceNoveltyRatio": 0.003475242085441213,
+            "denominator": 0.00019177761506650377,
+            "deltaNorm": 113.27987548273886,
+            "predictedTargetLogit": 2.0346854329109227,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 9.776435216934942e-11,
+            "predictedMeanProtectedLogitDrift": 1.3058161088378362e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 119,
+          "metrics": {
+            "steps": 133,
+            "score": 78.0,
+            "row": 78,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5864661654135338,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 5,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 86,
+              "left": 16,
+              "right": 14,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        }
+      ],
+      "decision": "commit-score-gain",
+      "bridgeDepthAfter": 0,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 119,
+          "protectedRank": 119,
+          "nullspaceDimensionLowerBound": 654,
+          "margin": 0.5,
+          "frontierFeatureNorm": 3.984867577768296,
+          "nullspaceNoveltyNorm": 0.013848379511170567,
+          "nullspaceNoveltyRatio": 0.003475242085441213,
+          "denominator": 0.00019177761506650377,
+          "deltaNorm": 113.27987548273886,
+          "predictedTargetLogit": 2.0346854329109227,
+          "predictedWinner": "right",
+          "predictedMaxProtectedLogitDrift": 9.776435216934942e-11,
+          "predictedMeanProtectedLogitDrift": 1.3058161088378362e-11,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 133,
+          "score": 78.0,
+          "row": 78,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.5864661654135338,
+          "maxNoProgressStreak": 12,
+          "blockedActions": 5,
+          "pingPongReturns": 3,
+          "actions": {
+            "backward": 3,
+            "forward": 86,
+            "left": 16,
+            "right": 14,
+            "wait": 14
+          }
+        }
+      }
+    },
+    {
+      "repair": 6,
+      "frontierStep": 132,
+      "frontierScore": 78.0,
+      "terminalReason": "vehicle",
+      "studentAction": "forward",
+      "teacherAction": "left",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 79,
+        "searchLimit": 80,
+        "expansions": 5
+      },
+      "protectedStates": 132,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 132,
+            "protectedRank": 132,
+            "nullspaceDimensionLowerBound": 641,
+            "margin": 0.5,
+            "frontierFeatureNorm": 2.39611855700608,
+            "nullspaceNoveltyNorm": 0.007572983945008424,
+            "nullspaceNoveltyRatio": 0.003160521386917838,
+            "denominator": 5.7350085829140193e-05,
+            "deltaNorm": 63.64636190645079,
+            "predictedTargetLogit": 1.5499078035354614,
+            "predictedWinner": "left",
+            "predictedMaxProtectedLogitDrift": 1.12145293051924e-10,
+            "predictedMeanProtectedLogitDrift": 1.1860060744942646e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 132,
+          "metrics": {
+            "steps": 141,
+            "score": 82.0,
+            "row": 82,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5815602836879432,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 6,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 90,
+              "left": 20,
+              "right": 14,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 132,
+            "protectedRank": 132,
+            "nullspaceDimensionLowerBound": 641,
+            "margin": 0.5,
+            "frontierFeatureNorm": 2.39611855700608,
+            "nullspaceNoveltyNorm": 0.007572983945008424,
+            "nullspaceNoveltyRatio": 0.003160521386917838,
+            "denominator": 5.7350085829140193e-05,
+            "deltaNorm": 63.64636190645079,
+            "predictedTargetLogit": 1.5499078035354614,
+            "predictedWinner": "left",
+            "predictedMaxProtectedLogitDrift": 1.12145293051924e-10,
+            "predictedMeanProtectedLogitDrift": 1.1860060744942646e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 132,
+          "metrics": {
+            "steps": 141,
+            "score": 82.0,
+            "row": 82,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5815602836879432,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 6,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 90,
+              "left": 20,
+              "right": 14,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 132,
+            "protectedRank": 132,
+            "nullspaceDimensionLowerBound": 641,
+            "margin": 0.5,
+            "frontierFeatureNorm": 2.39611855700608,
+            "nullspaceNoveltyNorm": 0.007572983945008424,
+            "nullspaceNoveltyRatio": 0.003160521386917838,
+            "denominator": 5.7350085829140193e-05,
+            "deltaNorm": 63.64636190645079,
+            "predictedTargetLogit": 1.5499078035354614,
+            "predictedWinner": "left",
+            "predictedMaxProtectedLogitDrift": 1.12145293051924e-10,
+            "predictedMeanProtectedLogitDrift": 1.1860060744942646e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 132,
+          "metrics": {
+            "steps": 141,
+            "score": 82.0,
+            "row": 82,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5815602836879432,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 6,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 90,
+              "left": 20,
+              "right": 14,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        }
+      ],
+      "decision": "commit-score-gain",
+      "bridgeDepthAfter": 0,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 132,
+          "protectedRank": 132,
+          "nullspaceDimensionLowerBound": 641,
+          "margin": 0.5,
+          "frontierFeatureNorm": 2.39611855700608,
+          "nullspaceNoveltyNorm": 0.007572983945008424,
+          "nullspaceNoveltyRatio": 0.003160521386917838,
+          "denominator": 5.7350085829140193e-05,
+          "deltaNorm": 63.64636190645079,
+          "predictedTargetLogit": 1.5499078035354614,
+          "predictedWinner": "left",
+          "predictedMaxProtectedLogitDrift": 1.12145293051924e-10,
+          "predictedMeanProtectedLogitDrift": 1.1860060744942646e-11,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 141,
+          "score": 82.0,
+          "row": 82,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.5815602836879432,
+          "maxNoProgressStreak": 12,
+          "blockedActions": 6,
+          "pingPongReturns": 3,
+          "actions": {
+            "backward": 3,
+            "forward": 90,
+            "left": 20,
+            "right": 14,
+            "wait": 14
+          }
+        }
+      }
+    },
+    {
+      "repair": 7,
+      "frontierStep": 140,
+      "frontierScore": 82.0,
+      "terminalReason": "vehicle",
+      "studentAction": "forward",
+      "teacherAction": "right",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 86,
+        "searchLimit": 80,
+        "expansions": 7
+      },
+      "protectedStates": 140,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 140,
+            "protectedRank": 140,
+            "nullspaceDimensionLowerBound": 633,
+            "margin": 0.5,
+            "frontierFeatureNorm": 2.8969453040942597,
+            "nullspaceNoveltyNorm": 0.006821853666931404,
+            "nullspaceNoveltyRatio": 0.0023548437926287605,
+            "denominator": 4.653768745447604e-05,
+            "deltaNorm": 649.7070620540776,
+            "predictedTargetLogit": 0.9035714268684423,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 3.8389935674842945e-10,
+            "predictedMeanProtectedLogitDrift": 4.657507028858556e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 140,
+          "metrics": {
+            "steps": 162,
+            "score": 91.0,
+            "row": 91,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5617283950617284,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 12,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 99,
+              "left": 21,
+              "right": 25,
+              "wait": 14
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 140,
+            "protectedRank": 140,
+            "nullspaceDimensionLowerBound": 633,
+            "margin": 0.5,
+            "frontierFeatureNorm": 2.8969453040942597,
+            "nullspaceNoveltyNorm": 0.006821853666931404,
+            "nullspaceNoveltyRatio": 0.0023548437926287605,
+            "denominator": 4.653768745447604e-05,
+            "deltaNorm": 649.7070620540776,
+            "predictedTargetLogit": 0.9035714268684423,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 3.8389935674842945e-10,
+            "predictedMeanProtectedLogitDrift": 4.657507028858556e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 140,
+          "metrics": {
+            "steps": 144,
+            "score": 81.0,
+            "row": 81,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5625,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 6,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 89,
+              "left": 20,
+              "right": 18,
+              "wait": 14
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 140,
+            "protectedRank": 140,
+            "nullspaceDimensionLowerBound": 633,
+            "margin": 0.5,
+            "frontierFeatureNorm": 2.8969453040942597,
+            "nullspaceNoveltyNorm": 0.006821853666931404,
+            "nullspaceNoveltyRatio": 0.0023548437926287605,
+            "denominator": 4.653768745447604e-05,
+            "deltaNorm": 649.7070620540776,
+            "predictedTargetLogit": 0.9035714268684423,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 3.8389935674842945e-10,
+            "predictedMeanProtectedLogitDrift": 4.657507028858556e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 140,
+          "metrics": {
+            "steps": 144,
+            "score": 81.0,
+            "row": 81,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5625,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 6,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 89,
+              "left": 20,
+              "right": 18,
+              "wait": 14
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": false
+        }
+      ],
+      "decision": "commit-score-gain",
+      "bridgeDepthAfter": 0,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 140,
+          "protectedRank": 140,
+          "nullspaceDimensionLowerBound": 633,
+          "margin": 0.5,
+          "frontierFeatureNorm": 2.8969453040942597,
+          "nullspaceNoveltyNorm": 0.006821853666931404,
+          "nullspaceNoveltyRatio": 0.0023548437926287605,
+          "denominator": 4.653768745447604e-05,
+          "deltaNorm": 649.7070620540776,
+          "predictedTargetLogit": 0.9035714268684423,
+          "predictedWinner": "right",
+          "predictedMaxProtectedLogitDrift": 3.8389935674842945e-10,
+          "predictedMeanProtectedLogitDrift": 4.657507028858556e-11,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 162,
+          "score": 91.0,
+          "row": 91,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.5617283950617284,
+          "maxNoProgressStreak": 12,
+          "blockedActions": 12,
+          "pingPongReturns": 3,
+          "actions": {
+            "backward": 3,
+            "forward": 99,
+            "left": 21,
+            "right": 25,
+            "wait": 14
+          }
+        }
+      }
+    },
+    {
+      "repair": 8,
+      "frontierStep": 161,
+      "frontierScore": 91.0,
+      "terminalReason": "vehicle",
+      "studentAction": "forward",
+      "teacherAction": "wait",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 93,
+        "searchLimit": 80,
+        "expansions": 5
+      },
+      "protectedStates": 161,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 161,
+            "protectedRank": 161,
+            "nullspaceDimensionLowerBound": 612,
+            "margin": 0.5,
+            "frontierFeatureNorm": 3.053023640594315,
+            "nullspaceNoveltyNorm": 0.007270787562795218,
+            "nullspaceNoveltyRatio": 0.002381503852809949,
+            "denominator": 5.2864351774715274e-05,
+            "deltaNorm": 168.01423437613585,
+            "predictedTargetLogit": 1.535074174404146,
+            "predictedWinner": "wait",
+            "predictedMaxProtectedLogitDrift": 2.95152347007388e-10,
+            "predictedMeanProtectedLogitDrift": 2.5745076739896423e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 161,
+          "metrics": {
+            "steps": 175,
+            "score": 99.0,
+            "row": 99,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5657142857142857,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 12,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 107,
+              "left": 22,
+              "right": 26,
+              "wait": 17
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 161,
+            "protectedRank": 161,
+            "nullspaceDimensionLowerBound": 612,
+            "margin": 0.5,
+            "frontierFeatureNorm": 3.053023640594315,
+            "nullspaceNoveltyNorm": 0.007270787562795218,
+            "nullspaceNoveltyRatio": 0.002381503852809949,
+            "denominator": 5.2864351774715274e-05,
+            "deltaNorm": 168.01423437613585,
+            "predictedTargetLogit": 1.535074174404146,
+            "predictedWinner": "wait",
+            "predictedMaxProtectedLogitDrift": 2.95152347007388e-10,
+            "predictedMeanProtectedLogitDrift": 2.5745076739896423e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 161,
+          "metrics": {
+            "steps": 175,
+            "score": 99.0,
+            "row": 99,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5657142857142857,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 12,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 107,
+              "left": 22,
+              "right": 26,
+              "wait": 17
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 161,
+            "protectedRank": 161,
+            "nullspaceDimensionLowerBound": 612,
+            "margin": 0.5,
+            "frontierFeatureNorm": 3.053023640594315,
+            "nullspaceNoveltyNorm": 0.007270787562795218,
+            "nullspaceNoveltyRatio": 0.002381503852809949,
+            "denominator": 5.2864351774715274e-05,
+            "deltaNorm": 168.01423437613585,
+            "predictedTargetLogit": 1.535074174404146,
+            "predictedWinner": "wait",
+            "predictedMaxProtectedLogitDrift": 2.95152347007388e-10,
+            "predictedMeanProtectedLogitDrift": 2.5745076739896423e-11,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 161,
+          "metrics": {
+            "steps": 175,
+            "score": 99.0,
+            "row": 99,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5657142857142857,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 12,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 107,
+              "left": 22,
+              "right": 26,
+              "wait": 17
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        }
+      ],
+      "decision": "commit-score-gain",
+      "bridgeDepthAfter": 0,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 0.9,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 161,
+          "protectedRank": 161,
+          "nullspaceDimensionLowerBound": 612,
+          "margin": 0.5,
+          "frontierFeatureNorm": 3.053023640594315,
+          "nullspaceNoveltyNorm": 0.007270787562795218,
+          "nullspaceNoveltyRatio": 0.002381503852809949,
+          "denominator": 5.2864351774715274e-05,
+          "deltaNorm": 168.01423437613585,
+          "predictedTargetLogit": 1.535074174404146,
+          "predictedWinner": "wait",
+          "predictedMaxProtectedLogitDrift": 2.95152347007388e-10,
+          "predictedMeanProtectedLogitDrift": 2.5745076739896423e-11,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 175,
+          "score": 99.0,
+          "row": 99,
+          "terminalReason": "vehicle",
+          "reachedStepLimit": false,
+          "progressRate": 0.5657142857142857,
+          "maxNoProgressStreak": 12,
+          "blockedActions": 12,
+          "pingPongReturns": 3,
+          "actions": {
+            "backward": 3,
+            "forward": 107,
+            "left": 22,
+            "right": 26,
+            "wait": 17
+          }
+        }
+      }
+    },
+    {
+      "repair": 9,
+      "frontierStep": 174,
+      "frontierScore": 99.0,
+      "terminalReason": "vehicle",
+      "studentAction": "forward",
+      "teacherAction": "right",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 100,
+        "searchLimit": 80,
+        "expansions": 4
+      },
+      "protectedStates": 174,
+      "trials": [
+        {
+          "protectionStrength": 1.0,
+          "alpha": 0.9,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 174,
+            "protectedRank": 174,
+            "nullspaceDimensionLowerBound": 599,
+            "margin": 0.5,
+            "frontierFeatureNorm": 7.308177106133504,
+            "nullspaceNoveltyNorm": 0.005188149217704454,
+            "nullspaceNoveltyRatio": 0.0007099101653338719,
+            "denominator": 2.6916892312904594e-05,
+            "deltaNorm": 1319.4073571629342,
+            "predictedTargetLogit": 1.081822931766542,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 5.589466667288434e-09,
+            "predictedMeanProtectedLogitDrift": 4.383441725816729e-10,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 174,
+          "metrics": {
+            "steps": 176,
+            "score": 98.0,
+            "row": 98,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.5568181818181818,
+            "maxNoProgressStreak": 12,
+            "blockedActions": 12,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 106,
+              "left": 22,
+              "right": 27,
+              "wait": 18
+            }
+          },
+          "commitEligible": false,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 174,
+            "protectedRank": 174,
+            "nullspaceDimensionLowerBound": 599,
+            "margin": 0.5,
+            "frontierFeatureNorm": 7.308177106133504,
+            "nullspaceNoveltyNorm": 0.005188149217704454,
+            "nullspaceNoveltyRatio": 0.0007099101653338719,
+            "denominator": 2.6916892312904594e-05,
+            "deltaNorm": 1319.4073571629342,
+            "predictedTargetLogit": 1.081822931766542,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 5.589466667288434e-09,
+            "predictedMeanProtectedLogitDrift": 4.383441725816729e-10,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 174,
+          "metrics": {
+            "steps": 250,
+            "score": 109.0,
+            "row": 109,
+            "terminalReason": null,
+            "reachedStepLimit": true,
+            "progressRate": 0.436,
+            "maxNoProgressStreak": 64,
+            "blockedActions": 76,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 181,
+              "left": 22,
+              "right": 27,
+              "wait": 17
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        },
+        {
+          "protectionStrength": 1.0,
+          "alpha": 1.1,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 174,
+            "protectedRank": 174,
+            "nullspaceDimensionLowerBound": 599,
+            "margin": 0.5,
+            "frontierFeatureNorm": 7.308177106133504,
+            "nullspaceNoveltyNorm": 0.005188149217704454,
+            "nullspaceNoveltyRatio": 0.0007099101653338719,
+            "denominator": 2.6916892312904594e-05,
+            "deltaNorm": 1319.4073571629342,
+            "predictedTargetLogit": 1.081822931766542,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 5.589466667288434e-09,
+            "predictedMeanProtectedLogitDrift": 4.383441725816729e-10,
+            "legacyProtectionStrengthArgument": 1.0
+          },
+          "firstActionDivergence": 174,
+          "metrics": {
+            "steps": 250,
+            "score": 109.0,
+            "row": 109,
+            "terminalReason": null,
+            "reachedStepLimit": true,
+            "progressRate": 0.436,
+            "maxNoProgressStreak": 64,
+            "blockedActions": 76,
+            "pingPongReturns": 3,
+            "actions": {
+              "backward": 3,
+              "forward": 181,
+              "left": 22,
+              "right": 27,
+              "wait": 17
+            }
+          },
+          "commitEligible": true,
+          "bridgeEligible": false
+        }
+      ],
+      "decision": "commit-score-gain",
+      "bridgeDepthAfter": 0,
+      "selected": {
+        "protectionStrength": 1.0,
+        "alpha": 1.0,
+        "delta": {
+          "featureDim": 773,
+          "protectedStates": 174,
+          "protectedRank": 174,
+          "nullspaceDimensionLowerBound": 599,
+          "margin": 0.5,
+          "frontierFeatureNorm": 7.308177106133504,
+          "nullspaceNoveltyNorm": 0.005188149217704454,
+          "nullspaceNoveltyRatio": 0.0007099101653338719,
+          "denominator": 2.6916892312904594e-05,
+          "deltaNorm": 1319.4073571629342,
+          "predictedTargetLogit": 1.081822931766542,
+          "predictedWinner": "right",
+          "predictedMaxProtectedLogitDrift": 5.589466667288434e-09,
+          "predictedMeanProtectedLogitDrift": 4.383441725816729e-10,
+          "legacyProtectionStrengthArgument": 1.0
+        },
+        "metrics": {
+          "steps": 250,
+          "score": 109.0,
+          "row": 109,
+          "terminalReason": null,
+          "reachedStepLimit": true,
+          "progressRate": 0.436,
+          "maxNoProgressStreak": 64,
+          "blockedActions": 76,
+          "pingPongReturns": 3,
+          "actions": {
+            "backward": 3,
+            "forward": 181,
+            "left": 22,
+            "right": 27,
+            "wait": 17
+          }
+        }
+      }
+    }
+  ],
+  "final": {
+    "steps": 250,
+    "score": 109.0,
+    "row": 109,
+    "terminalReason": null,
+    "reachedStepLimit": true,
+    "progressRate": 0.436,
+    "maxNoProgressStreak": 64,
+    "blockedActions": 76,
+    "pingPongReturns": 3,
+    "actions": {
+      "backward": 3,
+      "forward": 181,
+      "left": 22,
+      "right": 27,
+      "wait": 17
+    }
+  },
+  "success": true,
+  "bestCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-full-readout-nullspace-bridge-0006-250\\best.pt",
+  "elapsedSeconds": 116.452035600003,
+  "interpretation": "The full measured MaleCNS and V5 sensory/core policy remain frozen and active. Only the existing small motor readout output layers are minimally repaired at actual terminal frontier states. The update direction is projected into the exact nullspace of every earlier on-policy readout feature. Score-neutral teacher-approved moves may be used only as a bounded tentative tactical bridge; the whole bridge is committed only after a later repair produces real score gain, otherwise it is rolled back to the last committed checkpoint."
+}

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "metadata": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "v5Checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v5-sensory-core-adaptation\\best.pt",
+  "v5CheckpointStage": "sensory-only-round-3",
+  "historicalSelectedStage": "sensory-only-round-3",
+  "oldSeed": "crossy-v4-expo:0006",
+  "historicalExpected": {
+    "steps": 62,
+    "score": 41.0,
+    "terminalReason": "vehicle",
+    "actions": {
+      "forward": 46,
+      "left": 8,
+      "right": 3,
+      "wait": 5
+    }
+  },
+  "oldSeedRunA": {
+    "steps": 62,
+    "score": 41.0,
+    "terminalReason": "vehicle",
+    "actions": {
+      "forward": 46,
+      "left": 8,
+      "right": 3,
+      "wait": 5
+    }
+  },
+  "oldSeedRunB": {
+    "steps": 62,
+    "score": 41.0,
+    "terminalReason": "vehicle",
+    "actions": {
+      "forward": 46,
+      "left": 8,
+      "right": 3,
+      "wait": 5
+    }
+  },
+  "deterministic": true,
+  "historicalMatch": true,
+  "newSeed": "expo-single-seed-2026:0104",
+  "newSeedResult": {
+    "steps": 11,
+    "score": 7.0,
+    "terminalReason": "vehicle",
+    "actions": {
+      "forward": 7,
+      "left": 1,
+      "wait": 3
+    }
+  },
+  "verdict": "CHECKPOINT_RUNTIME_OK__SEED_0104_IS_A_BAD_FULL_MODEL_PAIRING"
+}

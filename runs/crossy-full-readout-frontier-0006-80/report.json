@@ -1,0 +1,970 @@
+{
+  "version": "crossy-full-malecns-readout-frontier-surgery-2",
+  "seed": "crossy-v4-expo:0006",
+  "fullMaleCNS": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "decoderMetadata": {
+    "stage": "branch-stage-1-through-50",
+    "architecture": "mlp64",
+    "motorDim": 708,
+    "metrics": {
+      "exactExpo": {
+        "phaseOffset": 0.0,
+        "initialColumn": 0,
+        "steps": 54,
+        "score": 40.0,
+        "targetScore": 99.2,
+        "scoreRatioToTarget": 0.4032258064516129,
+        "reachedStepLimit": false,
+        "progressQualified": false,
+        "success": false,
+        "stalled": false,
+        "maxNoProgressStreak": 7,
+        "terminalReason": "vehicle",
+        "actions": {
+          "forward": 46,
+          "left": 2,
+          "right": 3,
+          "wait": 3
+        }
+      },
+      "robust": {
+        "episodes": 21,
+        "successes": 0,
+        "reachedStepLimit": 0,
+        "progressQualified": 0,
+        "stalled": 0,
+        "meanScore": 16.095238095238095,
+        "medianScore": 7.0,
+        "terminalReasons": {
+          "vehicle": 14,
+          "water": 7
+        },
+        "actions": {
+          "forward": 381,
+          "left": 48,
+          "right": 17,
+          "wait": 26
+        }
+      },
+      "perVariant": [
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": -1,
+          "steps": 45,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 9,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 0,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.0,
+          "initialColumn": 1,
+          "steps": 54,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 3,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": -1,
+          "steps": 9,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 3
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 0,
+          "steps": 53,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.2,
+          "initialColumn": 1,
+          "steps": 7,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": -1,
+          "steps": 43,
+          "score": 35.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.35282258064516125,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 3,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 35,
+            "left": 7,
+            "right": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 0,
+          "steps": 52,
+          "score": 40.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.4032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 7,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 46,
+            "left": 2,
+            "right": 3,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.4,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": -1,
+          "steps": 12,
+          "score": 6.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.06048387096774193,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 6,
+            "left": 5,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 0,
+          "steps": 3,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 0,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3
+          }
+        },
+        {
+          "phaseOffset": 0.6,
+          "initialColumn": 1,
+          "steps": 6,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 2
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": -1,
+          "steps": 17,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 3,
+            "right": 2,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 0,
+          "steps": 32,
+          "score": 28.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.282258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 28,
+            "left": 4
+          }
+        },
+        {
+          "phaseOffset": 0.8,
+          "initialColumn": 1,
+          "steps": 18,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 11,
+            "left": 4,
+            "wait": 3
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": -1,
+          "steps": 16,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 5,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 12,
+            "left": 2,
+            "right": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 0,
+          "steps": 15,
+          "score": 14.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.1411290322580645,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 14,
+            "left": 1
+          }
+        },
+        {
+          "phaseOffset": 1.0,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": -1,
+          "steps": 15,
+          "score": 7.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.07056451612903225,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 6,
+          "terminalReason": "vehicle",
+          "actions": {
+            "forward": 13,
+            "left": 1,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 0,
+          "steps": 5,
+          "score": 4.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.04032258064516129,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 1,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 4,
+            "wait": 1
+          }
+        },
+        {
+          "phaseOffset": 1.2,
+          "initialColumn": 1,
+          "steps": 5,
+          "score": 3.0,
+          "targetScore": 99.2,
+          "scoreRatioToTarget": 0.030241935483870965,
+          "reachedStepLimit": false,
+          "progressQualified": false,
+          "success": false,
+          "stalled": false,
+          "maxNoProgressStreak": 2,
+          "terminalReason": "water",
+          "actions": {
+            "forward": 3,
+            "wait": 2
+          }
+        }
+      ]
+    },
+    "config": {
+      "seed": "crossy-v4-expo:0006",
+      "rngSeed": 707,
+      "plannerDepth": 4,
+      "maxSteps": 200,
+      "stageEnds": [
+        50,
+        100,
+        150,
+        200
+      ],
+      "rootStride": 1,
+      "branchesPerRoot": 2,
+      "branchHorizon": 12,
+      "epochsPerStage": 80,
+      "decoderLearningRate": 0.003,
+      "decoderBatch": 1024,
+      "progressLossWeight": 1.0,
+      "minimumTeacherFraction": 0.8,
+      "teacherScore": 124.0,
+      "minimumProgressScore": 99.2,
+      "effectiveStallSteps": 12,
+      "MaleCNSRetrained": false,
+      "startingDecoder": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v4-recovery-dagger-v2\\best_decoder.pt",
+      "selectionRule": "exact real-progress success -> exact score -> robust successes -> robust score"
+    }
+  },
+  "sourceV5Checkpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-v5-sensory-core-adaptation\\best.pt",
+  "sourceV5Stage": "sensory-only-round-3",
+  "config": {
+    "version": "crossy-full-malecns-readout-frontier-surgery-2",
+    "seed": "crossy-v4-expo:0006",
+    "target": 80,
+    "maxRepairs": 12,
+    "margin": 0.5,
+    "protectionRecent": 96,
+    "protectionAnchors": 64,
+    "protectionStrengths": [
+      1000.0,
+      100.0,
+      10.0
+    ],
+    "alphas": [
+      0.75,
+      1.0,
+      1.25,
+      1.5
+    ],
+    "fullMaleCNSActive": true,
+    "fullMaleCNSRetrained": false,
+    "readoutSurgery": "minimal regularized updates to existing decoder linear/residual output layers",
+    "selectionRule": "score -> reached target -> progress rate -> quality -> steps"
+  },
+  "baseline": {
+    "steps": 62,
+    "score": 41.0,
+    "row": 41,
+    "terminalReason": "vehicle",
+    "reachedStepLimit": false,
+    "progressRate": 0.6612903225806451,
+    "maxNoProgressStreak": 6,
+    "blockedActions": 5,
+    "pingPongReturns": 1,
+    "actions": {
+      "forward": 46,
+      "left": 8,
+      "right": 3,
+      "wait": 5
+    }
+  },
+  "repairs": [
+    {
+      "repair": 1,
+      "frontierStep": 61,
+      "frontierScore": 41.0,
+      "terminalReason": "vehicle",
+      "studentAction": "forward",
+      "teacherAction": "right",
+      "teacher": {
+        "method": "astar",
+        "targetRecoveryRow": 44,
+        "searchLimit": 80,
+        "expansions": 19
+      },
+      "protectedStates": 61,
+      "trials": [
+        {
+          "protectionStrength": 1000.0,
+          "alpha": 0.75,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 1000.0,
+            "margin": 0.5,
+            "denominator": 0.029561452454411954,
+            "deltaNorm": 7.498104347736515,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.648361042469038,
+            "predictedMeanProtectedLogitDrift": 0.057434879662465334
+          },
+          "metrics": {
+            "steps": 31,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7096774193548387,
+            "maxNoProgressStreak": 5,
+            "blockedActions": 4,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 26,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 1000.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 1000.0,
+            "margin": 0.5,
+            "denominator": 0.029561452454411954,
+            "deltaNorm": 7.498104347736515,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.648361042469038,
+            "predictedMeanProtectedLogitDrift": 0.057434879662465334
+          },
+          "metrics": {
+            "steps": 31,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7096774193548387,
+            "maxNoProgressStreak": 5,
+            "blockedActions": 4,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 26,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 1000.0,
+          "alpha": 1.25,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 1000.0,
+            "margin": 0.5,
+            "denominator": 0.029561452454411954,
+            "deltaNorm": 7.498104347736515,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.648361042469038,
+            "predictedMeanProtectedLogitDrift": 0.057434879662465334
+          },
+          "metrics": {
+            "steps": 31,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7096774193548387,
+            "maxNoProgressStreak": 5,
+            "blockedActions": 4,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 26,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 1000.0,
+          "alpha": 1.5,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 1000.0,
+            "margin": 0.5,
+            "denominator": 0.029561452454411954,
+            "deltaNorm": 7.498104347736515,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.648361042469038,
+            "predictedMeanProtectedLogitDrift": 0.057434879662465334
+          },
+          "metrics": {
+            "steps": 31,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7096774193548387,
+            "maxNoProgressStreak": 5,
+            "blockedActions": 4,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 26,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 100.0,
+          "alpha": 0.75,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 100.0,
+            "margin": 0.5,
+            "denominator": 0.10751827768461333,
+            "deltaNorm": 3.805093417846843,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.8235851822365676,
+            "predictedMeanProtectedLogitDrift": 0.0967194859600776
+          },
+          "metrics": {
+            "steps": 30,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7333333333333333,
+            "maxNoProgressStreak": 4,
+            "blockedActions": 3,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 25,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 100.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 100.0,
+            "margin": 0.5,
+            "denominator": 0.10751827768461333,
+            "deltaNorm": 3.805093417846843,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.8235851822365676,
+            "predictedMeanProtectedLogitDrift": 0.0967194859600776
+          },
+          "metrics": {
+            "steps": 30,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7333333333333333,
+            "maxNoProgressStreak": 4,
+            "blockedActions": 3,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 25,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 100.0,
+          "alpha": 1.25,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 100.0,
+            "margin": 0.5,
+            "denominator": 0.10751827768461333,
+            "deltaNorm": 3.805093417846843,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.8235851822365676,
+            "predictedMeanProtectedLogitDrift": 0.0967194859600776
+          },
+          "metrics": {
+            "steps": 29,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7586206896551724,
+            "maxNoProgressStreak": 3,
+            "blockedActions": 2,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 24,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 100.0,
+          "alpha": 1.5,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 100.0,
+            "margin": 0.5,
+            "denominator": 0.10751827768461333,
+            "deltaNorm": 3.805093417846843,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 0.8235851822365676,
+            "predictedMeanProtectedLogitDrift": 0.0967194859600776
+          },
+          "metrics": {
+            "steps": 29,
+            "score": 22.0,
+            "row": 22,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7586206896551724,
+            "maxNoProgressStreak": 3,
+            "blockedActions": 2,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 24,
+              "left": 1,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 10.0,
+          "alpha": 0.75,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 10.0,
+            "margin": 0.5,
+            "denominator": 0.44447781190387714,
+            "deltaNorm": 1.8073296354004447,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 1.2663692760370977,
+            "predictedMeanProtectedLogitDrift": 0.15684834868136424
+          },
+          "metrics": {
+            "steps": 35,
+            "score": 28.0,
+            "row": 28,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.8,
+            "maxNoProgressStreak": 3,
+            "blockedActions": 0,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 28,
+              "left": 4,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 10.0,
+          "alpha": 1.0,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 10.0,
+            "margin": 0.5,
+            "denominator": 0.44447781190387714,
+            "deltaNorm": 1.8073296354004447,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 1.2663692760370977,
+            "predictedMeanProtectedLogitDrift": 0.15684834868136424
+          },
+          "metrics": {
+            "steps": 35,
+            "score": 28.0,
+            "row": 28,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.8,
+            "maxNoProgressStreak": 3,
+            "blockedActions": 0,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 28,
+              "left": 4,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 10.0,
+          "alpha": 1.25,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 10.0,
+            "margin": 0.5,
+            "denominator": 0.44447781190387714,
+            "deltaNorm": 1.8073296354004447,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 1.2663692760370977,
+            "predictedMeanProtectedLogitDrift": 0.15684834868136424
+          },
+          "metrics": {
+            "steps": 44,
+            "score": 35.0,
+            "row": 35,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7954545454545454,
+            "maxNoProgressStreak": 3,
+            "blockedActions": 0,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 35,
+              "left": 5,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        },
+        {
+          "protectionStrength": 10.0,
+          "alpha": 1.5,
+          "delta": {
+            "featureDim": 773,
+            "protectedStates": 61,
+            "protectionStrength": 10.0,
+            "margin": 0.5,
+            "denominator": 0.44447781190387714,
+            "deltaNorm": 1.8073296354004447,
+            "predictedTargetLogit": 2.3443074226379395,
+            "predictedWinner": "right",
+            "predictedMaxProtectedLogitDrift": 1.2663692760370977,
+            "predictedMeanProtectedLogitDrift": 0.15684834868136424
+          },
+          "metrics": {
+            "steps": 36,
+            "score": 28.0,
+            "row": 28,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.7777777777777778,
+            "maxNoProgressStreak": 3,
+            "blockedActions": 1,
+            "pingPongReturns": 0,
+            "actions": {
+              "forward": 28,
+              "left": 4,
+              "right": 1,
+              "wait": 3
+            }
+          },
+          "improved": false
+        }
+      ],
+      "selected": null
+    }
+  ],
+  "final": {
+    "steps": 62,
+    "score": 41.0,
+    "row": 41,
+    "terminalReason": "vehicle",
+    "reachedStepLimit": false,
+    "progressRate": 0.6612903225806451,
+    "maxNoProgressStreak": 6,
+    "blockedActions": 5,
+    "pingPongReturns": 1,
+    "actions": {
+      "forward": 46,
+      "left": 8,
+      "right": 3,
+      "wait": 5
+    }
+  },
+  "success": false,
+  "bestCheckpoint": "C:\\Users\\Nico\\Documents\\GitHub\\fly-crossy-connectome\\runs\\crossy-full-readout-frontier-0006-80\\best.pt",
+  "elapsedSeconds": 14.997760600002948,
+  "interpretation": "The full measured MaleCNS and V5 sensory/core policy remain frozen and active. Only the existing small motor readout output layers are minimally repaired at actual terminal frontier states. Earlier on-policy readout features are protected by a quadratic penalty, and every candidate is accepted only if closed-loop real score improves."
+}

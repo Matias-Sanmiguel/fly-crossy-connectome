@@ -1,0 +1,357 @@
+{
+  "version": "crossy-full-malecns-frontier-single-seed-2",
+  "seed": "crossy-v4-expo:0006",
+  "fullMaleCNS": {
+    "checkpointStage": "dagger2",
+    "rngSeed": 404,
+    "neurons": 165122,
+    "edges": 25563197,
+    "sensory": 4114,
+    "motor": 708
+  },
+  "baseline": {
+    "steps": 62,
+    "score": 41.0,
+    "row": 41,
+    "terminalReason": "vehicle",
+    "reachedStepLimit": false,
+    "progressRate": 0.6612903225806451,
+    "maxNoProgressStreak": 6,
+    "maxSamePositionStreak": 5,
+    "pingPongReturns": 1,
+    "pingPongRate": 0.016129032258064516,
+    "lateralReversals": 3,
+    "blockedActions": 5,
+    "blockedRate": 0.08064516129032258,
+    "actions": {
+      "forward": 46,
+      "left": 8,
+      "right": 3,
+      "wait": 5
+    }
+  },
+  "targets": [
+    80
+  ],
+  "stages": [
+    {
+      "target": 80,
+      "initial": {
+        "steps": 62,
+        "score": 41.0,
+        "row": 41,
+        "terminalReason": "vehicle",
+        "reachedStepLimit": false,
+        "progressRate": 0.6612903225806451,
+        "maxNoProgressStreak": 6,
+        "maxSamePositionStreak": 5,
+        "pingPongReturns": 1,
+        "pingPongRate": 0.016129032258064516,
+        "lateralReversals": 3,
+        "blockedActions": 5,
+        "blockedRate": 0.08064516129032258,
+        "actions": {
+          "forward": 46,
+          "left": 8,
+          "right": 3,
+          "wait": 5
+        }
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "phase": "sensory-only",
+          "studentCollection": {
+            "totalFrames": 62,
+            "segmentStart": 14,
+            "segmentFrames": 48,
+            "score": 41.0,
+            "row": 41,
+            "terminalReason": "vehicle",
+            "maxNoProgressStreak": 6,
+            "blockedActions": 5,
+            "actions": {
+              "forward": 46,
+              "left": 8,
+              "right": 3,
+              "wait": 5
+            },
+            "labelMethodsBeforeAstar": {
+              "planner-depth4": 46,
+              "trajectory": 2
+            },
+            "astarRelabels": [
+              {
+                "method": "astar",
+                "targetRecoveryRow": 44,
+                "searchLimit": 80,
+                "expansions": 19,
+                "globalStep": 61,
+                "studentAction": "forward",
+                "teacherAction": "right"
+              },
+              {
+                "method": "astar",
+                "targetRecoveryRow": 37,
+                "searchLimit": 80,
+                "expansions": 3,
+                "globalStep": 54,
+                "studentAction": "left",
+                "teacherAction": "forward"
+              },
+              {
+                "method": "astar",
+                "targetRecoveryRow": 30,
+                "searchLimit": 80,
+                "expansions": 4,
+                "globalStep": 45,
+                "studentAction": "wait",
+                "teacherAction": "left"
+              },
+              {
+                "method": "astar",
+                "targetRecoveryRow": 30,
+                "searchLimit": 80,
+                "expansions": 18,
+                "globalStep": 42,
+                "studentAction": "left",
+                "teacherAction": "right"
+              }
+            ],
+            "exactDisagreementsAfterRelabel": 12,
+            "unsafeStudentActions": 1
+          },
+          "teacherFrontier": {
+            "source": "verified-trajectory",
+            "start": 32,
+            "end": 80,
+            "frames": 48
+          },
+          "training": {
+            "phase": "sensory-only",
+            "epochs": 1,
+            "window": 16,
+            "adapterLearningRate": 0.0002,
+            "coreLearningRate": 0.0,
+            "exactWeight": 0.35,
+            "progressWeight": 0.75,
+            "distillWeight": 4.0,
+            "trustWeight": 0.05,
+            "optimizerStepsPerEpoch": 3,
+            "recurrentStateMode": "recompute-prefix-current-policy + one-step-per-segment",
+            "segments": [
+              {
+                "name": "teacher-anchor",
+                "source": "teacher",
+                "frames": 32,
+                "prefixFrames": 0,
+                "weightMean": 0.4000000059604645,
+                "weightMax": 0.4000000059604645
+              },
+              {
+                "name": "teacher-frontier",
+                "source": "teacher",
+                "frames": 48,
+                "prefixFrames": 32,
+                "weightMean": 1.75,
+                "weightMax": 2.5
+              },
+              {
+                "name": "student-frontier",
+                "source": "student",
+                "frames": 48,
+                "prefixFrames": 14,
+                "weightMean": 3.5104167461395264,
+                "weightMax": 20.0
+              }
+            ],
+            "history": [
+              {
+                "epoch": 1,
+                "loss": 1.350002609193325,
+                "preference": 0.9331975169479847,
+                "exactCrossEntropy": 0.7979591302573681,
+                "progress": 0.1821845737285912,
+                "distill": 0.0002202297509938944,
+                "trust": 4.459241242926737e-08
+              }
+            ]
+          },
+          "lineSearch": [
+            {
+              "alpha": 0.05,
+              "metrics": {
+                "steps": 62,
+                "score": 41.0,
+                "row": 41,
+                "terminalReason": "vehicle",
+                "reachedStepLimit": false,
+                "progressRate": 0.6612903225806451,
+                "maxNoProgressStreak": 6,
+                "maxSamePositionStreak": 5,
+                "pingPongReturns": 1,
+                "pingPongRate": 0.016129032258064516,
+                "lateralReversals": 3,
+                "blockedActions": 5,
+                "blockedRate": 0.08064516129032258,
+                "actions": {
+                  "forward": 46,
+                  "left": 8,
+                  "right": 3,
+                  "wait": 5
+                }
+              },
+              "improvesAccepted": false
+            },
+            {
+              "alpha": 0.1,
+              "metrics": {
+                "steps": 62,
+                "score": 41.0,
+                "row": 41,
+                "terminalReason": "vehicle",
+                "reachedStepLimit": false,
+                "progressRate": 0.6612903225806451,
+                "maxNoProgressStreak": 6,
+                "maxSamePositionStreak": 5,
+                "pingPongReturns": 1,
+                "pingPongRate": 0.016129032258064516,
+                "lateralReversals": 3,
+                "blockedActions": 5,
+                "blockedRate": 0.08064516129032258,
+                "actions": {
+                  "forward": 46,
+                  "left": 8,
+                  "right": 3,
+                  "wait": 5
+                }
+              },
+              "improvesAccepted": false
+            },
+            {
+              "alpha": 0.25,
+              "metrics": {
+                "steps": 62,
+                "score": 41.0,
+                "row": 41,
+                "terminalReason": "vehicle",
+                "reachedStepLimit": false,
+                "progressRate": 0.6612903225806451,
+                "maxNoProgressStreak": 6,
+                "maxSamePositionStreak": 5,
+                "pingPongReturns": 1,
+                "pingPongRate": 0.016129032258064516,
+                "lateralReversals": 3,
+                "blockedActions": 5,
+                "blockedRate": 0.08064516129032258,
+                "actions": {
+                  "forward": 46,
+                  "left": 8,
+                  "right": 3,
+                  "wait": 5
+                }
+              },
+              "improvesAccepted": false
+            },
+            {
+              "alpha": 0.5,
+              "metrics": {
+                "steps": 62,
+                "score": 41.0,
+                "row": 41,
+                "terminalReason": "vehicle",
+                "reachedStepLimit": false,
+                "progressRate": 0.6612903225806451,
+                "maxNoProgressStreak": 6,
+                "maxSamePositionStreak": 5,
+                "pingPongReturns": 1,
+                "pingPongRate": 0.016129032258064516,
+                "lateralReversals": 3,
+                "blockedActions": 5,
+                "blockedRate": 0.08064516129032258,
+                "actions": {
+                  "forward": 46,
+                  "left": 8,
+                  "right": 3,
+                  "wait": 5
+                }
+              },
+              "improvesAccepted": false
+            },
+            {
+              "alpha": 1.0,
+              "metrics": {
+                "steps": 26,
+                "score": 22.0,
+                "row": 22,
+                "terminalReason": "vehicle",
+                "reachedStepLimit": false,
+                "progressRate": 0.8461538461538461,
+                "maxNoProgressStreak": 3,
+                "maxSamePositionStreak": 3,
+                "pingPongReturns": 0,
+                "pingPongRate": 0.0,
+                "lateralReversals": 0,
+                "blockedActions": 0,
+                "blockedRate": 0.0,
+                "actions": {
+                  "forward": 22,
+                  "left": 1,
+                  "wait": 3
+                }
+              },
+              "improvesAccepted": false
+            }
+          ],
+          "selectedAlpha": 0.0,
+          "candidate": {
+            "steps": 62,
+            "score": 41.0,
+            "row": 41,
+            "terminalReason": "vehicle",
+            "reachedStepLimit": false,
+            "progressRate": 0.6612903225806451,
+            "maxNoProgressStreak": 6,
+            "maxSamePositionStreak": 5,
+            "pingPongReturns": 1,
+            "pingPongRate": 0.016129032258064516,
+            "lateralReversals": 3,
+            "blockedActions": 5,
+            "blockedRate": 0.08064516129032258,
+            "actions": {
+              "forward": 46,
+              "left": 8,
+              "right": 3,
+              "wait": 5
+            }
+          },
+          "improved": false,
+          "passed": false
+        }
+      ],
+      "passed": false,
+      "selected": {
+        "steps": 62,
+        "score": 41.0,
+        "row": 41,
+        "terminalReason": "vehicle",
+        "reachedStepLimit": false,
+        "progressRate": 0.6612903225806451,
+        "maxNoProgressStreak": 6,
+        "maxSamePositionStreak": 5,
+        "pingPongReturns": 1,
+        "pingPongRate": 0.016129032258064516,
+        "lateralReversals": 3,
+        "blockedActions": 5,
+        "blockedRate": 0.08064516129032258,
+        "actions": {
+          "forward": 46,
+          "left": 8,
+          "right": 3,
+          "wait": 5
+        }
+      }
+    }
+  ],
+  "currentTarget": 80
+}
