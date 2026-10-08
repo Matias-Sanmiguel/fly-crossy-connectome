@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "author": "Santiago Castelo",
+  "license": "MIT",
+  "sourceUrl": "https://github.com/endeavoursc/cherry-mx-keycaps",
+  "sourceArchive": {
+    "file": "cherry-mx-keycaps-main.zip",
+    "sha256": "7f73dff6fe46e35516b67c59800551a0d0da4a3b31d0c1ff44afb541289ac811"
+  },
+  "sourceFile": {
+    "file": "Cherry Keycaps Full.fbx",
+    "sha256": "0af52b40462c71b098cd955fe763172f68cb798b1e5c0ae28fba9d458d2a2ae7"
+  },
+  "output": {
+    "file": "cherry-wasd.glb",
+    "sha256": "858e28e76605e5670a3376671713ed1eedad652ecce4fe25c1b16ea6fc078ac6",
+    "bytes": 148036
+  },
+  "models": [
+    {
+      "sourceName": "R2_1u",
+      "name": "cherry-r2-1u",
+      "keys": [
+        "w"
+      ],
+      "vertices": 1859,
+      "triangles": 2122,
+      "size": [
+        0.0860000029206276,
+        0.03738594800233841,
+        0.08599995821714401
+      ]
+    },
+    {
+      "sourceName": "R3_1u",
+      "name": "cherry-r3-1u",
+      "keys": [
+        "a",
+        "s",
+        "d"
+      ],
+      "vertices": 1886,
+      "triangles": 2164,
+      "size": [
+        0.0860000029206276,
+        0.034798186272382736,
+        0.0859999805688858
+      ]
+    }
+  ],
+  "modifications": "Extract R2_1u/R3_1u only; bake source transforms; rotate Z-up to Y-up; center; uniform scale to 0.086 width; weld duplicate vertices preserving attributes; replace invalid source material indices. Letters and press animation are applied at runtime."
+}

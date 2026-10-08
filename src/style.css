@@ -863,9 +863,9 @@ footer {
   font-weight: 900;
   letter-spacing: normal;
   line-height: normal;
-  -webkit-text-stroke: 0.1389cqw #000;
+  -webkit-text-stroke: 0.5556cqw #000;
   paint-order: stroke fill;
-  text-shadow: 0.1389cqw 0.1389cqw 0 #000;
+  text-shadow: 0.3472cqw 0.3472cqw 0 #000;
 }
 
 .expo-record {
@@ -895,13 +895,13 @@ footer {
 
 .expo-record-value {
   top: 0.2083cqw;
-  left: 10.625cqw;
+  right: 0.9722cqw;
   color: #fff;
   font-size: 1.6667cqw;
   font-weight: 900;
-  -webkit-text-stroke: 0.0694cqw #2033ff;
+  -webkit-text-stroke: 0.4167cqw #2033ff;
   paint-order: stroke fill;
-  text-shadow: 0.1389cqw 0.1389cqw 0 #2033ff;
+  text-shadow: 0.2778cqw 0.2778cqw 0 #2033ff;
 }
 
 .expo-explanation { color: #fff; }
@@ -948,19 +948,20 @@ footer {
 .expo-legend-activity { left: 16.3889cqw; width: 10.1389cqw; }
 
 .expo-brain-legend i {
-  position: relative;
   display: block;
   width: 0.625cqw;
   height: 0.625cqw;
+  border-radius: 50%;
 }
 
-.expo-brain-legend i img {
-  position: absolute;
-  top: -0.4931cqw;
-  left: -0.4931cqw;
-  display: block;
-  width: 1.6111cqw;
-  height: 1.6111cqw;
+.expo-legend-anatomy i {
+  background: rgb(31 89 191);
+  box-shadow: 0 0 0.6944cqw rgb(31 89 191 / 88%);
+}
+
+.expo-legend-activity i {
+  background: rgb(51 242 255);
+  box-shadow: 0 0 0.6944cqw rgb(51 242 255 / 88%);
 }
 
 .expo-brain-visual {
@@ -1047,8 +1048,11 @@ footer {
   font-weight: 700;
 }
 
+.expo-action-area { min-width: 0; }
+
 .expo-action-card {
   display: block;
+  height: 7.4306cqw;
   padding: 0;
   background: rgb(30 30 30 / 30%);
 }
@@ -1061,11 +1065,9 @@ footer {
 .expo-action-metrics div { min-width: 0; }
 
 .expo-action-current,
-.expo-step-current,
-.expo-motor-status { position: absolute; inset: 0; }
+.expo-step-current { position: absolute; inset: 0; }
 
-.expo-action-metrics span,
-.expo-motor-status span {
+.expo-action-metrics span {
   position: absolute;
   color: #fff;
   font-size: 1.1111cqw;
@@ -1084,8 +1086,7 @@ footer {
 }
 
 .expo-action-current > i,
-.expo-step-current > i,
-.expo-motor-status > i {
+.expo-step-current > i {
   position: absolute;
   width: 0.3472cqw;
   height: 0.9722cqw;
@@ -1099,8 +1100,6 @@ footer {
 .expo-step-current > i { top: 1.3889cqw; left: 19.0972cqw; }
 .expo-step-current span { top: 1.1111cqw; left: 20.1389cqw; }
 .expo-step-current strong { top: 2.9167cqw; left: 19.0972cqw; }
-.expo-motor-status > i { top: 6.9444cqw; left: 2.0139cqw; }
-.expo-motor-status span { top: 6.6667cqw; left: 3.0556cqw; }
 
 .expo-action-arrow {
   position: absolute;
@@ -1115,29 +1114,72 @@ footer {
 .expo-action-arrow-backward { transform: rotate(90deg); }
 .expo-action-arrow-left { transform: rotate(180deg); }
 .expo-action-arrow-right { transform: rotate(0); }
-.expo-action-arrow-wait { opacity: 0.25; }
+.expo-action-current .expo-action-dash {
+  top: 3.75cqw;
+  left: 1.875cqw;
+  display: grid;
+  place-items: center;
+  width: 2.2222cqw;
+  height: 1.7361cqw;
+  color: #b3ff3b;
+  font-size: 2.2222cqw;
+  font-weight: 800;
+  line-height: 1;
+}
 
 .expo-config-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4167cqw;
+  padding: 0.5556cqw;
   position: absolute;
   top: 0.9722cqw;
   right: 1.0417cqw;
   width: 16.0417cqw;
-  height: 11.3889cqw;
+  height: 5.4167cqw;
   border-radius: 0.8333cqw;
-  background: #d9d9d9;
-  color: #000;
+  background: #fff;
+  color: #2033ff;
 }
 
-.expo-config-card p {
-  position: absolute;
-  top: 3.1944cqw;
-  left: 1.6667cqw;
-  margin: 0;
-  color: #000;
+.expo-config-card button {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  height: 1.9444cqw;
+  padding: 0;
+  width: 100%;
+  border: 1px solid #2033ff;
+  border-radius: 0.4861cqw;
+  background: #fff;
+  color: #2033ff;
+  font: inherit;
   font-size: 1.1111cqw;
-  font-weight: 300;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Axiforma's capitals sit above the line-box center; align the visible ink. */
+.expo-config-card button > span { transform: translateY(0.08em); }
+
+.expo-config-card button:last-child { background: #2033ff; color: #fff; }
+.expo-config-card button:hover:not(:disabled) { border-color: #2033ff; background: #eef1ff; }
+.expo-config-card button:last-child:hover:not(:disabled) { background: #1828df; }
+.expo-config-card button:focus-visible { outline: 3px solid #2033ff; outline-offset: 3px; }
+
+.expo-credits {
+  margin: 1.1111cqw 0 0;
+  color: #fff;
+  font-size: 1.1111cqw;
+  font-weight: 400;
   line-height: normal;
 }
+
+.expo-credits strong { font-weight: 700; }
 
 .expo-error {
   position: absolute;
@@ -1197,7 +1239,7 @@ footer {
   .expo-score { top: 12px; left: 18px; font-size: 42px; }
   .expo-record { bottom: 12px; left: 12px; width: 150px; height: 38px; border-radius: 12px; }
   .expo-record-label { top: 8px; left: 11px; font-size: 16px; }
-  .expo-record-value { top: 3px; left: 112px; font-size: 21px; }
+  .expo-record-value { top: 3px; right: 12px; font-size: 21px; }
   .expo-explanation h2 { font-size: 22px; }
   .expo-explanation p { max-width: none; margin-top: 8px; font-size: 17px; }
   .expo-brain-card { height: 300px; border-radius: 16px; }
@@ -1206,7 +1248,6 @@ footer {
   .expo-legend-anatomy { left: 18px; width: 125px; }
   .expo-legend-activity { left: 175px; width: 150px; }
   .expo-brain-legend i { width: 8px; height: 8px; }
-  .expo-brain-legend i img { top: -6px; left: -6px; width: 20px; height: 20px; }
   .expo-brain-visual { top: 56px; bottom: 14px; left: 8px; width: 62%; }
   .expo-brain-stats { top: 60px; right: 16px; width: 31%; }
   .expo-brain-stats > div + div { margin-top: 12px; }
@@ -1217,24 +1258,23 @@ footer {
   .expo-keyboard-card { aspect-ratio: 16 / 9; border-radius: 16px; }
   .expo-media-status { font-size: 12px; }
 
-  .expo-action-card { height: 260px; border-radius: 16px; }
-  .expo-action-metrics span,
-  .expo-motor-status span { font-size: 12px; }
+  .expo-action-card { height: 230px; border-radius: 16px; }
+  .expo-action-metrics span { font-size: 12px; }
   .expo-action-metrics strong { font-size: 26px; }
   .expo-action-current > i { top: 24px; left: 20px; }
   .expo-action-current span { top: 20px; left: 35px; }
   .expo-action-current strong { top: 52px; left: 68px; }
-  .expo-step-current > i { top: 24px; left: 210px; }
-  .expo-step-current span { top: 20px; left: 225px; }
-  .expo-step-current strong { top: 52px; left: 210px; }
-  .expo-motor-status > i { top: 103px; left: 20px; }
-  .expo-motor-status span { top: 99px; left: 35px; }
+  .expo-step-current > i { top: 24px; left: calc(100% - 85px); }
+  .expo-step-current span { top: 20px; left: calc(100% - 70px); }
+  .expo-step-current strong { top: 52px; left: calc(100% - 85px); }
   .expo-action-current > i,
-  .expo-step-current > i,
-  .expo-motor-status > i { width: 5px; height: 14px; border-radius: 3px; }
+  .expo-step-current > i { width: 5px; height: 14px; border-radius: 3px; }
   .expo-action-arrow { top: 56px; left: 20px; width: 32px; height: 25px; }
-  .expo-config-card { top: 130px; right: 14px; left: 14px; width: auto; height: 116px; border-radius: 12px; }
-  .expo-config-card p { top: 25px; left: 24px; font-size: 14px; }
+  .expo-action-current .expo-action-dash { top: 56px; left: 20px; width: 32px; height: 25px; font-size: 26px; }
+  .expo-config-card { top: 100px; right: 14px; left: 14px; width: auto; height: 116px; border-radius: 12px; }
+  .expo-config-card { padding: 12px; gap: 8px; }
+  .expo-config-card button { min-height: 44px; height: auto; font-size: 16px; border-radius: 8px; }
+  .expo-credits { margin-top: 16px; font-size: 14px; line-height: 1.5; }
   .expo-error { position: fixed; right: 12px; bottom: 12px; max-width: calc(100vw - 24px); padding: 8px 10px; font-size: 11px; }
 }
 

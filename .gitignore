@@ -1,6 +1,7 @@
 # JavaScript and build output
 node_modules/
 dist/
+data/visitor-ranking.sqlite*
 coverage/
 *.tsbuildinfo
 
@@ -35,3 +36,4 @@ python/datasets/
 
 runs/**/*.pt
 runs/crossy-v7-*/
+runs/crossy-full-readout-cached-frontier-v12-15-0006-2000/report.json

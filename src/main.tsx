@@ -5,6 +5,7 @@ import { App } from './App';
 import { BiomechanicsDebugApp } from './BiomechanicsDebugApp';
 import { CheckpointReplayExpoApp } from './CheckpointReplayExpoApp';
 import { ExpoApp } from './ExpoApp';
+import { VisitorApp } from './VisitorApp';
 
 import './style.css';
 
@@ -14,6 +15,7 @@ const biomechanicsDebug =
   ).get('biomechanics') === '1';
 const expoMode = new URLSearchParams(window.location.search).get('expo') === '1';
 const checkpointReplayMode = new URLSearchParams(window.location.search).get('replay') === '1';
+const visitorMode = new URLSearchParams(window.location.search).get('play') === '1';
 
 ReactDOM
   .createRoot(
@@ -25,6 +27,8 @@ ReactDOM
         ? checkpointReplayMode
           ? <CheckpointReplayExpoApp />
           : <ExpoApp />
+        : visitorMode
+        ? <VisitorApp />
         : biomechanicsDebug
         ? <BiomechanicsDebugApp />
         : <App />}

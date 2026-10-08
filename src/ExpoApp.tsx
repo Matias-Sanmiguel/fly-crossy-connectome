@@ -3,17 +3,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { BrainScene } from './components/BrainScene.tsx';
 import { ExpoKeyboardScene } from './components/ExpoKeyboardScene.tsx';
 import { GameScene } from './components/GameScene.tsx';
-import {
-  BUNDLED_CONNECTOME_POLICY_PATH,
-  createFixedGraphPolicyController,
-  parseBundledConnectomePolicy,
-  type Controller,
-} from './game/controllers.ts';
-import type { ExportedPolicyV1 } from './game/model.ts';
+import type { Controller } from './game/controllers.ts';
+import { createNeuralReplayController, decodeNeuralResponse, parseExpoReplay, parseNeuralReplay, type ExpoReplay, type NeuralReplay } from './expo/neuralReplay.ts';
 import { activityPresentation } from './game/provenance.ts';
 import type { Action } from './game/types.ts';
 import { useAtlas } from './hooks/useAtlas.ts';
-import { nextAutoplaySeed, useGame } from './hooks/useGame.ts';
+import { useGame } from './hooks/useGame.ts';
 import { asset } from './lib/atlas.ts';
 
 const ACTION_LABELS: Readonly<Record<Action, string>> = {
@@ -24,21 +19,33 @@ const ACTION_LABELS: Readonly<Record<Action, string>> = {
   wait: 'WAIT',
 };
 
+const REPLAY_PATH = 'assets/expo/full-malecns-replay.json';
+
 export function ExpoApp() {
   const { atlas, error: atlasError } = useAtlas();
-  const [policy, setPolicy] = useState<ExportedPolicyV1 | null>(null);
+  const [neuralReplay, setNeuralReplay] = useState<NeuralReplay | null>(null);
+  const [replay, setReplay] = useState<ExpoReplay | null>(null);
   const [loadError, setLoadError] = useState('');
-  const [seed, setSeed] = useState('expo-001');
+  const [seed, setSeed] = useState('crossy-v4-expo:0006');
+  const [manuallyPaused, setManuallyPaused] = useState(false);
+  const [record, setRecord] = useState(() => {
+    try {
+      const saved = Number(window.localStorage.getItem('fly-crossy-expo-record'));
+      return Number.isSafeInteger(saved) && saved >= 0 ? saved : 0;
+    } catch {
+      return 0;
+    }
+  });
 
-  const controller = useMemo<Controller | null>(() => (
-    policy?.network.kind === 'fixed-graph'
-      ? createFixedGraphPolicyController(policy)
-      : null
-  ), [policy]);
+  const controller = useMemo<Controller | null>(() => {
+    if (!neuralReplay || !replay) return null;
+    return createNeuralReplayController(replay, neuralReplay);
+  }, [neuralReplay, replay]);
 
   const game = useGame({
     seed,
-    mode: controller?.kind ?? 'human',
+    // Do not advance empty human ticks while the larger neural replay is loading.
+    mode: 'scripted',
     controller,
     visibleIds: atlas?.visibleIds,
     autonomousSpeed: 1,
@@ -47,14 +54,26 @@ export function ExpoApp() {
   useEffect(() => {
     if (!atlas) return;
     const abort = new AbortController();
-    void fetch(asset(BUNDLED_CONNECTOME_POLICY_PATH), { signal: abort.signal })
+    void fetch(asset(REPLAY_PATH), { signal: abort.signal, cache: 'no-store' })
       .then((response) => {
-        if (!response.ok) throw Error('No se pudo cargar el controlador de la mosca.');
+        if (!response.ok) {
+          throw Error('No se pudo cargar assets/expo/full-malecns-replay.json.');
+        }
         return response.json() as Promise<unknown>;
       })
-      .then((value) => {
+      .then(async (value) => {
         if (abort.signal.aborted) return;
-        setPolicy(parseBundledConnectomePolicy(value, atlas.visibleIds));
+        const parsed = parseExpoReplay(value);
+        const responses = await Promise.all(['full-malecns-activity.json', 'full-malecns-activity.bin.gz'].map(name =>
+          fetch(asset(`assets/expo/${name}`), { signal: abort.signal, cache: 'no-store' })));
+        if (responses.some(response => !response.ok)) throw Error('No se pudo cargar la actividad Full MaleCNS.');
+        const manifest: unknown = await responses[0]!.json();
+        const data = await decodeNeuralResponse(responses[1]!);
+        const neural = await parseNeuralReplay(manifest, data, parsed, atlas.visibleIds);
+        if (abort.signal.aborted) return;
+        setNeuralReplay(neural);
+        setReplay(parsed);
+        setSeed(parsed.seed);
         setLoadError('');
       })
       .catch((error: unknown) => {
@@ -66,13 +85,44 @@ export function ExpoApp() {
   }, [atlas]);
 
   useEffect(() => {
-    if (!controller || game.state.terminal === null) return;
+    if (!replay || !controller || manuallyPaused) return;
+    const finished = game.state.terminal !== null || game.state.step >= replay.actions.length;
+    if (!finished) return;
+
+    if (!game.paused) game.onTogglePause();
     const timer = window.setTimeout(() => {
-      const token = globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 8);
-      setSeed(nextAutoplaySeed(seed, token));
+      game.reset(replay.seed);
     }, 1_000);
     return () => window.clearTimeout(timer);
-  }, [controller, game.state.terminal, seed]);
+  }, [
+    controller,
+    game.onTogglePause,
+    game.paused,
+    game.reset,
+    game.state.step,
+    game.state.terminal,
+    replay,
+    manuallyPaused,
+  ]);
+
+  const bestScore = Math.max(record, game.state.score);
+  useEffect(() => {
+    setRecord(bestScore);
+    try {
+      window.localStorage.setItem('fly-crossy-expo-record', String(bestScore));
+    } catch {
+      // Keep the session record when browser storage is unavailable.
+    }
+  }, [bestScore]);
+
+  const togglePause = () => {
+    setManuallyPaused(!game.paused);
+    game.onTogglePause();
+  };
+  const restart = () => {
+    setManuallyPaused(false);
+    game.reset(replay?.seed ?? seed);
+  };
 
   const activity = activityPresentation(controller, game.activity);
   const action = game.decision?.action ?? 'wait';
@@ -98,7 +148,7 @@ export function ExpoApp() {
               </strong>
               <div className="expo-record">
                 <span className="expo-record-label">Record:</span>
-                <span className="expo-record-value">68</span>
+                <span className="expo-record-value">{bestScore}</span>
               </div>
             </section>
 
@@ -118,17 +168,17 @@ export function ExpoApp() {
             <section className="expo-brain-card" aria-label="Actividad del cerebro digital">
               <div className="expo-brain-legend" aria-hidden="true">
                 <span className="expo-legend-anatomy">
-                  <i><img src={asset('assets/expo/legend-anatomy.svg')} alt="" /></i>
+                  <i />
                   Anatomía medida
                 </span>
                 <span className="expo-legend-activity">
-                  <i><img src={asset('assets/expo/legend-activity.svg')} alt="" /></i>
+                  <i />
                   Actividad neuronal en tiempo real
                 </span>
               </div>
               <div className="expo-brain-visual">
                 {atlas
-                  ? <BrainScene atlas={atlas} frame={activity.frame} activityMode={activity.kind} orbitSpeed={.06} />
+                  ? <BrainScene atlas={atlas} frame={activity.frame} activityMode={activity.kind} activityContrast="expo" />
                   : <span className="expo-media-status" role="status">Cargando cerebro</span>}
               </div>
               <dl className="expo-brain-stats">
@@ -147,32 +197,39 @@ export function ExpoApp() {
               </section>
             </div>
 
-            <section className="expo-action-card" aria-live="polite">
-              <div className="expo-action-metrics">
-                <div className="expo-action-current">
-                  <i aria-hidden="true" />
-                  <span>Acción actual</span>
-                  <img
-                    className={`expo-action-arrow expo-action-arrow-${action}`}
-                    src={asset('assets/expo/action-arrow.svg')}
-                    alt=""
-                  />
-                  <strong>{ACTION_LABELS[action]}</strong>
+            <div className="expo-action-area">
+              <section className="expo-action-card" aria-live="polite">
+                <div className="expo-action-metrics">
+                  <div className="expo-action-current">
+                    <i aria-hidden="true" />
+                    <span>Acción actual</span>
+                    {action === 'wait'
+                      ? <span className="expo-action-dash" aria-hidden="true">-</span>
+                      : <img
+                          className={`expo-action-arrow expo-action-arrow-${action}`}
+                          src={asset('assets/expo/action-arrow.svg')}
+                          alt=""
+                        />}
+                    <strong>{ACTION_LABELS[action]}</strong>
+                  </div>
+                  <div className="expo-step-current">
+                    <i aria-hidden="true" />
+                    <span>Paso</span>
+                    <strong>{game.state.step}</strong>
+                  </div>
                 </div>
-                <div className="expo-step-current">
-                  <i aria-hidden="true" />
-                  <span>Paso</span>
-                  <strong>{game.state.step}</strong>
+                <div className="expo-config-card">
+                  <button type="button" onClick={togglePause} aria-pressed={game.paused}>
+                    <span>{game.paused ? 'Continuar' : 'Pausa'}</span>
+                  </button>
+                  <button type="button" onClick={restart}><span>Reiniciar</span></button>
                 </div>
-                <div className="expo-motor-status">
-                  <i aria-hidden="true" />
-                  <span>Actividad motora</span>
-                </div>
-              </div>
-              <div className="expo-config-card">
-                <p>Aca iria la configuracion<br />de la mosca<br />(seed, policiy, etc.)</p>
-              </div>
-            </section>
+              </section>
+              <p className="expo-credits">
+                <strong>Desarrollado por </strong>
+                Nicolás Luca Giordano y Matías Adrián Sanmiguel.
+              </p>
+            </div>
           </div>
         </div>
 

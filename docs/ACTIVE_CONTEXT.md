@@ -98,6 +98,18 @@ historical environment recorded in `release-environment-linux-x86_64.json`.
 
 ## Next meaningful work
 
+### Local visitor installation screen (2026-10-07)
+
+`?play=1` is a separate, human-only visitor screen. It asks for a name, starts a
+round with a server-generated random seed, and displays a persistent top-10
+ranking beside the game. SQLite lives at the ignored
+`data/visitor-ranking.sqlite`; the Vite dev and preview servers provide its API.
+The server replays recorded actions through the unchanged authoritative game
+to compute scores, and retries cannot duplicate a completed round. A visitor
+turn ends at death or 900 decisions (three unpaused minutes). Expo, released
+controllers, biomechanics, gameplay and all version constants are unchanged.
+See `docs/VISITOR_MODE.md` for running, privacy, validation and database details.
+
 1. Stream physical snapshots, contacts, motor phase, force/travel, and metrics.
 2. Train and evaluate a native v11 controller instead of relying on the v6
    compatibility adapter.

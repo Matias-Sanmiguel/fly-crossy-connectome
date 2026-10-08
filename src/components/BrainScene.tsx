@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ActivityFrame } from "../lib/replay";
 import type { Atlas } from "../lib/atlas";
+import { BRAIN_ACTIVITY_CONTRAST, createBrainActivityBuffer, type BrainActivityContrast } from '../lib/brainActivity.ts';
 
 /** Real anatomy; model values are looked up by body ID, never by spatial proximity. */
 export function BrainScene({
@@ -10,12 +11,14 @@ export function BrainScene({
   activityMode = 'none',
   initialOrbit = true,
   orbitSpeed = .12,
+  activityContrast = 'standard',
 }: {
   atlas: Atlas;
   frame: ActivityFrame | null;
   activityMode?: 'none' | 'model-output' | 'simulated-reduced-circuit';
   initialOrbit?: boolean;
   orbitSpeed?: number;
+  activityContrast?: BrainActivityContrast;
 }) {
   const signal = useRef(frame);
   const orbit = useRef(initialOrbit);
@@ -82,24 +85,25 @@ export function BrainScene({
       size.multiplyScalar(scale);
       geometry = new THREE.BufferGeometry();
       geometry.setAttribute("position", new THREE.Float32BufferAttribute(xyz, 3));
-      const activity = new Float32Array(bodyIds.length);
-      geometry.setAttribute("activity", new THREE.BufferAttribute(activity, 1));
+      const activityBuffer = createBrainActivityBuffer(bodyIds);
+      geometry.setAttribute("activity", new THREE.BufferAttribute(activityBuffer.values, 1));
+      const contrast = BRAIN_ACTIVITY_CONTRAST[activityContrast];
       material = new THREE.ShaderMaterial({
         transparent: true, depthWrite: false,
-        uniforms: { pixelRatio: { value: Math.min(window.devicePixelRatio, 2) } },
-        vertexShader: `attribute float activity; varying float strength; uniform float pixelRatio;
-          void main() { strength = activity; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = (0.9 + strength * 2.0) * pixelRatio; }`,
+        uniforms: { pixelRatio: { value: Math.min(window.devicePixelRatio, 2) }, activityGain: { value: contrast.gain }, activityFloor: { value: contrast.floor }, activePointSize: { value: contrast.activePointSize } },
+        vertexShader: `attribute float activity; varying float strength; uniform float pixelRatio; uniform float activityGain; uniform float activityFloor; uniform float activePointSize;
+          // Display-only contrast curve: zero stays zero; weak activity becomes visible.
+          void main() { strength = activity > 0. ? activityFloor + (1. - activityFloor) * pow(clamp(activity * activityGain,0.,1.),.4) : 0.; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = (activity > 0. && activePointSize > 0. ? activePointSize : 0.9 + clamp(activity,0.,1.) * 2.0) * pixelRatio; }`,
         fragmentShader: `varying float strength;
           void main() { float r = length(gl_PointCoord - vec2(.5)); if (r > .5) discard;
           vec3 color = mix(vec3(.12,.35,.75), vec3(.2,.95,1.), strength);
-          color = mix(color,vec3(1.),smoothstep(.6,1.,strength));
-          gl_FragColor = vec4(color,(.28+.65*strength)*(1.-smoothstep(.18,.5,r))); }`,
+          color = mix(color,vec3(1.),smoothstep(.45,1.,strength));
+          gl_FragColor = vec4(color,mix(.28,1.,strength)*(1.-smoothstep(.18,.5,r))); }`,
       });
       const paint = () => {
         if (disposed || !geometry) return;
-        const values = new Map(signal.current?.values ?? []);
-        for (let i = 0; i < bodyIds.length; i++) activity[i] = values.get(bodyIds[i]) ?? 0;
+        activityBuffer.write(signal.current?.values ?? []);
         geometry.getAttribute("activity").needsUpdate = true;
         renderer.render(scene, camera);
       };
@@ -142,7 +146,7 @@ export function BrainScene({
       renderer.domElement.removeEventListener("pointerup", up); renderer.domElement.removeEventListener("pointercancel", up);
       geometry?.dispose(); material?.dispose(); renderer.dispose(); renderer.domElement.remove();
     };
-  }, [atlas]);
+  }, [atlas, activityContrast]);
 
   return <>
     <div className="brain-view-controls">
