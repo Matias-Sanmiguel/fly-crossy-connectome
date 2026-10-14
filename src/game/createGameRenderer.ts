@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { visualRoleForHazard } from './hazardVisuals.ts';
 import { trainConsistParts } from './trainVisuals.ts';
 import { createFlyModel } from './createFlyModel.ts';
+import { createVisitorModel } from './createVisitorModel.ts';
 import { decorationsForRow } from './scenery.ts';
 import { KENNEY_ASSETS, type GameAssetRole } from './kenneyAssets.ts';
 import {
@@ -50,6 +51,7 @@ export type GameRenderer = {
 export type GameRendererOptions = {
   assetLoader?: KenneyAssetLoader;
   onAssetStatus?: (status: GameAssetStatus) => void;
+  playerModel?: 'fly' | 'visitor';
 };
 
 type RailWarningLightBinding = {
@@ -200,7 +202,9 @@ export function createGameRenderer(
     ROAD_MARKING_CAPACITY,
   );
 
-  const flyModel = createFlyModel();
+  const flyModel = options.playerModel === 'visitor'
+    ? createVisitorModel()
+    : createFlyModel();
   const fly = flyModel.group;
   scene.add(fly);
 

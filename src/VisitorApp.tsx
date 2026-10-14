@@ -69,7 +69,7 @@ function VisitorGame({ round, onSaved, onNext }: {
         <span className="visitor-timer" aria-label={`${remaining} segundos restantes`}>{Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}</span>
       </div>
       <div className="visitor-stage" ref={stage} tabIndex={-1} aria-label="Juego, usá WASD o las flechas">
-        <GameScene state={game.state} events={game.events} />
+        <GameScene state={game.state} events={game.events} playerModel="visitor" />
         <div className="visitor-score"><span>Puntaje</span><strong>{game.state.score}</strong></div>
         {(ended || game.paused) && <div className="visitor-overlay">
           <section className="visitor-dialog" aria-label={ended ? 'Resultado de la ronda' : 'Juego pausado'}>
@@ -159,7 +159,7 @@ export function VisitorApp() {
         <section className="visitor-game-column" aria-label="Partida del visitante">
           {round ? <VisitorGame key={round.id} round={round} onSaved={saved} onNext={next} /> : <>
             <div className="visitor-stage">
-              <GameScene state={preview} events={[]} />
+              <GameScene state={preview} events={[]} playerModel="visitor" />
               <div className="visitor-overlay">
                 <form className="visitor-dialog" onSubmit={start}>
                   <p className="visitor-eyebrow">Listo para cruzar</p><h2>Dejá tu nombre.<br />Hacé tu marca.</h2>

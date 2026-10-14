@@ -10,9 +10,10 @@ type GameSceneProps = {
   state: GameState;
   events: readonly GameEvent[];
   onAssetStatus?: (status: GameAssetStatus) => void;
+  playerModel?: 'fly' | 'visitor';
 };
 
-export function GameScene({ state, events, onAssetStatus }: GameSceneProps) {
+export function GameScene({ state, events, onAssetStatus, playerModel = 'fly' }: GameSceneProps) {
   const host = useRef<HTMLDivElement>(null);
   const renderer = useRef<GameRenderer | null>(null);
   const latest = useRef({ state, events });
@@ -26,6 +27,7 @@ export function GameScene({ state, events, onAssetStatus }: GameSceneProps) {
 
     const gameRenderer = createGameRenderer(element, {
       onAssetStatus: (status) => latestStatusHandler.current?.(status),
+      playerModel,
     });
     renderer.current = gameRenderer;
     gameRenderer.render(latest.current.state, latest.current.events);
@@ -34,7 +36,7 @@ export function GameScene({ state, events, onAssetStatus }: GameSceneProps) {
       renderer.current = null;
       gameRenderer.dispose();
     };
-  }, []);
+  }, [playerModel]);
 
   useEffect(() => {
     renderer.current?.render(state, events);
