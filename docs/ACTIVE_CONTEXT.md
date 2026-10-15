@@ -1,6 +1,19 @@
 # Active project context
 
-Last updated: 2026-09-27
+Last updated: 2026-10-15
+
+## Current installation and external training
+
+The installation has two independent modes: human play with a local SQLite
+ranking (`?play=1`), and the Full MaleCNS expo with synchronized recorded actions
+and exported model activity (`?expo=1`). Both run with the local Vite dev or
+preview server. The expo does not perform live inference in the browser.
+
+The user confirms that a teammate has the full-neuron training artifacts on
+their machine and keeps them outside Git because of size. Do not infer missing
+training from missing checkpoint files here, or automatically restart an older
+training curriculum. See `docs/TRAINING_ARTIFACTS.md` for external artifact
+requirements and `docs/expo-neural-replay.md` for the published export contract.
 
 ## Authoritative state
 
@@ -31,7 +44,7 @@ The 1,000-neuron graph and V5 sensory/core experiments are research artifacts,
 not released playable controllers. Independent 1,000, 5,000, 20,000, and
 124,289-neuron modes remain unfinished and disabled in the biomechanical UI.
 
-V7 is the current experimental native-v11 training path. It uses a privileged
+V7 is a separate experimental native-v11 training path. It uses a privileged
 ObservationV4 teacher only for labels and an RGB-only local-retina connectome
 student for actions and displayed activity. It does not change runtime
 authority. Generated runs live under ignored `runs/crossy-v7-*/` directories.
@@ -70,8 +83,15 @@ named `fly-data` volume. CPU is the default; CUDA remains optional.
 
 ## Repository hygiene
 
-- Generated datasets, training runs, pytest scratch trees, caches, and virtual
-  environments are ignored and must not be committed.
+- Generated datasets, training runs, new reports, local databases, pytest
+  scratch trees, caches, and virtual environments are ignored. `runs/` keeps
+  only its README tracked; historical reports are summarized with hashes and
+  their source revision in `docs/experiments/run-index.json`. The cleanup
+  leaves local run files in place and does not rewrite Git history.
+- Existing curated `reports/` audits are retained. Versioned cached-frontier
+  scripts are preserved under `scripts/experiments/cached_frontier/`, including
+  the original module name used by the expo exporter's pickled traces.
+- Historical root notes now live in `docs/experiments/legacy/`.
 - Released artifacts and their hashes are immutable evidence. Do not rewrite a
   historical release merely to match a different local Python environment.
 - Do not add automated-agent coauthor trailers.
@@ -97,6 +117,13 @@ evidence. The separate Python 3.14 release-environment test only applies to the
 historical environment recorded in `release-environment-linux-x86_64.json`.
 
 ## Next meaningful work
+
+These research/runtime tasks are separate from the local human game and expo
+delivery. Do not treat all of them as required installation work.
+
+Docker currently needs a separate integration fix: the web build omits the
+imported `server/visitorPlugin.ts`, and Nginx does not run the visitor-ranking
+API. Local Vite dev/preview is the working installation path.
 
 ### Local visitor installation screen (2026-10-07)
 

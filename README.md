@@ -1,18 +1,17 @@
 # Fly Crossy Connectome
 
-A 3D Crossy Road/Frogger-style browser experiment where a reduced fly
-connectome plays autonomously while its simulated neural activity is shown over
-measured MaleCNS soma positions.
+A 3D Crossy Road/Frogger-style installation with a human game and local ranking,
+a Full MaleCNS expo replay, and separate live-controller research modes.
 
 The project combines a deterministic TypeScript/Python game environment,
-Kenney CC0 scene assets, a real-time brain view, and an optional FlyGym/MuJoCo
+Kenney CC0 scene assets, a measured soma atlas, and an optional FlyGym/MuJoCo
 body that presses physical W/A/S/D keys with its legs.
 
-> **Development snapshot:** the browser game, 80-neuron autoplay, live brain
-> activity, protocol-v2 bridge, CPU Docker stack, and unified FlyBody/keyboard
-> runtime are operational. Larger independently trained neural controllers and
-> complete physical telemetry are not finished. See
-> [the engineering handoff](docs/HANDOFF.md).
+The full-neuron training artifacts are kept outside Git on a teammate's
+machine. The committed expo exports can be played without those checkpoints.
+See [external training artifacts](docs/TRAINING_ARTIFACTS.md) for the layout and
+reproduction requirements, and [the engineering handoff](docs/HANDOFF.md) for
+the separate runtime paths.
 
 ## Quick start
 
@@ -23,7 +22,20 @@ npm ci
 npm run dev
 ```
 
-Open the address printed by Vite. The released 80-neuron controller starts
+Open the address printed by Vite with the mode you need:
+
+| URL suffix | Mode |
+| --- | --- |
+| `/?play=1` | Human game with registration and persistent local top-10 ranking |
+| `/?expo=1` | Full MaleCNS recorded actions and synchronized exported activity |
+| `/` | Released 80-neuron live autoplay and manual controls |
+| `/?biomechanics=1` | Physical keyboard station; requires the Python service |
+
+The visitor game needs only this Node server. Its database is stored at the
+ignored `data/visitor-ranking.sqlite`; see [visitor mode](docs/VISITOR_MODE.md).
+Use `npm run build` followed by `npm run preview` for the built installation.
+
+At `/`, the released 80-neuron controller starts
 playing automatically at 1× speed, restarts after terminal outcomes, and
 updates the brain panel on every decision.
 
@@ -35,13 +47,30 @@ Space to wait, and Escape to pause. Touch controls expose the same actions.
 - Soma coordinates and body IDs come from the measured MaleCNS atlas.
 - Neural colors are simulated internal values from the controller, not
   biological recordings.
-- The active checkpoint was trained and evaluated on environment v6. The
+- Expo plays previously exported model activity alongside a fixed action
+  sequence. It does not perform live Full MaleCNS inference in the browser;
+  see [the expo export contract](docs/expo-neural-replay.md).
+- The live 80-neuron checkpoint was trained and evaluated on environment v6. The
   current game is environment v11, so autoplay uses an explicit, deterministic
   ObservationV4-to-V1 compatibility adapter.
 - This compatibility path is labeled in the UI and must not be presented as a
   controller trained natively on v11.
-- Existing 1k/V5 artifacts are experimental. The 1,000, 5,000, 20,000, and
-  124,289-neuron modes still need independent training and evaluation.
+- Research population selectors are separate from the expo. Their disabled
+  options do not describe which full-neuron artifacts exist on another machine.
+  Integration/evaluation of external checkpoints is a separate task.
+
+## Repository layout
+
+- `src/`, `server/`: browser modes and the local visitor-ranking API.
+- `public/`: distributable scene assets, atlas and expo exports.
+- `python/fly_crossy/`: environment, controllers, physics and training modules.
+- `release/`: immutable reviewed runtime artifacts and evaluation evidence.
+- `docs/`: current setup, handoff and artifact guidance.
+- `docs/experiments/legacy/`: historical V2–V6 notes formerly in the root.
+- `scripts/experiments/cached_frontier/`: preserved versioned training scripts.
+- `runs/`: ignored local training bundles and generated reports. Historical
+  tracked reports are indexed in [run-index.json](docs/experiments/run-index.json).
+- `reports/`: retained curated historical audits; new output is ignored.
 
 ## Biomechanical mode
 
@@ -78,7 +107,10 @@ from FlyGym's public asset host and verifies the complete inventory.
 ## Docker
 
 The default Compose stack uses CPU with the web app and simulation behind one
-origin:
+origin. **Known current limitation:** `Dockerfile.web` does not yet copy the
+new `server/` Vite plugin, and its Nginx runtime does not host the visitor
+SQLite API. Use the local Vite dev/preview path above for the installation;
+the following stack needs a separate Docker integration fix:
 
 ```sh
 docker compose up --build --wait
@@ -109,10 +141,11 @@ NVIDIA host.
 
 ## Experimental V7 visual training
 
-V7 trains a privileged ObservationV4 teacher and distills it into an RGB-only
+V7 is a separate research path. It trains a privileged ObservationV4 teacher and distills it into an RGB-only
 measured-connectome student. It is experimental: the released 80-neuron
 environment-v6 compatibility controller remains authoritative until a separate
-runtime-integration review approves a V7 checkpoint.
+runtime-integration review approves a V7 checkpoint. It is not required to run
+the current human installation or the exported Full MaleCNS expo.
 
 Run the CPU contract smoke, then a meaningful 80-neuron run:
 

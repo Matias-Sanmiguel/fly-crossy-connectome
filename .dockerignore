@@ -2,6 +2,7 @@
 .gitignore
 .worktrees
 .superpowers
+.local
 .env
 .env.*
 *.key
@@ -21,7 +22,19 @@ coverage
 **/.ruff_cache
 
 /python/.venv
+/.venv
 /python/runs
 /docs
 /tests
 /python/tests
+
+# Training scratch and historical experiments are not runtime build inputs.
+/runs
+/reports
+/artifacts
+/python/datasets
+/scripts/experiments
+/data/visitor-ranking.sqlite*
+**/*.bak
+**/*.orig
+**/*.rej

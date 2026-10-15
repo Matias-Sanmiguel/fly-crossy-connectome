@@ -10,7 +10,8 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-sys.path.insert(0, str(ROOT))
+# Keep the original module name for historical pickled TraceStep instances.
+sys.path.insert(0, str(ROOT / "scripts/experiments/cached_frontier"))
 
 import numpy as np
 import pyarrow.feather as feather

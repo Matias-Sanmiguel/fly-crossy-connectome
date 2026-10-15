@@ -22,11 +22,15 @@ python/runs/
 outputs/
 .worktrees/
 .superpowers/
+.local/
 
 # Editors and operating systems
 .idea/
 .vscode/
 *.swp
+*.bak
+*.orig
+*.rej
 .DS_Store
 Thumbs.db
 
@@ -34,6 +38,17 @@ Thumbs.db
 artifacts/
 python/datasets/
 
-runs/**/*.pt
-runs/crossy-v7-*/
-runs/crossy-full-readout-cached-frontier-v12-15-0006-2000/report.json
+# Training outputs stay local. Commit curated summaries under docs/experiments/.
+/runs/*
+!/runs/README.md
+# Historical audits in reports/ remain tracked; new reports are local by default.
+/reports/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+# Released, reviewed artifacts are intentionally distributable.
+!release/**/*.pt
+!release/**/*.pth
+!release/**/*.ckpt
+!release/**/*.safetensors

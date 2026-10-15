@@ -14,7 +14,8 @@ test('generated Python output is not tracked', () => {
       'python/.pytest_tmp*/**',
       'python/datasets/**',
       'python/runs/**',
-      'runs/crossy-v7-*/**',
+      'runs/**/*.json',
+      'runs/**/*.pt',
     ],
     { cwd: root, encoding: 'utf8' },
   ).trim();
@@ -30,13 +31,59 @@ test('root ignore owns cross-language output', async () => {
     'python/.pytest_tmp*/',
     'python/datasets/',
     'python/runs/',
-    'runs/crossy-v7-*/',
+    '/runs/*',
     '*.py[cod]',
     '.ruff_cache/',
     'coverage/',
   ]) {
     assert.ok(ignore.includes(pattern), pattern);
   }
+});
+
+test('local training bundles and backups are ignored without hiding published assets', () => {
+  const paths = [
+    'runs/external-full-model/best_FROZEN_1000.pt',
+    'runs/future-experiment/report.json',
+    'reports/future-experiment.json',
+    'artifacts/downloaded-model.safetensors',
+    'checkpoints/external-model.ckpt',
+    '.local/repository-cleanup-backup/original.patch',
+    'src/example.ts.bak',
+    'data/visitor-ranking.sqlite-wal',
+  ];
+  const ignored = execFileSync('git', ['check-ignore', '--no-index', '--stdin'], {
+    cwd: root, input: paths.join('\n'), encoding: 'utf8',
+  }).trim().split('\n');
+  assert.deepEqual(ignored, paths);
+  const tracked = execFileSync('git', ['ls-files', 'runs/README.md',
+    'public/assets/expo/full-malecns-*', 'release/eval-v6/training/connectome/checkpoint.pt'],
+    { cwd: root, encoding: 'utf8' }).trim().split('\n');
+  assert.ok(tracked.includes('runs/README.md'));
+  assert.ok(tracked.includes('public/assets/expo/full-malecns-replay.json'));
+  assert.ok(tracked.includes('public/assets/expo/full-malecns-activity.bin.gz'));
+  assert.ok(tracked.includes('release/eval-v6/training/connectome/checkpoint.pt'));
+});
+
+test('historical run index is compact and preserves the published expo report metrics', async () => {
+  const index = JSON.parse(await readFile(new URL('docs/experiments/run-index.json', root), 'utf8'));
+  assert.equal(index.schemaVersion, 1);
+  assert.match(index.sourceRevision, /^[a-f0-9]{40}$/);
+  // This must also work in a shallow checkout without the historical blobs.
+  assert.ok(index.files.length > 0);
+  assert.equal(new Set(index.files.map(file => file.path)).size, index.files.length);
+  for (const file of index.files) {
+    assert.ok(file.path.startsWith('runs/') && file.path.endsWith('.json'));
+    assert.ok(Number.isSafeInteger(file.bytes) && file.bytes > 0);
+    assert.match(file.sha256, /^[a-f0-9]{64}$/);
+  }
+  assert.equal(index.totalBytes, index.files.reduce((total, file) => total + file.bytes, 0));
+  assert.ok(JSON.stringify(index).length < 100_000);
+  const replay = JSON.parse(await readFile(new URL('public/assets/expo/full-malecns-replay.json', root), 'utf8'));
+  const originalReport = index.files.find(file => file.path ===
+    'runs/crossy-full-readout-cached-frontier-v12-10-0006-1000/report.json');
+  assert.equal(originalReport.summary.seed, replay.seed);
+  assert.equal(originalReport.summary.final.score, replay.metrics.score);
+  assert.equal(originalReport.summary.final.steps, replay.actions.length);
 });
 
 test('V7 documentation names the real curriculum module and profiles', async () => {

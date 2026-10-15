@@ -1,10 +1,28 @@
 # Engineering handoff
 
-This repository is an operational development snapshot of a 3D Crossy
-Road/Frogger experiment controlled by a reduced fly connectome.
+Current handoff: 2026-10-15. The local installation has a human game with a
+persistent ranking (`?play=1`) and a Full MaleCNS expo replay (`?expo=1`). Start
+with `npm ci` and `npm run dev`, or build and use `npm run preview`.
+
+The teammate keeps the full-neuron training artifacts on their own machine
+because of size. They are intentionally external to Git. See
+[TRAINING_ARTIFACTS.md](TRAINING_ARTIFACTS.md) for what is needed to regenerate
+the expo. No checkpoint is required to display the committed exports or play
+the human game. Their absence is not evidence that training was never done.
+
+Older V2–V6 notes and the original biomechanics continuation prompt are
+preserved under `docs/experiments/legacy/`. Cached-frontier scripts retain all
+versions under `scripts/experiments/cached_frontier/`. Local `runs/` files are
+ignored, with historical sizes, hashes and reported results retained in
+`docs/experiments/run-index.json`; immutable `release/` evidence is unchanged.
 
 ## Working now
 
+- Human game with server-created seeds, registration, server-replayed scoring
+  and persistent SQLite top-10 ranking. See [VISITOR_MODE.md](VISITOR_MODE.md).
+- Full MaleCNS exported action/activity replay on its original seed, checked
+  against hashes and measured visible soma IDs. See
+  [expo-neural-replay.md](expo-neural-replay.md).
 - Deterministic environment v11 in TypeScript and Python, with shared parity
   fixtures for world generation, observations, collisions, rewards, and replay.
 - Isometric browser game using curated Kenney CC0 GLB assets with procedural
@@ -18,8 +36,9 @@ Road/Frogger experiment controlled by a reduced fly connectome.
   the intended tarsus confirms the intended key contact.
 - Protocol-v2 Python bridge with real controller neural keyframes, CPU/GPU
   selection, CPU fallback, artifact hash verification, and bounded messages.
-- CPU Docker Compose path containing the verified runtime artifacts. Full-size
-  FlyBody meshes are integrity-checked and cached in the `fly-data` volume.
+- The simulation Docker recipe packages verified runtime artifacts. The current
+  web image needs an integration fix before the full Compose stack can be
+  presented as operational; use Vite locally for the installation.
 
 ## Scientific boundary
 
@@ -28,11 +47,17 @@ It was trained on environment v6 and is explicitly labeled as compatibility
 mode on v11. Neural values are simulated internal activations over measured soma
 positions, not measurements from a living fly.
 
-The larger population work is incomplete. Existing 1k and V5 files are
-experimental building blocks, not evidence for playable 1k, 5k, 20k, or
-124,289-neuron controllers.
+The expo replays Full MaleCNS exports; it does not run the full model in the
+browser. The normal live game and physical runtime select the released
+80-neuron policy. The separately stored full-neuron training bundle has not
+been inspected by this cleanup. Do not extrapolate generalization or missing
+training from either the replay or the absence of external files here.
 
-## Still missing
+## Separate research/runtime work
+
+These are technical integration areas, not automatic blockers for delivering
+the human game and replay installation. Confirm the requested scope before
+retraining or enabling a new controller.
 
 1. Native snapshot, physical contact, motor force/travel, and runtime metrics
    streaming to the biomechanical browser station.
@@ -50,7 +75,9 @@ npm ci
 npm run dev
 ```
 
-Complete CPU stack:
+The Docker stack needs `server/` included in the web build and a running API
+for visitor ranking (Nginx alone does not provide it). After that integration
+is repaired, the intended CPU-stack commands are:
 
 ```sh
 docker compose up --build --wait
