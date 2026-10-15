@@ -6,7 +6,7 @@ import { createGame, DECISION_SECONDS } from './game/simulation.ts';
 import type { Action } from './game/types.ts';
 import { asset } from './lib/atlas.ts';
 import { finishVisitorRound, loadRanking, startVisitorRound } from './visitor/client.ts';
-import { normalizeVisitorName, VISITOR_MAX_STEPS } from './visitor/protocol.ts';
+import { normalizeVisitorIdentity, VISITOR_MAX_STEPS } from './visitor/protocol.ts';
 import type { RankingEntry, VisitorRound } from './visitor/protocol.ts';
 import './visitor.css';
 
@@ -101,6 +101,8 @@ function VisitorGame({ round, onSaved, onNext }: {
 export function VisitorApp() {
   const [round, setRound] = useState<VisitorRound | null>(null);
   const [name, setName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [starting, setStarting] = useState(false);
   const startPending = useRef(false);
   const [error, setError] = useState('');
@@ -130,14 +132,14 @@ export function VisitorApp() {
     setLastResult(entry);
     setRankingRevision(value => value + 1);
   }, []);
-  const next = () => { setRound(null); setName(''); setError(''); };
+  const next = () => { setRound(null); setName(''); setLastName(''); setEmail(''); setError(''); };
   const start = async (event: FormEvent) => {
     event.preventDefault();
     if (startPending.current) return;
     try {
-      const validName = normalizeVisitorName(name);
+      const identity = normalizeVisitorIdentity({ name, lastName, email });
       startPending.current = true; setStarting(true); setError('');
-      setRound(await startVisitorRound(validName));
+      setRound(await startVisitorRound(identity));
     } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : 'No se pudo iniciar la ronda.'); }
     finally { startPending.current = false; setStarting(false); }
   };
@@ -161,11 +163,21 @@ export function VisitorApp() {
             <div className="visitor-stage">
               <GameScene state={preview} events={[]} playerModel="visitor" />
               <div className="visitor-overlay">
-                <form className="visitor-dialog" onSubmit={start}>
-                  <p className="visitor-eyebrow">Listo para cruzar</p><h2>Dejá tu nombre.<br />Hacé tu marca.</h2>
-                  <label htmlFor="visitor-name">¿Cómo te llamás?</label>
-                  <input id="visitor-name" autoFocus autoComplete="off" maxLength={32} value={name} onChange={event => setName(event.target.value)} placeholder="Tu nombre o apodo" required disabled={starting} aria-describedby="visitor-name-help" />
-                  <p id="visitor-name-help" className="visitor-small">Tu nombre y puntaje se mostrarán en el ranking local.</p>
+                <form className="visitor-dialog visitor-registration" onSubmit={start}>
+                  <p className="visitor-eyebrow">Listo para cruzar</p><h2>Dejá tus datos.<br />Hacé tu marca.</h2>
+                  <div className="visitor-name-fields">
+                  <div>
+                  <label htmlFor="visitor-name">Nombre</label>
+                  <input id="visitor-name" name="given-name" autoFocus autoComplete="off" maxLength={32} value={name} onChange={event => setName(event.target.value)} placeholder="Tu nombre" required disabled={starting} aria-describedby="visitor-name-help" />
+                  </div>
+                  <div>
+                  <label htmlFor="visitor-last-name">Apellido</label>
+                  <input id="visitor-last-name" name="family-name" autoComplete="off" maxLength={32} value={lastName} onChange={event => setLastName(event.target.value)} placeholder="Tu apellido" required disabled={starting} aria-describedby="visitor-name-help" />
+                  </div>
+                  </div>
+                  <label htmlFor="visitor-email">Mail</label>
+                  <input id="visitor-email" name="email" type="email" autoComplete="off" maxLength={254} value={email} onChange={event => setEmail(event.target.value)} placeholder="tu@mail.com" required disabled={starting} aria-describedby="visitor-name-help" />
+                  <p id="visitor-name-help" className="visitor-small">Nombre, apellido y puntaje visibles en el ranking. Mail guardado sólo en esta instalación.</p>
                   {error && <p className="visitor-error" role="alert">{error}</p>}
                   <button type="submit" disabled={starting}>{starting ? 'Preparando ronda…' : 'Jugar una ronda'}</button>
                 </form>

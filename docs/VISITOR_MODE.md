@@ -3,10 +3,12 @@
 Open `http://127.0.0.1:5173/?play=1` while running `npm run dev`.
 The existing `?expo=1` screen stays independent and can remain open on another display.
 
-The visitor enters a name or nickname (1–32 printable Unicode characters),
+The visitor enters a first name and surname (1–32 printable Unicode characters each)
+and a valid email address (up to 254 characters), all required,
 then plays one human-controlled round. WASD / arrow keys move, Space waits,
 and Escape pauses. There are also on-screen movement buttons. A new participant
-starts from the name screen with a fresh server-generated seed.
+starts from the registration screen with a fresh server-generated seed. All three
+fields are cleared for the next participant; browser autofill is disabled for the kiosk.
 
 The installation turn ends at the game's normal terminal condition, or after
 900 simulation decisions (three unpaused minutes). This is a visitor-session
@@ -31,13 +33,18 @@ server does not provide the ranking API. The page reports that limitation instea
 of silently keeping a browser-only ranking.
 
 The default database is `data/visitor-ranking.sqlite` under the repository root.
-It is excluded from Git, including SQLite WAL/SHM sidecars. Names and scores are
+It is excluded from Git, including SQLite WAL/SHM sidecars. Full names and scores are
 installation-local, visible to everyone looking at the ranking. They are not
 uploaded to a cloud service. Each completed round is a separate entry; repeated
 names do not overwrite earlier rounds. The public list contains the best 10,
 ordered by score descending and completion timestamp ascending, with the round
 ID providing a deterministic final tie-breaker. All completed rounds remain in
-the database even when outside the top 10.
+the database even when outside the top 10. Email addresses are stored locally in
+`visitor_rounds.email` and are never returned by the start, finish or ranking API.
+First names remain in `name`; surnames are stored separately in `last_name`.
+Opening an older database automatically adds these two columns without deleting
+or modifying historical rounds. Older entries retain their original display name,
+with empty surname and email because those details were not collected previously.
 
 To use a different database, set `VISITOR_DB_PATH` to an absolute file path before
 starting the server. This is also how browser QA uses an isolated database.

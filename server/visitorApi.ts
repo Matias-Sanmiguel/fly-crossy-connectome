@@ -42,14 +42,14 @@ export function createVisitorApi(store: VisitorStore) {
       if (++writes > 60) throw new VisitorError('Demasiadas solicitudes. Probá en un minuto.', 429);
       const value = await readJson(request);
       if (path === '/api/visitors/rounds') {
-        send(response, 201, store.start(value.name)); return;
+        send(response, 201, store.start(value)); return;
       }
       const match = /^\/api\/visitors\/rounds\/([a-f0-9-]{36})\/finish$/.exec(path);
       if (!match) throw new VisitorError('Ruta no encontrada.', 404);
       send(response, 200, store.finish(match[1]!, value.actions));
     } catch (error) {
       if (error instanceof VisitorError) send(response, error.status, { error: error.message });
-      else if (error instanceof Error && /nombre|acciones/.test(error.message)) send(response, 400, { error: error.message });
+      else if (error instanceof Error && /nombre|apellido|mail|datos|acciones/.test(error.message)) send(response, 400, { error: error.message });
       else { console.error('Visitor ranking API:', error); send(response, 500, { error: 'No se pudo guardar el resultado. Probá de nuevo.' }); }
     }
   };

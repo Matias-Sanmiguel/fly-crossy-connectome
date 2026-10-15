@@ -4,10 +4,14 @@ import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
+import { DatabaseSync } from 'node:sqlite';
 import { openVisitorStore } from '../server/visitorStore.ts';
 import { createVisitorApi } from '../server/visitorApi.ts';
 import { createGame, stepGame } from '../src/game/simulation.ts';
-import { normalizeVisitorName, validateVisitorActions, VISITOR_MAX_STEPS } from '../src/visitor/protocol.ts';
+import { WORLD_VERSION } from '../src/game/world.ts';
+import { normalizeVisitorName, normalizeVisitorIdentity, validateVisitorActions, VISITOR_MAX_STEPS } from '../src/visitor/protocol.ts';
+
+const identity = (name = 'Nico') => ({ name, lastName: 'Giordano', email: 'nico@example.com' });
 
 function completedTrace(seed) {
   let state = createGame(seed);
@@ -35,7 +39,7 @@ test('visitor names are normalized, bounded, Unicode-safe and never rendered as 
 test('rounds get independent server seeds, unfinished traces cannot enter the ranking, and scores are computed by simulation', () => {
   const store = openVisitorStore(':memory:');
   try {
-    const round = store.start('Nico'), second = store.start('Mati');
+    const round = store.start(identity('Nico')), second = store.start(identity('Mati'));
     assert.notEqual(round.id, second.id);
     assert.notEqual(round.seed, second.seed);
     assert.ok(round.seed.startsWith('visitor:') && round.seed.length <= 64);
@@ -44,7 +48,7 @@ test('rounds get independent server seeds, unfinished traces cannot enter the ra
     const { actions, state } = completedTrace(round.seed);
     const entry = store.finish(round.id, actions);
     assert.equal(entry.score, state.score);
-    assert.equal(entry.name, 'Nico');
+    assert.equal(entry.name, 'Nico Giordano');
     assert.deepEqual(store.finish(round.id, actions), entry);
     assert.equal(store.ranking().length, 1);
     assert.throws(() => store.finish(round.id, ['left']), /ya tiene un resultado/);
@@ -57,7 +61,7 @@ test('rounds get independent server seeds, unfinished traces cannot enter the ra
 test('the installation time limit accepts the same bounded trace without changing game rules', () => {
   const store = openVisitorStore(':memory:');
   try {
-    const round = store.start('Paciente');
+    const round = store.start(identity('Paciente'));
     const actions = Array(VISITOR_MAX_STEPS).fill('wait');
     const original = createGame(round.seed);
     assert.equal(original.terminal, null);
@@ -73,7 +77,7 @@ test('SQLite retains completed rounds after reopening, orders scores and caps th
   let store = openVisitorStore(path);
   try {
     for (let i = 0; i < 22; i++) {
-      const round = store.start(`Visitante ${i}`);
+      const round = store.start(identity(`Visitante ${i}`));
       store.finish(round.id, completedTrace(round.seed).actions);
     }
     const ranking = store.ranking();
@@ -98,20 +102,70 @@ test('HTTP API validates input, isolates unrelated routes, rejects cross-origin 
     const malformed = await fetch(url + '/api/visitors/rounds', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{' });
     assert.equal(malformed.status, 400);
     assert.equal((await post('/api/visitors/rounds', { name: 'x'.repeat(40_000) })).status, 413);
-    const start = await post('/api/visitors/rounds', { name: '<b>Nico</b>' });
+    for (const invalid of [{ name: 'Nico' }, { ...identity(), lastName: '' }, { ...identity(), email: 'invalido' }]) {
+      assert.equal((await post('/api/visitors/rounds', invalid)).status, 400);
+    }
+    const start = await post('/api/visitors/rounds', identity('<b>Nico</b>'));
     assert.equal(start.status, 201);
     const round = await start.json();
+    assert.equal(round.name, '<b>Nico</b> Giordano');
+    assert.equal('email' in round, false);
     const { actions, state } = completedTrace(round.seed);
     const payload = { actions, score: 999999 };
     const result = await post(`/api/visitors/rounds/${round.id}/finish`, payload);
     assert.equal(result.status, 200);
     const entry = await result.json();
+    assert.equal('email' in entry, false);
     assert.equal(entry.score, state.score);
     assert.equal((await post(`/api/visitors/rounds/${round.id}/finish`, payload)).status, 200);
     const ranking = await fetch(url + '/api/visitors/ranking');
     assert.equal(ranking.headers.get('cache-control'), 'no-store');
     assert.deepEqual((await ranking.json()).entries, [entry]);
   } finally { await new Promise(resolve => server.close(resolve)); store.close(); }
+});
+
+test('participant identity requires name, surname and valid email', () => {
+  assert.deepEqual(normalizeVisitorIdentity({ name: ' Nico ', lastName: ' De   Luca ', email: ' nico@example.com ' }), {
+    name: 'Nico', lastName: 'De Luca', email: 'nico@example.com',
+  });
+  for (const value of [null, 'Nico', [], { ...identity(), lastName: ' ' }, { ...identity(), lastName: 'a'.repeat(33) },
+    { ...identity(), email: '' }, { ...identity(), email: 'nico@' }, { ...identity(), email: 'a b@example.com' },
+    { ...identity(), email: 'a\n@example.com' }, { ...identity(), email: `${'a'.repeat(250)}@example.com` }]) {
+    assert.throws(() => normalizeVisitorIdentity(value));
+  }
+});
+
+test('legacy SQLite migration preserves scores and persists private participant fields across reopening', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'fly-visitor-migration-'));
+  const path = join(directory, 'ranking.sqlite');
+  const legacy = new DatabaseSync(path);
+  legacy.exec(`CREATE TABLE visitor_rounds (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, seed TEXT NOT NULL UNIQUE,
+    ruleset TEXT NOT NULL, created_at TEXT NOT NULL, played_at TEXT,
+    score INTEGER, steps INTEGER, trace_hash TEXT
+  );`);
+  legacy.prepare('INSERT INTO visitor_rounds VALUES(?,?,?,?,?,?,?,?,?)').run(
+    'legacy', 'Nombre anterior', 'legacy-seed', `environment-v11-world-v${WORLD_VERSION}`, '2026-10-01', '2026-10-01', 42, 100, 'trace',
+  );
+  legacy.close();
+  let store = openVisitorStore(path);
+  try {
+    assert.equal(store.ranking()[0].name, 'Nombre anterior');
+    assert.equal(store.ranking()[0].score, 42);
+    const round = store.start(identity());
+    const entry = store.finish(round.id, completedTrace(round.seed).actions);
+    store.close();
+    store = openVisitorStore(path);
+    assert.deepEqual({ ...store.ranking().find(item => item.id === round.id) }, entry);
+    const reader = new DatabaseSync(path);
+    try {
+      assert.deepEqual({ ...reader.prepare('SELECT name,last_name,email FROM visitor_rounds WHERE id=?').get(round.id) }, {
+        name: 'Nico', last_name: 'Giordano', email: 'nico@example.com',
+      });
+      assert.equal(reader.prepare('SELECT COUNT(*) AS count FROM visitor_rounds').get().count, 2);
+    } finally { reader.close(); }
+    assert.ok(store.ranking().every(item => !('email' in item) && !('last_name' in item)));
+  } finally { store.close(); await rm(directory, { recursive: true, force: true }); }
 });
 
 test('visitor routing is independent of expo and ranking/controls are scoped to the new screen', async () => {

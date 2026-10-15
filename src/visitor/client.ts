@@ -1,5 +1,5 @@
 import { VISITOR_API } from './protocol.ts';
-import type { RankingEntry, VisitorRound } from './protocol.ts';
+import type { RankingEntry, VisitorIdentity, VisitorRound } from './protocol.ts';
 import type { Action } from '../game/types.ts';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -11,8 +11,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return value as T;
 }
 export const loadRanking = (signal?: AbortSignal) => request<{ entries: RankingEntry[] }>('/ranking', { signal });
-export const startVisitorRound = (name: string) => request<VisitorRound>('/rounds', {
-  method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+export const startVisitorRound = (identity: VisitorIdentity) => request<VisitorRound>('/rounds', {
+  method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(identity),
 });
 export const finishVisitorRound = (id: string, actions: readonly Action[]) => request<RankingEntry>(`/rounds/${id}/finish`, {
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ actions }),

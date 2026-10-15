@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { createGame, stepGame } from '../src/game/simulation.ts';
 import { WORLD_VERSION } from '../src/game/world.ts';
-import { normalizeVisitorName, validateVisitorActions, VISITOR_MAX_STEPS } from '../src/visitor/protocol.ts';
+import { normalizeVisitorIdentity, validateVisitorActions, VISITOR_MAX_STEPS } from '../src/visitor/protocol.ts';
 import type { RankingEntry, VisitorRound } from '../src/visitor/protocol.ts';
 
 // Increment when authoritative gameplay changes, not when this UI changes.
@@ -19,19 +19,25 @@ export function openVisitorStore(path: string) {
   const db = new DatabaseSync(path, { timeout: 5000 });
   db.exec(`PRAGMA journal_mode=WAL;
     CREATE TABLE IF NOT EXISTS visitor_rounds (
-      id TEXT PRIMARY KEY, name TEXT NOT NULL, seed TEXT NOT NULL UNIQUE,
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, last_name TEXT NOT NULL DEFAULT '',
+      email TEXT NOT NULL DEFAULT '', seed TEXT NOT NULL UNIQUE,
       ruleset TEXT NOT NULL, created_at TEXT NOT NULL, played_at TEXT,
       score INTEGER, steps INTEGER, trace_hash TEXT
     );
     CREATE INDEX IF NOT EXISTS visitor_ranking ON visitor_rounds(ruleset, score DESC, played_at, id);`);
+  // Additive migration: historical rounds retain their original name and score.
+  const columns = new Set(db.prepare('PRAGMA table_info(visitor_rounds)').all().map(column => column.name));
+  if (!columns.has('last_name')) db.exec("ALTER TABLE visitor_rounds ADD COLUMN last_name TEXT NOT NULL DEFAULT ''");
+  if (!columns.has('email')) db.exec("ALTER TABLE visitor_rounds ADD COLUMN email TEXT NOT NULL DEFAULT ''");
+  const publicName = (row: Record<string, unknown>) => [String(row.name), String(row.last_name)].filter(Boolean).join(' ');
   const find = db.prepare('SELECT * FROM visitor_rounds WHERE id = ?');
 
   return {
     start(value: unknown): VisitorRound {
-      const name = normalizeVisitorName(value);
-      const round = { id: randomUUID(), name, seed: `visitor:${randomUUID()}` };
-      db.prepare('INSERT INTO visitor_rounds(id,name,seed,ruleset,created_at) VALUES(?,?,?,?,?)')
-        .run(round.id, round.name, round.seed, RULESET, new Date().toISOString());
+      const identity = normalizeVisitorIdentity(value);
+      const round = { id: randomUUID(), name: `${identity.name} ${identity.lastName}`, seed: `visitor:${randomUUID()}` };
+      db.prepare('INSERT INTO visitor_rounds(id,name,last_name,email,seed,ruleset,created_at) VALUES(?,?,?,?,?,?,?)')
+        .run(round.id, identity.name, identity.lastName, identity.email, round.seed, RULESET, new Date().toISOString());
       return round;
     },
     finish(id: string, value: unknown): RankingEntry {
@@ -42,7 +48,7 @@ export function openVisitorStore(path: string) {
       const hash = createHash('sha256').update(JSON.stringify(actions)).digest('hex');
       if (row.trace_hash !== null) {
         if (row.trace_hash !== hash) throw new VisitorError('Esta ronda ya tiene un resultado guardado.', 409);
-        return { id, name: String(row.name), score: Number(row.score), playedAt: String(row.played_at) };
+        return { id, name: publicName(row), score: Number(row.score), playedAt: String(row.played_at) };
       }
       let state = createGame(String(row.seed));
       for (const action of actions) {
@@ -58,12 +64,12 @@ export function openVisitorStore(path: string) {
       if (Number(updated.changes) === 0) {
         const saved = find.get(id)!;
         if (saved.trace_hash !== hash) throw new VisitorError('Esta ronda ya tiene un resultado guardado.', 409);
-        return { id, name: String(saved.name), score: Number(saved.score), playedAt: String(saved.played_at) };
+        return { id, name: publicName(saved), score: Number(saved.score), playedAt: String(saved.played_at) };
       }
-      return { id, name: String(row.name), score: state.score, playedAt };
+      return { id, name: publicName(row), score: state.score, playedAt };
     },
     ranking(): RankingEntry[] {
-      return db.prepare(`SELECT id,name,score,played_at AS playedAt FROM visitor_rounds
+      return db.prepare(`SELECT id,TRIM(name || ' ' || last_name) AS name,score,played_at AS playedAt FROM visitor_rounds
         WHERE ruleset=? AND score IS NOT NULL ORDER BY score DESC, played_at ASC, id ASC LIMIT 10`)
         .all(RULESET) as unknown as RankingEntry[];
     },
