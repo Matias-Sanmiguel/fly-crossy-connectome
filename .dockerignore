@@ -34,6 +34,8 @@ coverage
 /artifacts
 /python/datasets
 /scripts/experiments
+/fly_crossy_v3_flyselfdriving_recipe
+/AGENTS.md
 /data/visitor-ranking.sqlite*
 **/*.bak
 **/*.orig

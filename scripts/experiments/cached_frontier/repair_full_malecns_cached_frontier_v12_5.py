@@ -21,7 +21,7 @@ import torch.nn.functional as F
 def find_repo_root() -> Path:
     start = Path.cwd().resolve()
     for candidate in (start, *start.parents):
-        if (candidate / "python" / "fly_crossy").is_dir() and (candidate / "runs").exists():
+        if (candidate / "python" / "fly_crossy").is_dir() and (candidate / "package.json").is_file():
             return candidate
     raise SystemExit("ERROR: run this from inside the fly-crossy-connectome repository.")
 

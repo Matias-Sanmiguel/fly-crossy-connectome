@@ -259,11 +259,11 @@ async function verifyConnectomeAssets() {
   }
 
   const notice = await readFile(new URL('data/connectome/NOTICE.md', publicRoot), 'utf8');
-  const protocolPath = 'docs/experiments/reduced-connectome-v1.md';
+  const protocolPath = 'README.md#reduced-connectome-contract';
   if (!notice.includes(protocolPath)) {
     throw new Error(`Connectome notice must link to ${protocolPath}`);
   }
-  await readFile(new URL(`../${protocolPath}`, publicRoot));
+  await readFile(new URL('../README.md', publicRoot));
 
   const upstreamBuilder = 'https://github.com/cobanov/flyjump/blob/c08c86bc18efd8125964b1d2ca4fc1df59700f30/scripts/build-connectome.py';
   if (!notice.includes(upstreamBuilder)) {

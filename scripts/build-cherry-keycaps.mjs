@@ -42,7 +42,6 @@ const glb = Buffer.from(await new GLTFExporter().parseAsync(exported, { binary: 
 await mkdir(destination, { recursive: true });
 await writeFile(new URL('cherry-wasd.glb', destination), glb);
 await copyFile(new URL('LICENSE', staging), new URL('LICENSE', destination));
-await copyFile(new URL('README.md', staging), new URL('SOURCE-README.md', destination));
 const manifest = {
   version: 1, author: 'Santiago Castelo', license: 'MIT', sourceUrl: 'https://github.com/endeavoursc/cherry-mx-keycaps',
   sourceArchive: { file: basename(process.argv[2]), sha256: hash(await readFile(process.argv[2])) },

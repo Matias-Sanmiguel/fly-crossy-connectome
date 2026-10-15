@@ -23,6 +23,9 @@ outputs/
 .worktrees/
 .superpowers/
 .local/
+/AGENTS.md
+/docs/
+/fly_crossy_v3_flyselfdriving_recipe/
 
 # Editors and operating systems
 .idea/
@@ -38,10 +41,8 @@ Thumbs.db
 artifacts/
 python/datasets/
 
-# Training outputs stay local. Commit curated summaries under docs/experiments/.
-/runs/*
-!/runs/README.md
-# Historical audits in reports/ remain tracked; new reports are local by default.
+# Generated training output and reports stay local.
+/runs/
 /reports/
 *.pt
 *.pth
